@@ -11,14 +11,12 @@
                 <p>학술</p>
             </div>
         </div>
-
         <NotificationButton/>
-
         <nav>
             <ul>
                 <li class="1">
                     <i class="icon home"></i>
-                    <p>홈 (회원관리)</p>
+                    <p>홈(회원관리)</p>
                     <div></div>
                 </li>
                 <li class="2">
