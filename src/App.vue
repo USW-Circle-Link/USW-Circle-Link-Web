@@ -3,7 +3,6 @@
     <headBar />
     <div class = "main">
       <div class = "sidebar">
-        <NotificationButton />
         <SidebarMenu />
       </div>
       <div class="dashboard">
@@ -18,7 +17,6 @@
 import Dashboard from './components/Dashboard.vue';
 import SidebarMenu from './components/SidebarMenu.vue';
 import HeadBar from './components/HeadBar.vue';
-import NotificationButton from './components/NotificationButton.vue'
 import ClubInfo from './components/ClubInfo.vue'
 
 export default {
@@ -27,7 +25,6 @@ export default {
     Dashboard,
     SidebarMenu,
     HeadBar,
-    NotificationButton,
     ClubInfo
   },
 };

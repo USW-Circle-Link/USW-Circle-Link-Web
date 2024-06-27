@@ -11,6 +11,7 @@
                 <p>학술</p>
             </div>
         </div>
+        <NotificationButton/>
         <nav>
             <ul>
                 <li class="1">
@@ -41,8 +42,14 @@
 </template>
 
 <script>
+
+import NotificationButton from './NotificationButton.vue'
+
 export default {
-    name: 'SidebarMenu'
+    name: 'SidebarMenu',
+    components:{
+      NotificationButton,
+    },
 };
 
 </script>
@@ -51,8 +58,8 @@ export default {
 @import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
 
 .sidebar {
-    width: 202px;
-    height: 600px;
+    width: 240px;
+    height: 570px;
     color: #000;
     display: flex;
     flex-direction: column;
@@ -61,33 +68,10 @@ export default {
     border-radius: 16px;
 }
 
-.sidebar-header {
-    display: flex;
-    align-items: center;
-    margin: 35px 0px 0px 25px;
-    height: 35px;
-}
-
-.logo {
-    width: 17px;
-    height: 17px;
-    padding: 5px;
-    transform: scaleX(-1);
-}
-
-.title {
-    color: #FFC700;
-    font-family: "Jalnan";
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 14px; /* 100% */
-}
-
 .profile {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    margin-top: -25px;
 }
 
 .profile-img {
@@ -104,10 +88,10 @@ export default {
     font-family: Pretendard;
     font-size: 16px;
     font-style: normal;
-    font-weight: 600;
-    line-height: 10px; /* 100% */
-    letter-spacing: -0.4px;
-    margin: 35px 0px 12px 12px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: left;
+    margin: 30px 0px 10px 12px;
 }
 
 .profile-info p {
@@ -137,9 +121,12 @@ nav li {
 }
 
 li > p{
-    font-size: 15px;
+    width: 173px;
     font-family: Pretendard;
-    width: 135px;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 16px;
+    text-align: left;
 }
 
 nav li:hover {
@@ -152,13 +139,13 @@ nav li:hover div{
 
 nav li div{
     width: 7px;
-    height: 55px;
+    height: 65px;
 }
 
 nav .icon {
     width: 20px;
     height: 20px;
-    margin: 0px 10px 3.5px 30px;
+    margin: 0px 15px 3.5px 30px;
 }
 
 .home {
@@ -174,32 +161,31 @@ nav .icon {
 }
 
 .empty{
-    height: 210px;
+    height: 130px;
 }
 
 .line1{
     width: 100%;
     height: 1px;
-    background-color: #686868;
+    background-color: #999999;
 }
 
 .footer {
     display: flex;
     justify-content: center;
-    height: 60px;
     font-size: 12px;
     align-items: center;
 }
 
 .footer a {
-    color: #686868;
+    color: #999999;
     text-decoration: none;
 }
 
 .line2 {
     width: 1px;
     height: 13px;
-    background-color: #686868;
+    background-color: #bbbbbb;
     margin: 0px 20px 0px 20px;
 }
 

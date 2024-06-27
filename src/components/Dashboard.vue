@@ -1,6 +1,13 @@
 <template>
+  <div class="Dashboardhead">
+    <p>소속 동아리 회원 정보</p>
+    <button class="spreadsheets">
+      <p>구글 스프레드시트</p>
+      <img src="@/assets/spreadsheets.png">
+    </button>
+  </div>
     <div id="Dashboard" class="Dashboard">
-        <p>소속 동아리 회원 정보</p>
+
         <!-- 스프레트시트 URL 입력 -->
         <input v-model="sheetUrl" placeholder="Enter Google Sheets URL" @change="fetchSheetData" />
         <!-- 링크 제출 시 나타는 테이블 -->
@@ -63,13 +70,61 @@ export default {
 }
 
 .Dashboard p {
-    color: #000;
     font-family: Pretendard;
-    font-size: 18px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 600;
-    line-height: 18px; /* 100% */
-    letter-spacing: -0.9px;
+    padding: 20px;
+}
+
+.Dashboardhead{
+  width: 886px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #FFF;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.Dashboardhead p{
+  font-family: Pretendard;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: -0.05em;
+  text-align: left;
+  margin-left: 60px;
+}
+
+.spreadsheets{
+  width: 170px;
+  height: 60px;
+  display: flex;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #7FB08C;
+  justify-content: space-between;
+  border: none;
+  align-items: center;
+  margin-right: 60px;
+}
+
+.spreadsheets p{
+  font-family: Pretendard;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  text-align: left;
+  color: #FFFFFF;
+  margin-left: 7px;
+  margin-bottom: 13px;
+}
+
+.spreadsheets img{
+  margin-right: 7px;
 }
 
 .Dashboard h1{
