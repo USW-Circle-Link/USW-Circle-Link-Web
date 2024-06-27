@@ -11,7 +11,9 @@
                 <p>학술</p>
             </div>
         </div>
+
         <NotificationButton/>
+
         <nav>
             <ul>
                 <li class="1">
