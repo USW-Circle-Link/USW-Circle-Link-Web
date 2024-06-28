@@ -7,11 +7,13 @@
         <div class="profile">
             <img src="@/assets/flag_logo.jpeg" alt="FLAG Logo" class="profile-img" />
             <div class="profile-info">
+              <div class="profile-name">
                 <h2>FLAG</h2>
+                <NotificationButton/>
+              </div>
                 <p>학술</p>
             </div>
         </div>
-        <NotificationButton/>
         <nav>
             <ul>
                 <li class="1">
@@ -71,38 +73,43 @@ export default {
 .profile {
     display: flex;
     align-items: center;
-    margin-top: -25px;
+    flex-direction: column;
 }
 
 .profile-img {
-    width: 60px;
-    height: 60px;
+    width: 79px;
+    height: 79px;
     flex-shrink: 0;
     border-radius: 50%;
-    margin: 35px 0px 15px 25px;
+    margin: 10px 0px 10px 0px;
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.profile-name{
+  display: flex;
 }
 
 .profile-info h2 {
     color: #000;
     font-family: Pretendard;
-    font-size: 16px;
+    font-size: 24px;
     font-style: normal;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 16px;
-    text-align: left;
-    margin: 30px 0px 10px 12px;
+    text-align: center;
+    margin: 20px 0px 15px 35px;
 }
 
 .profile-info p {
     color: #000;
     font-family: Pretendard;
-    font-size: 12px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
+    text-align: center;
     line-height: 6px; /* 100% */
     letter-spacing: -0.3px;
-    margin: 0px 0px 12px 12px;
+    margin: 0px 0px 12px 0px;
 }
 
 nav ul {
@@ -139,7 +146,7 @@ nav li:hover div{
 
 nav li div{
     width: 7px;
-    height: 65px;
+    height: 55px;
 }
 
 nav .icon {
