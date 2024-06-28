@@ -1,7 +1,7 @@
 <template>
   <div class="Dashboardhead">
     <p>소속 동아리 회원 정보</p>
-    <button class="spreadsheets">
+    <button @click="fetchSheetData" class="spreadsheets">
       <p>구글 스프레드시트</p>
       <img src="@/assets/spreadsheets.png">
     </button>
@@ -9,7 +9,7 @@
     <div id="Dashboard" class="Dashboard">
 
         <!-- 스프레트시트 URL 입력 -->
-        <input v-model="sheetUrl" placeholder="Enter Google Sheets URL" @change="fetchSheetData" />
+        <input v-model="sheetUrl" placeholder="Enter Google Sheets URL" />
         <!-- 링크 제출 시 나타는 테이블 -->
         <div v-if="sheetData.length" class="memberlist">
             <table>
