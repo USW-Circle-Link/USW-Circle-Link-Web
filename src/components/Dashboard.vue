@@ -9,7 +9,7 @@
     <div id="Dashboard" class="Dashboard">
 
         <!-- 스프레트시트 URL 입력 -->
-        <input v-model="sheetUrl" placeholder="Enter Google Sheets URL" />
+        <spreadsheetLinkInput v-if="this.openModal == true" />
         <!-- 링크 제출 시 나타는 테이블 -->
         <div v-if="sheetData.length" class="memberlist">
             <table>
@@ -26,13 +26,18 @@
 
 <script>
 import axios from 'axios';
+import spreadsheetLinkInput from "@/components/spreadsheetLinkInput.vue";
 
 export default {
     name: 'Dashboard',
+    components:{
+      spreadsheetLinkInput,
+    },
     data() {
         return {
             sheetUrl: '',
             sheetData: [],
+            openModal: true,
         };
     },
     methods: {
