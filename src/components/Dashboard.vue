@@ -26,12 +26,12 @@
 
 <script>
 import axios from 'axios';
-import spreadsheetLinkInput from "@/components/spreadsheetLinkInput.vue";
+import SpreadsheetLinkInput from "@/components/SpreadsheetLinkInput.vue";
 
 export default {
     name: 'Dashboard',
     components:{
-      spreadsheetLinkInput,
+      SpreadsheetLinkInput,
     },
     data() {
         return {
@@ -39,55 +39,53 @@ export default {
           sheetData: [],
           isPopupVisible: false,
           isButtonVisible: true,
-          apiKey: 'AIzaSyCgARDETVZFsr3mu58W7gQyKdCX0HP0SLI'  // 여기서 API 키를 입력하세요.
+          apiKey: 'AIzaSyCgARDETVZFsr3mu58W7gQyKdCX0HP0SLI',  // 여기서 API 키를 입력하세요.
         };
     },
     methods: {
-        extractSheetId(url) {
-            const regex = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/;
-            const match = url.match(regex);
-            return match ? match[1] : null;
-        },
-        showPopup() {
-          this.isPopupVisible = true;
-        },
-        // 팝업 창을 닫음과 동시에 스프레드시트 데이터 불러오기
-        async closePopup() {
-          this.isPopupVisible = false;
-          const sheetId = this.extractSheetId(this.sheetUrl);
-          if (sheetId) {
-            const range = 'Sheet1!A1:D999'; // 필요한 범위를 지정하세요.
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${this.apiKey}`;
-            try {
-              const response = await axios.get(url);
-              console.log('데이터 블러오기 성공:', url);
-              this.sheetData = response.data.values;
-            } catch (error) {
-              console.error('Error fetching sheet data:', error);
-            }
-          }
-          // input 칸이 비어있으면 사라지지 않음
-          if(sheetId){
-            this.isButtonVisible = false;
-          }
-        },
-        async deleteRow(rowIndex) {
-          const sheetId = this.extractSheetId(this.sheetUrl);
-          //console.log(sheetId, rowIndex, this.apiKey);
-          if (sheetId) {
-            try {
-              const apiKey = 'AIzaSyCgARDETVZFsr3mu58W7gQyKdCX0HP0SLI';
-              const range = `Sheet1!A${rowIndex + 1}:D${rowIndex + 1}`; // 삭제할 행의 범위 지정
-              const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}:clear?key=${apiKey}`;
-              const response = await axios.post(url);
-              console.log('행 삭제 성공:', response.data);
-              this.items.splice(rowIndex, 1); // Vue.js 리스트에서 항목 삭제
-            } catch (error) {
-              console.error('행 삭제 실패:', error);
-            }
+      extractSheetId(url) {
+        const regex = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/;
+        const match = url.match(regex);
+        return match ? match[1] : null;
+      },
+      showPopup() {
+        this.isPopupVisible = true;
+      },
+      // 팝업 창을 닫음과 동시에 스프레드시트 데이터 불러오기
+      async closePopup() {
+        this.isPopupVisible = false;
+        const sheetId = this.extractSheetId(this.sheetUrl);
+        if (sheetId) {
+          const range = 'Sheet1!A1:D999'; // 필요한 범위를 지정하세요.
+          const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${this.apiKey}`;
+          try {
+            const response = await axios.get(url);
+            console.log('데이터 블러오기 성공:', url);
+            this.sheetData = response.data.values;
+          } catch (error) {
+            console.error('Error fetching sheet data:', error);
           }
         }
-    },
+        // input 칸이 비어있으면 사라지지 않음
+        if (sheetId) {
+          this.isButtonVisible = false;
+        }
+      },
+      async deleteRow(rowIndex) {
+        const sheetId = this.extractSheetId(this.sheetUrl);
+        if (sheetId) {
+          const range = `Sheet1!A${rowIndex + 1}:D${rowIndex + 1}`; // 필요한 범위를 지정하세요.
+          const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}:clear?key=${this.apiKey}`;
+          try {
+            const response = await axios.post(url);
+            console.log('데이터 블러오기 성공:', url);
+            this.sheetData = response.data.values;
+          } catch (error) {
+            console.error('Error fetching sheet data:', error);
+          }
+        }
+      }
+    }
 };
 </script>
 
@@ -165,12 +163,6 @@ export default {
 
 .Dashboard div{
     align-items: center;
-}
-
-.Dashboard input{
-    width: 880px;
-    margin: 30px 0px 30px 0px;
-    align-content: center;
 }
 
 table {

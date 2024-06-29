@@ -1,6 +1,7 @@
 <template>
   <div class="popup">
     <div class="popup-content">
+      <h1>구글 스프레드시트 링크를 입력하세요.</h1>
       <input v-model="value"  placeholder="Enter Google Sheets URL" />
       <button @click="sendInputToParent" >입력</button>
     </div>
@@ -35,14 +36,30 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+  background-color: rgba(0, 0, 0, 0.3); /* 반투명 배경 */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .popup-content{
+  width: 900px;
   display: flex;
   flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+
+.popup-content input{
+  width: 800px;
+  height: 40px;
+  margin: 30px 0px 30px 0px;
+  align-content: center;
+  font-size: 14px;
+  border: 0;
+  border-radius: 15px;
+  outline: none;
+  padding-left: 10px;
+  background-color: rgb(233, 233, 233);
 }
 </style>

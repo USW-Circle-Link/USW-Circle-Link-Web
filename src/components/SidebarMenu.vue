@@ -16,17 +16,17 @@
         </div>
         <nav>
             <ul>
-                <li class="1">
+                <li class="first-item">
                     <i class="icon home"></i>
                     <p>홈(회원관리)</p>
                     <div></div>
                 </li>
-                <li class="2">
+                <li class="seconds-item">
                     <i class="icon mail"></i>
                     <p>동아리 소개/모집</p>
                     <div></div>
                 </li>
-                <li class="3">
+                <li class="third-item">
                     <i class="icon clipboard"></i>
                     <p>공지사항</p>
                     <div></div>
@@ -142,6 +142,14 @@ nav li:hover {
 
 nav li:hover div{
     background-color: #FFC700;
+}
+
+.first-item{
+  background-color: #fff;
+}
+
+.first-item div{
+  background-color: #FFC700;
 }
 
 nav li div{
