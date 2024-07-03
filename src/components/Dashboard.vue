@@ -51,10 +51,15 @@ export default {
       showPopup() {
         this.isPopupVisible = true;
       },
-      // 팝업 창을 닫음과 동시에 스프레드시트 데이터 불러오기
+      // 팝업 창을 닫음과 동시에 스프레드시트 데이터 불러오고 post 통신으로 회원 정보를 서버에 전달
       async closePopup() {
         this.isPopupVisible = false;
         const sheetId = this.extractSheetId(this.sheetUrl);
+
+        const postData = {
+          sheetData: this.sheetData
+        };
+
         if (sheetId) {
           const range = 'Sheet1!A1:D999'; // 필요한 범위를 지정하세요.
           const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${this.apiKey}`;
@@ -70,21 +75,29 @@ export default {
         if (sheetId) {
           this.isButtonVisible = false;
         }
-      },
-      async deleteRow(rowIndex) {
-        const sheetId = this.extractSheetId(this.sheetUrl);
-        if (sheetId) {
-          const range = `Sheet1!A${rowIndex + 1}:D${rowIndex + 1}`; // 필요한 범위를 지정하세요.
-          const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}:clear?key=${this.apiKey}`;
-          try {
-            const response = await axios.post(url);
-            console.log('데이터 블러오기 성공:', url);
-            this.sheetData = response.data.values;
-          } catch (error) {
-            console.error('Error fetching sheet data:', error);
-          }
+
+        try {
+          const response = await axios.post('https://httpbin.org/api/data', postData);
+          console.log('Data submitted successfully:', response.data);
+        } catch (error) {
+          console.error('Error submitting data:', error);
         }
-      }
+      },
+
+      // async deleteRow(rowIndex) {
+      //   const sheetId = this.extractSheetId(this.sheetUrl);
+      //   if (sheetId) {
+      //     const range = `Sheet1!A${rowIndex + 1}:D${rowIndex + 1}`; // 필요한 범위를 지정하세요.
+      //     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}:clear?key=${this.apiKey}`;
+      //     try {
+      //       const response = await axios.post(url);
+      //       console.log('데이터 블러오기 성공:', url);
+      //       this.sheetData = response.data.values;
+      //     } catch (error) {
+      //       console.error('Error fetching sheet data:', error);
+      //     }
+      //   }
+      // }
     }
 };
 </script>
