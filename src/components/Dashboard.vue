@@ -1,4 +1,5 @@
 <template>
+  <ClubInfo/>
   <div class="Dashboardhead">
     <p>소속 동아리 회원 정보</p>
     <button v-if="isButtonVisible" @click="showPopup" class="spreadsheets">
@@ -27,10 +28,12 @@
 <script>
 import axios from 'axios';
 import SpreadsheetLinkInput from "@/components/SpreadsheetLinkInput.vue";
+import ClubInfo from "@/components/ClubInfo.vue";
 
 export default {
     name: 'Dashboard',
     components:{
+      ClubInfo,
       SpreadsheetLinkInput,
     },
     data() {

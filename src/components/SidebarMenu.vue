@@ -15,23 +15,23 @@
             </div>
         </div>
         <nav>
-            <ul>
-                <li class="first-item">
-                    <i class="icon home"></i>
-                    <p>홈(회원관리)</p>
-                    <div></div>
-                </li>
-                <li class="seconds-item">
-                    <i class="icon mail"></i>
-                    <p>동아리 소개/모집</p>
-                    <div></div>
-                </li>
-                <li class="third-item">
-                    <i class="icon clipboard"></i>
-                    <p>공지사항</p>
-                    <div></div>
-                </li>
-            </ul>
+          <ul>
+            <li @click="navigateTo('home')">
+              <i class="icon home"></i>
+              <p>홈(회원관리)</p>
+              <div></div>
+            </li>
+            <li @click="navigateTo('intro')">
+              <i class="icon mail"></i>
+              <p>동아리 소개/모집</p>
+              <div></div>
+            </li>
+            <li @click="navigateTo('notice')">
+              <i class="icon clipboard"></i>
+              <p>공지사항</p>
+              <div></div>
+            </li>
+          </ul>
         </nav>
         <div class="empty"></div>
         <div class="line1"></div>
@@ -52,6 +52,15 @@ export default {
     components:{
       NotificationButton,
     },
+    methods: {
+      navigateTo(routeName) {
+        this.$router.push({ name: routeName }).catch(err => {
+          if (err.name !== 'NavigationDuplicated') {
+            throw err;
+          }
+        });
+      }
+    }
 };
 
 </script>
