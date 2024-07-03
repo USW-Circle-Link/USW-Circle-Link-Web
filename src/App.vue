@@ -12,7 +12,7 @@
     </div>
   </div>
 </template>
-
+<!--test-->
 <script>
 import Dashboard from './components/Dashboard.vue';
 import SidebarMenu from './components/SidebarMenu.vue';
