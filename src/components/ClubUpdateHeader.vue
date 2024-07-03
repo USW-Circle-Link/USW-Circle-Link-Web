@@ -1,5 +1,6 @@
 <template>
   <div class="ClubUpdateHeader">
+    <h2>동아리 소개 수정</h2>
     <div class="head">
       <p>소개 & 모집글 작성</p>
       <div class="empty"></div>

@@ -9,7 +9,6 @@
             <div class="profile-info">
               <div class="profile-name">
                 <h2>FLAG</h2>
-                <NotificationButton/>
               </div>
                 <p>학술</p>
             </div>
@@ -45,12 +44,10 @@
 
 <script>
 
-import NotificationButton from './NotificationButton.vue'
-
 export default {
     name: 'SidebarMenu',
     components:{
-      NotificationButton,
+
     },
     methods: {
       navigateTo(routeName) {
