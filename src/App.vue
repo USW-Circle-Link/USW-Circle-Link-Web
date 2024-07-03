@@ -20,7 +20,8 @@ export default {
   name: 'App',
   components:{
     SidebarMenu,
-    HeadBar
+    HeadBar,
+
   },
 };
 </script>
@@ -51,4 +52,6 @@ body {
   flex-direction: column;
   display: flex;
 }
+
+
 </style>

@@ -2,12 +2,16 @@
         <div class="header">
             <img src="@/assets/dongurami_logo.png" alt="Dongurami Logo" class="logo" />
             <h1 class="title">동구라미</h1>
+            <NotificationButton/>
         </div>
 </template>
 
 <script>
+import NotificationButton from "@/components/NotificationButton.vue";
+
 export default {
-    name: 'Headbar'
+    name: 'Headbar',
+  components: {NotificationButton}
 };
 
 
