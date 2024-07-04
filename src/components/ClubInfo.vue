@@ -13,6 +13,7 @@
                 <p>010-1234-5678</p>
             </div>
             <div class="instaName">
+
                 <div class="icon insta"></div>
                 <p>@INSTAGRAM</p>
             </div>
