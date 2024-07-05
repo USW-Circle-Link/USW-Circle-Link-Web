@@ -11,7 +11,7 @@
       </div>
       <button type="submit" @click.prevent="login">로그인</button>
     </form>
-    <button @click="navigateToApp">Go to Main App</button>
+    <button @click="navigateToApp">다음 버튼 누르삼 (관리자 계정으로 로그인 되었다고 가정, 아직 개발중임 낑낑..)</button>
   </div>
 </template>
 
