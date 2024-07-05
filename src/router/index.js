@@ -3,18 +3,31 @@ import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
     {
         path: '/',
-        name: 'home',
-        component: () => import('../components/Dashboard.vue'),
+        name: 'login',
+        component: () => import('../components/login/Login.vue'),
     },
     {
-        path: '/intro',
-        name: 'intro',
-        component: () => import('../components/intro.vue'),
-    },
-    {
-        path: '/notice',
-        name: 'notice',
-        component: () => import('../components/notice.vue'),
+        path: '/main',
+        name: 'main',
+        component: () => import('../components/Main.vue'),
+        redirect: { name: 'dashboard' },
+        children: [
+            {
+                path: '',
+                name: 'dashboard',
+                component: () => import('../components/Dashboard.vue'),
+            },
+            {
+                path: 'intro',
+                name: 'intro',
+                component: () => import('../components/intro.vue'),
+            },
+            {
+                path: 'notice',
+                name: 'notice',
+                component: () => import('../components/notice.vue'),
+            },
+        ]
     },
 ];
 

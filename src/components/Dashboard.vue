@@ -1,28 +1,27 @@
 <template>
-  <ClubInfo/>
-  <div class="Dashboardhead">
-    <p>소속 동아리 회원 정보</p>
-    <button v-if="isButtonVisible" @click="showPopup" class="spreadsheets">
-      <p>구글 스프레드시트</p>
-      <img src="@/assets/spreadsheets.png">
-    </button>
-  </div>
-    <div id="Dashboard" class="Dashboard">
-
-        <!-- 스프레트시트 URL 입력 -->
-        <spreadsheetLinkInput @update:inputValue="sheetUrl = $event" v-if="isPopupVisible"  @close="closePopup" />
-        <!-- 링크 제출 시 나타는 테이블 -->
-        <div v-if="sheetData.length" class="memberlist">
-            <table>
-                <tbody>
-                    <tr v-for="(row, rowIndex) in sheetData" :key="rowIndex">
-                        <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
-                        <td><button class="Expulsion" @click="deleteRow(rowIndex)">퇴출</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+  <div>
+    <ClubInfo />
+    <div class="Dashboardhead">
+      <p>소속 동아리 회원 정보</p>
+      <button v-if="isButtonVisible" @click="showPopup" class="spreadsheets">
+        <p>구글 스프레드시트</p>
+        <img src="@/assets/spreadsheets.png" />
+      </button>
     </div>
+    <div id="Dashboard" class="Dashboard">
+      <spreadsheetLinkInput @update:inputValue="sheetUrl = $event" v-if="isPopupVisible" @close="closePopup" />
+      <div v-if="sheetData.length" class="memberlist">
+        <table>
+          <tbody>
+          <tr v-for="(row, rowIndex) in sheetData" :key="rowIndex">
+            <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
+            <td><button class="Expulsion" @click="deleteRow(rowIndex)">퇴출</button></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -31,96 +30,80 @@ import SpreadsheetLinkInput from "@/components/SpreadsheetLinkInput.vue";
 import ClubInfo from "@/components/ClubInfo.vue";
 
 export default {
-    name: 'Dashboard',
-    components:{
-      ClubInfo,
-      SpreadsheetLinkInput,
+  name: 'Dashboard',
+  components: {
+    ClubInfo,
+    SpreadsheetLinkInput,
+  },
+  data() {
+    return {
+      sheetUrl: '',
+      sheetData: [],
+      isPopupVisible: false,
+      isButtonVisible: true,
+      apiKey: 'AIzaSyCgARDETVZFsr3mu58W7gQyKdCX0HP0SLI',
+    };
+  },
+  methods: {
+    extractSheetId(url) {
+      const regex = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/;
+      const match = url.match(regex);
+      return match ? match[1] : null;
     },
-    data() {
-        return {
-          sheetUrl: '',
-          sheetData: [],
-          isPopupVisible: false,
-          isButtonVisible: true,
-          apiKey: 'AIzaSyCgARDETVZFsr3mu58W7gQyKdCX0HP0SLI',  // 여기서 API 키를 입력하세요.
-        };
+    showPopup() {
+      this.isPopupVisible = true;
     },
-    methods: {
-      extractSheetId(url) {
-        const regex = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/;
-        const match = url.match(regex);
-        return match ? match[1] : null;
-      },
-      showPopup() {
-        this.isPopupVisible = true;
-      },
-      // 팝업 창을 닫음과 동시에 스프레드시트 데이터 불러오고 post 통신으로 회원 정보를 서버에 전달
-      async closePopup() {
-        this.isPopupVisible = false;
-        const sheetId = this.extractSheetId(this.sheetUrl);
+    async closePopup() {
+      this.isPopupVisible = false;
+      const sheetId = this.extractSheetId(this.sheetUrl);
 
-        const postData = {
-          sheetData: this.sheetData
-        };
+      const postData = {
+        sheetData: this.sheetData
+      };
 
-        if (sheetId) {
-          const range = 'Sheet1!A1:D999'; // 필요한 범위를 지정하세요.
-          const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${this.apiKey}`;
-          try {
-            const response = await axios.get(url);
-            console.log('데이터 블러오기 성공:', url);
-            this.sheetData = response.data.values;
-          } catch (error) {
-            console.error('Error fetching sheet data:', error);
-          }
-        }
-        // input 칸이 비어있으면 사라지지 않음
-        if (sheetId) {
-          this.isButtonVisible = false;
-        }
-
+      if (sheetId) {
+        const range = 'Sheet1!A1:D999';
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${this.apiKey}`;
         try {
-          const response = await axios.post('https://httpbin.org/api/data', postData);
-          console.log('Data submitted successfully:', response.data);
+          const response = await axios.get(url);
+          console.log('데이터 블러오기 성공:', url);
+          this.sheetData = response.data.values;
         } catch (error) {
-          console.error('Error submitting data:', error);
+          console.error('Error fetching sheet data:', error);
         }
-      },
+      }
 
-      // async deleteRow(rowIndex) {
-      //   const sheetId = this.extractSheetId(this.sheetUrl);
-      //   if (sheetId) {
-      //     const range = `Sheet1!A${rowIndex + 1}:D${rowIndex + 1}`; // 필요한 범위를 지정하세요.
-      //     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}:clear?key=${this.apiKey}`;
-      //     try {
-      //       const response = await axios.post(url);
-      //       console.log('데이터 블러오기 성공:', url);
-      //       this.sheetData = response.data.values;
-      //     } catch (error) {
-      //       console.error('Error fetching sheet data:', error);
-      //     }
-      //   }
-      // }
-    }
+      if (sheetId) {
+        this.isButtonVisible = false;
+      }
+
+      try {
+        const response = await axios.post('https://httpbin.org/api/data', postData);
+        console.log('Data submitted successfully:', response.data);
+      } catch (error) {
+        console.error('Error submitting data:', error);
+      }
+    },
+  }
 };
 </script>
 
 <style>
 .Dashboard{
-    width: 886px;
-    background: #fff;
-    border-radius: 8px;
-    align-items: center;
-    align-content: center;
-    text-align: center;
+  width: 886px;
+  background: #fff;
+  border-radius: 8px;
+  align-items: center;
+  align-content: center;
+  text-align: center;
 }
 
 .Dashboard p {
-    font-family: Pretendard;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 600;
-    padding: 20px;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  padding: 20px;
 }
 
 .Dashboardhead{
@@ -174,28 +157,28 @@ export default {
 }
 
 .Dashboard h1{
-    text-align: center;
+  text-align: center;
 }
 
 .Dashboard div{
-    align-items: center;
+  align-items: center;
 }
 
 table {
-    width: 860px;
-    border-spacing: 0px 8px;
-    margin: 0 auto;
+  width: 860px;
+  border-spacing: 0px 8px;
+  margin: 0 auto;
 }
 
 td {
-    text-align: center;
-    height: 46px;
-    width: 215px;
+  text-align: center;
+  height: 46px;
+  width: 215px;
 }
 
 td:first-child{
-    border-radius: 8px 0px 0px 8px;
-    background-color: #F0F2F5;
+  border-radius: 8px 0px 0px 8px;
+  background-color: #F0F2F5;
 }
 
 td:nth-last-child(4){
@@ -207,9 +190,9 @@ td:nth-last-child(3){
 }
 
 td:nth-last-child(2){
-    border-radius: 0px 8px 8px 0px;
-    padding-right: 20px;
-    background-color: #F0F2F5;
+  border-radius: 0px 8px 8px 0px;
+  padding-right: 20px;
+  background-color: #F0F2F5;
 }
 
 td:last-child{
@@ -218,14 +201,14 @@ td:last-child{
 }
 
 .Expulsion{
-    background-color: #e57373;
-    width: 56px;
-    height: 46px;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-left: 8px;
+  background-color: #e57373;
+  width: 56px;
+  height: 46px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-left: 8px;
 }
 
 </style>
