@@ -13,18 +13,25 @@
       <ul>
         <li @click="navigateTo('dashboard')">
           <i class="icon home"></i>
-          <p>홈(회원관리)</p>
-          <div></div>
+          <p class="menu">홈(회원관리)</p>
+          <div class="yellowLine"></div>
         </li>
-        <li @click="navigateTo('intro')">
-          <i class="icon mail"></i>
-          <p>동아리 소개/모집</p>
-          <div></div>
+        <li class="list2" @click="navigateTo('intro')">
+          <div class="top">
+            <i class="icon mail"></i>
+            <p class="menu">동아리 소개/모집</p>
+            <div class="yellowLine"></div>
+          </div>
+          <div class="bottom">
+            <a>- 소개 & 모집글 작성</a>
+            <a>- 지원서 관리</a>
+            <a>- 지원자 합격 관리</a>
+          </div>
         </li>
         <li @click="navigateTo('notice')">
           <i class="icon clipboard"></i>
-          <p>공지사항</p>
-          <div></div>
+          <p class="menu">공지사항</p>
+          <div class="yellowLine"></div>
         </li>
       </ul>
     </nav>
@@ -124,7 +131,38 @@ nav li {
   height: 55px;
 }
 
-li > p {
+.list2{
+  width: 240px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+}
+
+.top{
+  width: 240px;
+  height: 55px;
+  display: flex;
+  align-content: center;
+  align-items: center;
+}
+
+.bottom{
+  width: 240px;
+  height: 88px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bottom a{
+  font-size: 12px;
+  margin: 10px 0 0 60px;
+}
+
+.bottom a:hover{
+  text-decoration: underline;
+}
+
+.menu {
   width: 173px;
   font-family: Pretendard;
   font-size: 18px;
@@ -137,19 +175,19 @@ nav li:hover {
   background-color: #fff;
 }
 
-nav li:hover div {
+nav li:hover .yellowLine {
   background-color: #FFC700;
 }
 
-.first-item {
-  background-color: #fff;
-}
-
-.first-item div {
+.first-item .yellowLine {
   background-color: #FFC700;
 }
 
-nav li div {
+nav .list2:hover .top{
+  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+}
+
+nav li .yellowLine {
   width: 7px;
   height: 55px;
 }
