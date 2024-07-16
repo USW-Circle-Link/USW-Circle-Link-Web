@@ -27,6 +27,11 @@ const routes = [
                 name: 'notice',
                 component: () => import('../components/notice.vue'),
             },
+            {
+                path: 'passer-management',
+                name: 'passer-management',
+                component: () => import('../components/PasserManagement.vue'),
+            }
         ]
     },
 ];

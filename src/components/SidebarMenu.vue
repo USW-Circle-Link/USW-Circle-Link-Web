@@ -16,8 +16,8 @@
           <p class="menu">홈(회원관리)</p>
           <div class="yellowLine"></div>
         </li>
-        <li class="list2" @click="navigateTo('intro')">
-          <div class="top">
+        <li class="list2">
+          <div class="top" @click="navigateTo('intro')">
             <i class="icon mail"></i>
             <p class="menu">동아리 소개/모집</p>
             <div class="yellowLine"></div>
@@ -25,7 +25,7 @@
           <div class="bottom">
             <a>- 소개 & 모집글 작성</a>
             <a>- 지원서 관리</a>
-            <a>- 지원자 합격 관리</a>
+            <a @click.stop="navigateTo('passer-management')">- 지원자 합격 관리</a>
           </div>
         </li>
         <li @click="navigateTo('notice')">
@@ -131,14 +131,14 @@ nav li {
   height: 55px;
 }
 
-.list2{
+.list2 {
   width: 240px;
   height: 140px;
   display: flex;
   flex-direction: column;
 }
 
-.top{
+.top {
   width: 240px;
   height: 55px;
   display: flex;
@@ -146,19 +146,19 @@ nav li {
   align-items: center;
 }
 
-.bottom{
+.bottom {
   width: 240px;
   height: 88px;
   display: flex;
   flex-direction: column;
 }
 
-.bottom a{
+.bottom a {
   font-size: 12px;
   margin: 10px 0 0 60px;
 }
 
-.bottom a:hover{
+.bottom a:hover {
   text-decoration: underline;
 }
 
@@ -183,7 +183,7 @@ nav li:hover .yellowLine {
   background-color: #FFC700;
 }
 
-nav .list2:hover .top{
+nav .list2:hover .top {
   box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
@@ -238,7 +238,7 @@ nav .icon {
   background-color: #bbbbbb;
   margin: 0px 20px 0px 20px;
 }
-Y
+
 .footer a:hover {
   text-decoration: underline;
 }
