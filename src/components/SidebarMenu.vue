@@ -21,7 +21,7 @@
             <a>- 동아리 정보 수정</a>
           </div>
         </li>
-        <li class="list2" @click="navigateTo('intro')">
+        <li class="list2">
           <div class="top">
             <i class="icon mail"></i>
             <p class="menu">동아리 소개&모집</p>
@@ -29,14 +29,16 @@
           </div>
           <div class="bottom">
             <a>- 동아리소개/모집글</a>
-            <a>- 소개/ 모집글작성</a>
+            <a @click="navigateTo('intro')">- 소개/모집글작성</a>
             <a>- 지원자 합격 처리</a>
           </div>
         </li>
-        <li @click="navigateTo('notice')">
-          <i class="icon clipboard"></i>
-          <p class="menu">공지사항</p>
-          <div class="yellowLine"></div>
+        <li class="list3" @click="navigateTo('notice')">
+          <div class="top">
+            <i class="icon clipboard"></i>
+            <p class="menu">공지사항</p>
+            <div class="yellowLine"></div>
+          </div>
         </li>
       </ul>
     </nav>
@@ -121,6 +123,10 @@ export default {
   margin: 0px 0px 12px 0px;
 }
 
+nav{
+  height: 370px;
+}
+
 nav ul {
   list-style: none;
   padding: 0;
@@ -138,16 +144,51 @@ nav li {
 
 .list1{
   width: 240px;
-  height: 100px;
+  height: 55px;
   display: flex;
   flex-direction: column;
+  transition-property: height;
+  transition-duration: 0.2s;
+}
+
+.list1 a{
+  visibility: hidden;
+}
+
+.list1:hover{
+  height: 100px;
+}
+
+.list1:hover a{
+  visibility: visible;
 }
 
 .list2{
   width: 240px;
-  height: 140px;
+  height: 55px;
   display: flex;
   flex-direction: column;
+  transition-property: height;
+  transition-duration: 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.list2 a{
+  visibility: hidden;
+}
+
+.list2:hover{
+  height: 150px;
+}
+
+.list2:hover a{
+  visibility: visible;
+}
+
+.list3{
+  position: relative;
+  z-index: 100;
 }
 
 .top{
@@ -163,6 +204,7 @@ nav li {
   height: 88px;
   display: flex;
   flex-direction: column;
+  margin-top: 7px;
 }
 
 .bottom a{
@@ -228,7 +270,7 @@ nav .icon {
 }
 
 .empty {
-  height: 130px;
+  height: 10px;
 }
 
 .line1 {
