@@ -11,21 +11,26 @@
     </div>
     <nav>
       <ul>
-        <li @click="navigateTo('dashboard')">
-          <i class="icon home"></i>
-          <p class="menu">홈(회원관리)</p>
-          <div class="yellowLine"></div>
+        <li class="list1" @click="navigateTo('dashboard')">
+          <div class="top">
+            <i class="icon home"></i>
+            <p class="menu">홈(회원관리)</p>
+            <div class="yellowLine"></div>
+          </div>
+          <div class="bottom">
+            <a>- 동아리 정보 수정</a>
+          </div>
         </li>
         <li class="list2" @click="navigateTo('intro')">
           <div class="top">
             <i class="icon mail"></i>
-            <p class="menu">동아리 소개/모집</p>
+            <p class="menu">동아리 소개&모집</p>
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-            <a>- 소개 & 모집글 작성</a>
-            <a>- 지원서 관리</a>
-            <a>- 지원자 합격 관리</a>
+            <a>- 동아리소개/모집글</a>
+            <a>- 소개/ 모집글작성</a>
+            <a>- 지원자 합격 처리</a>
           </div>
         </li>
         <li @click="navigateTo('notice')">
@@ -65,7 +70,7 @@ export default {
 
 .sidebar {
   width: 240px;
-  height: 570px;
+  height: 700px;
   color: #000;
   display: flex;
   flex-direction: column;
@@ -100,8 +105,8 @@ export default {
   font-style: normal;
   font-weight: 600;
   line-height: 16px;
-  text-align: center;
-  margin: 20px 0px 15px 35px;
+  text-alin: center;
+  margin: 20px 0px 15px 0px;
 }
 
 .profile-info p {
@@ -129,6 +134,13 @@ nav li {
   cursor: pointer;
   margin: 0px 0px 0px 0px;
   height: 55px;
+}
+
+.list1{
+  width: 240px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
 }
 
 .list2{
@@ -186,6 +198,11 @@ nav li:hover .yellowLine {
 nav .list2:hover .top{
   box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
+
+nav .list1:hover .top{
+  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+}
+
 
 nav li .yellowLine {
   width: 7px;
