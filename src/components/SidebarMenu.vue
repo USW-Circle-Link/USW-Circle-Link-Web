@@ -11,27 +11,34 @@
     </div>
     <nav>
       <ul>
-        <li @click="navigateTo('dashboard')">
-          <i class="icon home"></i>
-          <p class="menu">홈(회원관리)</p>
-          <div class="yellowLine"></div>
-        </li>
-        <li class="list2">
-          <div class="top" @click="navigateTo('intro')">
-            <i class="icon mail"></i>
-            <p class="menu">동아리 소개/모집</p>
+        <li class="list1" @click="navigateTo('dashboard')">
+          <div class="top">
+            <i class="icon home"></i>
+            <p class="menu">홈(회원관리)</p>
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-            <a>- 소개 & 모집글 작성</a>
-            <a>- 지원서 관리</a>
-            <a @click.stop="navigateTo('passer-management')">- 지원자 합격 관리</a>
+            <a>- 동아리 정보 수정</a>
           </div>
         </li>
-        <li @click="navigateTo('notice')">
-          <i class="icon clipboard"></i>
-          <p class="menu">공지사항</p>
-          <div class="yellowLine"></div>
+        <li class="list2">
+          <div class="top">
+            <i class="icon mail"></i>
+            <p class="menu">동아리 소개&모집</p>
+            <div class="yellowLine"></div>
+          </div>
+          <div class="bottom">
+            <a>- 동아리소개/모집글</a>
+            <a @click="navigateTo('intro')">- 소개/모집글작성</a>
+            <a>- 지원자 합격 처리</a>
+          </div>
+        </li>
+        <li class="list3" @click="navigateTo('notice')">
+          <div class="top">
+            <i class="icon clipboard"></i>
+            <p class="menu">공지사항</p>
+            <div class="yellowLine"></div>
+          </div>
         </li>
       </ul>
     </nav>
@@ -65,7 +72,7 @@ export default {
 
 .sidebar {
   width: 240px;
-  height: 570px;
+  height: 700px;
   color: #000;
   display: flex;
   flex-direction: column;
@@ -100,8 +107,8 @@ export default {
   font-style: normal;
   font-weight: 600;
   line-height: 16px;
-  text-align: center;
-  margin: 20px 0px 15px 35px;
+  text-alin: center;
+  margin: 20px 0px 15px 0px;
 }
 
 .profile-info p {
@@ -114,6 +121,10 @@ export default {
   line-height: 6px; /* 100% */
   letter-spacing: -0.3px;
   margin: 0px 0px 12px 0px;
+}
+
+nav{
+  height: 370px;
 }
 
 nav ul {
@@ -131,14 +142,56 @@ nav li {
   height: 55px;
 }
 
-.list2 {
+.list1{
   width: 240px;
-  height: 140px;
+  height: 55px;
   display: flex;
   flex-direction: column;
+  transition-property: height;
+  transition-duration: 0.2s;
 }
 
-.top {
+.list1 a{
+  visibility: hidden;
+}
+
+.list1:hover{
+  height: 100px;
+}
+
+.list1:hover a{
+  visibility: visible;
+}
+
+.list2{
+  width: 240px;
+  height: 55px;
+  display: flex;
+  flex-direction: column;
+  transition-property: height;
+  transition-duration: 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.list2 a{
+  visibility: hidden;
+}
+
+.list2:hover{
+  height: 150px;
+}
+
+.list2:hover a{
+  visibility: visible;
+}
+
+.list3{
+  position: relative;
+  z-index: 100;
+}
+
+.top{
   width: 240px;
   height: 55px;
   display: flex;
@@ -146,19 +199,20 @@ nav li {
   align-items: center;
 }
 
-.bottom {
+.bottom{
   width: 240px;
   height: 88px;
   display: flex;
   flex-direction: column;
+  margin-top: 7px;
 }
 
-.bottom a {
+.bottom a{
   font-size: 12px;
   margin: 10px 0 0 60px;
 }
 
-.bottom a:hover {
+.bottom a:hover{
   text-decoration: underline;
 }
 
@@ -183,9 +237,14 @@ nav li:hover .yellowLine {
   background-color: #FFC700;
 }
 
-nav .list2:hover .top {
+nav .list2:hover .top{
   box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
+
+nav .list1:hover .top{
+  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+}
+
 
 nav li .yellowLine {
   width: 7px;
@@ -211,7 +270,7 @@ nav .icon {
 }
 
 .empty {
-  height: 130px;
+  height: 10px;
 }
 
 .line1 {
