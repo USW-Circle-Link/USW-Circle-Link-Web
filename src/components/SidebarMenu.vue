@@ -4,9 +4,9 @@
       <img src="@/assets/flag_logo.jpeg" alt="FLAG Logo" class="profile-img" />
       <div class="profile-info">
         <div class="profile-name">
-          <h2>FLAG</h2>
+          <h2>{{clubname}}</h2>
         </div>
-        <p>학술</p>
+        <p>{{clubtype}}</p>
       </div>
     </div>
     <nav>
@@ -55,6 +55,12 @@
 <script>
 export default {
   name: 'SidebarMenu',
+  data(){
+    return{
+      clubname: 'FLAG',
+      clubtype: '학술'
+    }
+  },
   methods: {
     navigateTo(routeName) {
       this.$router.push({ name: routeName }).catch(err => {
