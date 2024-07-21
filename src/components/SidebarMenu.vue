@@ -28,7 +28,7 @@
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-            <a>- 동아리소개/모집글</a>
+            <router-link :to="{ path: 'main/new-page' }" target="_blank">- 동아리소개/모집글</router-link>
             <a @click="navigateTo('intro')">- 소개/모집글작성</a>
             <a>- 지원자 합격 처리</a>
           </div>
@@ -211,6 +211,15 @@ nav li {
   display: flex;
   flex-direction: column;
   margin-top: 7px;
+}
+
+.bottom a{
+  text-decoration: none;
+  color: #000000;
+}
+
+router-link{
+  text-decoration: none;
 }
 
 .bottom a{

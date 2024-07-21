@@ -7,6 +7,11 @@ const routes = [
         component: () => import('../components/login/Login.vue'),
     },
     {
+        path: '/',
+        name: 'new-page',
+        component: () => import('../components/Dashboard.vue'),
+    },
+    {
         path: '/main',
         name: 'main',
         component: () => import('../components/Main.vue'),
@@ -27,6 +32,11 @@ const routes = [
                 name: 'notice',
                 component: () => import('../components/notice.vue'),
             },
+            {
+                path: 'new-page',
+                name: 'new-page',
+                component: () => import('../components/ClubInfo.vue'),
+            }
         ]
     },
 ];
