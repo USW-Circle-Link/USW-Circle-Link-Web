@@ -4,21 +4,21 @@
       <img src="@/assets/flag_logo.jpeg" alt="FLAG Logo" class="profile-img" />
       <div class="profile-info">
         <div class="profile-name">
-          <h2>{{clubname}}</h2>
+          <h2>FLAG</h2>
         </div>
-        <p>{{clubtype}}</p>
+        <p>학술</p>
       </div>
     </div>
     <nav>
       <ul>
-        <li class="list1">
-          <div class="top" @click="navigateTo('dashboard')">
+        <li class="list1" @click="navigateTo('dashboard')">
+          <div class="top">
             <i class="icon home"></i>
             <p class="menu">홈(회원관리)</p>
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-            <a @click.prevent="navigateTo('profileedit')">- 동아리 정보 수정</a>
+            <a>- 동아리 정보 수정</a>
           </div>
         </li>
         <li class="list2">
@@ -28,14 +28,9 @@
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-<<<<<<< HEAD
-            <router-link :to="{ path: 'main/new-page' }" target="_blank">- 동아리소개/모집글</router-link>
-            <a @click="navigateTo('intro')">- 소개/모집글작성</a>
-=======
             <a>- 동아리소개/모집글</a>
-            <a @click.prevent="navigateTo('intro')">- 소개/모집글작성</a>
->>>>>>> kim
-            <a>- 지원자 합격 처리</a>
+            <a @click="navigateTo('intro')">- 소개/모집글작성</a>
+            <a @click.stop="navigateTo('passer-management')">- 지원자 합격 관리</a>
           </div>
         </li>
         <li class="list3" @click="navigateTo('notice')">
@@ -60,12 +55,6 @@
 <script>
 export default {
   name: 'SidebarMenu',
-  data(){
-    return{
-      clubname: 'FLAG',
-      clubtype: '학술'
-    }
-  },
   methods: {
     navigateTo(routeName) {
       this.$router.push({ name: routeName }).catch(err => {
@@ -129,12 +118,12 @@ export default {
   font-style: normal;
   font-weight: 400;
   text-align: center;
-  line-height: 6px;
+  line-height: 6px; /* 100% */
   letter-spacing: -0.3px;
   margin: 0px 0px 12px 0px;
 }
 
-nav {
+nav{
   height: 370px;
 }
 
@@ -153,7 +142,7 @@ nav li {
   height: 55px;
 }
 
-.list1 {
+.list1{
   width: 240px;
   height: 55px;
   display: flex;
@@ -162,19 +151,19 @@ nav li {
   transition-duration: 0.2s;
 }
 
-.list1 a {
+.list1 a{
   visibility: hidden;
 }
 
-.list1:hover {
+.list1:hover{
   height: 100px;
 }
 
-.list1:hover a {
+.list1:hover a{
   visibility: visible;
 }
 
-.list2 {
+.list2{
   width: 240px;
   height: 55px;
   display: flex;
@@ -185,24 +174,24 @@ nav li {
   z-index: 1;
 }
 
-.list2 a {
+.list2 a{
   visibility: hidden;
 }
 
-.list2:hover {
+.list2:hover{
   height: 150px;
 }
 
-.list2:hover a {
+.list2:hover a{
   visibility: visible;
 }
 
-.list3 {
+.list3{
   position: relative;
   z-index: 100;
 }
 
-.top {
+.top{
   width: 240px;
   height: 55px;
   display: flex;
@@ -210,7 +199,7 @@ nav li {
   align-items: center;
 }
 
-.bottom {
+.bottom{
   width: 240px;
   height: 88px;
   display: flex;
@@ -218,25 +207,12 @@ nav li {
   margin-top: 7px;
 }
 
-<<<<<<< HEAD
 .bottom a{
-  text-decoration: none;
-  color: #000000;
-}
-
-router-link{
-  text-decoration: none;
-}
-
-.bottom a{
-=======
-.bottom a {
->>>>>>> kim
   font-size: 12px;
   margin: 10px 0 0 60px;
 }
 
-.bottom a:hover {
+.bottom a:hover{
   text-decoration: underline;
 }
 
@@ -261,13 +237,14 @@ nav li:hover .yellowLine {
   background-color: #FFC700;
 }
 
-nav .list2:hover .top {
+nav .list2:hover .top{
   box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
-nav .list1:hover .top {
+nav .list1:hover .top{
   box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
+
 
 nav li .yellowLine {
   width: 7px;
