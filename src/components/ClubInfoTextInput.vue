@@ -2,12 +2,16 @@
   <div class="ClubInfoTextInput">
     <textarea v-model="textareaContent" rows="4" cols="50"></textarea>
   </div>
+  <GoogleFormLinkInput/>
   <button @click="saveInfo">작성 완료</button>
 </template>
 
 <script>
+import GoogleFormLinkInput from "@/components/GoogleFormLinkInput.vue";
+
 export default {
   name: 'ClubInfoTextInput',
+  components: {GoogleFormLinkInput},
   data() {
     return {
       textareaContent: '' // 입력된 텍스트를 저장할 데이터
