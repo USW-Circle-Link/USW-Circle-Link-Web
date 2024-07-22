@@ -219,7 +219,7 @@ export default {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  padding: 20px;
+  padding: 10px;
 }
 
 .nav-button {
@@ -269,7 +269,7 @@ export default {
 
 .notice-list {
   width: 820px;
-  height: 500px;
+  height: 510px;
   background-color: white;
   padding: 20px;
   border-radius: 10px 0px 0px 0px;
@@ -313,7 +313,7 @@ button {
 }
 
 .pagination {
-  margin-top: 20px;
+  margin: 20px 0 20px 0;
   display: flex;
   justify-content: center;
 }
