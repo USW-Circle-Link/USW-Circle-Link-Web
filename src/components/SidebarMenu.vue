@@ -21,7 +21,7 @@
             <a @click.prevent="navigateTo('profileedit')">- 동아리 정보 수정</a>
           </div>
         </li>
-        <li class="list2" @click="navigateTo('intro')">
+        <li class="list2">
           <div class="top">
             <i class="icon mail"></i>
             <p class="menu">동아리 소개&모집</p>
@@ -30,7 +30,7 @@
           <div class="bottom">
             <router-link :to="{ path: 'main/new-page' }" target="_blank">- 동아리소개/모집글</router-link>
             <a @click="navigateTo('intro')">- 소개/모집글작성</a>
-            <a>- 지원자 합격 처리</a>
+            <a @click="navigateTo('passer-management')">- 지원자 합격 처리</a>
           </div>
         </li>
         <li class="list3" @click="navigateTo('notice')">

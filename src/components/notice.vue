@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <SidebarMenu />
     <div class="content">
       <h2 class="title">공지사항</h2>
       <div class="notices">
