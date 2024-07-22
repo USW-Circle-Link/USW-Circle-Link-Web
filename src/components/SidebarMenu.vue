@@ -30,7 +30,7 @@
           <div class="bottom">
             <a>- 동아리소개/모집글</a>
             <a @click="navigateTo('intro')">- 소개/모집글작성</a>
-            <a>- 지원자 합격 처리</a>
+            <a @click.stop="navigateTo('passer-management')">- 지원자 합격 관리</a>
           </div>
         </li>
         <li class="list3" @click="navigateTo('notice')">
