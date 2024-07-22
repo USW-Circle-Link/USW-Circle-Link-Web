@@ -3,10 +3,10 @@
         <img src="@/assets/flag_logo.jpeg" alt="Flag Logo" class="logo" />
         <div class="Info">
             <div class="info">
-                <p class="clubname">{{clubName}}</p>
+                <p class="clubname">FLAG</p>
                 <div class="line1"></div>
                 <p class="clubleader">동아리장</p>
-                <p class="name">{{leader}}</p>
+                <p class="name">홍길동</p>
             </div>
             <div class="phoneNum">
                 <div class="icon phone"></div>
@@ -15,7 +15,7 @@
             <div class="instaName">
 
                 <div class="icon insta"></div>
-                <p>{{instagram}}</p>
+                <p>@INSTAGRAM</p>
             </div>
         </div>
     </div>
@@ -23,16 +23,7 @@
 
 <script>
 export default {
-  name: 'ClubInfo',
-  data() {
-    return {
-      clubName: 'FLAG',
-      leader: '홍길동',
-      phoneNumber: '010-1234-5678',
-      instagram: '@INSTAGRAM'
-    };
-  },
-
+name: 'ClubInfo'
 };
 
 </script>
@@ -59,12 +50,12 @@ export default {
     flex-direction: column;
     justify-content: center;
     vertical-align: middle;
-    margin-left: 30px;
 }
 
 .info{
     display: flex;
     align-items: center;
+    height: px;
 }
 
 .clubname{
