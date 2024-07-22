@@ -1,3 +1,5 @@
+ProfileEdit.vue
+
 <template>
   <div class="profile-edit-container">
     <h2>동아리 정보 수정</h2>

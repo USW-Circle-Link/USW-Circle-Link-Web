@@ -1,7 +1,7 @@
 <template>
+  <ClubPicture/>
   <ClubUpdateHeader/>
   <ClubInfoTextInput/>
-  <ClubPicture/>
 </template>
 <script setup>
 import ClubUpdateHeader from "@/components/ClubUpdateHeader.vue";
