@@ -40,8 +40,7 @@ export default {
         console.log('Sending login request with:', {
           username: this.id,
           password: this.password
-        });
-
+        })
         const response = await fetch('https://e6551747-676d-480f-8cde-06e1b3913440.mock.pstmn.io/api/login', { // 여기에 Postman Mock 서버 URL을 사용하세요.
           method: 'POST',
           headers: {
