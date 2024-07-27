@@ -223,6 +223,7 @@ export default {
   position: relative;
   align-items: center;
   align-content: center;
+  box-shadow: 0px 0px 3.688px 0px rgba(0, 0, 0, 0.25);
 }
 
 .Picture1:hover .edit-icon1 img{

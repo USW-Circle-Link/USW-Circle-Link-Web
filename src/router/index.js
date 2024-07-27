@@ -9,7 +9,7 @@ const routes = [
         component: () => import('../components/login/Login.vue'),
     },
     {
-        path: '/',
+        path: '/new-page',
         name: 'new-page',
         component: () => import('../components/Dashboard.vue'),
     },

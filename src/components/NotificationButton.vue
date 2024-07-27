@@ -24,7 +24,7 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  margin: 0px 0px 0px 1150px;
+  margin: 0px 0px 0px 70%;
 }
 
 .alram {

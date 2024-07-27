@@ -1,26 +1,43 @@
 <template>
+  <ClubPicture/>
+  <ClubUpdateHeader @sendData="isCheckedData"/>
   <div class="ClubInfoTextInput">
     <textarea v-model="textareaContent" rows="4" cols="50"></textarea>
   </div>
-  <GoogleFormLinkInput/>
+  <GoogleFormLinkInput @sendLinkData="googleFormLinkData"/>
   <button @click="saveInfo">작성 완료</button>
 </template>
 
 <script>
 import GoogleFormLinkInput from "@/components/GoogleFormLinkInput.vue";
+import ClubUpdateHeader from "@/components/ClubUpdateHeader.vue";
+import ClubPicture from "@/components/ClubPicture.vue";
 
 export default {
   name: 'ClubInfoTextInput',
-  components: {GoogleFormLinkInput},
+  components: {
+    ClubPicture,
+    ClubUpdateHeader,
+    GoogleFormLinkInput
+  },
   data() {
     return {
-      textareaContent: '' // 입력된 텍스트를 저장할 데이터
+      textareaContent: '', // 입력된 텍스트를 저장할 데이터
+      googleFormLink: '',
+      isChecked: false
     };
   },
   methods: {
+    isCheckedData(){
+      this.isChecked = !this.isChecked
+    },
+    googleFormLinkData(data){
+      this.googleFormLink = data;
+    },
     saveInfo(){
       //textareaContent 값을 포스트 통신으로 서버에 전달
       alert("내용이 정상적으로 저장 되었습니다.")
+      console.log([this.textareaContent, this.isChecked, this.googleFormLink]);
     }
   }
 };
@@ -64,7 +81,8 @@ button{
   line-height: 16px;
   letter-spacing: -0.025em;
   text-align: center;
-  margin-top: 10px;
+  margin-top: 30px;
   margin-left: 774px;
+  margin-bottom: 30px;
 }
 </style>

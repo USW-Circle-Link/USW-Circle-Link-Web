@@ -22,13 +22,14 @@
           </div>
         </li>
         <li class="list2">
-          <div class="top">
+          <div class="top" @click="navigateTo('intro')">
             <i class="icon mail"></i>
             <p class="menu">동아리 소개&모집</p>
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-            <router-link :to="{ path: 'main/new-page' }" target="_blank">- 동아리소개/모집글</router-link>
+            <a @click="openNewWindow">- 동아리소개/모집글</a>
+<!--            <router-link :to="{ path: 'main/new-page' }" target="_blank">- 동아리소개/모집글</router-link>-->
             <a @click="navigateTo('intro')">- 소개/모집글작성</a>
             <a @click="navigateTo('passer-management')">- 지원자 합격 처리</a>
           </div>
@@ -68,6 +69,12 @@ export default {
           throw err;
         }
       });
+    },
+    openNewWindow() {
+      const url = 'http://localhost:8088/new-page'; // 열고자 하는 URL을 입력하세요.
+      const windowName = '_blank'; // 새 창을 의미하는 특수 문자열
+      const windowFeatures = 'width=600,height=800'; // 창의 크기와 같은 특성 정의
+      window.open(url, windowName, windowFeatures);
     }
   }
 };

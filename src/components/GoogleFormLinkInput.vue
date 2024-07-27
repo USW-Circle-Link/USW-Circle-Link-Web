@@ -1,7 +1,7 @@
 <template>
   <h2>구글폼 링크</h2>
   <div class="GoogleFormLinkInput">
-    <textarea placeholder="링크를 입력해 주세요" v-model="textareaContent" rows="4" cols="1"></textarea>
+    <textarea placeholder="링크를 입력해 주세요" v-model="textareaContent" rows="4" cols="1" ></textarea>
   </div>
 </template>
 <script>
@@ -12,6 +12,14 @@ export default {
       textareaContent: '' // 입력된 텍스트를 저장할 데이터
     };
   },
+  emits: ['sendLinkData'],
+  watch: {
+    textareaContent(newValue) {
+      if (newValue) {
+        this.$emit('sendLinkData', newValue);
+      }
+    }
+  }
 };
 </script>
 <style scoped>
@@ -43,4 +51,7 @@ export default {
 textarea:focus {
   outline: none; /* 포커스 상태일 때 테두리 제거 */
 }
+
+
+
 </style>
