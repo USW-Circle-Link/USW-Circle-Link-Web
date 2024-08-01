@@ -73,7 +73,7 @@ export default {
     openNewWindow() {
       const url = 'http://localhost:8088/new-page'; // 열고자 하는 URL을 입력하세요.
       const windowName = '_blank'; // 새 창을 의미하는 특수 문자열
-      const windowFeatures = 'width=600,height=800'; // 창의 크기와 같은 특성 정의
+      const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no'; // 창의 크기와 같은 특성 정의
       window.open(url, windowName, windowFeatures);
     }
   }

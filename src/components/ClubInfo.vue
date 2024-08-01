@@ -30,14 +30,19 @@ name: 'ClubInfo'
 
 <style scoped>
 
-.ClubInfo{
+@media screen and (max-width:600px) {
+  .ClubInfo{
+    width: 590px;
+  }
+}
+  .ClubInfo {
     width: 886px;
     height: 276px;
     display: flex;
     background: #fff;
     margin-bottom: 30px;
     border-radius: 8px;
-}
+  }
 
 .logo{
     width: 302px;
@@ -55,7 +60,6 @@ name: 'ClubInfo'
 .info{
     display: flex;
     align-items: center;
-    height: px;
 }
 
 .clubname{

@@ -11,7 +11,7 @@ const routes = [
     {
         path: '/new-page',
         name: 'new-page',
-        component: () => import('../components/Dashboard.vue'),
+        component: () => import('../components/PopupClubinfo.vue'),
     },
     {
         path: '/main',
