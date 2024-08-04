@@ -111,9 +111,12 @@ export default {
 }
 
 .logo-text {
-  color: #ffcc00;
+  color: #FFC700;
+  font-family: "Jalnan";
+  font-style: normal;
   font-size: 48px;
   font-weight: bold;
+  line-height: 14px; /* 100% */
 }
 
 .login-box {
