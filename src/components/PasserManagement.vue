@@ -4,10 +4,11 @@
       <p class="common">지원자 합격 처리</p>
     </div>
     <div class="status-actions">
-      <button class="send-result-btn" @click="confirmSendResults">합/불 결과 전송하기</button>
+      <button class="send-result-btn" @click="showPopup">합/불 결과 전송하기</button>
       <div class="status-boxes">
-        <div class="status-box approve-box">합격</div>
-        <div class="status-box reject-box">불합격</div>
+        <p class="whole">일괄 선택</p>
+        <button class="status-box approve-box" @click="setAllApplicantsStatus('approved')">전체 합격</button>
+        <button class="status-box reject-box" @click="setAllApplicantsStatus('rejected')">전체 불합격</button>
       </div>
     </div>
     <div class="content">
@@ -28,6 +29,20 @@
         </div>
       </div>
     </div>
+
+    <div v-if="showConfirmPopup" class="popup-overlay">
+      <div class="popup">
+        <button class="close-btn" @click="hidePopup">X</button>
+        <h2>합격/불합격 처리하기</h2>
+        <hr>
+        <p class="confirm-message">합격/불합격 처리를 확정 하시겠습니까?</p>
+        <p class="notice-message">확정 후 지원자에게 알림이 발송 되니 신중하게 선택해 주세요.</p>
+        <div class="popup-buttons">
+          <button @click="hidePopup">취소</button>
+          <button @click="confirmSendResults">확정</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -37,6 +52,7 @@ export default {
   data() {
     return {
       applicants: [],
+      showConfirmPopup: false,
       fetchUrl: 'YOUR_FETCH_URL_HERE', // 지원자 명단을 가져오는 서버 URL
       submitUrl: 'YOUR_SUBMIT_URL_HERE', // 합/불 결과를 보내는 서버 URL
     };
@@ -44,11 +60,6 @@ export default {
   mounted() {
     this.fetchApplicants();
   },
-
-//서버로부터 가져온값 예시 { id: 1, name: '김길김', department: '무슨학과', phone: '010-1234-5678', decision: null },
-// { id: 2, name: '이길이', department: '어떤학과', phone: '010-9876-5432', decision: null },
-// { id: 3, name: '박길박', department: '또다른학과', phone: '010-1234-5678', decision: null },
-
   methods: {
     async fetchApplicants() {
       try {
@@ -66,10 +77,15 @@ export default {
         console.error('지원자 데이터 가져오는 중 에러 발생', error);
       }
     },
+    showPopup() {
+      this.showConfirmPopup = true;
+    },
+    hidePopup() {
+      this.showConfirmPopup = false;
+    },
     confirmSendResults() {
-      if (confirm('전송하시겠습니까?')) {
-        this.sendResults();
-      }
+      this.hidePopup();
+      this.sendResults();
     },
     async sendResults() {
       console.log('결과 전송 중...');
@@ -103,6 +119,11 @@ export default {
         applicant.decision = decision;
       }
     },
+    setAllApplicantsStatus(status) {
+      this.applicants.forEach(applicant => {
+        applicant.decision = status;
+      });
+    }
   },
 };
 </script>
@@ -131,6 +152,18 @@ export default {
   line-height: 24px;
   letter-spacing: -0.6px;
 }
+.whole {
+  color: #000;
+  font-family: Pretendard;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+  display: flex;
+  align-items: flex-end;
+  height: 30px;
+  margin-inline-end: 1px;
+}
 .status-actions {
   display: flex;
   justify-content: space-between;
@@ -154,11 +187,14 @@ export default {
 }
 .approve-box {
   background-color: #4CAF50;
+  font-size: 12px;
   color: white;
 }
 .reject-box {
   background-color: #f44336;
   color: white;
+  font-size: 12px;
+  margin-inline-end: 10px;
 }
 .send-result-btn {
   width: 140px;
@@ -216,5 +252,70 @@ export default {
 }
 .buttons-group label.checked:nth-child(2) {
   background-color: #f44336;
+}
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.popup {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  position: relative;
+}
+.popup h2 {
+  margin-top: 0;
+  text-align: left;
+}
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
+.confirm-message {
+  text-align: left;
+}
+.notice-message {
+  text-align: left;
+  font-size: 12px;
+  color: gray;
+}
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+.popup-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+.popup-buttons button:first-child {
+  background: #ccc;
+}
+.popup-buttons button:last-child {
+  background: #f0b700;
+  color: white;
+}
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: black;
 }
 </style>
