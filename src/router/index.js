@@ -1,10 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import NoticeClick from '../components/NoticeClick.vue';
+import ProfileEdit from '../components/ProfileEdit.vue';
 
 const routes = [
     {
         path: '/',
         name: 'login',
         component: () => import('../components/login/Login.vue'),
+    },
+    {
+        path: '/new-page',
+        name: 'new-page',
+        component: () => import('../components/PopupClubinfo.vue'),
     },
     {
         path: '/main',
@@ -23,14 +30,25 @@ const routes = [
                 component: () => import('../components/intro.vue'),
             },
             {
+                path: 'passer-management',
+                name: 'passer-management',
+                component: () => import('../components/PasserManagement.vue'),
+            },
+            {
                 path: 'notice',
                 name: 'notice',
                 component: () => import('../components/notice.vue'),
             },
             {
-                path: 'passer-management',
-                name: 'passer-management',
-                component: () => import('../components/PasserManagement.vue'),
+                path: 'noticeclick/:id',
+                name: 'NoticeClick',
+                component: NoticeClick,
+                props: true,
+            },
+            {
+                path: 'profileedit',
+                name: 'profileedit',
+                component: ProfileEdit
             }
         ]
     },
