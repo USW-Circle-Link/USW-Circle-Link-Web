@@ -32,6 +32,7 @@
 <!--            <router-link :to="{ path: 'main/new-page' }" target="_blank">- 동아리소개/모집글</router-link>-->
             <a @click="navigateTo('intro')">- 소개/모집글작성</a>
             <a @click="navigateTo('passer-management')">- 지원자 합격 처리</a>
+            <a @click="navigateTo()">- 지원자 추가 합격 처리</a>
           </div>
         </li>
         <li class="list3" @click="navigateTo('notice')">
@@ -192,7 +193,7 @@ nav li {
 }
 
 .list2:hover {
-  height: 150px;
+  height: 170px;
 }
 
 .list2:hover a {
