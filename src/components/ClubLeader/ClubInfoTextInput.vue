@@ -9,9 +9,9 @@
 </template>
 
 <script>
-import GoogleFormLinkInput from "@/components/GoogleFormLinkInput.vue";
-import ClubUpdateHeader from "@/components/ClubUpdateHeader.vue";
-import ClubPicture from "@/components/ClubPicture.vue";
+import GoogleFormLinkInput from "@/components/ClubLeader/GoogleFormLinkInput.vue";
+import ClubUpdateHeader from "@/components/ClubLeader/ClubUpdateHeader.vue";
+import ClubPicture from "@/components/ClubLeader/ClubPicture.vue";
 
 export default {
   name: 'ClubInfoTextInput',

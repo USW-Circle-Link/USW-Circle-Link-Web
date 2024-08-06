@@ -4,35 +4,35 @@
     <div class="Picture1">
       <img :src="clubImage1" alt="동아리 이미지" />
       <div class="edit-icon1" @click="triggerFileInput1">
-        <img src="@/assets/penbrush.png" alt="Edit Icon" />
+        <img src="../../assets/penbrush.png" alt="Edit Icon" />
       </div>
       <input type="file" ref="fileInput1" @change="onFileChange1" style="display: none;" />
     </div>
     <div class="Picture2">
       <img :src="clubImage2" alt="동아리 이미지" />
       <div class="edit-icon2" @click="triggerFileInput2">
-        <img src="@/assets/penbrush.png" alt="Edit Icon" />
+        <img src="../../assets/penbrush.png" alt="Edit Icon" />
       </div>
       <input type="file" ref="fileInput2" @change="onFileChange2" style="display: none;" />
     </div>
     <div class="Picture3">
       <img :src="clubImage3" alt="동아리 이미지" />
       <div class="edit-icon3" @click="triggerFileInput3">
-        <img src="@/assets/penbrush.png" alt="Edit Icon" />
+        <img src="../../assets/penbrush.png" alt="Edit Icon" />
       </div>
       <input type="file" ref="fileInput3" @change="onFileChange3" style="display: none;" />
     </div>
     <div class="Picture4">
       <img :src="clubImage4" alt="동아리 이미지" />
       <div class="edit-icon4" @click="triggerFileInput4">
-        <img src="@/assets/penbrush.png" alt="Edit Icon" />
+        <img src="../../assets/penbrush.png" alt="Edit Icon" />
       </div>
       <input type="file" ref="fileInput4" @change="onFileChange4" style="display: none;" />
     </div>
     <div class="Picture5">
       <img :src="clubImage5" alt="동아리 이미지" />
       <div class="edit-icon5" @click="triggerFileInput5">
-        <img src="@/assets/penbrush.png" alt="Edit Icon" />
+        <img src="../../assets/penbrush.png" alt="Edit Icon" />
       </div>
       <input type="file" ref="fileInput5" @change="onFileChange5" style="display: none;" />
     </div>

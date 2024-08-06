@@ -2,7 +2,7 @@
   <div class="club-profile">
     <ImageSlider :images="images" />
     <div class="ClubInfo">
-      <img src="@/assets/Flag.svg" alt="Flag Logo" class="logo" />
+      <img src="../../assets/Flag.svg" alt="Flag Logo" class="logo" />
       <div class="Info">
         <div class="info">
           <p class="clubname">FLAG</p>
@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import ImageSlider from "@/components/ImageSlider.vue";
+import ImageSlider from "@/components/ClubLeader/ImageSlider.vue";
 
 export default {
   name: 'ClubProfile',

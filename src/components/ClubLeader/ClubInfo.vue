@@ -1,6 +1,6 @@
 <template>
     <div class="ClubInfo">
-        <img src="@/assets/flag_logo.jpeg" alt="Flag Logo" class="logo" />
+        <img src="../../assets/flag_logo.jpeg" alt="Flag Logo" class="logo" />
         <div class="Info">
             <div class="info">
                 <p class="clubname">FLAG</p>

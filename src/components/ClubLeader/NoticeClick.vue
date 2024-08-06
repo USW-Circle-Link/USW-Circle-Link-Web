@@ -2,12 +2,12 @@
   <div class="container">
     <div class="header">
       <button class="nav-button" @click="prevNotice">
-        <img src="@/assets/left.png" alt="Previous" class="nav-icon" />
+        <img src="../../assets/left.png" alt="Previous" class="nav-icon" />
         이전 공지
       </button>
       <button class="nav-button" @click="nextNotice">
         다음 공지
-        <img src="@/assets/rigth.png" alt="Next" class="nav-icon" />
+        <img src="../../assets/rigth.png" alt="Next" class="nav-icon" />
       </button>
     </div>
     <div v-if="notice" class="notice-details">

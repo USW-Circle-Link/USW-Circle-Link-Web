@@ -7,7 +7,7 @@ ProfileEdit.vue
       <div class="image-container">
         <img :src="clubImage" alt="동아리 이미지" />
         <div class="edit-icon" @click="triggerFileInput">
-          <img src="@/assets/penbrush.png" alt="Edit Icon" />
+          <img src="../../assets/penbrush.png" alt="Edit Icon" />
         </div>
         <input type="file" ref="fileInput" @change="onFileChange" style="display: none;" />
       </div>

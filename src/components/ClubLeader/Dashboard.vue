@@ -5,7 +5,7 @@
       <p>소속 동아리 회원 정보</p>
       <button v-if="isButtonVisible" @click="showPopup" class="spreadsheets">
         <p>구글 스프레드시트</p>
-        <img src="@/assets/spreadsheets.png" />
+        <img src="../../assets/spreadsheets.png" />
       </button>
     </div>
     <div id="Dashboard" class="Dashboard">
@@ -26,8 +26,8 @@
 
 <script>
 import axios from 'axios';
-import SpreadsheetLinkInput from "@/components/SpreadsheetLinkInput.vue";
-import ClubInfo from "@/components/ClubInfo.vue";
+import SpreadsheetLinkInput from "@/components/ClubLeader/SpreadsheetLinkInput.vue";
+import ClubInfo from "@/components/ClubLeader/ClubInfo.vue";
 
 export default {
   name: 'Dashboard',

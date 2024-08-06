@@ -1,0 +1,214 @@
+<template>
+  <div>
+    <ClubInfo />
+    <div class="Dashboardhead">
+      <p>개발팀 동연회</p>
+      <button v-if="isButtonVisible" @click="showPopup" class="spreadsheets">
+        <p>구글 스프레드시트</p>
+        <img src="../../assets/spreadsheets.png" />
+      </button>
+    </div>
+    <div id="Dashboard" class="Dashboard">
+      <spreadsheetLinkInput @update:inputValue="sheetUrl = $event" v-if="isPopupVisible" @close="closePopup" />
+      <div v-if="sheetData.length" class="memberlist">
+        <table>
+          <tbody>
+          <tr v-for="(row, rowIndex) in sheetData" :key="rowIndex">
+            <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
+            <td><button class="Expulsion" @click="deleteRow(rowIndex)">퇴출</button></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+import SpreadsheetLinkInput from "@/components/ClubLeader/SpreadsheetLinkInput.vue";
+import ClubInfo from "@/components/ClubLeader/ClubInfo.vue";
+
+export default {
+  name: 'admindashboard',
+  components: {
+    ClubInfo,
+    SpreadsheetLinkInput,
+  },
+  data() {
+    return {
+      sheetUrl: '',
+      sheetData: [],
+      isPopupVisible: false,
+      isButtonVisible: true,
+      apiKey: 'AIzaSyCgARDETVZFsr3mu58W7gQyKdCX0HP0SLI',
+    };
+  },
+  methods: {
+    extractSheetId(url) {
+      const regex = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/;
+      const match = url.match(regex);
+      return match ? match[1] : null;
+    },
+    showPopup() {
+      this.isPopupVisible = true;
+    },
+    async closePopup() {
+      this.isPopupVisible = false;
+      const sheetId = this.extractSheetId(this.sheetUrl);
+
+      const postData = {
+        sheetData: this.sheetData
+      };
+
+      if (sheetId) {
+        const range = 'Sheet1!A1:D999';
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${this.apiKey}`;
+        try {
+          const response = await axios.get(url);
+          console.log('데이터 블러오기 성공:', url);
+          this.sheetData = response.data.values;
+        } catch (error) {
+          console.error('Error fetching sheet data:', error);
+        }
+      }
+
+      if (sheetId) {
+        this.isButtonVisible = false;
+      }
+
+      try {
+        const response = await axios.post('https://httpbin.org/api/data', postData);
+        console.log('Data submitted successfully:', response.data);
+      } catch (error) {
+        console.error('Error submitting data:', error);
+      }
+    },
+  }
+};
+</script>
+
+<style>
+.Dashboard{
+  width: 886px;
+  background: #fff;
+  border-radius: 8px;
+  align-items: center;
+  align-content: center;
+  text-align: center;
+}
+
+.Dashboard p {
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  padding: 20px;
+}
+
+.Dashboardhead{
+  width: 886px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #FFF;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.Dashboardhead p{
+  font-family: Pretendard;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: -0.05em;
+  text-align: left;
+  margin-left: 60px;
+}
+
+.spreadsheets{
+  width: 170px;
+  height: 60px;
+  display: flex;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #7FB08C;
+  justify-content: space-between;
+  border: none;
+  align-items: center;
+  margin-right: 60px;
+}
+
+.spreadsheets p{
+  font-family: Pretendard;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  text-align: left;
+  color: #FFFFFF;
+  margin-left: 7px;
+  margin-bottom: 13px;
+}
+
+.spreadsheets img{
+  margin-right: 7px;
+}
+
+.Dashboard h1{
+  text-align: center;
+}
+
+.Dashboard div{
+  align-items: center;
+}
+
+table {
+  width: 860px;
+  border-spacing: 0px 8px;
+  margin: 0 auto;
+}
+
+td {
+  text-align: center;
+  height: 46px;
+  width: 215px;
+}
+
+td:first-child{
+  border-radius: 8px 0px 0px 8px;
+  background-color: #F0F2F5;
+}
+
+td:nth-last-child(4){
+  background-color: #F0F2F5;
+}
+
+td:nth-last-child(3){
+  background-color: #F0F2F5;
+}
+
+td:nth-last-child(2){
+  border-radius: 0px 8px 8px 0px;
+  padding-right: 20px;
+  background-color: #F0F2F5;
+}
+
+td:last-child{
+  background-color: #ffffff;
+  width: 56px;
+}
+
+.Expulsion{
+  background-color: #e57373;
+  width: 56px;
+  height: 46px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-left: 8px;
+}
+
+</style>

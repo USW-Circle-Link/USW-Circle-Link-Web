@@ -23,13 +23,13 @@
         </table>
         <div class="pagination">
           <button @click="previousPage">
-            <img src="@/assets/left.png" alt="Previous" />
+            <img src="../../assets/left.png" alt="Previous" />
           </button>
           <button @click="changePage(page)" v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }">
             {{ page }}
           </button>
           <button @click="nextPage">
-            <img src="@/assets/rigth.png" alt="Next" />
+            <img src="../../assets/rigth.png" alt="Next" />
           </button>
         </div>
       </div>
