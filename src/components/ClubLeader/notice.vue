@@ -1,0 +1,220 @@
+
+<template>
+  <div class="container">
+    <div class="content">
+      <h2 class="title">공지사항</h2>
+      <div class="notices">
+        <table>
+          <thead>
+            <tr>
+              <th>제목</th>
+              <th>작성자</th>
+              <th>작성일</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="notices.length === 0">
+              <td colspan="3">공지사항이 없습니다.</td>
+            </tr>
+            <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
+              <td>
+                <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
+              </td>
+              <td>{{ notice.adminName }}</td>
+              <td>{{ new Date(notice.noticeCreatedAt).toLocaleDateString() }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <button @click="previousPage" :disabled="currentPage === 1">
+            <img src="@/assets/left.png" alt="Previous" />
+          </button>
+          <button 
+            v-for="page in totalPagesArray" 
+            :key="page" 
+            @click="changePage(page)" 
+            :class="{ active: page === currentPage }"
+          >
+            {{ page }}
+          </button>
+          <button @click="nextPage" :disabled="currentPage >= totalPages">
+            <img src="@/assets/rigth.png" alt="Next" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import store from '@/store/store';
+
+export default {
+  data() {
+    return {
+      notices: [], // 공지사항 목록
+      currentPage: 1, // 현재 페이지 번호
+      itemsPerPage: 12, // 페이지당 항목 수
+      totalPages: 1, // 전체 페이지 수, 초기값 설정
+    };
+  },
+  computed: {
+    paginatedNotices() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.notices.slice(start, end);
+    },
+    totalPagesArray() {
+      return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    }
+  },
+  methods: {
+    async fetchNotices() {
+      try {
+        const accessToken = store.state.accessToken;
+
+        const response = await fetch(`http://15.164.246.244:8080/notices/paged?page=${this.currentPage - 1}&size=${this.itemsPerPage}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch notices');
+        }
+
+        const data = await response.json();
+        console.log('Fetched data:', data); // 응답 데이터 확인
+
+        if (data && data._embedded && Array.isArray(data._embedded.noticeListResponseList)) {
+          // Sort the notices by creation date (descending order)
+          this.notices = data._embedded.noticeListResponseList.sort((a, b) => new Date(b.noticeCreatedAt) - new Date(a.noticeCreatedAt));
+          this.totalPages = data.page.totalPages;
+          this.currentPage = data.page.number + 1; // 페이지 번호는 0부터 시작하므로 1을 더함
+        } else {
+          this.notices = []; // 데이터를 가져오지 못한 경우 빈 배열 설정
+          console.warn('Unexpected response format:', data);
+        }
+      } catch (error) {
+        console.error('Error fetching notices:', error);
+        this.notices = [];
+      }
+    },
+    goToNotice(noticeId) {
+      const currentPath = this.$route.path;
+      if (currentPath.startsWith('/main')) {
+        this.$router.push({ name: 'NoticeClick', params: { id: noticeId } });
+      } else {
+        this.$router.push({ name: 'NoticeClick', params: { id: noticeId } });
+      }
+    },
+    changePage(page) {
+      this.currentPage = page;
+      this.fetchNotices(); // 페이지 변경 시 데이터를 다시 가져옴
+    },
+    previousPage() {
+      if (this.currentPage > 1) {
+        this.changePage(this.currentPage - 1);
+      }
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.changePage(this.currentPage + 1);
+      }
+    }
+  },
+  created() {
+    this.fetchNotices(); // 컴포넌트가 생성될 때 공지사항 목록을 가져옴
+  }
+};
+</script>
+
+
+
+
+<style scoped>
+/* 스타일은 그대로 유지 */
+@import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+}
+
+.content {
+  flex: 1;
+  padding: 40px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.notices {
+  width: 820px;
+  height: 676px;
+  border-radius: 10px;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+ 
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+  background-color: white;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  text-decoration: underline;
+}
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.pagination button {
+  background: none;
+  margin: 0 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  border: none;
+}
+
+.pagination button.active {
+  color: #FFC700;
+}
+
+.pagination img {
+  width: 20px;
+  height: 20px;
+}
+</style>
+
+
+
+
+

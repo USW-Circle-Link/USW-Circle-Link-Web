@@ -1,0 +1,155 @@
+import store from '@/store/store';
+import { createRouter, createWebHistory } from 'vue-router';
+import AdminNoticeClick from '../components/Admin/NoticeClick.vue';
+import ProfileEdit from '../components/ClubLeader/ProfileEdit.vue';
+
+const routes = [
+    {
+        path: '/',
+        name: 'login',
+        component: () => import('@/components/Login/Login.vue'),
+    },
+    {
+        path: '/new-page',
+        name: 'new-page',
+        component: () => import('../components/ClubLeader/PopupClubinfo.vue'),
+        meta: { requiresAuth: true, requiresLeader: true },
+    },
+    {
+        path: '/TermsOfUse',
+        name: 'TermsOfUse',
+        component: () => import('../components/ClubLeader/TermsOfUse.vue'),
+        meta: { requiresAuth: true, requiresLeader: true },
+    },
+    {
+        path: '/main',
+        name: 'main',
+        component: () => import('../components/ClubLeader/Main.vue'),
+        redirect: { name: 'dashboard' },
+        meta: { requiresAuth: true, requiresLeader: true },
+        children: [
+            {
+                path: '',
+                name: 'dashboard',
+                component: () => import('../components/ClubLeader/Dashboard.vue'),
+            },
+            {
+                path: 'intro',
+                name: 'intro',
+                component: () => import('../components/ClubLeader/intro.vue'),
+            },
+            {
+                path: 'passer-management',
+                name: 'passer-management',
+                component: () => import('../components/ClubLeader/PasserManagement.vue'),
+            },
+            {
+                path: 'notice',
+                name: 'notice',
+                component: () => import('../components/ClubLeader/notice.vue'),
+            },
+            {
+                path: 'noticeclick/:id',
+                name: 'NoticeClick',
+                component: () => import('../components/ClubLeader/NoticeClick.vue'),
+                props: true,
+            },
+            {
+                path: 'profileedit',
+                name: 'profileedit',
+                component: ProfileEdit
+            },
+            {
+                path: 'morepass',
+                name: 'morepass',
+                component: () => import('../components/ClubLeader/MorePass.vue'),
+            },
+
+        ]
+    },
+    {
+        path: '/adminmain',
+        name: 'adminmain',
+        component: () => import('../components/Admin/Main.vue'),
+        redirect: { name: 'admindashboard' },
+        meta: { requiresAuth: true, requiresAdmin: true },
+        children: [
+            {
+                path: '',
+                name: 'admindashboard',
+                component: () => import('../components/Admin/ClubList.vue'),
+            },
+            {
+                path: 'Notice',
+                name: 'Notice',
+                component: () => import('../components/Admin/notice.vue'),
+            },
+            {
+                path: 'noticeclick/:id',
+                name: 'AdminNoticeClick',
+                component: AdminNoticeClick,
+                props: true,
+            },
+            {
+                path: 'AddClub',
+                name: 'AddClub',
+                component: () => import('../components/Admin/AddClub.vue'),
+            },
+
+            {
+                path: 'noticeedit/:id',
+                name: 'noticeedit',
+                component: () => import('../components/Admin/NoticeEdit.vue'),
+                props: true,
+            },
+
+            {
+                path: 'noticewrite',
+                name: 'noticewrite',
+                component: () => import('../components/Admin/NoticeWrite.vue'),
+                props: true,
+            },
+            {
+                path: 'clublist',
+                name: 'clublist',
+                component: () => import('../components/Admin/ClubList.vue'),
+                props: true,
+            },
+        ]
+    }
+];
+
+const router = createRouter({
+    history: createWebHistory(),
+    routes,
+});
+
+router.beforeEach((to, from, next) => {
+
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!store.getters.isAuthenticated) {
+
+            next({ name: 'login' });
+        } else if (to.matched.some(record => record.meta.requiresAdmin)) {
+
+            if (store.getters.role !== 'ADMIN') {
+                next({ name: 'login' });
+            } else {
+                next();
+            }
+        } else if (to.matched.some(record => record.meta.requiresLeader)) {
+
+            if (store.getters.role !== 'LEADER') {
+                next({ name: 'login' });
+            } else {
+                next();
+            }
+        } else {
+            next();
+        }
+    } else {
+        next();
+    }
+});
+
+export default router;
