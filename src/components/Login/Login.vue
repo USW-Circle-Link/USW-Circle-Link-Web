@@ -69,7 +69,14 @@ export default {
           this.$router.push({ name: 'adminmain' });
         }
       } catch (error) {
-        this.error = '아이디 또는 비밀번호가 잘못되었습니다. 다시 시도해주세요.';
+        if (error.response && error.response.status === 400) {
+          // 사용자 친화적인 메시지로 변경
+          this.error = "아이디 또는 비밀번호가 틀렸습니다.";
+        } else {
+          // 기타 오류 처리
+          this.error = "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
+        }
+        alert(this.error);
       }
     }
   }
