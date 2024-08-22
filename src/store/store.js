@@ -45,7 +45,7 @@ export default createStore({
         },
         async refreshToken({ commit, state }) {
             try {
-                const response = await axios.post('http://43.200.140.186:8080/integrate/refresh-token', {
+                const response = await axios.post('http://15.164.246.244:8080/integrate/refresh-token', {
                     refreshToken: state.refreshToken
                 });
 
