@@ -64,11 +64,13 @@ export default {
       });
     },
     openNewWindow() {
-      const url = 'http://pentest-donggurami.s3-website.ap-northeast-2.amazonaws.com/AdminTermsOfUse'; // 배포된 도메인에 맞게 URL 변경
+      const path = '/AdminTermsOfUse'; // 이동할 경로
+      const url = `${path}`; // 상대 경로만 지정
       const windowName = '_blank';
       const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no';
       window.open(url, windowName, windowFeatures);
     },
+
     logout() {
       this.$store.dispatch('logout');
       this.$router.push({ name: 'login' });
