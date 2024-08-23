@@ -59,11 +59,11 @@ import axios from "axios";
 
 export default {
   name: 'SidebarMenu',
-  data(){
-    return{
-      imageSrc : '',
-      data : '',
-      department : ''
+  data() {
+    return {
+      imageSrc: '',
+      data: '',
+      department: ''
     }
   },
   mounted() {
@@ -78,67 +78,58 @@ export default {
       });
     },
     openNewWindow1() {
-      const url = 'http://localhost:8080/new-page'; // 열고자 하는 URL을 입력하세요.
-      const windowName = '_blank'; // 새 창을 의미하는 특수 문자열
-      const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no'; // 창의 크기와 같은 특성 정의
+      const url = 'http://pentest-donggurami.s3-website.ap-northeast-2.amazonaws.com/new-page';
+      const windowName = '_blank';
+      const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no';
       window.open(url, windowName, windowFeatures);
     },
     openNewWindow2() {
-      const url = 'http://localhost:8080/TermsOfUse'; // 열고자 하는 URL을 입력하세요.
-      const windowName = '_blank'; // 새 창을 의미하는 특수 문자열
-      const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no'; // 창의 크기와 같은 특성 정의
+      const url = 'http://pentest-donggurami.s3-website.ap-northeast-2.amazonaws.com/TermsOfUse';
+      const windowName = '_blank';
+      const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no';
       window.open(url, windowName, windowFeatures);
     },
-    // 로그아웃 메서드
     logout() {
-      this.$store.dispatch('logout'); // Vuex 스토어에서 로그아웃 액션 호출
-      this.$router.push({ name: 'login' }); // 로그인 페이지로 리다이렉트
+      this.$store.dispatch('logout');
+      this.$router.push({ name: 'login' });
     },
     async pageLoadFunction() {
       console.log('Page has been loaded!');
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
-      const clubId = store.state.clubId; // 저장된 clubId 가져오기
+      const accessToken = store.state.accessToken;
+      const clubId = store.state.clubId;
 
       try {
         const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           }
         });
 
         this.data = response.data.data;
-        if(this.data.department === 'ACADEMIC'){
-          this.department = '학술'
-        }
-        if(this.data.department === 'RELIGION'){
-          this.department = '종교'
-        }
-        if(this.data.department === 'ART'){
-          this.department = '예술'
-        }
-        if(this.data.department === 'SPORT'){
-          this.department = '체육'
-        }
-        if(this.data.department === 'SHOW'){
-          this.department = '공연'
-        }
-        if(this.data.department === 'VOLUNTEER'){
-          this.department = '봉사'
-        }
-        // mainPhotoUrl로부터 이미지 로드
+        this.department = this.getDepartmentName(this.data.department);
+
         if (this.data.mainPhotoUrl) {
           const imageResponse = await axios.get(this.data.mainPhotoUrl, {
-            responseType: 'blob' // 이미지를 blob으로 받기 위해 responseType을 설정
+            responseType: 'blob'
           });
-
-          // 이미지 URL을 생성하여 이미지 src에 할당
           this.imageSrc = URL.createObjectURL(imageResponse.data);
         }
       } catch (error) {
         console.error('Fetch error:', error);
         this.error = error.message;
       }
+    },
+    getDepartmentName(departmentCode) {
+      const departmentMapping = {
+        'ACADEMIC': '학술',
+        'RELIGION': '종교',
+        'ART': '예술',
+        'SPORT': '체육',
+        'SHOW': '공연',
+        'VOLUNTEER': '봉사'
+      };
+      return departmentMapping[departmentCode] || '';
     }
   }
 };

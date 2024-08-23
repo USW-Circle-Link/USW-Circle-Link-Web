@@ -22,7 +22,6 @@
             <i class="icon check"></i>
             <p class="menu">동아리 추가</p>
             <div class="yellowLine"></div>
-
           </div>
         </li>
         <li class="list2">
@@ -32,12 +31,10 @@
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-<!--            <router-link :to="{ path: 'main/new-page' }" target="_blank">- 동아리소개/모집글</router-link>-->
             <a @click="navigateTo('Notice')">- 공지사항</a>
             <a @click="navigateTo('noticewrite')">- 공지사항 작성</a>
           </div>
         </li>
-
       </ul>
     </nav>
     <div class="empty"></div>
@@ -67,18 +64,19 @@ export default {
       });
     },
     openNewWindow() {
-      const url = 'http://localhost:8080/AdminTermsOfUse'; // 열고자 하는 URL을 입력하세요.
-      const windowName = '_blank'; // 새 창을 의미하는 특수 문자열
-      const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no'; // 창의 크기와 같은 특성 정의
+      const url = 'http://pentest-donggurami.s3-website.ap-northeast-2.amazonaws.com/AdminTermsOfUse'; // 배포된 도메인에 맞게 URL 변경
+      const windowName = '_blank';
+      const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no';
       window.open(url, windowName, windowFeatures);
     },
     logout() {
-      this.$store.dispatch('logout'); // Vuex 스토어에서 로그아웃 액션 호출
-      this.$router.push({ name: 'login' }); // 로그인 페이지로 리다이렉트
+      this.$store.dispatch('logout');
+      this.$router.push({ name: 'login' });
     }
   }
 };
 </script>
+
 
 <style scoped>
 @import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
