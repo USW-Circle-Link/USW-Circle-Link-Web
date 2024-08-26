@@ -98,7 +98,7 @@ export default {
         this.clubs = response.data.data; // Store the fetched clubs in the data array
       } catch (error) {
         console.error('Error fetching clubs:', error);
-        alert('Failed to fetch clubs');
+        alert('동아리 리스트를 불러오는데 실패했습니다.');
       }
     },
     openPopup(clubId, index) {
