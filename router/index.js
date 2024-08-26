@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import AdminNoticeClick from '../components/Admin/NoticeClick.vue';
 import ProfileEdit from '../components/ClubLeader/ProfileEdit.vue';
+import store from "@/store/store";
 
 const routes = [
     {
@@ -122,7 +123,7 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
 });
-/*
+
 router.beforeEach((to, from, next) => {
 
     if (to.matched.some(record => record.meta.requiresAuth)) {
@@ -150,5 +151,5 @@ router.beforeEach((to, from, next) => {
         next();
     }
 });
-*/
+
 export default router;

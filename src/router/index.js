@@ -10,15 +10,15 @@ const routes = [
         component: () => import('@/components/Login/Login.vue'),
     },
     {
-        path: '/new-page',
-        name: 'new-page',
+        path: '/ClubProfile',
+        name: 'ClubProfile',
         component: () => import('../components/ClubLeader/PopupClubinfo.vue'),
         meta: { requiresAuth: true, requiresLeader: true },
     },
     {
-        path: '/TermsOfUse',
-        name: 'TermsOfUse',
-        component: () => import('../components/ClubLeader/TermsOfUse.vue'),
+        path: '/AdminTermsOfUse',
+        name: 'AdminTermsOfUse',
+        component: () => import('../components/Admin/AdminTermsOfUse.vue'),
         meta: { requiresAuth: true, requiresLeader: true },
     },
     {

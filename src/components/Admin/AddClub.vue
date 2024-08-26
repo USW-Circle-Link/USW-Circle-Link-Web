@@ -59,6 +59,7 @@
 
 <script>
 import axios from "axios";
+import store from "@/store/store";
 export default {
   data() {
     return {
@@ -106,11 +107,11 @@ export default {
       try {
         const response = await axios.post('http://15.164.246.244:8080/admin/clubs', formData, {
           headers: {
-            'admin_Id': '1' // 커스텀 헤더 추가
+            'Authorization': `Bearer ${store.state.accessToken}` // Correct usage of the store
           }
         });
         console.log('Form Submitted Successfully:', response.data);
-        alert('Form Submitted Successfully');
+        alert('성공적으로 추가했습니다.');
         // Clear the form after successful submission
         this.clearForm();
         this.isPopupVisible = false; // 팝업 닫기
@@ -179,17 +180,17 @@ input, select {
 .popupbtn:hover {
   background-color: #e6b800;
 }
- .popup-overlay {
-   position: fixed;
-   top: 0;
-   left: 0;
-   right: 0;
-   bottom: 0;
-   background-color: rgba(0, 0, 0, 0.5);
-   display: flex;
-   justify-content: center;
-   align-items: center;
- }
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .popup {
   background-color: white;

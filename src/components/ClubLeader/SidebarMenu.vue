@@ -56,6 +56,7 @@
 <script>
 import store from "@/store/store";
 import axios from "axios";
+// eslint-disable-next-line no-unused-vars
 
 export default {
   name: 'SidebarMenu',
@@ -78,13 +79,14 @@ export default {
       });
     },
     openNewWindow1() {
-      const url = 'http://pentest-donggurami.s3-website.ap-northeast-2.amazonaws.com/new-page';
+      const path = '/ClubProfile'; // 이동할 경로
+      const url = `${path}`; // 상대 경로만 지정
       const windowName = '_blank';
       const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no';
       window.open(url, windowName, windowFeatures);
     },
     openNewWindow2() {
-      const path = '/AdminTermsOfUse'; // 이동할 경로
+      const path = '/TermsOfUse'; // 이동할 경로
       const url = `${path}`; // 상대 경로만 지정
       const windowName = '_blank';
       const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no';
