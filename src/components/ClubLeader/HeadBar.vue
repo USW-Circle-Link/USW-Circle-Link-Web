@@ -1,7 +1,7 @@
 <template>
     <div class="header">
-        <img src="../../assets/dongurami_logo.png" alt="Dongurami Logo" class="logo" />
-        <h1 class="title">동구라미</h1>
+        <img @click="navigateTo('dashboard')" src="../../assets/dongurami_logo.png" alt="Dongurami Logo" class="logo" />
+        <h1 @click="navigateTo('dashboard')" class="title">동구라미</h1>
         <NotificationButton/>
     </div>
 </template>
@@ -11,7 +11,16 @@ import NotificationButton from "@/components/ClubLeader/NotificationButton.vue";
 
 export default {
 name: 'Headbar',
-components: {NotificationButton}
+components: {NotificationButton},
+    methods : {
+    navigateTo(routeName) {
+      this.$router.push({ name: routeName }).catch(err => {
+        if (err.name !== 'NavigationDuplicated') {
+          throw err;
+        }
+      });
+    },
+  }
 };
 
 
