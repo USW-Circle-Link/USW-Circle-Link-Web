@@ -259,7 +259,6 @@ export default {
 
       } catch (error) {
         console.error("파일 URL 저장 실패:", error);
-        alert("파일 URL 저장 실패!");
       }
     }
   }
