@@ -66,7 +66,7 @@ export default {
       notices: [],
       notice: null,
       currentPage: 1,
-      itemsPerPage: 10,
+      itemsPerPage: 5,
       images: [],  // 이미지 배열 추가
     };
   },
@@ -89,7 +89,7 @@ export default {
         const accessToken = store.state.accessToken;
         const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${accessToken}`, // Corrected string interpolation
             'Content-Type': 'application/json',
           },
         });
@@ -108,9 +108,9 @@ export default {
     async fetchNotice(id) {
       try {
         const accessToken = store.state.accessToken;
-        const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
+        const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, { // Corrected string interpolation
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${accessToken}`, // Corrected string interpolation
             'Content-Type': 'application/json',
           },
         });
@@ -132,15 +132,15 @@ export default {
     prevNotice() {
       const currentIndex = this.notices.findIndex(notice => notice.noticeId == this.$route.params.id);
       const prevIndex = (currentIndex - 1 + this.notices.length) % this.notices.length;
-      this.$router.push({ name: 'AdminNoticeClick', params: { id: this.notices[prevIndex].noticeId } });
+      this.$router.push({ name: 'NoticeClick', params: { id: this.notices[prevIndex].noticeId } });
     },
     nextNotice() {
       const currentIndex = this.notices.findIndex(notice => notice.noticeId == this.$route.params.id);
       const nextIndex = (currentIndex + 1) % this.notices.length;
-      this.$router.push({ name: 'AdminNoticeClick', params: { id: this.notices[nextIndex].noticeId } });
+      this.$router.push({ name: 'NoticeClick', params: { id: this.notices[nextIndex].noticeId } });
     },
     goToNotice(id) {
-      this.$router.push({ name: 'AdminNoticeClick', params: { id } });
+      this.$router.push({ name: 'NoticeClick', params: { id } });
     },
     changePage(page) {
       this.currentPage = page;
@@ -205,7 +205,7 @@ export default {
 
 .notice-details {
   width: 817px;
-  height: 626px;
+  height: 676px;
   padding: 5px;
   background-color: #fff;
   border-radius: 8px;
@@ -283,7 +283,7 @@ export default {
 
 .notice-list {
   width: 817px;
-  height: 289px;
+  height: auto;
   background-color: white;
   padding: 20px;
   border-radius: 10px;
@@ -297,7 +297,7 @@ table {
 }
 
 th, td {
-  
+  padding: 10px;
   border-bottom: 1px solid #ddd;
   text-align: center;
 }
@@ -305,11 +305,11 @@ th, td {
 td:nth-child(1),
 td:nth-child(2),
 td:nth-child(3) {
-  background-color: white;
+  background-color: #FFFFFF;
 }
 
 th {
-  background-color: white;
+  background-color: #FFFFFF;
   font-weight: bold;
 }
 
@@ -336,4 +336,3 @@ button {
   color: #000;
 }
 </style>
-

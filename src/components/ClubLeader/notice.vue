@@ -1,4 +1,3 @@
-
 <template>
   <div class="container">
     <div class="content">
@@ -45,7 +44,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import store from '@/store/store';
 
@@ -54,26 +52,23 @@ export default {
     return {
       notices: [], // 공지사항 목록
       currentPage: 1, // 현재 페이지 번호
-      itemsPerPage: 12, // 페이지당 항목 수
+      itemsPerPage: 12, // 페이지당 항목 수 (예: 5)
       totalPages: 1, // 전체 페이지 수, 초기값 설정
     };
   },
   computed: {
     paginatedNotices() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.notices.slice(start, end);
+      return this.notices; // 이미 서버에서 페이징된 데이터를 가져오기 때문에 그대로 사용
     },
     totalPagesArray() {
       return Array.from({ length: this.totalPages }, (_, i) => i + 1);
     }
   },
   methods: {
-    async fetchNotices() {
+    async fetchNotices(page = 1) { // 기본 페이지를 1로 설정
       try {
         const accessToken = store.state.accessToken;
-
-        const response = await fetch(`http://15.164.246.244:8080/notices/paged?page=${this.currentPage - 1}&size=${this.itemsPerPage}`, {
+        const response = await fetch(`http://15.164.246.244:8080/notices/paged?page=${page - 1}&size=${this.itemsPerPage}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -86,16 +81,18 @@ export default {
         }
 
         const data = await response.json();
-        console.log('Fetched data:', data); // 응답 데이터 확인
 
         if (data && data._embedded && Array.isArray(data._embedded.noticeListResponseList)) {
-          // Sort the notices by creation date (descending order)
-          this.notices = data._embedded.noticeListResponseList.sort((a, b) => new Date(b.noticeCreatedAt) - new Date(a.noticeCreatedAt));
-          this.totalPages = data.page.totalPages;
-          this.currentPage = data.page.number + 1; // 페이지 번호는 0부터 시작하므로 1을 더함
+          this.notices = data._embedded.noticeListResponseList.reverse();
+          this.totalPages = data.page.totalPages; // 전체 페이지 수를 설정
+          this.currentPage = data.page.number + 1; // 현재 페이지를 설정 (0부터 시작하므로 1을 더함)
+
+          // 디버깅 로그 추가
+          console.log('Fetched Notices:', this.notices);
+          console.log('Current Page:', this.currentPage);
+          console.log('Total Pages:', this.totalPages);
         } else {
           this.notices = []; // 데이터를 가져오지 못한 경우 빈 배열 설정
-          console.warn('Unexpected response format:', data);
         }
       } catch (error) {
         console.error('Error fetching notices:', error);
@@ -112,7 +109,8 @@ export default {
     },
     changePage(page) {
       this.currentPage = page;
-      this.fetchNotices(); // 페이지 변경 시 데이터를 다시 가져옴
+      localStorage.setItem('currentPage', page); // 페이지 변경 시 현재 페이지를 localStorage에 저장
+      this.fetchNotices(page); // 페이지 변경 시 해당 페이지의 데이터를 가져옴
     },
     previousPage() {
       if (this.currentPage > 1) {
@@ -125,8 +123,20 @@ export default {
       }
     }
   },
-  created() {
-    this.fetchNotices(); // 컴포넌트가 생성될 때 공지사항 목록을 가져옴
+  mounted() {
+    const reloadKey = 'mainNoticeReloaded';
+
+    if (!sessionStorage.getItem(reloadKey)) {
+      sessionStorage.setItem(reloadKey, 'true');
+      window.location.reload();
+    } else {
+      sessionStorage.removeItem(reloadKey); 
+      const savedPage = localStorage.getItem('currentPage');
+      if (savedPage) {
+        this.currentPage = parseInt(savedPage, 10);
+      }
+      this.fetchNotices(this.currentPage || 1); // 페이지를 불러옴, 기본값은 1페이지
+    }
   }
 };
 </script>
@@ -134,23 +144,33 @@ export default {
 
 
 
+
+
+
+
+
 <style scoped>
-/* 스타일은 그대로 유지 */
+
+/* 웹폰트 불러오기 */
 @import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
 
+/* 모든 요소에 박스 사이징 설정 */
 * {
   box-sizing: border-box;
 }
 
+/* 전체 컨테이너 설정 */
 .container {
   display: flex;
 }
 
+/* 콘텐츠 영역 설정 */
 .content {
   flex: 1;
   padding: 40px;
 }
 
+/* 타이틀 스타일 */
 .title {
   font-size: 24px;
   font-weight: bold;
@@ -158,27 +178,39 @@ export default {
   color: #333;
 }
 
+/* 공지사항 박스 설정 */
 .notices {
   width: 820px;
-  height: 676px;
+  height: auto;
   border-radius: 10px;
   background-color: #fff;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* 테이블 스타일 */
 table {
   width: 100%;
   border-collapse: collapse;
 }
 
-th, td {
- 
+/* 테이블 헤더 스타일 */
+th {
+  padding: 10px;
   border-bottom: 1px solid #ddd;
   text-align: center;
   background-color: white;
 }
 
+/* 테이블 데이터 셀 스타일 */
+td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+  background-color: white;
+}
+
+/* 버튼 스타일 */
 button {
   background: none;
   border: none;
@@ -186,16 +218,19 @@ button {
   font-size: 16px;
 }
 
+/* 버튼 호버 스타일 */
 button:hover {
   text-decoration: underline;
 }
 
+/* 페이지네이션 영역 스타일 */
 .pagination {
   margin-top: 20px;
   display: flex;
   justify-content: center;
 }
 
+/* 페이지네이션 버튼 스타일 */
 .pagination button {
   background: none;
   margin: 0 5px;
@@ -204,17 +239,14 @@ button:hover {
   border: none;
 }
 
+/* 활성화된 페이지 버튼 스타일 */
 .pagination button.active {
   color: #FFC700;
 }
 
+/* 페이지네이션 이미지 스타일 */
 .pagination img {
   width: 20px;
   height: 20px;
 }
 </style>
-
-
-
-
-
