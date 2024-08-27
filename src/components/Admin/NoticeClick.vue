@@ -1,3 +1,4 @@
+admin/noticeclick
 <template>
   <div class="container">
     <div class="header">
@@ -70,7 +71,7 @@ export default {
       notices: [],
       notice: null,
       currentPage: 1,
-      itemsPerPage: 10,
+      itemsPerPage: 5,
       images: [],  // 이미지 배열 추가
     };
   },
@@ -250,7 +251,7 @@ export default {
 
 .notice-details {
   width: 817px;
-  height: 700px;
+  height: 626px;
   padding: 20px;
   background-color: #fff;
   border-radius: 8px;
@@ -264,7 +265,6 @@ export default {
   font-family: Pretendard;
   font-weight: 700;
   margin-bottom: 10px;
-
 }
 
 .notice-meta {
@@ -329,7 +329,7 @@ export default {
 
 .notice-list {
   width: 817px;
-  height: 289px;
+  height: auto;
   background-color: white;
   padding: 20px;
   border-radius: 10px;
@@ -382,5 +382,7 @@ button {
   color: #000;
 }
 </style>
+
+
 
 

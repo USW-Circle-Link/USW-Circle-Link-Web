@@ -60,9 +60,7 @@ export default {
   },
   computed: {
     paginatedNotices() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.notices.slice(start, end);
+      return this.notices; // 이미 서버에서 페이징된 데이터를 가져오기 때문에 그대로 사용
     },
     totalPagesArray() {
       return Array.from({ length: this.totalPages }, (_, i) => i + 1);
@@ -89,7 +87,7 @@ export default {
         console.log('Fetched data:', data); // 응답 데이터 확인
 
         if (data && data._embedded && Array.isArray(data._embedded.noticeListResponseList)) {
-          this.notices = data._embedded.noticeListResponseList;
+          this.notices = data._embedded.noticeListResponseList.reverse();
           this.totalPages = data.page.totalPages;
           this.currentPage = data.page.number + 1; // 페이지 번호는 0부터 시작하므로 1을 더함
         } else {
@@ -160,7 +158,7 @@ export default {
 
 .notices {
   width: 820px;
-  height: 676px;
+  height: auto;
   border-radius: 10px;
   background-color: #fff;
   padding: 20px;
