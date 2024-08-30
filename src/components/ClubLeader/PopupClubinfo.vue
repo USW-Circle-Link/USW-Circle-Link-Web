@@ -129,7 +129,11 @@ export default {
 }
 
 .logo{
-  width: 104px;
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  background-size: contain;
   object-fit: fill;
   border-radius: 8px;
   margin: 0 40px 0 40px;
