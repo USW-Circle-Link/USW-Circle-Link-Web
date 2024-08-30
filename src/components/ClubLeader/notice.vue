@@ -125,19 +125,32 @@ export default {
   },
   mounted() {
     const reloadKey = 'mainNoticeReloaded';
+    const firstVisitKey = 'firstVisitToNoticePage';
 
-    if (!sessionStorage.getItem(reloadKey)) {
-      sessionStorage.setItem(reloadKey, 'true');
-      window.location.reload();
-    } else {
-      sessionStorage.removeItem(reloadKey); 
-      const savedPage = localStorage.getItem('currentPage');
-      if (savedPage) {
-        this.currentPage = parseInt(savedPage, 10);
-      }
-      this.fetchNotices(this.currentPage || 1); // 페이지를 불러옴, 기본값은 1페이지
+    // 처음 방문인지 확인하기 위해 로컬 스토리지에서 값 가져오기
+    const isFirstVisit = localStorage.getItem(firstVisitKey) === null;
+
+    if (isFirstVisit) {
+        // 처음 방문 시, 새로고침을 하지 않은 상태로 로컬 스토리지에 방문 기록 저장
+        localStorage.setItem(firstVisitKey, 'true');
+        // 페이지가 처음으로 로드되었음을 세션 스토리지에 저장
+        sessionStorage.setItem(reloadKey, 'true');
     }
-  }
+
+    // 세션 스토리지에 리로드 키가 없으면, 새로고침
+    if (!sessionStorage.getItem(reloadKey)) {
+        sessionStorage.setItem(reloadKey, 'true');
+        window.location.reload();
+    } else {
+        sessionStorage.removeItem(reloadKey); 
+        const savedPage = localStorage.getItem('currentPage');
+        if (savedPage) {
+            this.currentPage = parseInt(savedPage, 10);
+        }
+        this.fetchNotices(this.currentPage || 0); // 페이지를 불러옴, 기본값은 1페이지
+    }
+}
+
 };
 </script>
 
