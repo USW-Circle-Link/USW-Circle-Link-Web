@@ -116,8 +116,20 @@ export default {
         this.clearForm();
         this.isPopupVisible = false; // 팝업 닫기
       } catch (error) {
-        console.error('Error submitting form:', error);
-        alert('동아리 추가에 실패했습니다.');
+        //console.error('Error submitting form:', error);
+        if(error.response){
+          console.error('응답 에러 상태 코드 : ', error.response.status);
+        }
+        if(error.response.status === 400){
+          alert('동아리 추가에 실패했습니다. 관리자 비밀번호가 틀렸습니다.');
+        }
+        if(error.response.status === 409){
+          alert('동아리 추가에 실패했습니다. 이미 존재하는 동아리 입니다.');
+        }
+        if(error.response.status === 422){
+          alert('동아리 추가에 실패했습니다. 이미 존재하는 동아리 회장 아이디 입니다.');
+        }
+        this.isPopupVisible = false; // 팝업 닫기
       }
     },
     clearForm() {
