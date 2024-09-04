@@ -150,7 +150,7 @@ export default {
         });
 
         // 공지사항 수정 요청
-        const response = await axios.patch(
+        const response = await axios.put(
           `http://15.164.246.244:8080/notices/${this.id}`,
           form,
           {
