@@ -27,7 +27,7 @@ export default {
       this.isChecked = !this.isChecked;  // 현재 isChecked 상태를 반전시킴
       this.$emit('sendData', this.isChecked);
 
-      axios.patch(`http://43.200.140.186:8080/club-leader/${clubId}/toggle-recruitment`,
+      axios.put(`http://43.200.140.186:8080/club-leader/${clubId}/toggle-recruitment`,
           {
             key: this.isChecked
           },
