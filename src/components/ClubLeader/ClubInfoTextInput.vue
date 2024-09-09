@@ -191,7 +191,7 @@ export default {
         });
 
         try {
-          const response = await axios.patch(
+          const response = await axios.put(
             `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
             form,
             {
