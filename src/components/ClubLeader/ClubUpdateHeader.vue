@@ -27,14 +27,13 @@ export default {
       this.isChecked = !this.isChecked;  // 현재 isChecked 상태를 반전시킴
       this.$emit('sendData', this.isChecked);
 
-      axios.put(`https://api.donggurami.net/club-leader/${clubId}/toggle-recruitment`,
+      axios.patch(`https://api.donggurami.net/club-leader/${clubId}/toggle-recruitment`,
           {
             key: this.isChecked
           },
           {
             headers: {
               'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
-              'Content-Type': 'application/json'
             }
           })
           .then(response => {
