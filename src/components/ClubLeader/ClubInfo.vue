@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import store from "@/store/store";
+import store from "../../store/store";
 import axios from "axios";
 
 export default {
@@ -145,13 +145,13 @@ export default {
 .phone {
   width: 16px;
   margin-right: 7px;
-  background: url('@/assets/phone.svg') no-repeat center center;
+  background: url('../../assets/phone.svg') no-repeat center center;
 }
 
 .insta {
   width: 16px;
   margin-right: 7px;
-  background: url('@/assets/insta.svg') no-repeat center center;
+  background: url('../../assets/insta.svg') no-repeat center center;
 }
 
 .line1 {
