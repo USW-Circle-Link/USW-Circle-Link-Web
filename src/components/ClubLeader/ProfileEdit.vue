@@ -77,7 +77,7 @@ export default {
       const clubId = store.state.clubId;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
+        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export default {
 
         // 서버로 업데이트 요청을 전송
         const response = await axios.put(
-          `http://15.164.246.244:8080/club-leader/${clubId}/info`,
+          `https://api.donggurami.net/club-leader/${clubId}/info`,
           formData,
           {
             headers: {
@@ -146,7 +146,7 @@ export default {
           }
         );
 
-      //  console.log("프로필 업데이트 성공:", response.data);
+        console.log("프로필 업데이트 성공:", response.data);
         alert('수정 완료!');
 
         // 업로드된 파일이 있으면 S3로 전송
@@ -157,9 +157,9 @@ export default {
 
         this.$emit('update'); // 부모 컴포넌트에 업데이트 요청
       } catch (error) {
-       // console.error('프로필 업데이트 중 오류:', error);
+        console.error('프로필 업데이트 중 오류:', error);
         if (error.response) {
-         // console.error('응답 데이터:', error.response.data);
+          console.error('응답 데이터:', error.response.data);
         }
         alert('프로필 업데이트 중 오류가 발생했습니다.');
       } finally {
