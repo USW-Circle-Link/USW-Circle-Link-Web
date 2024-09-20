@@ -15,7 +15,7 @@
       <!-- 이미지 업로드 컨테이너 -->
       <div class="image-upload-container">
         <div v-for="(image, index) in noticePhotos" :key="index" class="image-preview">
-          <img :src="image.src" alt="Uploaded Image" class="uploaded-image"/>
+          <img :src="image.src" alt="Uploaded Image" class="uploaded-image" @error="onImageError" />
           <div class="edit-icon" @click="editImage(index)">
             <img src="@/assets/penbrush.png" alt="Edit Icon" />
           </div>
@@ -34,7 +34,7 @@
 
 <script>
 import axios from 'axios';
-import store from '@/store/store'; // Vuex store 가져오기
+import store from '@/store/store';
 
 export default {
   name: 'NoticeEdit',
@@ -52,7 +52,7 @@ export default {
         const accessToken = store.state.accessToken;
         const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`, // 토큰 추가
+            'Authorization': `Bearer ${accessToken}`, 
             'Content-Type': 'application/json',
           },
         });
@@ -64,9 +64,9 @@ export default {
           };
 
           const photoUrls = response.data.data.noticePhotos || [];
-          // 기존 이미지 URL을 가져와서 File 객체로 변환하여 noticePhotos 배열에 추가
           for (let i = 0; i < photoUrls.length; i++) {
-            const file = await this.urlToFile(photoUrls[i], `image_${i + 1}.png`);
+            const extension = photoUrls[i].endsWith('.jpg') || photoUrls[i].endsWith('.jpeg') ? 'jpg' : 'png';
+            const file = await this.urlToFile(photoUrls[i], `image_${i + 1}.${extension}`);
             if (file) {
               this.noticePhotos.push({ id: i + 1, src: photoUrls[i], file, order: i + 1 });
             }
@@ -90,6 +90,20 @@ export default {
         return null;
       }
     },
+    sanitizeInput(input) {
+      // 입력된 값을 HTML 인젝션으로부터 보호하기 위한 기본적인 이스케이프 처리
+      const element = document.createElement('div');
+      element.innerText = input;
+      return element.innerHTML;
+    },
+    validateInput() {
+      // 제목과 내용이 비어있는지 확인
+      if (!this.notice.noticeTitle || !this.notice.noticeContent) {
+        alert('제목과 내용을 모두 입력해주세요.');
+        return false;
+      }
+      return true;
+    },
     onImageUpload(event) {
       if (this.noticePhotos.length >= 5) {
         alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
@@ -98,7 +112,12 @@ export default {
 
       const file = event.target.files[0];
       if (!file) {
-        return;  // 파일이 선택되지 않았을 경우 아무런 액션도 취하지 않음
+        return; 
+      }
+
+      // 파일 형식 및 크기 확인
+      if (!this.validateFile(file)) {
+        return;
       }
 
       const reader = new FileReader();
@@ -108,13 +127,35 @@ export default {
       };
       reader.readAsDataURL(file);
     },
+    validateFile(file) {
+      const validTypes = ['image/png', 'image/jpeg'];
+      const maxSize = 2 * 1024 * 1024; // 2MB
+
+      if (!validTypes.includes(file.type)) {
+        alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
+        return false;
+      }
+
+      if (file.size > maxSize) {
+        alert('파일 크기가 2MB를 초과합니다.');
+        return false;
+      }
+
+      return true;
+    },
     onImageChange(index) {
       const fileInput = this.$refs[`fileInput${index}`][0];
       if (!fileInput || !fileInput.files[0]) {
-        return;  // 파일이 선택되지 않았을 경우 아무런 액션도 취하지 않음
+        return;
       }
 
       const file = fileInput.files[0];
+
+      // 파일 형식 및 크기 확인
+      if (!this.validateFile(file)) {
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
         this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
@@ -125,31 +166,30 @@ export default {
       this.$refs[`fileInput${index}`][0].click();
     },
     async submitNotice() {
+      if (!this.validateInput()) {
+        return;
+      }
+
       try {
         this.isLoading = true;
         const accessToken = store.state.accessToken;
         const form = new FormData();
 
-        // 공지사항 데이터를 JSON으로 변환하여 FormData에 추가
         const noticeData = {
-          noticeTitle: this.notice.noticeTitle,
-          noticeContent: this.notice.noticeContent,
-          photoIds: this.noticePhotos
-            .filter(photo => photo.id) // 기존 이미지의 ID만 추출
-            .map(photo => photo.id),
-          photoOrders: this.noticePhotos.map(photo => photo.order), // 이미지 순서를 추출
+          noticeTitle: this.sanitizeInput(this.notice.noticeTitle),  // XSS 방지
+          noticeContent: this.sanitizeInput(this.notice.noticeContent),  // XSS 방지
+          photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
+          photoOrders: this.noticePhotos.map(photo => photo.order),
         };
 
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
 
-        // 새 이미지 파일들을 FormData에 추가
-        this.noticePhotos.forEach((image) => {
+        this.noticePhotos.forEach((image, index) => {
           if (image.file) {
             form.append('photos', image.file);
           }
         });
 
-        // 공지사항 수정 요청
         const response = await axios.put(
           `http://15.164.246.244:8080/notices/${this.id}`,
           form,
@@ -161,10 +201,8 @@ export default {
           }
         );
 
-        // 공지사항 등록 후 noticePhotos로 이미지 재업로드
         if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
           await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
-            // 이미지가 존재하고 파일이 존재하는지 확인
             if (this.noticePhotos[index] && this.noticePhotos[index].file) {
               try {
                 const photoResponse = await axios.put(photoUrl, this.noticePhotos[index].file, {
@@ -172,31 +210,44 @@ export default {
                     'Content-Type': this.noticePhotos[index].file.type,
                   }
                 });
-                console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
+              //  console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
               } catch (uploadError) {
-                console.error(`Image ${index + 1} failed to upload:`, uploadError);
+                //console.error(`Image ${index + 1} failed to upload:`, uploadError);
               }
             }
           }));
         }
-        
-        // **Success Alert Notification**
+
         alert('공지사항이 성공적으로 수정되었습니다!');
         this.$router.push({ name: 'Notice' });
       } catch (error) {
-        console.error('Error submitting notice:', error.response ? error.response.data : error);
-        alert('공지사항 수정에 실패했습니다.');
+        if (error.response) {
+          const status = error.response.status;
+          if (status === 400) {
+            alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
+          } else if (status === 404) {
+            alert('공지사항이 존재하지 않습니다.');
+          } else if (status === 413) {
+            alert('최대 5개의 사진이 업로드 가능합니다.');
+          } else if (status === 422) {
+            alert('제목과 내용을 모두 입력해주세요.');
+          } else {
+            alert('공지사항 수정에 실패했습니다.');
+          }
+        } else {
+          console.error('Error submitting notice:', error);
+          alert('공지사항 수정에 실패했습니다.');
+        }
       } finally {
         this.isLoading = false;
       }
     },
   },
   created() {
-    this.fetchNotice(this.id); // 컴포넌트 생성 시 기존 데이터를 불러옵니다.
+    this.fetchNotice(this.id);
   }
 };
 </script>
-
 
 
 <style scoped>

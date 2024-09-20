@@ -28,7 +28,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
 import store from '@/store/store'; // Vuex store 가져오기
@@ -61,6 +60,7 @@ export default {
       } catch (error) {
         console.error('Error fetching notices:', error);
         this.notices = [];
+        alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
       }
     },
     fetchNotice(id) {
@@ -137,8 +137,23 @@ export default {
         alert('공지사항이 성공적으로 등록되었습니다!');
         this.$router.push({ name: 'Notice' }); // 작성 완료 후 Notice 페이지로 이동
       } catch (error) {
-        console.error('Error submitting notice:', error.response ? error.response.data : error);
-        alert('공지사항 제출에 실패했습니다.');
+        // 인증되지 않은 사용자 오류 처리
+        if (error.response && error.response.status === 401) {
+          alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
+        }
+        // 업로드 가능한 사진 갯수를 초과한 경우 처리
+        else if (error.response && error.response.data.code === 'FILE-308') {
+          alert('업로드 가능한 사진 갯수를 초과했습니다.');
+        }
+        // 제목과 내용을 입력하지 않은 경우 처리
+        else if (error.response && error.response.data.code === 'NOT-203') {
+          alert('제목과 내용을 모두 입력해주세요.');
+        }
+        // 그 외의 오류 처리
+        else {
+          console.error('Error submitting notice:', error.response ? error.response.data : error);
+          alert('공지사항 제출에 실패했습니다.');
+        }
       }
     },
   },
@@ -147,6 +162,7 @@ export default {
   }
 };
 </script>
+
 
 
 <style scoped>
@@ -279,4 +295,3 @@ export default {
   background-color: #e0a800;
 }
 </style>
-

@@ -1,4 +1,3 @@
-
 <template>
   <div class="container">
     <div class="content">
@@ -79,7 +78,14 @@ export default {
           }
         });
 
+        // If the response is not OK, handle different error cases
         if (!response.ok) {
+          // Check for 401 Unauthorized error
+          if (response.status === 401) {
+            alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
+            this.$router.push({ name: 'Login' }); // Redirect to login page
+            return;
+          }
           throw new Error('Failed to fetch notices');
         }
 
@@ -127,10 +133,6 @@ export default {
   }
 };
 </script>
-
-
-
-
 
 <style scoped>
 /* 스타일은 그대로 유지 */
