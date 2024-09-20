@@ -1,7 +1,9 @@
 <template>
   <div class="image-slider">
-    <div class="slides">
-      <img v-for="(image, index) in images" :src="image" :key="index" :class="{ active: index === activeIndex }"  alt="사진"/>
+    <div class="slider">
+      <div class="slides">
+        <img v-for="(image, index) in images" :src="image" :key="index" :class="{ active: index === activeIndex }"  alt="사진"/>
+      </div>
     </div>
     <div class="dots">
       <span v-for="(image, index) in images" :key="index" :class="{ active: index === activeIndex }" @click="activeIndex = index"></span>
@@ -30,7 +32,9 @@ export default {
 .image-slider {
   position: relative;
   max-width: 584px;
+  align-items: center;
   align-content: center;
+  margin-top: 30px;
 }
 
 .slides{
@@ -38,10 +42,30 @@ export default {
   margin-left: 185px;
   align-items: center;
   align-content: center;
+  text-align:center;
+}
+
+.slider{
+  margin-left: 20px;
+  margin-right: 30px;
+  width: 540px;
+  height: 200px;
+  background: #303030;
+  border-radius: 8px;
+  vertical-align: middle;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  position: relative;
 }
 
 .slides img {
-  width: 214px;
+  max-width: 200px;
+  max-height: 200px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
   display: none;
 }
 
@@ -50,13 +74,14 @@ export default {
 }
 
 .dots {
+  margin-top: 15px;
   text-align: center;
 }
 
 .dots span {
   height: 9px;
   width: 9px;
-  margin: 0 2px;
+  margin: 0 3px;
   background-color: #bbb;
   border-radius: 50%;
   display: inline-block;
