@@ -5,11 +5,9 @@
       <div v-for="(image, index) in images" :key="image.src" class="image-preview">
         <img :src="image.src" alt="Uploaded Image" class="uploaded-image" />
         <div class="edit-icon" @click="triggerFileInput(index)">
-          <img src="@/assets/penbrush.png" alt="Edit Icon" />
+          <img src="../../assets/penbrush.png" alt="Edit Icon" />
         </div>
-        <div class="delete-icon" @click="deleteImage(index)">
-          &times;
-        </div>
+        
         <input type="file" :ref="'fileInput' + index" @change="onFileChange(index, $event)" style="display: none;" />
       </div>
       <div v-if="images.length < 5" class="image-upload">
@@ -18,31 +16,39 @@
       </div>
     </div>
 
-    <ClubUpdateHeader @sendData="isCheckedData" />
+    <div class="ClubUpdateHeader">
+      <h2>동아리 소개 수정</h2>
+      <div class="head">
+        <p>소개 & 모집글 작성</p>
+        <div class="empty"></div>
+        <p>모집 중</p>
+        <input type="checkbox" v-model="isChecked" id="chk1"/><label for="switch" @click="toggleCheckbox" ></label>
+      </div>
+    </div>
     <div class="ClubInfoTextInput">
       <textarea v-model="textareaContent" rows="4" cols="50"></textarea>
     </div>
-    <GoogleFormLinkInput @sendLinkData="googleFormLinkData" />
+    <h2>구글폼 링크</h2>
+    <div class="GoogleFormLinkInput">
+      <textarea placeholder="링크를 입력해 주세요" v-model="googleFormLink" rows="4" cols="1" ></textarea>
+    </div>
     <button @click="saveInfo">작성 완료</button>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import GoogleFormLinkInput from "@/components/ClubLeader/GoogleFormLinkInput.vue";
-import ClubUpdateHeader from "@/components/ClubLeader/ClubUpdateHeader.vue";
-import store from '@/store/store';
+import store from '../../store/store';
 
 export default {
   name: 'ClubInfoTextInput',
   components: {
-    ClubUpdateHeader,
-    GoogleFormLinkInput
   },
   data() {
     return {
       images: [],  // 이미지를 저장할 배열
       textareaContent: '',  // 소개글
+      isChecked: null,    //[모집 중 X] 기본 상태
       googleFormLink: '',  // 구글 폼 링크
       orders: [],  // 이미지 순서 배열
       file: [],  // 파일 배열
@@ -50,6 +56,7 @@ export default {
       presignedUrls: [],  // 사전 서명된 URL 배열
       errorMessage: '',  // 에러 메시지
       validFile: false,  // 파일 유효성 여부
+      clubData: {}       // 클럽 소개 정보를 저장할 객체
     };
   },
   mounted() {
@@ -68,15 +75,53 @@ export default {
           }
         });
 
-        const clubData = response.data.data;
-        this.textareaContent = clubData.clubIntro || '';
-        this.googleFormLink = clubData.googleFormUrl || '';
-        this.images = clubData.introPhotos.map(url => ({ src: url })) || [];
-        this.orders = clubData.introPhotos.map((_, index) => index + 1);
+        this.clubData = response.data.data;
+        this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
+        this.textareaContent = this.clubData.clubIntro || '';
+        this.googleFormLink = this.clubData.googleFormUrl || '';
+        this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
+        this.orders = this.clubData.introPhotos.map((_, index) => index + 1);
+
+        console.log(this.isChecked);
+        console.log(this.orders);
+        console.log(this.images);
+        console.log(this.googleFormLink);
+        
       } catch (error) {
         console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
         this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
       }
+    },
+    async toggleCheckbox() {
+      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
+      const clubId = store.state.clubId; // 저장된 clubId 가져오기
+      this.isChecked = !this.isChecked;  // 현재 isChecked 상태를 반전시킴
+      this.$emit('sendData', this.isChecked);
+
+      axios.put(`http://15.164.246.244:8080/club-leader/${clubId}/toggle-recruitment`,
+          {
+            key: this.isChecked
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
+            }
+          })
+          .then(response => {
+            console.log('Updated data:', response.data);
+            if(this.isChecked === true){
+              setTimeout(function() {
+                alert('동아리 모집 상태 변경 완료 [모집중 ON]');
+              }, 800);
+            } else {
+              setTimeout(function() {
+                alert('동아리 모집 상태 변경 완료 [모집중 OFF]');
+              }, 800);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
     },
     googleFormLinkData(data) {
       this.googleFormLink = data;
@@ -127,6 +172,7 @@ export default {
         if (validExtensions.includes(fileExtension)) {
           this.file.push(file);
           this.orders.push(this.file.length);
+          console.log(this.orders);
           const reader = new FileReader();
           reader.onload = (e) => {
             this.images.push({ src: e.target.result });
@@ -138,51 +184,19 @@ export default {
         }
       }
     },
-    deleteImage(index) {
-      try {
-        console.log("Deleting image at index:", index);
-        console.log("Image URL:", this.images[index].src);
-
-        // 삭제된 이미지의 URL을 저장하여 서버로 전송하지 않도록 함
-        const deletedImageUrl = this.images[index].src;
-        this.deletedImages.push(deletedImageUrl);
-
-        // 이미지를 images 배열에서 제거
-        this.images.splice(index, 1);
-        console.log("Image successfully deleted.");
-
-        // 파일 배열에서 해당 파일을 제거
-        this.file.splice(index, 1);
-        console.log("File array after deletion:", this.file);
-
-        // 삭제된 이미지의 순서를 orders 배열에서 제거
-        this.orders.splice(index, 1);
-        console.log("Orders array after deletion:", this.orders);
-
-        // 참조된 파일 input을 null로 설정
-        this.$refs[`fileInput${index}`] = null;
-
-        // 파일 input 참조를 재정렬
-        this.$forceUpdate();
-
-      } catch (error) {
-        console.error("Error while deleting image:", error);
-      }
-    },
+    
     async saveInfo() {
         const clubId = store.state.clubId;
         const accessToken = store.state.accessToken;
 
         const form = new FormData();
-        const jsonData = JSON.stringify({
-          clubIntro: this.textareaContent,
-          googleFormUrl: this.googleFormLink,
-          orders: this.orders,
-          deletedImages: this.deletedImages // 삭제된 이미지를 서버로 전송
-        });
-
-        form.append('clubIntroRequest', new Blob([jsonData], { type: 'application/json' }));
-
+        const jsonData = {
+          clubIntro: this.textareaContent || this.clubData.clubIntro,
+          googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
+          orders: this.orders || this.clubData.orders
+        };
+        form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
+        console.log(jsonData);
         // 삭제되지 않은 파일만 서버에 전송
         this.file.forEach((file, index) => {
           if (!this.deletedImages.includes(this.images[index].src)) {
@@ -196,8 +210,7 @@ export default {
             form,
             {
               headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'multipart/form-data'
+                'Authorization': `Bearer ${accessToken}`
               }
             }
           );
@@ -215,15 +228,21 @@ export default {
           this.$emit('data-saved');
 
         } catch (error) {
+
           console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
-          alert("오류가 발생했습니다. 다시 시도해주세요.");
+          if(this.textareaContent === ''){
+            alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.")
+          }
+          if(this.googleFormLink === ''){
+            alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.")
+          }
         }
     },
     async uploadFiles() {
       try {
         await Promise.all(this.file.map((file, index) => {
           if (!this.deletedImages.includes(this.images[index].src)) {
-            return axios.put(this.presignedUrls[index], file, {
+            return axios.put(this.presignedUrls[index], file,{
               headers: {
                 'Content-Type': file.type
               }
@@ -248,11 +267,10 @@ export default {
 
         await axios.put(
           `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
-          { fileUrls: filteredFileUrls },
+          { introPhotos: filteredFileUrls },
           {
             headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
+              'Authorization' : `Bearer ${accessToken}`,
             }
           }
         );
@@ -264,11 +282,6 @@ export default {
   }
 };
 </script>
-
-
-
-
-
 
 
 
@@ -386,6 +399,89 @@ textarea:focus {
   outline: none; /* 포커스 상태일 때 테두리 제거 */
 }
 
+.head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.head p{
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 21px;
+}
+
+.empty{
+  width: 630px;
+}
+
+label {
+  display: block;
+  position: relative;
+  width: 50px;
+  height: 22px;
+  background: #d3d3d3;
+  border-radius: 60px;
+  transition: background 0.4s;
+}
+
+label::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 100%;
+  background-color: #fff;
+  transform: translateY(-50%);
+  box-shadow: 1px 3px 4px rgba(0,0,0,0.1);
+  transition: all 0.4s;
+}
+
+#chk1:checked + label {
+  background-color: #FFC700;
+}
+
+#chk1:checked + label::after {
+  left: calc(100% - 18px);
+}
+
+.head input{
+  visibility: hidden;
+  width: 1px;
+}
+
+.GoogleFormLinkInput{
+  width: 886px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.GoogleFormLinkInput textarea{
+  width: 820px;
+  height: 28px;
+  margin-top: 10px;
+  text-align: left;
+  border: none;
+  font-size: 16px;
+  resize: none;
+}
+
+.GoogleFormLinkInput textarea::placeholder{
+  text-align: center;
+}
+
+textarea:focus {
+  outline: none; /* 포커스 상태일 때 테두리 제거 */
+}
+
 button {
   width: 112px;
   height: 48px;
@@ -404,5 +500,4 @@ button {
   margin-bottom: 30px;
 }
 </style>
-
 
