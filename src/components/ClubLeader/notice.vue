@@ -52,7 +52,7 @@ export default {
     return {
       notices: [], // 공지사항 목록
       currentPage: 1, // 현재 페이지 번호
-      itemsPerPage: 12, // 페이지당 항목 수 (예: 5)
+      itemsPerPage: 12, // 페이지당 항목 수 (예: 12)
       totalPages: 1, // 전체 페이지 수, 초기값 설정
     };
   },
@@ -75,6 +75,12 @@ export default {
             'Authorization': `Bearer ${accessToken}`
           }
         });
+
+        if (response.status === 401) { // 인증되지 않은 경우 처리
+          alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
+          this.$router.push({ name: 'Login' }); // 로그인 페이지로 리다이렉트
+          return;
+        }
 
         if (!response.ok) {
           throw new Error('Failed to fetch notices');
@@ -100,12 +106,7 @@ export default {
       }
     },
     goToNotice(noticeId) {
-      const currentPath = this.$route.path;
-      if (currentPath.startsWith('/main')) {
-        this.$router.push({ name: 'NoticeClick', params: { id: noticeId } });
-      } else {
-        this.$router.push({ name: 'NoticeClick', params: { id: noticeId } });
-      }
+      this.$router.push({ name: 'NoticeClick', params: { id: noticeId } });
     },
     changePage(page) {
       this.currentPage = page;
@@ -149,10 +150,10 @@ export default {
         }
         this.fetchNotices(this.currentPage || 0); // 페이지를 불러옴, 기본값은 1페이지
     }
-}
-
+  }
 };
 </script>
+
 
 
 

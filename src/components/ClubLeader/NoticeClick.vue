@@ -89,7 +89,7 @@ export default {
         const accessToken = store.state.accessToken;
         const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
           headers: {
-            'Authorization': `Bearer ${accessToken}`, // Corrected string interpolation
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
         });
@@ -102,15 +102,20 @@ export default {
         this.fetchNotice(this.$route.params.id);
       } catch (error) {
         console.error('Error fetching notices:', error);
-        this.notices = [];
+        if (error.response && error.response.status === 401) {
+          alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
+          this.$router.push({ name: 'Login' }); // Redirect to login page
+        } else {
+          this.notices = [];
+        }
       }
     },
     async fetchNotice(id) {
       try {
         const accessToken = store.state.accessToken;
-        const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, { // Corrected string interpolation
+        const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`, // Corrected string interpolation
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
         });
@@ -118,15 +123,19 @@ export default {
           throw new Error('Failed to fetch notice');
         }
         const data = response.data.data;
-        console.log('Fetched notice:', data);
+        //console.log('Fetched notice:', data);
         this.notice = data;
 
         // 기존 이미지 로드 및 추가된 이미지를 유지
         this.images = data.noticePhotos.map(photoUrl => ({ src: photoUrl, isNew: false }));
-
       } catch (error) {
         console.error('Error fetching notice:', error);
-        this.notice = null;
+        if (error.response && error.response.status === 404) {
+          alert('공지사항이 존재하지 않습니다.');
+          this.$router.push({ name: 'NoticeList' }); // Redirect to notice list page
+        } else {
+          this.notice = null;
+        }
       }
     },
     prevNotice() {

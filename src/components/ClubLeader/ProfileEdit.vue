@@ -3,7 +3,12 @@
     <h2 class="profile-title">동아리 정보 수정</h2>
     <div class="profile-edit">
       <div class="image-container">
-        <img :src="mainPhoto || defaultPhotoUrl" alt="동아리 이미지" />
+        <img 
+          :src="mainPhoto || defaultPhotoUrl" 
+          alt="동아리 이미지" 
+          @load="onImageLoad" 
+          @error="onImageError" 
+        />
         <div class="edit-icon" @click="triggerFileInput">
           <img src="@/assets/penbrush.png" alt="Edit Icon" />
         </div>
@@ -53,17 +58,20 @@ export default {
       file: null,  // 업로드할 파일
       clubName: '', // 서버에서 받아올 동아리명
       clubInfo: {}, // 클럽 정보를 저장할 객체
-      fileError: '', // 파일 업로드 오류 메시지
       presignedUrl: '' // S3 업로드를 위한 사전 서명된 URL
     };
   },
   async created() {
     await this.fetchClubInfo();  // 동아리 정보를 불러옴
-    if (this.defaultPhotoUrl) {
-      this.file = await this.urlToFile(this.defaultPhotoUrl, 'image.png');
-    }
   },
   methods: {
+    // URL로부터 파일을 생성하는 함수
+    async urlToFile(url, filename) {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new File([blob], filename, { type: blob.type });
+    },
+
     async fetchClubInfo() {
       const accessToken = store.state.accessToken;
       const clubId = store.state.clubId;
@@ -81,22 +89,19 @@ export default {
           this.leaderName = this.clubInfo.leaderName || '';
           this.clubInsta = this.clubInfo.clubInsta || '';
           this.leaderHp = this.clubInfo.leaderHp || '';
-          this.defaultPhotoUrl = this.clubInfo.mainPhotoUrl || '';  // 서버에서 받아온 이미지 URL
-          this.mainPhoto = this.defaultPhotoUrl;  // 미리보기 이미지로 설정
+          this.defaultPhotoUrl = this.clubInfo.mainPhotoUrl || '@/assets/logo.png';  // 기본 이미지로 설정
+          this.mainPhoto = this.defaultPhotoUrl;  // 기본 이미지 또는 서버에서 받아온 이미지로 설정
           this.clubName = this.clubInfo.clubName || '';  // 서버에서 동아리명을 받아옴
 
-          console.log(this.clubInfo); // 디버깅을 위해 서버에서 받아온 클럽 정보를 출력
+          // 이미지 URL을 파일로 변환 (이미지 URL이 있을 경우에만 실행)
+          if (this.defaultPhotoUrl) {
+            this.file = await this.urlToFile(this.defaultPhotoUrl, 'image.png');
+          }
         }
       } catch (error) {
         console.error('동아리 정보를 불러오는 중 오류 발생:', error);
         alert('동아리 정보를 불러오는 중 오류가 발생했습니다.');
       }
-    },
-
-    async urlToFile(url, filename) {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      return new File([blob], filename, { type: blob.type });
     },
 
     async updateProfile() {
@@ -107,32 +112,30 @@ export default {
       try {
         const formData = new FormData();
 
-        // 업데이트할 데이터 구성
+        // 서버에서 기대하는 필드들로 데이터 구성
         const updatedData = {
-          leaderName: this.leaderName || this.clubInfo.leaderName,
-          leaderHp: this.leaderHp || this.clubInfo.leaderHp,
-          clubInsta: this.clubInsta || this.clubInfo.clubInsta,
-          mainPhotoUrl: this.defaultPhotoUrl // 이미지 URL 유지
+          leaderName: this.leaderName || '',  // Null 체크 후 빈 문자열로 대체
+          leaderHp: this.leaderHp || '',      // Null 체크 후 빈 문자열로 대체
+          clubInsta: this.clubInsta || ''     // Null 체크 후 빈 문자열로 대체
         };
 
-        // 변경된 텍스트 데이터가 있는 경우에만 FormData에 추가
+        // JSON 데이터를 FormData에 추가
         formData.append("clubInfoRequest", new Blob([JSON.stringify(updatedData)], { type: 'application/json' }));
 
-        // 파일이 있는 경우에만 FormData에 추가
+        // 파일이 있는 경우에만 파일을 전송
         if (this.file) {
-          formData.append("mainPhoto", this.file);
+          formData.append("mainPhoto", this.file);  // 새로 선택한 이미지가 있으면 전송
         } else {
-          console.error('파일이 선택되지 않았습니다.');
-          return; // 파일이 없는 경우 더 이상 진행하지 않음
+          formData.append("mainPhoto", "");  // 파일이 없을 때 빈 값 전송
         }
 
-        // FormData에 추가된 내용 확인
+        // formData 내용을 출력하여 확인
         for (let pair of formData.entries()) {
-          console.log(pair[0] + ', ' + pair[1]);
+          console.log(pair[0] + ', ' + pair[1]); 
         }
 
-        // 업데이트 요청을 서버로 전송
-        const response = await axios.patch(
+        // 서버로 업데이트 요청을 전송
+        const response = await axios.put(
           `http://15.164.246.244:8080/club-leader/${clubId}/info`,
           formData,
           {
@@ -143,20 +146,20 @@ export default {
           }
         );
 
-        // 이미지 업로드가 필요한 경우
-        if (this.file && response.status === 200 && response.data.data.presignedUrl) {
-          this.presignedUrl = response.data.data.presignedUrl;  // 사전 서명된 URL 저장
-          alert('수정 완료!');
+      //  console.log("프로필 업데이트 성공:", response.data);
+        alert('수정 완료!');
 
-          // S3로 파일 업로드
+        // 업로드된 파일이 있으면 S3로 전송
+        if (this.file && response.data.data.presignedUrl) {
+          this.presignedUrl = response.data.data.presignedUrl;
           await this.uploadFile();
         }
 
         this.$emit('update'); // 부모 컴포넌트에 업데이트 요청
       } catch (error) {
-        console.error('프로필 업데이트 중 오류:', error);
+       // console.error('프로필 업데이트 중 오류:', error);
         if (error.response) {
-          console.error('서버 응답:', error.response.data);
+         // console.error('응답 데이터:', error.response.data);
         }
         alert('프로필 업데이트 중 오류가 발생했습니다.');
       } finally {
@@ -164,41 +167,19 @@ export default {
       }
     },
 
+    // 파일 업로드 로직 (파일이 있을 때만 실행)
     async uploadFile() {
       try {
         await axios.put(this.presignedUrl, this.file, {
           headers: {
-            'Content-Type': this.file.type,
+            'Content-Type': this.file ? this.file.type : 'application/octet-stream',
           },
         });
 
-        await this.saveFileUrlToDatabase(this.presignedUrl.split('?')[0]);
-
+        console.log('파일 업로드 성공');
       } catch (error) {
         console.error('파일 업로드 실패:', error);
-        alert('파일 업로드 실패!');
-      }
-    },
-
-    async saveFileUrlToDatabase(fileUrl) {
-      const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
-
-      try {
-        await axios.put(
-          `http://15.164.246.244:8080/club-leader/${clubId}/info`,
-          {
-            fileUrl: fileUrl,
-          },
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            }
-          }
-        );
-      } catch (error) {
-        console.error('파일 URL을 데이터베이스에 저장 중 오류:', error);
+        alert('파일 업로드 중 오류가 발생했습니다.');
       }
     },
 
@@ -206,7 +187,7 @@ export default {
       this.$refs.fileInput.click();
     },
 
-    onFileChange(event) {
+    async onFileChange(event) {
       this.file = event.target.files[0];
 
       // 파일 크기 및 형식 검증
@@ -239,6 +220,15 @@ export default {
       }
 
       return true;
+    },
+
+    onImageLoad() {
+      console.log("이미지가 성공적으로 로딩되었습니다.");
+    },
+
+    onImageError() {
+      console.error("이미지 로딩에 실패했습니다.");
+      this.mainPhoto = '@/assets/logo.png';  // 기본 이미지로 대체
     }
   }
 };
