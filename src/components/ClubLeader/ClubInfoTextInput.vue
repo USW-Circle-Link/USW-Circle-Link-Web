@@ -2,7 +2,7 @@
   <div>
     <h2>동아리 활동 사진</h2>
     <div class="image-upload-container">
-      <div v-for="(image, index) in images" :key="image.src" class="image-preview">
+      <div v-for="(image, index) in validImages" :key="image.src" class="image-preview">
         <img :src="image.src" alt="Uploaded Image" class="uploaded-image" />
         <div class="edit-icon" @click="triggerFileInput(index)">
           <img src="../../assets/penbrush.png" alt="Edit Icon" />
@@ -12,7 +12,7 @@
         </div>
         <input type="file" :ref="'fileInput' + index" @change="onFileChange(index, $event)" style="display: none;" />
       </div>
-      <div v-if="images.length < 5" class="image-upload">
+      <div v-if="images.some(item => item.src === '')" class="image-upload">
         <input type="file" @change="onImageUpload" />
         <span>+</span>
       </div>
@@ -48,6 +48,7 @@ export default {
   },
   data() {
     return {
+      pastImages: [], // 이미지 변경 전 배열
       images: [],  // 이미지를 저장할 배열
       textareaContent: '',  // 소개글
       isChecked: null,    //[모집 중 X] 기본 상태
@@ -61,6 +62,15 @@ export default {
       validFile: false,  // 파일 유효성 여부
       clubData: {}       // 클럽 소개 정보를 저장할 객체
     };
+  },
+  computed: {
+    validImages() {
+      return this.images.filter(image => image.src !== '');
+    },
+    nonEmptyImageCount() {
+      // 빈 문자열이 아닌 이미지의 개수를 반환
+      return this.images.filter(image => image.src !== '').length;
+    }
   },
   mounted() {
     this.fetchClubInfo();  // 컴포넌트가 마운트되면 클럽 정보를 가져옵니다.
@@ -83,7 +93,10 @@ export default {
         this.textareaContent = this.clubData.clubIntro || '';
         this.googleFormLink = this.clubData.googleFormUrl || '';
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
-        this.orders = this.clubData.introPhotos.map((_, index) => index + 1);
+        this.orders = this.clubData.introPhotos
+            .map((photo, index) => (photo ? index + 1 : null)) // 빈 값이 아닌 경우에만 index + 1
+            .filter(index => index !== null); // null을 필터링
+        //this.orders = this.clubData.introPhotos.map((_, index) => index + 1);
 
         //console.log(this.isChecked);
         console.log(this.orders);
@@ -96,19 +109,26 @@ export default {
       }
     },
     deleteImage(index) {
+      this.pastImages = this.images;
       try {
         console.log(index + 1, "번째 사진 삭제");
         console.log("Image URL:", this.images[index].src);
 
         // 삭제된 이미지 배열에 빈 문자열 넣기
-        this.images.splice(index, 1, {src:''});
+        this.images.splice(index, 1);
+        this.images.push({ src: '' });
         console.log(this.images);
 
+        this.orders.splice(this.orders.length -1 , 1);
+        this.orders.push('');
+        this.orders = this.orders.filter(item => item !== '');
+        console.log(this.orders);
+
         // 삭제할 이미지 배열 index 값 deleteorders에 넣기
-        if(!this.deleteorders.includes(index + 1)){
-          this.deleteorders.splice(index, 1, index + 1);
-          console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
-        }
+        this.deleteorders.splice(index, 0, this.orders.length + 1);
+        this.deleteorders.sort();
+        console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
+
         // 파일 input 참조를 재정렬
         this.$forceUpdate();
 
@@ -157,6 +177,11 @@ export default {
       }
     },
     onFileChange(index, event) {
+      this.images.splice(index, 1, {src : ''});
+      if (this.images.filter(image => image.src !== '').length >= 5) {
+        alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
+        return;
+      }
       const file = event.target.files[0];
       if (file) {
         const validExtensions = ['png', 'jpg', 'jpeg'];
@@ -164,7 +189,6 @@ export default {
 
         if (validExtensions.includes(fileExtension)) {
           this.file.splice(index, 1, file);
-          this.orders.push(index + 1);
           this.errorMessage = '';
           this.validFile = true;
 
@@ -177,6 +201,7 @@ export default {
           console.log(index + 1, "번째 사진 추가", );
           this.deleteorders.splice(this.deleteorders.indexOf(index) + 1, 1);
           console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
+          console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
         } else {
           console.error("Invalid file format:", fileExtension);
           alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg 형식의 파일을 입력하세요.");
@@ -187,23 +212,29 @@ export default {
       }
     },
     onImageUpload(event) {
-      if (this.images.length >= 5) {
+      if (this.images.filter(image => image.src !== '').length >= 5) {
         alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
         return;
       }
-
+      //console.log(this.images);
       const file = event.target.files[0];
       if (file) {
         const validExtensions = ['png', 'jpg', 'jpeg'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
-
         if (validExtensions.includes(fileExtension)) {
           this.file.push(file);
-          this.orders.push(this.file.length);
-          console.log(this.orders);
+          //this.orders.push();
+          console.log(this.orders.length + 1, "번째 사진 추가", );
+          this.deleteorders.splice(this.deleteorders.indexOf(this.orders.length + 1), 1);
+          this.deleteorders.push('');
+          this.deleteorders = this.deleteorders.filter(item => item !== '');
+          this.orders.push(this.orders.length + 1);
+          console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
+          console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
           const reader = new FileReader();
           reader.onload = (e) => {
-            this.images.push({ src: e.target.result });
+            this.images.splice(this.orders.length - 1,1,{ src: e.target.result });
+            console.log(this.images);
           };
           reader.readAsDataURL(file);
         } else {
@@ -227,11 +258,7 @@ export default {
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
       console.log(jsonData);
       //삭제되지 않은 파일만 서버에 전송
-      this.file.forEach((file, index) => {
-        if (!this.deletedImages.includes(this.images[index].src)) {
-          form.append('introPhotos', file);
-        }
-      });
+      form.append('introPhotos', this.images);
       try {
         const response = await axios.put(
             `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
