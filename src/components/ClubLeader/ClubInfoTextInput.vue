@@ -7,7 +7,9 @@
         <div class="edit-icon" @click="triggerFileInput(index)">
           <img src="../../assets/penbrush.png" alt="Edit Icon" />
         </div>
-        
+        <div class="delete-icon" @click="deleteImage(index)">
+          &times;
+        </div>
         <input type="file" :ref="'fileInput' + index" @change="onFileChange(index, $event)" style="display: none;" />
       </div>
       <div v-if="images.length < 5" class="image-upload">
@@ -82,11 +84,11 @@ export default {
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
         this.orders = this.clubData.introPhotos.map((_, index) => index + 1);
 
-        console.log(this.isChecked);
-        console.log(this.orders);
-        console.log(this.images);
-        console.log(this.googleFormLink);
-        
+        console.log(this.clubData);
+        // console.log(this.orders);
+        // console.log(this.images);
+        // console.log(this.googleFormLink);
+
       } catch (error) {
         console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
         this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
@@ -98,7 +100,7 @@ export default {
       this.isChecked = !this.isChecked;  // 현재 isChecked 상태를 반전시킴
       this.$emit('sendData', this.isChecked);
 
-      axios.put(`http://15.164.246.244:8080/club-leader/${clubId}/toggle-recruitment`,
+      axios.patch(`http://15.164.246.244:8080/club-leader/${clubId}/toggle-recruitment`,
           {
             key: this.isChecked
           },
@@ -184,7 +186,37 @@ export default {
         }
       }
     },
-    
+    deleteImage(index) {
+      try {
+        console.log("Deleting image at index:", index);
+        console.log("Image URL:", this.images[index].src);
+
+        // 삭제된 이미지의 URL을 저장하여 서버로 전송하지 않도록 함
+        const deletedImageUrl = this.images[index].src;
+        this.deletedImages.push(deletedImageUrl);
+
+        // 이미지를 images 배열에서 제거
+        this.images.splice(index, 1);
+        console.log("Image successfully deleted.");
+
+        // 파일 배열에서 해당 파일을 제거
+        this.file.splice(index, 1);
+        console.log("File array after deletion:", this.file);
+
+        // 삭제된 이미지의 순서를 orders 배열에서 제거
+        this.orders.splice(index, 1);
+        console.log("Orders array after deletion:", this.orders);
+
+        // 참조된 파일 input을 null로 설정
+        this.$refs[`fileInput${index}`] = null;
+
+        // 파일 input 참조를 재정렬
+        this.$forceUpdate();
+
+      } catch (error) {
+        console.error("Error while deleting image:", error);
+      }
+    },
     async saveInfo() {
         const clubId = store.state.clubId;
         const accessToken = store.state.accessToken;
@@ -282,6 +314,11 @@ export default {
   }
 };
 </script>
+
+
+
+
+
 
 
 
@@ -500,4 +537,5 @@ button {
   margin-bottom: 30px;
 }
 </style>
+
 
