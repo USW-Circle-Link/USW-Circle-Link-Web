@@ -17,7 +17,6 @@
         <span>+</span>
       </div>
     </div>
-
     <div class="ClubUpdateHeader">
       <h2>동아리 소개 수정</h2>
       <div class="head">
