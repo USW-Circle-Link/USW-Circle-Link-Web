@@ -7,7 +7,9 @@
         <div class="edit-icon" @click="triggerFileInput(index)">
           <img src="../../assets/penbrush.png" alt="Edit Icon" />
         </div>
-
+        <div class="delete-icon" @click="deleteImage(index)">
+          &times;
+        </div>
         <input type="file" :ref="'fileInput' + index" @change="onFileChange(index, $event)" style="display: none;" />
       </div>
       <div v-if="images.length < 5" class="image-upload">
@@ -50,7 +52,8 @@ export default {
       textareaContent: '',  // 소개글
       isChecked: null,    //[모집 중 X] 기본 상태
       googleFormLink: '',  // 구글 폼 링크
-      orders: [],
+      orders: [],  // 이미지 순서 배열
+      deleteorders: [], // 이미지 삭제 순서 배열
       file: [],  // 파일 배열
       deletedImages: [],  // 삭제된 이미지의 URL을 저장할 배열
       presignedUrls: [],  // 사전 서명된 URL 배열
@@ -82,14 +85,35 @@ export default {
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
         this.orders = this.clubData.introPhotos.map((_, index) => index + 1);
 
-        console.log(this.isChecked);
+        //console.log(this.isChecked);
         console.log(this.orders);
         console.log(this.images);
-        console.log(this.googleFormLink);
+        //console.log(this.googleFormLink);
 
       } catch (error) {
         console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
         this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
+      }
+    },
+    deleteImage(index) {
+      try {
+        console.log(index + 1, "번째 사진 삭제");
+        console.log("Image URL:", this.images[index].src);
+
+        // 삭제된 이미지 배열에 빈 문자열 넣기
+        this.images.splice(index, 1, {src:''});
+        console.log(this.images);
+
+        // 삭제할 이미지 배열 index 값 deleteorders에 넣기
+        if(!this.deleteorders.includes(index + 1)){
+          this.deleteorders.splice(index, 1, index + 1);
+          console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
+        }
+        // 파일 input 참조를 재정렬
+        this.$forceUpdate();
+
+      } catch (error) {
+        console.error("Error while deleting image:", error);
       }
     },
     async toggleCheckbox() {
@@ -98,7 +122,7 @@ export default {
       this.isChecked = !this.isChecked;  // 현재 isChecked 상태를 반전시킴
       this.$emit('sendData', this.isChecked);
 
-      axios.put(`http://15.164.246.244:8080/club-leader/${clubId}/toggle-recruitment`,
+      axios.patch(`http://15.164.246.244:8080/club-leader/${clubId}/toggle-recruitment`,
           {
             key: this.isChecked
           },
@@ -149,11 +173,15 @@ export default {
             this.images[index].src = e.target.result;
           };
           reader.readAsDataURL(file);
+
+          console.log(index + 1, "번째 사진 추가", );
+          this.deleteorders.splice(this.deleteorders.indexOf(index) + 1, 1);
+          console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
         } else {
           console.error("Invalid file format:", fileExtension);
           alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg 형식의 파일을 입력하세요.");
           this.errorMessage = '파일 형식이 맞지 않습니다. .png, .jpg, .jpeg 형식의 파일을 입력하세요.';
-          this.file.splice(index, 1);
+          this.file.splice(index, 1, file);
           this.validFile = false;
         }
       }
@@ -193,17 +221,17 @@ export default {
       const jsonData = {
         clubIntro: this.textareaContent || this.clubData.clubIntro,
         googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
-        orders: this.orders || this.clubData.orders
+        orders: this.orders || this.clubData.orders,
+        //deleteorders : this.deleteorders
       };
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
       console.log(jsonData);
-      // 삭제되지 않은 파일만 서버에 전송
+      //삭제되지 않은 파일만 서버에 전송
       this.file.forEach((file, index) => {
         if (!this.deletedImages.includes(this.images[index].src)) {
           form.append('introPhotos', file);
         }
       });
-
       try {
         const response = await axios.put(
             `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
@@ -259,22 +287,30 @@ export default {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
 
+      const form = new FormData();
+      const jsonData = {
+        clubIntro: this.textareaContent || this.clubData.clubIntro,
+        googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
+        orders: this.orders || this.clubData.orders,
+        //deleteorders : this.deleteorders
+      };
+      form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
       try {
         const fileUrls = this.presignedUrls.map(url => url.split('?')[0]);
-
         // 삭제된 이미지의 URL을 제외하고 전송
-        const filteredFileUrls = fileUrls.filter(url => !this.deletedImages.includes(url));
-
+        const filteredFileUrls = fileUrls.map(url =>
+            this.deletedImages.includes(url) ? "" : url
+        );
+        form.append('introPhotos', filteredFileUrls);
         await axios.put(
             `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
-            { introPhotos: filteredFileUrls },
+            form,
             {
               headers: {
-                'Authorization' : `Bearer ${accessToken}`,
+                'Authorization' : `Bearer ${accessToken}`
               }
             }
         );
-
       } catch (error) {
         console.error("파일 URL 저장 실패:", error);
       }
@@ -499,6 +535,4 @@ button {
   margin-left: 774px;
   margin-bottom: 30px;
 }
-
 </style>
-
