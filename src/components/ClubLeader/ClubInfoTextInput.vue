@@ -50,7 +50,7 @@ export default {
       textareaContent: '',  // 소개글
       isChecked: null,    //[모집 중 X] 기본 상태
       googleFormLink: '',  // 구글 폼 링크
-      orders: [],  // 이미지 순서 배열
+      orders: [],
       file: [],  // 파일 배열
       deletedImages: [],  // 삭제된 이미지의 URL을 저장할 배열
       presignedUrls: [],  // 사전 서명된 URL 배열
@@ -499,4 +499,6 @@ button {
   margin-left: 774px;
   margin-bottom: 30px;
 }
+
 </style>
+
