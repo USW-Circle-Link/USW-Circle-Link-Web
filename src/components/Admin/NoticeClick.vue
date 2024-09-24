@@ -261,13 +261,15 @@ export default {
 
 .notice-details {
   width: 817px;
-  height: 626px;
+  min-height: 626px; /* 최소 높이를 설정하여 기본 높이는 유지하되 */
   padding: 20px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  /* height: 626px; 고정 높이를 제거하여 자동으로 늘어나게 합니다. */
 }
+
 
 .notice-title {
   color: #333;
@@ -291,23 +293,26 @@ export default {
 }
 
 .notice-images {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 자동으로 열을 채워줍니다 */
+  grid-gap: 10px; /* 이미지 사이 간격 */
   margin-top: 20px;
 }
+
+.notice-image {
+  width: 100%;
+  height: 200px; /* 고정된 높이 설정 */
+  object-fit: cover; /* 이미지 비율을 유지하면서 잘 맞추어 줍니다 */
+  border-radius: 8px;
+}
+
 
 .image-container {
   width: 100%;
   max-width: 300px;
 }
 
-.notice-image {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  object-fit: cover;
-}
+
 
 .actions {
   display: flex;
