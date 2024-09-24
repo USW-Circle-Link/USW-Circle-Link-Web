@@ -1,8 +1,8 @@
 <template>
   <div class="club-profile">
-    <ImageSlider :images="images" />
+    <ImageSlider :images="images" oncontextmenu="return false;"/>
     <div class="ClubInfo">
-      <img :src="mainPhoto" alt="Flag Logo" class="logo" />
+      <img :src="mainPhoto" alt="Flag Logo" class="logo" oncontextmenu="return false;"/>
       <div class="Info">
         <div class="info">
           <p class="clubname">{{ data.clubName }}</p>
