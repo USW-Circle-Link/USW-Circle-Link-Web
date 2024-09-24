@@ -2,19 +2,21 @@
   <div>
     <h2>동아리 활동 사진</h2>
     <div class="image-upload-container">
-      <div v-for="(image, index) in validImages" :key="image.src" class="image-preview">
-        <img :src="image.src" alt="Uploaded Image" class="uploaded-image" />
-        <div class="edit-icon" @click="triggerFileInput(index)">
-          <img src="../../assets/penbrush.png" alt="Edit Icon" />
+      <div v-for="(image, index) in images" :key="index" class="image-preview">
+        <div v-if="image.src" class="image-preview">
+          <img :src="image.src" alt="Uploaded Image" class="uploaded-image" oncontextmenu="return false;"/>
+          <div class="edit-icon" @click="triggerFileInput(index)">
+            <img src="../../assets/penbrush.png" alt="Edit Icon" />
+          </div>
+          <div class="delete-icon" @click="deleteImage(index)">
+            &times;
+          </div>
+          <input type="file" :ref="'fileInput' + index" @change="onFileChange(index, $event)" style="display: none;" />
         </div>
-        <div class="delete-icon" @click="deleteImage(index)">
-          &times;
+        <div v-else class="image-upload">
+          <input type="file" @change="onImageUpload(index, $event)" />
+          <span>+</span>
         </div>
-        <input type="file" :ref="'fileInput' + index" @change="onFileChange(index, $event)" style="display: none;" />
-      </div>
-      <div v-if="images.some(item => item.src === '')" class="image-upload">
-        <input type="file" @change="onImageUpload" />
-        <span>+</span>
       </div>
     </div>
     <div class="ClubUpdateHeader">
@@ -98,8 +100,8 @@ export default {
         //this.orders = this.clubData.introPhotos.map((_, index) => index + 1);
 
         //console.log(this.isChecked);
-        console.log(this.orders);
-        console.log(this.images);
+        console.log("클럽 정보 불러오기 성공!", this.clubData);
+        //console.log(this.images);
         //console.log(this.googleFormLink);
 
       } catch (error) {
@@ -111,20 +113,20 @@ export default {
       this.pastImages = this.images;
       try {
         console.log(index + 1, "번째 사진 삭제");
-        console.log("Image URL:", this.images[index].src);
+        //console.log("Image URL:", this.images[index].src);
 
         // 삭제된 이미지 배열에 빈 문자열 넣기
-        this.images.splice(index, 1);
-        this.images.push({ src: '' });
+        this.images.splice(index, 1, { src: '' });
         console.log(this.images);
 
-        this.orders.splice(this.orders.length -1 , 1);
-        this.orders.push('');
-        this.orders = this.orders.filter(item => item !== '');
-        console.log(this.orders);
+        this.orders.splice(this.orders.indexOf(index + 1) , 1);
+        //this.orders.push('');
+        //this.orders = this.orders.filter(item => item !== '');
+
+        console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
 
         // 삭제할 이미지 배열 index 값 deleteorders에 넣기
-        this.deleteorders.splice(index, 0, this.orders.length + 1);
+        this.deleteorders.splice(index, 0, index + 1);
         this.deleteorders.sort();
         console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
 
@@ -166,9 +168,6 @@ export default {
             console.error('Error:', error);
           });
     },
-    googleFormLinkData(data) {
-      this.googleFormLink = data;
-    },
     triggerFileInput(index) {
       const fileInputRef = this.$refs[`fileInput${index}`];
       if (fileInputRef && fileInputRef[0] && fileInputRef[0].click) {
@@ -197,10 +196,9 @@ export default {
           };
           reader.readAsDataURL(file);
 
-          console.log(index + 1, "번째 사진 추가", );
-          this.deleteorders.splice(this.deleteorders.indexOf(index) + 1, 1);
-          console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
+          console.log(index + 1, "번째 사진 변경", );
           console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
+          console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
         } else {
           console.error("Invalid file format:", fileExtension);
           alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg 형식의 파일을 입력하세요.");
@@ -210,11 +208,9 @@ export default {
         }
       }
     },
-    onImageUpload(event) {
-      if (this.images.filter(image => image.src !== '').length >= 5) {
-        alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
-        return;
-      }
+    onImageUpload(index, event) {
+      console.log(index);
+      console.log(event);
       //console.log(this.images);
       const file = event.target.files[0];
       if (file) {
@@ -222,17 +218,15 @@ export default {
         const fileExtension = file.name.split('.').pop().toLowerCase();
         if (validExtensions.includes(fileExtension)) {
           this.file.push(file);
-          //this.orders.push();
-          console.log(this.orders.length + 1, "번째 사진 추가", );
-          this.deleteorders.splice(this.deleteorders.indexOf(this.orders.length + 1), 1);
-          this.deleteorders.push('');
-          this.deleteorders = this.deleteorders.filter(item => item !== '');
-          this.orders.push(this.orders.length + 1);
+          console.log(index + 1, "번째 사진 추가", );
+          this.deleteorders.splice(this.deleteorders.indexOf(index + 1), 1);
+          this.orders.splice(index, 0, index + 1);
+          this.orders.sort();
           console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
           console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
           const reader = new FileReader();
           reader.onload = (e) => {
-            this.images.splice(this.orders.length - 1,1,{ src: e.target.result });
+            this.images.splice(index,1,{ src: e.target.result });
             console.log(this.images);
           };
           reader.readAsDataURL(file);
@@ -242,7 +236,6 @@ export default {
         }
       }
     },
-
     async saveInfo() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
@@ -255,7 +248,7 @@ export default {
         //deleteorders : this.deleteorders
       };
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
-      console.log(jsonData);
+      //console.log(jsonData);
       //삭제되지 않은 파일만 서버에 전송
       form.append('introPhotos', this.images);
       try {
@@ -267,8 +260,9 @@ export default {
                 'Authorization': `Bearer ${accessToken}`
               }
             }
-        );
 
+        );
+        console.log(jsonData);
         if (response.data && response.data.data && response.data.data.presignedUrls) {
           this.presignedUrls = response.data.data.presignedUrls;
 
@@ -277,7 +271,7 @@ export default {
         }
 
         alert("저장되었습니다!");
-
+        console.log("소개/모집글 작성 완료!");
         // 저장 후 데이터를 다시 불러오기 위해 이벤트 발생
         this.$emit('data-saved');
 
@@ -364,7 +358,6 @@ export default {
 
 .image-preview {
   position: relative;
-  border: 1px solid #ddd;
   border-radius: 5px;
   overflow: hidden;
   width: 153.96px;
@@ -414,8 +407,8 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 153.96px;
-  height: 153.96px;
+  width: 150px;
+  height: 150px;
   border: 2px dashed #ddd;
   border-radius: 5px;
   cursor: pointer;
