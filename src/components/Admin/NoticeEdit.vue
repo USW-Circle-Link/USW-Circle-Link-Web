@@ -16,9 +16,17 @@
       <div class="image-upload-container">
         <div v-for="(image, index) in noticePhotos" :key="index" class="image-preview">
           <img :src="image.src" alt="Uploaded Image" class="uploaded-image" @error="onImageError" />
+          
+          <!-- 이미지 수정 아이콘 -->
           <div class="edit-icon" @click="editImage(index)">
             <img src="@/assets/penbrush.png" alt="Edit Icon" />
           </div>
+
+          <!-- 삭제 버튼 추가 (X 아이콘) -->
+          <div class="delete-icon" @click="deleteImage(index)">
+            <span>X</span>
+          </div>
+
           <input type="file" :ref="'fileInput' + index" @change="onImageChange(index)" style="display: none;" />
         </div>
         <div v-if="noticePhotos.length < 5" class="image-upload">
@@ -165,6 +173,12 @@ export default {
     editImage(index) {
       this.$refs[`fileInput${index}`][0].click();
     },
+    
+    // 이미지 삭제 기능 추가
+    deleteImage(index) {
+      this.noticePhotos.splice(index, 1);
+    },
+    
     async submitNotice() {
       if (!this.validateInput()) {
         return;
@@ -333,6 +347,17 @@ export default {
 .edit-icon img {
   width: 100%;
   height: 100%;
+}
+
+.delete-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 5px;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 .image-upload {
