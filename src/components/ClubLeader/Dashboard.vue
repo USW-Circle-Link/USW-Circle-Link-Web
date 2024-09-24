@@ -5,7 +5,7 @@
       <p>소속 동아리 회원 정보</p>
       <button @click="sheetDownload" class="spreadsheets">
         <p>엑셀 파일 다운로드</p>
-        <img src="../../assets/spreadsheets.png" />
+        <img src="../../assets/spreadsheets.png" oncontextmenu="return false;"/>
       </button>
     </div>
     <div id="Dashboard" class="Dashboard">
@@ -20,16 +20,6 @@
           </li>
         </ul>
       </div>
-      <!--      <div v-if="sheetData.length" class="memberlist">-->
-      <!--        <table>-->
-      <!--          <tbody>-->
-      <!--          <tr v-for="(row, rowIndex) in sheetData" :key="rowIndex">-->
-      <!--            <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>-->
-      <!--            <td><button class="Expulsion" @click="deleteRow(rowIndex)">퇴출</button></td>-->
-      <!--          </tr>-->
-      <!--          </tbody>-->
-      <!--        </table>-->
-      <!--      </div>-->
     </div>
   </div>
 </template>
