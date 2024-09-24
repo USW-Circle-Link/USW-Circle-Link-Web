@@ -1,6 +1,6 @@
 <template>
   <div class="ClubInfo">
-    <img :src="imageSrc" alt="Flag Logo" class="logo" v-if="imageSrc"/>
+    <img :src="imageSrc" alt="Flag Logo" class="logo" v-if="imageSrc" oncontextmenu="return false;"/>
     <div class="Info">
       <div class="info">
         <p class="clubname">{{data.clubName}}</p>
