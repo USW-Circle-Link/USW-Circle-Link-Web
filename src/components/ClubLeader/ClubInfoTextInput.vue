@@ -55,10 +55,10 @@ export default {
       isChecked: null,    //[모집 중 X] 기본 상태
       googleFormLink: '',  // 구글 폼 링크
       orders: [],  // 이미지 순서 배열
-      deleteorders: [], // 이미지 삭제 순서 배열
+      deletedOrders: [], // 이미지 삭제 순서 배열
       file: [],  // 파일 배열
-      deletedImages: [],  // 삭제된 이미지의 URL을 저장할 배열
       presignedUrls: [],  // 사전 서명된 URL 배열
+      sendpresignedUrls: [],  // 사전 서명된 URL과 사진을 변경하여
       errorMessage: '',  // 에러 메시지
       validFile: false,  // 파일 유효성 여부
       clubData: {}       // 클럽 소개 정보를 저장할 객체
@@ -125,10 +125,10 @@ export default {
 
         console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
 
-        // 삭제할 이미지 배열 index 값 deleteorders에 넣기
-        this.deleteorders.splice(index, 0, index + 1);
-        this.deleteorders.sort();
-        console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
+        // 삭제할 이미지 배열 index 값 deletedOrders에 넣기
+        this.deletedOrders.splice(index, 0, index + 1);
+        this.deletedOrders.sort();
+        console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
 
         // 파일 input 참조를 재정렬
         this.$forceUpdate();
@@ -198,7 +198,7 @@ export default {
 
           console.log(index + 1, "번째 사진 변경", );
           console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
-          console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
+          console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
         } else {
           console.error("Invalid file format:", fileExtension);
           alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg 형식의 파일을 입력하세요.");
@@ -219,10 +219,10 @@ export default {
         if (validExtensions.includes(fileExtension)) {
           this.file.push(file);
           console.log(index + 1, "번째 사진 추가", );
-          this.deleteorders.splice(this.deleteorders.indexOf(index + 1), 1);
+          this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);
           this.orders.splice(index, 0, index + 1);
           this.orders.sort();
-          console.log("삭제할 사진 순서가 저장된 배열 값",this.deleteorders);
+          console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
           console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -245,33 +245,35 @@ export default {
         clubIntro: this.textareaContent || this.clubData.clubIntro,
         googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
         orders: this.orders || this.clubData.orders,
-        //deleteorders : this.deleteorders
+        deletedOrders : this.deletedOrders
       };
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
       //console.log(jsonData);
       //삭제되지 않은 파일만 서버에 전송
-      form.append('introPhotos', this.images);
+      console.log(this.images.filter(image => image.src && image.src.includes('data:image')));
+      form.append('introPhotos', this.images.filter(image => image.src && image.src.includes('data:image')));
       try {
         const response = await axios.put(
             `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
             form,
             {
               headers: {
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessToken}`,
               }
             }
-
         );
         console.log(jsonData);
+        console.log(response);
         if (response.data && response.data.data && response.data.data.presignedUrls) {
           this.presignedUrls = response.data.data.presignedUrls;
-
           // 각 파일을 S3에 업로드
-          await this.uploadFiles();
+          await this.saveFileUrlsToDatabase();
         }
 
         alert("저장되었습니다!");
         console.log("소개/모집글 작성 완료!");
+        console.log('서명된 사진 링크 ', this.presignedUrls);
+
         // 저장 후 데이터를 다시 불러오기 위해 이벤트 발생
         this.$emit('data-saved');
 
@@ -286,23 +288,21 @@ export default {
         }
       }
     },
-    async uploadFiles() {
-      try {
-        await Promise.all(this.file.map((file, index) => {
-          if (!this.deletedImages.includes(this.images[index].src)) {
-            return axios.put(this.presignedUrls[index], file,{
-              headers: {
-                'Content-Type': file.type
-              }
-            });
-          }
-        }));
-        await this.saveFileUrlsToDatabase();
-      } catch (error) {
-        console.error("파일 업로드 실패:", error);
-        alert("파일 업로드 실패!");
-      }
-    },
+    // async uploadFiles() {
+    //   try {
+    //     await Promise.all(this.file.map((file, index) => {
+    //         return axios.put(this.presignedUrls[index], file,{
+    //           headers: {
+    //             'Content-Type': file.type
+    //           }
+    //         });
+    //     }));
+    //     await this.saveFileUrlsToDatabase();
+    //   } catch (error) {
+    //     console.error("파일 업로드 실패:", error);
+    //     alert("파일 업로드 실패!");
+    //   }
+    // },
     async saveFileUrlsToDatabase() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
@@ -312,16 +312,12 @@ export default {
         clubIntro: this.textareaContent || this.clubData.clubIntro,
         googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
         orders: this.orders || this.clubData.orders,
-        //deleteorders : this.deleteorders
+        deletedOrders : this.deletedOrders
       };
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
       try {
-        const fileUrls = this.presignedUrls.map(url => url.split('?')[0]);
         // 삭제된 이미지의 URL을 제외하고 전송
-        const filteredFileUrls = fileUrls.map(url =>
-            this.deletedImages.includes(url) ? "" : url
-        );
-        form.append('introPhotos', filteredFileUrls);
+        form.append('introPhotos', this.images.filter(str => str.includes('sw-circle-link-upload-files')));
         await axios.put(
             `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
             form,
