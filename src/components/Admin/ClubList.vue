@@ -278,6 +278,75 @@ body {
 .pagination button.active {
   color: #ffc700;
 }
+* Popup Overlay and Popup Window */
+.popup-overlay {
+  position: fixed; /* 화면 전체를 덮음 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 화면 상단에 표시 */
+}
 
+.popup {
+  background-color: #fff;
+  padding: 30px; /* 팝업 패딩을 조금 더 여유롭게 */
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 450px; /* 1.5배 키움 */
+  z-index: 1001; /* 팝업창을 오버레이보다 위에 배치 */
+}
+
+.popup h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.5em; /* 글씨 크기를 더 크게 */
+}
+
+.popup p {
+  margin-bottom: 20px;
+  font-size: 1.2em; /* 글씨 크기를 더 크게 */
+}
+
+.popup input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px; /* 입력 칸과 버튼 사이 간격 추가 */
+  font-size: 1.2em; /* 입력 칸의 글씨 크기를 더 크게 */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.popup-buttons button {
+  background-color: #ffc107; /* 확인 버튼 색상 변경 */
+  color: #fff;
+  border: none;
+  padding: 10px 30px; /* 버튼 크기를 더 크게 */
+  border-radius: 5px;
+  font-size: 1.2em; /* 버튼 글씨 크기를 더 크게 */
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.popup-buttons button:hover {
+  background-color: #e0a800;
+}
+
+.popup-buttons button:last-child {
+  background-color: #b0bec5;
+}
+
+.popup-buttons button:last-child:hover {
+  background-color: #90a4ae;
+}
 </style>
 
