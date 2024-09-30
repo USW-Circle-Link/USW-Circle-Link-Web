@@ -1,6 +1,24 @@
 <template>
   <div>
-    <ClubInfo />
+    <div class="ClubInfo">
+      <img :src="imageSrc" alt="Logo" class="clublogo" v-if="imageSrc" oncontextmenu="return false;"/>
+      <div class="Info">
+        <div class="info">
+          <p class="clubname">{{data.clubName}}</p>
+          <div class="line1"></div>
+          <p class="clubleader">동아리장</p>
+          <p class="name">{{data.leaderName}}</p>
+        </div>
+        <div class="phoneNum">
+          <div class="icon phone"></div>
+          <p>{{formattedPhoneNumber}}</p>
+        </div>
+        <div class="instaName">
+          <div class="icon insta"></div>
+          <p>@{{data.clubInsta}}</p>
+        </div>
+      </div>
+    </div>
     <div class="Dashboardhead">
       <p>소속 동아리 회원 정보</p>
       <button @click="sheetDownload" class="spreadsheets">
@@ -26,16 +44,15 @@
 
 <script>
 import axios from 'axios';
-import ClubInfo from "@/components/ClubLeader/ClubInfo.vue";
-import store from '@/store/store'; // 일단 store.js에서 Vuex 상태를 가져옴
+import store from '../../store/store'; // 일단 store.js에서 Vuex 상태를 가져옴
 
 export default {
   name: 'Dashboard',
-  components: {
-    ClubInfo,
-  },
   data() {
     return {
+      data: {},
+      imageSrc: '', // 이미지를 저장할 변수 추가
+      ExelFileName: '',
       sheetData: [],
       sheet: null,
       message: '',
@@ -43,6 +60,9 @@ export default {
     }
   },
   computed: {
+    formattedPhoneNumber() {
+      return this.data.leaderHp ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : '';
+    },
     formattedClubMembers() {
       return this.clubMembers.map(member => {
         return {
@@ -54,8 +74,49 @@ export default {
   },
   mounted() {
     this.fetchData();
+    this.pageLoadFunction();
+    this.getCurrentTime();
   },
   methods: {
+    getCurrentTime() {
+      const now = new Date();
+
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+      const day = String(now.getDate()).padStart(2, '0');
+
+      return ` [${year}-${month}-${day}]`;
+    },
+    async pageLoadFunction() {
+      console.log('Page has been loaded!');
+      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
+      const clubId = store.state.clubId; // 저장된 clubId 가져오기
+
+      try {
+        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/info`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
+            'Content-Type': 'application/json'
+          }
+        });
+
+        this.data = response.data.data;
+        this.ExelFileName = response.data.data.clubName + ' 동아리 명단' + this.getCurrentTime();
+
+        // mainPhotoUrl로부터 이미지 로드
+        if (this.data.mainPhotoUrl) {
+          const imageResponse = await axios.get(this.data.mainPhotoUrl, {
+            responseType: 'blob' // 이미지를 blob으로 받기 위해 responseType을 설정
+          });
+
+          // 이미지 URL을 생성하여 이미지 src에 할당
+          this.imageSrc = URL.createObjectURL(imageResponse.data);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        this.error = error.message;
+      }
+    },
     async fetchData() {
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
       console.log(accessToken + '토큰값');
@@ -63,7 +124,7 @@ export default {
       console.log(clubId + '클럽 ID')
       console.log('Page has been loaded!');
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?page=0&size=2`, { //${clubId}
+        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/members?page=0&size=2`, { //${clubId}
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
             'Content-Type': 'application/json'
@@ -82,7 +143,7 @@ export default {
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
       try {
-        const response = await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/2`, { //
+        const response = await axios.delete(`https://api.donggurami.net/club-leader/${clubId}/members/2`, { //
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
             'Content-Type': 'application/json'
@@ -96,35 +157,23 @@ export default {
         console.error('Error fetching data:', error);
       }
     },
-    // async pageLoadFunction() {
-    //   console.log('Page has been loaded!');
-    //   // 여기에 원하는 초기화 작업을 수행합니다.
-    //   try {
-    //     const response = await axios.get('http://43.200.140.186:8080/club-leader/members?leaderUUID=9a4c8754-6368-4757-a781-422ae23b5ee8&page=0&size=2', {
-    //       timeout: 5000, // 타임아웃을 5초로 설정
-    //     });
-    //     this.sheetData = response.data;
-    //     console.log(this.sheetData)
-    //   } catch (error) {
-    //     console.error('Fetch error:', error);
-    //     this.error = error.message;
-    //   }
-    // },
     async sheetDownload(){
       try {
         const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
         const clubId = store.state.clubId; // 저장된 clubId 가져오기
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members/export`, {
+        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/members/export`, {
+          responseType: 'blob', // Blob 형태로 응답을 받기 위해 설정
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
-            'Content-Type': 'application/json'
           }
         });
         console.log("엑셀파일 다운로드");
-        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
+        const url = window.URL.createObjectURL(blob);
+
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'example.xlsx'); // 파일 이름 설정
+        link.setAttribute('download', `${this.ExelFileName}.xlsx`); // 파일 이름 설정
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -138,6 +187,115 @@ export default {
 </script>
 
 <style>
+@media screen and (max-width:600px) {
+  .ClubInfo {
+    width: 590px;
+  }
+}
+
+.ClubInfo {
+  width: 886px;
+  height: 276px;
+  display: flex;
+  background: #fff;
+  margin-bottom: 30px;
+  border-radius: 8px;
+}
+
+.clublogo {
+  width: 302px;
+  object-fit: fill;
+  border-radius: 8px;
+  margin-right: 30px; /* 이미지와 텍스트 사이 간격 추가 */
+}
+
+.Info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+}
+
+.clubname {
+  color: #000;
+  font-family: Pretendard;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 24px; /* 100% */
+  letter-spacing: -0.6px;
+  margin-right: 15px;
+}
+
+.clubleader {
+  color: #767676;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; /* 100% */
+  letter-spacing: -0.4px;
+  margin-left: 15px;
+  margin-right: 5px;
+}
+
+.name {
+  color: #353549;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: -0.4px;
+}
+
+.phone {
+  width: 16px;
+  margin-right: 7px;
+  background: url('../../assets/phone.svg') no-repeat center center;
+}
+
+.insta {
+  width: 16px;
+  margin-right: 7px;
+  background: url('../../assets/insta.svg') no-repeat center center;
+}
+
+.line1 {
+  width: 1px;
+  height: 12px;
+  background: #DBDBDB;
+  margin-bottom: 4px;
+}
+
+.phoneNum {
+  display: flex;
+  height: 30px;
+}
+
+.phoneNum p {
+  font-size: 16px;
+  text-align: center;
+  line-height: 30px;
+  margin: 0;
+}
+
+.instaName {
+  display: flex;
+  height: 30px;
+}
+
+.instaName p {
+  font-size: 16px;
+  text-align: center;
+  line-height: 30px;
+  margin: 0;
+}
 .Dashboard{
   width: 886px;
   background: #fff;
