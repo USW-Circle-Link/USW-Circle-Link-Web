@@ -14,22 +14,28 @@
 
       <!-- 이미지 업로드 컨테이너 -->
       <div class="image-upload-container">
-        <div v-for="(image, index) in noticePhotos" :key="index" class="image-preview">
-          <img :src="image.src" alt="Uploaded Image" class="uploaded-image" @error="onImageError" />
-          
-          <!-- 이미지 수정 아이콘 -->
-          <div class="edit-icon" @click="editImage(index)">
-            <img src="@/assets/penbrush.png" alt="Edit Icon" />
-          </div>
+        <draggable v-model="noticePhotos" @end="updateImageOrder" class="image-items">
+          <template #item="{ element, index }">
+            <div class="image-preview">
+              <img :src="element.src" alt="Uploaded Image" class="uploaded-image" @error="onImageError" />
+              
+              <!-- 이미지 수정 아이콘 -->
+              <div class="edit-icon" @click="editImage(index)">
+                <img src="@/assets/penbrush.png" alt="Edit Icon" />
+              </div>
 
-          <!-- 삭제 버튼 추가 (X 아이콘) -->
-          <div class="delete-icon" @click="deleteImage(index)">
-            <span>X</span>
-          </div>
+              <!-- 삭제 버튼 추가 (X 아이콘) -->
+              <div class="delete-icon" @click="deleteImage(index)">
+                <span>X</span>
+              </div>
 
-          <input type="file" :ref="'fileInput' + index" @change="onImageChange(index)" style="display: none;" />
-        </div>
-        <div v-if="noticePhotos.length < 5" class="image-upload">
+              <input type="file" :ref="'fileInput' + index" @change="onImageChange(index)" style="display: none;" />
+            </div>
+          </template>
+        </draggable>
+
+        <!-- 이미지 추가 버튼을 이미지 옆에 배치 -->
+        <div v-if="noticePhotos.length < 5" class="image-preview image-upload">
           <input type="file" @change="onImageUpload" ref="fileInput" />
           <span>+</span>
         </div>
@@ -43,9 +49,13 @@
 <script>
 import axios from 'axios';
 import store from '@/store/store';
+import draggable from 'vuedraggable'; // vuedraggable import
 
 export default {
   name: 'NoticeEdit',
+  components: {
+    draggable, // vuedraggable 컴포넌트 등록
+  },
   props: ['id'],
   data() {
     return {
@@ -55,12 +65,18 @@ export default {
     };
   },
   methods: {
+    // 이미지 순서 변경 시 호출
+    updateImageOrder() {
+      this.noticePhotos.forEach((photo, index) => {
+        photo.order = index + 1;
+      });
+    },
     async fetchNotice(id) {
       try {
         const accessToken = store.state.accessToken;
         const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`, 
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
         });
@@ -99,13 +115,11 @@ export default {
       }
     },
     sanitizeInput(input) {
-      // 입력된 값을 HTML 인젝션으로부터 보호하기 위한 기본적인 이스케이프 처리
       const element = document.createElement('div');
       element.innerText = input;
       return element.innerHTML;
     },
     validateInput() {
-      // 제목과 내용이 비어있는지 확인
       if (!this.notice.noticeTitle || !this.notice.noticeContent) {
         alert('제목과 내용을 모두 입력해주세요.');
         return false;
@@ -120,10 +134,9 @@ export default {
 
       const file = event.target.files[0];
       if (!file) {
-        return; 
+        return;
       }
 
-      // 파일 형식 및 크기 확인
       if (!this.validateFile(file)) {
         return;
       }
@@ -137,7 +150,7 @@ export default {
     },
     validateFile(file) {
       const validTypes = ['image/png', 'image/jpeg'];
-      const maxSize = 2 * 1024 * 1024; // 2MB
+      const maxSize = 5 * 1024 * 1024; // 5MB
 
       if (!validTypes.includes(file.type)) {
         alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
@@ -145,40 +158,41 @@ export default {
       }
 
       if (file.size > maxSize) {
-        alert('파일 크기가 2MB를 초과합니다.');
+        alert('파일 크기가 5MB를 초과합니다.');
         return false;
       }
 
       return true;
     },
     onImageChange(index) {
-      const fileInput = this.$refs[`fileInput${index}`][0];
-      if (!fileInput || !fileInput.files[0]) {
-        return;
+      const fileInput = this.$refs[`fileInput${index}`]; // 변경
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+
+        if (!this.validateFile(file)) {
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
+        };
+        reader.readAsDataURL(file);
+      } else {
+        console.error('fileInput is not found or files is empty.');
       }
-
-      const file = fileInput.files[0];
-
-      // 파일 형식 및 크기 확인
-      if (!this.validateFile(file)) {
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
-      };
-      reader.readAsDataURL(file);
     },
     editImage(index) {
-      this.$refs[`fileInput${index}`][0].click();
+      const fileInput = this.$refs['fileInput' + index]; // 참조값을 직접 접근
+      if (fileInput && fileInput.click) {
+        fileInput.click(); // 클릭 이벤트를 트리거
+      } else {
+        console.error('fileInput is undefined or does not have a click method.');
+      }
     },
-    
-    // 이미지 삭제 기능 추가
     deleteImage(index) {
       this.noticePhotos.splice(index, 1);
     },
-    
     async submitNotice() {
       if (!this.validateInput()) {
         return;
@@ -224,9 +238,8 @@ export default {
                     'Content-Type': this.noticePhotos[index].file.type,
                   }
                 });
-              //  console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
               } catch (uploadError) {
-                //console.error(`Image ${index + 1} failed to upload:`, uploadError);
+                console.error(`Image ${index + 1} failed to upload:`, uploadError);
               }
             }
           }));
@@ -262,7 +275,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 @import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
@@ -310,12 +322,18 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 815px;
-  height: 153.96px;
+  width: 100%;  /* 전체 너비 */
   background-color: white;
   padding: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
+  overflow-x: auto; /* 이미지가 가로로 넘칠 때 스크롤 가능하도록 설정 */
+  flex-wrap: nowrap; /* 한 줄로 배치 */
+}
+
+.image-items {
+  display: flex;
+  gap: 10px;
 }
 
 .image-preview {
