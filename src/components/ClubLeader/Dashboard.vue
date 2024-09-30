@@ -93,7 +93,7 @@ export default {
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
 
       try {
-        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/info`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
             'Content-Type': 'application/json'
@@ -124,7 +124,7 @@ export default {
       console.log(clubId + '클럽 ID')
       console.log('Page has been loaded!');
       try {
-        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/members?page=0&size=2`, { //${clubId}
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?page=0&size=2`, { //${clubId}
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
             'Content-Type': 'application/json'
@@ -143,7 +143,7 @@ export default {
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
       try {
-        const response = await axios.delete(`https://api.donggurami.net/club-leader/${clubId}/members/2`, { //
+        const response = await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/2`, { //
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
             'Content-Type': 'application/json'
@@ -161,7 +161,7 @@ export default {
       try {
         const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
         const clubId = store.state.clubId; // 저장된 clubId 가져오기
-        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/members/export`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members/export`, {
           responseType: 'blob', // Blob 형태로 응답을 받기 위해 설정
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
