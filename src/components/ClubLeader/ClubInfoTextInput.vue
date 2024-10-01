@@ -93,10 +93,10 @@ export default {
         //     .filter(index => index !== null); // null을 필터링
         //this.orders = this.clubData.introPhotos.map((_, index) => index + 1);
 
-        //console.log(this.isChecked);
-        console.log("클럽 정보 불러오기 성공!", this.clubData);
-        //console.log(this.images);
-        //console.log(this.googleFormLink);
+        // console.log(this.isChecked);
+        // console.log("클럽 정보 불러오기 성공!", this.clubData);
+        // console.log(this.images);
+        // console.log(this.googleFormLink);
 
       } catch (error) {
         console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
@@ -106,23 +106,23 @@ export default {
     deleteImage(index) {
       this.pastImages = this.images;
       try {
-        console.log(index + 1, "번째 사진 삭제");
+        // console.log(index + 1, "번째 사진 삭제");
         //console.log("Image URL:", this.images[index].src);
 
         // 삭제된 이미지 배열에 빈 문자열 넣기
         this.images.splice(index, 1, { src: '' });
-        console.log(this.images);
+        // console.log(this.images);
 
         this.orders.splice(this.orders.indexOf(index + 1) , 1);
         //this.orders.push('');
         //this.orders = this.orders.filter(item => item !== '');
 
-        console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
+        // console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
 
         // 삭제할 이미지 배열 index 값 deletedOrders에 넣기
         this.deletedOrders.splice(index, 0, index + 1);
         this.deletedOrders.sort();
-        console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
+        // console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
 
         // 파일 input 참조를 재정렬
         this.$forceUpdate();
@@ -195,8 +195,8 @@ export default {
           console.log(index + 1, "번째 사진 변경", );
           this.orders.splice(index, 0, index + 1);
           this.orders.sort();
-          console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
-          console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
+          // console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
+          // console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
         } else {
           console.error("Invalid file format:", fileExtension);
           alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg 형식의 파일을 입력하세요.");
@@ -209,7 +209,9 @@ export default {
     onImageUpload(index, event) {
       const file = event.target.files[0];
       if (file) {
-        const validExtensions = ['png', 'jpg', 'jpeg'];
+        // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
+        // 파일 업로드 이미지 사이즈는 10mb 이하
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
         if (validExtensions.includes(fileExtension)) {
           this.file.push(file);
@@ -217,8 +219,8 @@ export default {
           this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);
           this.orders.splice(index, 0, index + 1);
           this.orders.sort();
-          console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
-          console.log("새로 저장 할 사진 순서가 저장된 배열 값", this.orders);
+          // console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
+          // console.log("새로 저장 할 사진 순서가 저장된 배열 값", this.orders);
           const reader = new FileReader();
           reader.onload = (e) => {
             this.images.splice(index,1,{ src: e.target.result });
@@ -236,6 +238,19 @@ export default {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
 
+      if(this.textareaContent === ''){
+        alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.");
+        return;
+      }
+      if(this.googleFormLink === ''){
+        alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
+        return;
+      }
+      if(this.googleFormLink.includes("https://forms.gle/") && this.googleFormLink.includes("https://docs.google.com/forms/")){
+        alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
+        return;
+      }
+
       const form = new FormData();
       const jsonData = {
         clubIntro: this.textareaContent || this.clubData.clubIntro,
@@ -246,11 +261,11 @@ export default {
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
       //console.log(jsonData);
       //삭제되지 않은 파일만 서버에 전송
-      console.log('A', this.images);
+      // console.log('A', this.images);
       // this.imagesData = this.images.filter(image => image.src !== '');
-      console.log('B', this.imagesData);
+      // console.log('B', this.imagesData);
       this.imagesData.forEach((image, index) => {
-        console.log(`${index}`,image.file);
+        // console.log(`${index}`,image.file);
         form.append('introPhotos', image.file);
       });
       try {
@@ -264,33 +279,27 @@ export default {
               }
             }
         );
-        for (let [key, value] of form.entries()) {
-          console.log(`${key}: ${value}`);
-        }
-        console.log(response);
+        // for (let [key, value] of form.entries()) {
+        //   console.log(`${key}: ${value}`);
+        // }
+        // console.log(response);
         if (response.data && response.data.data && response.data.data.presignedUrls) {
           this.presignedUrls = response.data.data.presignedUrls;
-          console.log(this.presignedUrls);
+          // console.log(this.presignedUrls);
           // 각 파일을 S3에 업로드
           await this.uploadFiles();
         }
 
         alert("저장되었습니다!");
         console.log("소개/모집글 작성 완료!");
-        console.log('서명된 사진 링크 ', this.presignedUrls);
+        location.reload();
+        // console.log('서명된 사진 링크 ', this.presignedUrls);
 
         // 저장 후 데이터를 다시 불러오기 위해 이벤트 발생
         this.$emit('data-saved');
 
       } catch (error) {
-
         console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
-        if(this.textareaContent === ''){
-          alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.")
-        }
-        if(this.googleFormLink === ''){
-          alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.")
-        }
       }
     },
     async uploadFiles() {
