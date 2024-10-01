@@ -257,6 +257,15 @@ nav li {
   visibility: visible;
 }
 
+.list2 .bottom {
+  width: 240px;
+  height: 88px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 7px;
+  pointer-events: none;
+}
+
 .list3 {
   position: relative;
   z-index: 100;
