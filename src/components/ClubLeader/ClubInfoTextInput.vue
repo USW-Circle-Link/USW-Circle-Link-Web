@@ -180,13 +180,16 @@ export default {
         return;
       }
       const file = event.target.files[0];
+
       if (file) {
         // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
         // 파일 업로드 이미지 사이즈는 10mb 이하
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
+        const maxFileSize = 10 * 1024 * 1024; // 10MB를 바이트로 변환
+        console.log(file.size);
 
-        if (validExtensions.includes(fileExtension)) {
+        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
           this.file.splice(index, 1, file);
           this.errorMessage = '';
           this.validFile = true;
@@ -206,7 +209,7 @@ export default {
           // console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
         } else {
           console.error("Invalid file format:", fileExtension);
-          alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg 형식의 파일을 입력하세요.");
+          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
           this.errorMessage = '파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.';
           this.file.splice(index, 1, file);
           this.validFile = false;
@@ -221,7 +224,10 @@ export default {
         // 파일 업로드 이미지 사이즈는 10mb 이하
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
-        if (validExtensions.includes(fileExtension)) {
+        const maxFileSize = 10 * 1024 * 1024; // 10MB를 바이트로 변환
+        console.log(file.size);
+
+        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
           this.file.push(file);
           console.log(index + 1, "번째 사진 추가", );
           this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);
@@ -238,7 +244,7 @@ export default {
           reader.readAsDataURL(file);
         } else {
           console.error("Invalid file format:", fileExtension);
-          alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
         }
       }
     },
