@@ -1,5 +1,3 @@
-admin/clublist
-
 <template>
   <div class="title">소속 동아리 리스트</div>
   <!-- Header Section -->
@@ -278,7 +276,7 @@ body {
 .pagination button.active {
   color: #ffc700;
 }
-* Popup Overlay and Popup Window */
+/* Popup Overlay and Popup Window */
 .popup-overlay {
   position: fixed; /* 화면 전체를 덮음 */
   top: 0;
