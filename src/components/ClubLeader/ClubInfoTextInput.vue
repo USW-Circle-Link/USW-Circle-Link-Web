@@ -71,6 +71,7 @@ export default {
     this.fetchClubInfo();  // 컴포넌트가 마운트되면 클럽 정보를 가져옵니다.
   },
   methods: {
+    // 컴포넌트가 마운트되면 클럽 정보를 가져옵니다.
     async fetchClubInfo() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
@@ -103,6 +104,7 @@ export default {
         this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
       }
     },
+    // X 버튼을 누르면 이미지를 삭제합니다.
     deleteImage(index) {
       this.pastImages = this.images;
       try {
@@ -131,6 +133,7 @@ export default {
         console.error("Error while deleting image:", error);
       }
     },
+    // 모집중 토글 함수, 모집 상태를 서버에 반영합니다.
     async toggleCheckbox() {
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
@@ -162,12 +165,14 @@ export default {
             console.error('Error:', error);
           });
     },
+    // 파일을 선택합니다.
     triggerFileInput(index) {
       const fileInputRef = this.$refs[`fileInput${index}`];
       if (fileInputRef && fileInputRef[0] && fileInputRef[0].click) {
         fileInputRef[0].click();
       }
     },
+    // 선택된 이미지를 다른 이미지로 교체합니다.
     onFileChange(index, event) {
       this.images.splice(index, 1, {src : ''});
       if (this.images.filter(image => image.src !== '').length >= 5) {
@@ -176,7 +181,9 @@ export default {
       }
       const file = event.target.files[0];
       if (file) {
-        const validExtensions = ['png', 'jpg', 'jpeg'];
+        // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
+        // 파일 업로드 이미지 사이즈는 10mb 이하
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
 
         if (validExtensions.includes(fileExtension)) {
@@ -200,12 +207,13 @@ export default {
         } else {
           console.error("Invalid file format:", fileExtension);
           alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg 형식의 파일을 입력하세요.");
-          this.errorMessage = '파일 형식이 맞지 않습니다. .png, .jpg, .jpeg 형식의 파일을 입력하세요.';
+          this.errorMessage = '파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.';
           this.file.splice(index, 1, file);
           this.validFile = false;
         }
       }
     },
+    // 새로운 이미지를 업로드합니다.
     onImageUpload(index, event) {
       const file = event.target.files[0];
       if (file) {
@@ -230,10 +238,11 @@ export default {
           reader.readAsDataURL(file);
         } else {
           console.error("Invalid file format:", fileExtension);
-          alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg 형식의 파일을 입력하세요.");
+          alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
         }
       }
     },
+    // 소개/모집글 정보를 저장합니다.
     async saveInfo() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
@@ -302,6 +311,7 @@ export default {
         console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
       }
     },
+    // 이미지 데이터가 저장된 서명된 이미지 링크를 불러와 저장합니다.
     async uploadFiles() {
       try {
         await Promise.all(this.presignedUrls.map(async (photoUrl, index) => {
@@ -317,34 +327,6 @@ export default {
         alert("파일 업로드 실패!");
       }
     },
-    // async saveFileUrlsToDatabase() {
-    //   const clubId = store.state.clubId;
-    //   const accessToken = store.state.accessToken;
-    //
-    //   const form = new FormData();
-    //   const jsonData = {
-    //     clubIntro: this.textareaContent || this.clubData.clubIntro,
-    //     googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
-    //     orders: this.orders || this.clubData.orders,
-    //     deletedOrders : this.deletedOrders
-    //   };
-    //   form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
-    //   try {
-    //     // 삭제된 이미지의 URL을 제외하고 전송
-    //     form.append('introPhotos', this.presignedUrls);
-    //     await axios.put(
-    //         `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
-    //         form,
-    //         {
-    //           headers: {
-    //             'Authorization' : `Bearer ${accessToken}`
-    //           }
-    //         }
-    //     );
-    //   } catch (error) {
-    //     console.error("파일 URL 저장 실패:", error);
-    //   }
-    // }
   }
 };
 </script>
