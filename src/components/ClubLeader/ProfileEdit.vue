@@ -31,7 +31,7 @@
           </div>
           <div class="form-group">
             <label for="phoneNumber">전화번호</label>
-            <input type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" />
+            <input type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" @input="validatePhoneNumber"/>
           </div>
           <div class="button-container">
             <button type="submit" :disabled="isLoading">{{ isLoading ? '업데이트 중...' : '수정하기' }}</button>
@@ -52,20 +52,19 @@ export default {
       leaderName: '',
       clubInsta: '',
       leaderHp: '',
-      mainPhoto: '',  // 미리보기로 표시할 이미지 (수정된 경우)
-      defaultPhotoUrl: '', // 서버에서 받아온 이미지 URL
+      mainPhoto: '',
+      defaultPhotoUrl: '',
       isLoading: false,
-      file: null,  // 업로드할 파일
-      clubName: '', // 서버에서 받아올 동아리명
-      clubInfo: {}, // 클럽 정보를 저장할 객체
-      presignedUrl: '' // S3 업로드를 위한 사전 서명된 URL
+      file: null,
+      clubName: '',
+      clubInfo: {},
+      presignedUrl: ''
     };
   },
   async created() {
-    await this.fetchClubInfo();  // 동아리 정보를 불러옴
+    await this.fetchClubInfo();
   },
   methods: {
-    // URL로부터 파일을 생성하는 함수
     async urlToFile(url, filename) {
       const response = await fetch(url);
       const blob = await response.blob();
@@ -85,15 +84,14 @@ export default {
         });
 
         if (response.data && response.data.data) {
-          this.clubInfo = response.data.data; // 클럽 정보를 저장
+          this.clubInfo = response.data.data;
           this.leaderName = this.clubInfo.leaderName || '';
           this.clubInsta = this.clubInfo.clubInsta || '';
           this.leaderHp = this.clubInfo.leaderHp || '';
-          this.defaultPhotoUrl = this.clubInfo.mainPhotoUrl || '@/assets/logo.png';  // 기본 이미지로 설정
-          this.mainPhoto = this.defaultPhotoUrl;  // 기본 이미지 또는 서버에서 받아온 이미지로 설정
-          this.clubName = this.clubInfo.clubName || '';  // 서버에서 동아리명을 받아옴
+          this.defaultPhotoUrl = this.clubInfo.mainPhotoUrl || '@/assets/logo.png';
+          this.mainPhoto = this.defaultPhotoUrl;
+          this.clubName = this.clubInfo.clubName || '';
 
-          // 이미지 URL을 파일로 변환 (이미지 URL이 있을 경우에만 실행)
           if (this.defaultPhotoUrl) {
             this.file = await this.urlToFile(this.defaultPhotoUrl, 'image.png');
           }
@@ -112,29 +110,20 @@ export default {
       try {
         const formData = new FormData();
 
-        // 서버에서 기대하는 필드들로 데이터 구성
         const updatedData = {
-          leaderName: this.leaderName || '',  // Null 체크 후 빈 문자열로 대체
-          leaderHp: this.leaderHp || '',      // Null 체크 후 빈 문자열로 대체
-          clubInsta: this.clubInsta || ''     // Null 체크 후 빈 문자열로 대체
+          leaderName: this.leaderName || '',
+          leaderHp: this.leaderHp || '',
+          clubInsta: this.clubInsta || ''
         };
 
-        // JSON 데이터를 FormData에 추가
         formData.append("clubInfoRequest", new Blob([JSON.stringify(updatedData)], { type: 'application/json' }));
 
-        // 파일이 있는 경우에만 파일을 전송
         if (this.file) {
-          formData.append("mainPhoto", this.file);  // 새로 선택한 이미지가 있으면 전송
+          formData.append("mainPhoto", this.file);
         } else {
-          formData.append("mainPhoto", "");  // 파일이 없을 때 빈 값 전송
+          formData.append("mainPhoto", "");
         }
 
-        // formData 내용을 출력하여 확인
-        for (let pair of formData.entries()) {
-          console.log(pair[0] + ', ' + pair[1]); 
-        }
-
-        // 서버로 업데이트 요청을 전송
         const response = await axios.put(
           `https://api.donggurami.net/club-leader/${clubId}/info`,
           formData,
@@ -146,20 +135,19 @@ export default {
           }
         );
 
-        console.log("프로필 업데이트 성공:", response.data);
+        //console.log("프로필 업데이트 성공:", response.data);
         alert('수정 완료!');
 
-        // 업로드된 파일이 있으면 S3로 전송
         if (this.file && response.data.data.presignedUrl) {
           this.presignedUrl = response.data.data.presignedUrl;
           await this.uploadFile();
         }
 
-        this.$emit('update'); // 부모 컴포넌트에 업데이트 요청
+        this.$emit('update');
       } catch (error) {
-        console.error('프로필 업데이트 중 오류:', error);
+      //  console.error('프로필 업데이트 중 오류:', error);
         if (error.response) {
-          console.error('응답 데이터:', error.response.data);
+          //console.error('응답 데이터:', error.response.data);
         }
         alert('프로필 업데이트 중 오류가 발생했습니다.');
       } finally {
@@ -167,7 +155,6 @@ export default {
       }
     },
 
-    // 파일 업로드 로직 (파일이 있을 때만 실행)
     async uploadFile() {
       try {
         await axios.put(this.presignedUrl, this.file, {
@@ -176,9 +163,9 @@ export default {
           },
         });
 
-        console.log('파일 업로드 성공');
+       // console.log('파일 업로드 성공');
       } catch (error) {
-        console.error('파일 업로드 실패:', error);
+     //   console.error('파일 업로드 실패:', error);
         alert('파일 업로드 중 오류가 발생했습니다.');
       }
     },
@@ -190,7 +177,6 @@ export default {
     async onFileChange(event) {
       this.file = event.target.files[0];
 
-      // 파일 크기 및 형식 검증
       if (this.file && !this.validateFile(this.file)) {
         this.file = null;
         return;
@@ -206,11 +192,14 @@ export default {
     },
 
     validateFile(file) {
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      const maxSize = 2 * 1024 * 1024; // 2MB
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/tiff'];
+      const invalidExtensions = ['exe', 'bat', 'cmd', 'sh', 'php', 'js', 'py', 'dll', 'msi'];
+      const maxSize = 2 * 1024 * 1024;
 
-      if (!validTypes.includes(file.type)) {
-        alert('지원하지 않는 파일 형식입니다. JPG, PNG 또는 GIF 파일을 선택해주세요.');
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+
+      if (!validTypes.includes(file.type) || invalidExtensions.includes(fileExtension)) {
+        alert('지원하지 않는 파일 형식입니다. JPG, PNG, GIF, BMP, WebP, 또는 TIFF 파일을 선택해주세요.');
         return false;
       }
 
@@ -222,17 +211,26 @@ export default {
       return true;
     },
 
+    validatePhoneNumber() {
+      const phoneNumberRegex = /^[0-9]*$/;
+      if (!phoneNumberRegex.test(this.leaderHp)) {
+        alert('전화번호는 숫자만 입력할 수 있습니다.');
+        this.leaderHp = this.leaderHp.replace(/[^0-9]/g, '');
+      }
+    },
+
     onImageLoad() {
-      console.log("이미지가 성공적으로 로딩되었습니다.");
+     // console.log("이미지가 성공적으로 로딩되었습니다.");
     },
 
     onImageError() {
-      console.error("이미지 로딩에 실패했습니다.");
-      this.mainPhoto = '@/assets/logo.png';  // 기본 이미지로 대체
+     // console.error("이미지 로딩에 실패했습니다.");
+      this.mainPhoto = '@/assets/logo.png';
     }
   }
 };
 </script>
+
 
 
 
