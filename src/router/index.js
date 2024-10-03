@@ -9,6 +9,11 @@ const routes = [
         name: 'login',
         component: () => import('@/components/Login/Login.vue'),
     },
+    // {
+    //     path: '/user',
+    //     name: 'user',
+    //     component: () => import('@/components/User/Main.vue'),
+    // },
     {
         path: '/ClubProfile',
         name: 'ClubProfile',
