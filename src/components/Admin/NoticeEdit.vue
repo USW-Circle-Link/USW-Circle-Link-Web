@@ -49,12 +49,12 @@
 <script>
 import axios from 'axios';
 import store from '@/store/store';
-import draggable from 'vuedraggable'; // vuedraggable import
+import draggable from 'vuedraggable';
 
 export default {
   name: 'NoticeEdit',
   components: {
-    draggable, // vuedraggable 컴포넌트 등록
+    draggable,
   },
   props: ['id'],
   data() {
@@ -88,9 +88,9 @@ export default {
           };
 
           const photoUrls = response.data.data.noticePhotos || [];
+          // 모든 이미지 (JPG, PNG)를 동일하게 처리
           for (let i = 0; i < photoUrls.length; i++) {
-            const extension = photoUrls[i].endsWith('.jpg') || photoUrls[i].endsWith('.jpeg') ? 'jpg' : 'png';
-            const file = await this.urlToFile(photoUrls[i], `image_${i + 1}.${extension}`);
+            const file = await this.urlToFile(photoUrls[i], `image_${i + 1}.jpg`); // 파일로 변환 (형식은 자동 처리)
             if (file) {
               this.noticePhotos.push({ id: i + 1, src: photoUrls[i], file, order: i + 1 });
             }
@@ -104,6 +104,7 @@ export default {
         this.noticePhotos = [];
       }
     },
+    // URL을 파일로 변환
     async urlToFile(url, filename) {
       try {
         const response = await fetch(url);
@@ -126,6 +127,7 @@ export default {
       }
       return true;
     },
+    // 이미지 업로드 핸들러
     onImageUpload(event) {
       if (this.noticePhotos.length >= 5) {
         alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
@@ -148,6 +150,7 @@ export default {
       };
       reader.readAsDataURL(file);
     },
+    // 파일 검증
     validateFile(file) {
       const validTypes = ['image/png', 'image/jpeg'];
       const maxSize = 5 * 1024 * 1024; // 5MB
@@ -164,8 +167,9 @@ export default {
 
       return true;
     },
+    // 이미지 변경 핸들러
     onImageChange(index) {
-      const fileInput = this.$refs[`fileInput${index}`]; // 변경
+      const fileInput = this.$refs[`fileInput${index}`];
       if (fileInput && fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
 
@@ -179,13 +183,13 @@ export default {
         };
         reader.readAsDataURL(file);
       } else {
-        console.error('fileInput is not found or files is empty.');
+        console.error('fileInput is not found or files are empty.');
       }
     },
     editImage(index) {
-      const fileInput = this.$refs['fileInput' + index]; // 참조값을 직접 접근
+      const fileInput = this.$refs['fileInput' + index];
       if (fileInput && fileInput.click) {
-        fileInput.click(); // 클릭 이벤트를 트리거
+        fileInput.click();
       } else {
         console.error('fileInput is undefined or does not have a click method.');
       }
@@ -193,6 +197,7 @@ export default {
     deleteImage(index) {
       this.noticePhotos.splice(index, 1);
     },
+    // 공지사항 제출 핸들러
     async submitNotice() {
       if (!this.validateInput()) {
         return;
@@ -204,8 +209,8 @@ export default {
         const form = new FormData();
 
         const noticeData = {
-          noticeTitle: this.sanitizeInput(this.notice.noticeTitle),  // XSS 방지
-          noticeContent: this.sanitizeInput(this.notice.noticeContent),  // XSS 방지
+          noticeTitle: this.sanitizeInput(this.notice.noticeTitle),
+          noticeContent: this.sanitizeInput(this.notice.noticeContent),
           photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
           photoOrders: this.noticePhotos.map(photo => photo.order),
         };
@@ -214,7 +219,7 @@ export default {
 
         this.noticePhotos.forEach((image, index) => {
           if (image.file) {
-            form.append('photos', image.file);
+            form.append('photos', image.file); // 파일이 있는 경우에만 업로드
           }
         });
 
@@ -275,6 +280,10 @@ export default {
   }
 };
 </script>
+
+
+
+
 
 <style scoped>
 @import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
