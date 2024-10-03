@@ -76,22 +76,44 @@ export default {
     onImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.images.push({ src: e.target.result, file });
-        };
-        reader.readAsDataURL(file);
+        // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
+        // 파일 업로드 이미지 사이즈는 10mb 이하
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        //const maxFileSize = 10 * 1024 * 1024; // 10MB를 바이트로 변환
+        console.log(file.size);
+        if (validExtensions.includes(fileExtension)) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.images.push({src: e.target.result, file});
+          };
+          reader.readAsDataURL(file);
+        } else {
+          console.error("Invalid file format:", fileExtension);
+          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+        }
       }
     },
     onImageChange(index) {
       const fileInput = this.$refs[`fileInput${index}`][0];
       if (fileInput && fileInput.files[0]) {
         const file = fileInput.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.$set(this.images, index, { src: e.target.result, file });
-        };
-        reader.readAsDataURL(file);
+        // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
+        // 파일 업로드 이미지 사이즈는 10mb 이하
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const fileExtension = fileInput.name.split('.').pop().toLowerCase();
+        const maxFileSize = 10 * 1024 * 1024; // 10MB를 바이트로 변환
+        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.$set(this.images, index, {src: e.target.result, file});
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+          this.errorMessage = '파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.';
+        }
       }
     },
     editImage(index) {
