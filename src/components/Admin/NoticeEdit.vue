@@ -217,6 +217,7 @@ export default {
 
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
 
+        // eslint-disable-next-line no-unused-vars
         this.noticePhotos.forEach((image, index) => {
           if (image.file) {
             form.append('photos', image.file); // 파일이 있는 경우에만 업로드
@@ -238,6 +239,7 @@ export default {
           await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
             if (this.noticePhotos[index] && this.noticePhotos[index].file) {
               try {
+                // eslint-disable-next-line no-unused-vars
                 const photoResponse = await axios.put(photoUrl, this.noticePhotos[index].file, {
                   headers: {
                     'Content-Type': this.noticePhotos[index].file.type,

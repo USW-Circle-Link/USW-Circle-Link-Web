@@ -44,7 +44,26 @@ export default {
     };
   },
   methods: {
+    // 입력 값 검증: SQL 키워드 및 공백 검사
+    validateInput(value) {
+      const sqlKeywords = ["select", "insert", "update", "delete"];
+      const regex = new RegExp(sqlKeywords.join("|"), "i"); // 대소문자 구분하지 않음
+
+      // SQL 키워드가 포함된 경우와 공백이 포함된 경우 검사
+      if (regex.test(value) || /\s/.test(value)) {
+        return false;
+      }
+      return true;
+    },
+
     async login() {
+      // ID와 비밀번호 유효성 검사
+      if (!this.validateInput(this.id) || !this.validateInput(this.password)) {
+        this.error = "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
+        alert(this.error);
+        return;
+      }
+
       try {
         // 서버에 요청을 보냄
         const response = await axios.post('http://15.164.246.244:8080/integration/login', {
@@ -69,13 +88,7 @@ export default {
           this.$router.push({ name: 'adminmain' });
         }
       } catch (error) {
-        if (error.response && error.response.status === 400) {
-          // 사용자 친화적인 메시지로 변경
-          this.error = "아이디 또는 비밀번호가 틀렸습니다.";
-        } else {
-          // 기타 오류 처리
-          this.error = "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
-        }
+        this.error = "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
         alert(this.error);
       }
     }
