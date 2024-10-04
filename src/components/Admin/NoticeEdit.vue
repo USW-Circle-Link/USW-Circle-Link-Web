@@ -18,7 +18,7 @@
           <template #item="{ element, index }">
             <div class="image-preview">
               <img :src="element.src" alt="Uploaded Image" class="uploaded-image" @error="onImageError" />
-              
+
               <!-- 이미지 수정 아이콘 -->
               <div class="edit-icon" @click="editImage(index)">
                 <img src="@/assets/penbrush.png" alt="Edit Icon" />
@@ -142,13 +142,23 @@ export default {
       if (!this.validateFile(file)) {
         return;
       }
-
+      // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
+      // 파일 업로드 이미지 사이즈는 10mb 이하
+      const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      //const maxFileSize = 10 * 1024 * 1024; // 10MB를 바이트로 변환
+      console.log(file.size);
+      if (validExtensions.includes(fileExtension)) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const newImageOrder = this.noticePhotos.length + 1;
         this.noticePhotos.push({ id: null, src: e.target.result, file, order: newImageOrder });
       };
       reader.readAsDataURL(file);
+      } else {
+        console.error("Invalid file format:", fileExtension);
+        alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+      }
     },
     // 파일 검증
     validateFile(file) {
@@ -176,12 +186,21 @@ export default {
         if (!this.validateFile(file)) {
           return;
         }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
-        };
-        reader.readAsDataURL(file);
+        // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
+        // 파일 업로드 이미지 사이즈는 10mb 이하
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const fileExtension = fileInput.name.split('.').pop().toLowerCase();
+        const maxFileSize = 10 * 1024 * 1024; // 10MB를 바이트로 변환
+        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.noticePhotos[index] = {...this.noticePhotos[index], src: e.target.result, file};
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+          this.errorMessage = '파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.';
+        }
       } else {
         console.error('fileInput is not found or files are empty.');
       }
@@ -224,14 +243,14 @@ export default {
         });
 
         const response = await axios.put(
-          `http://15.164.246.244:8080/notices/${this.id}`,
-          form,
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'multipart/form-data',
+            `http://15.164.246.244:8080/notices/${this.id}`,
+            form,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data',
+              }
             }
-          }
         );
 
         if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
