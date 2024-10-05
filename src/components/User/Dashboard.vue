@@ -110,6 +110,7 @@ export default {
   font-style: normal;
   font-weight: 700;
   line-height: normal;
+  margin-left: 10px;
 }
 
 .department_clubList{
