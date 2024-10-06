@@ -263,7 +263,6 @@ nav li {
   display: flex;
   flex-direction: column;
   margin-top: 7px;
-  pointer-events: none;
 }
 
 .list2 a{
