@@ -266,6 +266,10 @@ nav li {
   pointer-events: none;
 }
 
+.list2 a{
+  pointer-events: all;
+}
+
 .list3 {
   position: relative;
   z-index: 100;
