@@ -1,6 +1,6 @@
 <template>
   <div class="ClubInfo">
-    <img :src="imageSrc" alt="Flag Logo" class="logo" v-if="imageSrc"/>
+    <img :src="imageSrc" alt="Flag Logo" class="logo" v-if="imageSrc" oncontextmenu="return false;"/>
     <div class="Info">
       <div class="info">
         <p class="clubname">{{data.clubName}}</p>
@@ -47,7 +47,8 @@ export default {
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
 
       try {
-        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/info`, {
+        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/info
+`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
             'Content-Type': 'application/json'
