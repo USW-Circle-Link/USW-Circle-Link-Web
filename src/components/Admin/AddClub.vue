@@ -4,12 +4,14 @@
     <form @submit.prevent="submitForm">
       <div class="form-group">
         <label for="id">아이디</label>
-        <input type="text" id="id" v-model="id" placeholder="아이디" required />
+        <input type="text" id="id" v-model="id" placeholder="아이디" required @input="validateId" />
+        <span v-if="idError" class="error">{{ idError }}</span>
       </div>
 
       <div class="form-group">
         <label for="password">비밀번호</label>
-        <input type="password" id="password" v-model="password" placeholder="비밀번호" required />
+        <input type="password" id="password" v-model="password" placeholder="비밀번호" required @input="validatePassword" />
+        <span v-if="passwordError" class="error">{{ passwordError }}</span>
       </div>
 
       <div class="form-group">
@@ -19,7 +21,8 @@
 
       <div class="form-group">
         <label for="clubName">동아리명</label>
-        <input type="text" id="clubName" v-model="clubName" placeholder="동아리명" required />
+        <input type="text" id="clubName" v-model="clubName" placeholder="동아리명" required @input="validateClubName" />
+        <span v-if="clubNameError" class="error">{{ clubNameError }}</span>
       </div>
 
       <div class="form-group">
@@ -32,12 +35,10 @@
           <option value="SPORT">체육</option>
           <option value="SHOW">공연</option>
           <option value="VOLUNTEER">봉사</option>
-          <!-- Add more options here -->
         </select>
       </div>
 
       <div class="popupbtn" @click="openPopup()">추가하기</div>
-      <!-- 팝업창 -->
       <div v-if="isPopupVisible" class="popup-overlay">
         <div class="popup">
           <h3>동아리 추가</h3>
@@ -45,7 +46,7 @@
           <input
               type="password"
               placeholder="관리자 비밀번호를 입력해 주세요."
-              v-model="adminPw "
+              v-model="adminPw"
           />
           <div class="buttons">
             <button @click="cancelDelete">취소</button>
@@ -68,30 +69,51 @@ export default {
       confirmPassword: '',
       clubName: '',
       department: '',
-      isPopupVisible: false, // 팝업의 표시 여부
-      adminPw: '', // 입력된 비밀번호
+      isPopupVisible: false,
+      adminPw: '',
+      idError: '',
+      passwordError: '',
+      clubNameError: ''
     };
   },
   methods: {
-    openPopup() {
-      this.isPopupVisible = true; // 팝업 열기
-    },
-    cancelDelete() {
-      this.isPopupVisible = false; // 팝업 닫기
-      this.password = ''; // 비밀번호 초기화
-    },
-    confirmDelete() {
-      if (this.password === 'your_password') { // 실제 비밀번호 확인 로직 필요
-        alert('삭제 완료');
-        this.isPopupVisible = false;
+    validateId() {
+      const idPattern = /^[a-zA-Z0-9]{5,20}$/;
+      if (!idPattern.test(this.id)) {
+        this.idError = '아이디는 5~20자 이내의 숫자와 문자만 입력 가능합니다.';
       } else {
-        alert('비밀번호가 틀렸습니다.');
+        this.idError = '';
       }
     },
+    validatePassword() {
+      const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+]{5,20}$/;
+      if (!passwordPattern.test(this.password)) {
+        this.passwordError = '비밀번호는 5~20자 이내의 숫자, 문자, 특수문자만 입력 가능합니다.';
+      } else {
+        this.passwordError = '';
+      }
+    },
+    validateClubName() {
+      if (this.clubName.length > 10) {
+        this.clubNameError = '동아리명은 10자 이내로 입력해야 합니다.';
+      } else {
+        this.clubNameError = '';
+      }
+    },
+    openPopup() {
+      this.isPopupVisible = true;
+    },
+    cancelDelete() {
+      this.isPopupVisible = false;
+      this.password = '';
+    },
     async submitForm() {
-      // Handle form submission
       if (this.password !== this.confirmPassword) {
-        alert('Passwords do not match');
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+      if (this.idError || this.passwordError || this.clubNameError) {
+        alert('입력값을 확인해 주세요.');
         return;
       }
       const formData = {
@@ -102,34 +124,29 @@ export default {
         department: this.department,
         adminPw: this.adminPw
       };
-      console.log('Form Submitted:', formData);
-      // You can add more form submission logic here
       try {
-        const response = await axios.post('https://api.donggurami.net/admin/clubs', formData, {
+        await axios.post('https://api.donggurami.net/admin/clubs', formData, {
           headers: {
-            'Authorization': `Bearer ${store.state.accessToken}` // Correct usage of the store
+            'Authorization': `Bearer ${store.state.accessToken}`
           }
         });
-        console.log('Form Submitted Successfully:', response.data);
-        alert('Form Submitted Successfully');
-        // Clear the form after successful submission
+        alert('성공적으로 추가했습니다.');
         this.clearForm();
-        this.isPopupVisible = false; // 팝업 닫기
+        this.isPopupVisible = false;
       } catch (error) {
-        //console.error('Error submitting form:', error);
-        if(error.response){
+        if (error.response) {
           console.error('응답 에러 상태 코드 : ', error.response.status);
         }
-        if(error.response.status === 400){
+        if (error.response.status === 400) {
           alert('동아리 추가에 실패했습니다. 관리자 비밀번호가 틀렸습니다.');
         }
-        if(error.response.status === 409){
+        if (error.response.status === 409) {
           alert('동아리 추가에 실패했습니다. 이미 존재하는 동아리 입니다.');
         }
-        if(error.response.status === 422){
+        if (error.response.status === 422) {
           alert('동아리 추가에 실패했습니다. 이미 존재하는 동아리 회장 아이디 입니다.');
         }
-        this.isPopupVisible = false; // 팝업 닫기
+        this.isPopupVisible = false;
       }
     },
     clearForm() {
@@ -177,10 +194,9 @@ input, select {
   border-radius: 4px;
 }
 
-.popupbtn{
+.popupbtn {
   margin-left: 91%;
   margin-top: 60px;
-  font-size: 17px;
   width: 60px;
   padding: 10px 20px;
   border: none;
@@ -193,17 +209,18 @@ input, select {
 .popupbtn:hover {
   background-color: #e6b800;
 }
- .popup-overlay {
-   position: fixed;
-   top: 0;
-   left: 0;
-   right: 0;
-   bottom: 0;
-   background-color: rgba(0, 0, 0, 0.5);
-   display: flex;
-   justify-content: center;
-   align-items: center;
- }
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .popup {
   background-color: white;
@@ -230,7 +247,7 @@ input {
   justify-content: space-between;
 }
 
-.popup-overlay button{
+.popup-overlay button {
   margin-top: 20px;
   width: 100px;
   padding: 10px 20px;
@@ -244,4 +261,9 @@ input {
   color: white;
 }
 
+.error {
+  color: red;
+  font-size: 12px;
+}
 </style>
+```
