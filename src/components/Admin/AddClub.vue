@@ -1,8 +1,3 @@
-`response` 변수가 사용되지 않아서 ESLint 오류가 발생합니다. `response` 변수를 제거하고 코드를 수정하겠습니다.
-
-다음은 수정된 코드입니다:
-
-```vue
 <template>
   <h2>동아리 추가</h2>
   <div class="form-container">
