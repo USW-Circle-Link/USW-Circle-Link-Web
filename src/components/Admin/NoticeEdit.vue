@@ -163,7 +163,7 @@ export default {
     // 파일 검증
     validateFile(file) {
       const validTypes = ['image/png', 'image/jpeg'];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 10 * 1024 * 1024; // 5MB
 
       if (!validTypes.includes(file.type)) {
         alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
