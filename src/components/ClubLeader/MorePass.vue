@@ -8,15 +8,14 @@
       <div class="status-boxes">
         <p class="whole">일괄 선택</p>
         <button class="status-box approve-box" @click="setAllApplicantsStatus('approved')">추가 합격</button>
-
       </div>
     </div>
     <div class="content">
       <div class="applicant-list">
         <div class="applicant-item" v-for="applicant in applicants" :key="applicant.id">
           <p>{{ applicant.userName }}</p>
-          <p>{{  applicant.studentNumber }}</p>
-          <p>{{ applicant.major  }}</p>
+          <p>{{ applicant.studentNumber }}</p>
+          <p>{{ applicant.major }}</p>
           <p>{{ applicant.userHp }}</p>
           <div class="buttons-group">
             <label :class="{ checked: applicant.decision === 'approved' }" @click="toggleDecision(applicant, 'approved')">
@@ -47,14 +46,16 @@
 </template>
 
 <script>
+import store from "@/store/store";
+
 export default {
   name: 'ApplicantManagement',
   data() {
     return {
       applicants: [],
       showConfirmPopup: false,
-      fetchUrl: 'http://15.164.246.244:8080/club-leader/applicants?leaderUUID=9a4c8754-6368-4757-a781-422ae23b5ee8&page=0&size=2', // 추가 합격자 지원자 명단을 가져오는 서버 URL
-      submitUrl: 'YOUR_SUBMIT_URL_HERE', // 추가 합격 결과를 보내는 서버 URL
+      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants?page=0&size=2`, // 추가 합격자 지원자 명단을 가져오는 서버 URL
+      submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants/notifyMultiple`, // 합/불 결과를 보내는 서버 URL
     };
   },
   mounted() {
@@ -63,7 +64,13 @@ export default {
   methods: {
     async fetchApplicants() {
       try {
-        const response = await fetch(this.fetchUrl);
+        const response = await fetch(this.fetchUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${store.state.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         if (response.ok) {
           const result = await response.json();
           console.log('Fetched data:', result); // 응답 데이터 출력
@@ -104,6 +111,7 @@ export default {
         const response = await fetch(this.submitUrl, {
           method: 'POST',
           headers: {
+            'Authorization': `Bearer ${store.state.accessToken}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ applicants: results })
