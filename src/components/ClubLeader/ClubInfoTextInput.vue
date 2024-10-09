@@ -261,7 +261,7 @@ export default {
         alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
         return;
       }
-      if(this.googleFormLink.includes("https://forms.gle/") && this.googleFormLink.includes("https://docs.google.com/forms/")){
+      if(!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")){
         alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
         return;
       }
@@ -512,6 +512,7 @@ label::after {
   background-color: #ffffff;
   margin: 0 auto;
   display: flex;
+  align-content: center;
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
@@ -520,7 +521,7 @@ label::after {
 .GoogleFormLinkInput textarea{
   width: 820px;
   height: 28px;
-  margin-top: 10px;
+  margin-top: 7px;
   text-align: left;
   border: none;
   font-size: 16px;
