@@ -135,9 +135,6 @@ export default {
 </script>
 
 <style scoped>
-/* 스타일은 그대로 유지 */
-@import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
-
 * {
   box-sizing: border-box;
 }
