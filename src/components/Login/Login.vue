@@ -88,7 +88,7 @@ export default {
           this.$router.push({ name: 'adminmain' });
         }
       } catch (error) {
-        const { message, code } = error.response.data;
+        const { code } = error.response.data;
 
         if (code === 'USR-211') {
           alert("아이디 혹은 비밀번호가 일치하지 않습니다");
