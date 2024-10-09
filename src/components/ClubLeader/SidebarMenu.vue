@@ -211,6 +211,7 @@ nav li {
   cursor: pointer;
   margin: 0px 0px 0px 0px;
   height: 55px;
+  z-index: 2;
 }
 
 .list1 {
@@ -272,7 +273,7 @@ nav li {
 
 .list3 {
   position: relative;
-  z-index: 100;
+  z-index: 1;
 }
 
 .top {
