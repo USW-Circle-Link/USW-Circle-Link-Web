@@ -141,7 +141,6 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
 
 .sidebar {
   width: 240px;
