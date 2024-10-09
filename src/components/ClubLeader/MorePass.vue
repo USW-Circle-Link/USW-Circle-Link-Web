@@ -1,7 +1,7 @@
 <template>
   <div class="MainBox">
     <div class="header">
-      <p class="common">지원자 합격 처리</p>
+      <p class="common">지원자 추가 합격 처리</p>
     </div>
     <div class="status-actions">
       <button class="send-result-btn" @click="showPopup">합/불 결과 전송하기</button>
@@ -160,7 +160,7 @@ export default {
         this.showNotification('결과 전송에 실패했습니다.', 'error');
       }
     },
-    
+
     // 지원자의 합/불 상태를 토글하는 메서드
     toggleDecision(applicant, decision) {
   if (['PASS', 'FAIL'].includes(decision)) {
