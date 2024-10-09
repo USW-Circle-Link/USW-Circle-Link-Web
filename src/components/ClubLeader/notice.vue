@@ -165,9 +165,6 @@ export default {
 
 <style scoped>
 
-/* 웹폰트 불러오기 */
-@import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
-
 /* 모든 요소에 박스 사이징 설정 */
 * {
   box-sizing: border-box;
