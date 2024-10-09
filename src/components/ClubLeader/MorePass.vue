@@ -1,27 +1,28 @@
 <template>
   <div class="MainBox">
     <div class="header">
-      <p class="common">지원자 추가 합격 처리</p>
+      <p class="common">지원자 합격 처리</p>
     </div>
     <div class="status-actions">
-      <button class="send-result-btn" @click="showPopup">추가 합격 결과 전송하기</button>
+      <button class="send-result-btn" @click="showPopup">합/불 결과 전송하기</button>
       <div class="status-boxes">
         <p class="whole">일괄 선택</p>
-        <button class="status-box approve-box" @click="setAllApplicantsStatus('approved')">추가 합격</button>
+        <button class="status-box approve-box" @click="setAllApplicantsStatus('PASS')">전체 합격</button>
+        <button class="status-box reject-box" @click="setAllApplicantsStatus('FAIL')">전체 불합격</button>
       </div>
     </div>
     <div class="content">
       <div class="applicant-list">
-        <div class="applicant-item" v-for="applicant in applicants" :key="applicant.id">
+        <div class="applicant-item" v-for="applicant in applicants" :key="applicant.aplictId">
           <p>{{ applicant.userName }}</p>
           <p>{{ applicant.studentNumber }}</p>
           <p>{{ applicant.major }}</p>
           <p>{{ applicant.userHp }}</p>
           <div class="buttons-group">
-            <label :class="{ checked: applicant.decision === 'approved' }" @click="toggleDecision(applicant, 'approved')">
+            <label :class="{ checked: applicant.decision === 'PASS' }" @click="toggleDecision(applicant, 'PASS')">
               <span>체크</span>
             </label>
-            <label :class="{ checked: applicant.decision === 'rejected' }" @click="toggleDecision(applicant, 'rejected')">
+            <label :class="{ checked: applicant.decision === 'FAIL' }" @click="toggleDecision(applicant, 'FAIL')">
               <span>체크</span>
             </label>
           </div>
@@ -32,9 +33,9 @@
     <div v-if="showConfirmPopup" class="popup-overlay">
       <div class="popup">
         <button class="close-btn" @click="hidePopup">X</button>
-        <h2>추가 합격 처리</h2>
+        <h2>합격/불합격 처리하기</h2>
         <hr>
-        <p class="confirm-message">추가 합격 처리를 확정 하시겠습니까?</p>
+        <p class="confirm-message">합격/불합격 처리를 확정 하시겠습니까?</p>
         <p class="notice-message">확정 후 지원자에게 알림이 발송 되니 신중하게 선택해 주세요.</p>
         <div class="popup-buttons">
           <button @click="hidePopup">취소</button>
@@ -42,11 +43,13 @@
         </div>
       </div>
     </div>
+   
   </div>
 </template>
 
 <script>
-import store from "@/store/store";
+import axios from 'axios'; // axios를 가져옵니다.
+import store from '@/store/store'; // Vuex에서 상태 가져오기
 
 export default {
   name: 'ApplicantManagement',
@@ -54,7 +57,11 @@ export default {
     return {
       applicants: [],
       showConfirmPopup: false,
-      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants?page=0&size=2`, // 추가 합격자 지원자 명단을 가져오는 서버 URL
+      notification: {
+        message: '',
+        type: ''
+      },
+      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants?page=0&size=2`, // 지원자 명단을 가져오는 서버 URL
       submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants/notifyMultiple`, // 합/불 결과를 보내는 서버 URL
     };
   },
@@ -62,6 +69,7 @@ export default {
     this.fetchApplicants();
   },
   methods: {
+    // 지원자 목록을 서버에서 가져오는 메서드
     async fetchApplicants() {
       try {
         const response = await fetch(this.fetchUrl, {
@@ -74,20 +82,31 @@ export default {
         if (response.ok) {
           const result = await response.json();
           console.log('Fetched data:', result); // 응답 데이터 출력
+
           const data = result.data;
           if (data && Array.isArray(data.content)) {
             this.applicants = data.content.map(applicant => ({
-              ...applicant,
+              aplictId: applicant.aplictId, // 필드명 수정
+              userName: applicant.userName,
+              studentNumber: applicant.studentNumber,
+              major: applicant.major,
+              userHp: applicant.userHp,
               decision: null, // decision 필드 초기화
             }));
+
+            console.log("Formatted applicants:", this.applicants); // 변환된 지원자 데이터 출력
+            this.showNotification('지원자 목록을 성공적으로 가져왔습니다.', 'success');
           } else {
             console.error('지원자 데이터 형식 오류', data);
+            this.showNotification('지원자 데이터를 처리하는 중 오류가 발생했습니다.', 'error');
           }
         } else {
           console.error('지원자 데이터 가져오기 실패', response.statusText);
+          this.showNotification('지원자 데이터를 가져오는 데 실패했습니다.', 'error');
         }
       } catch (error) {
         console.error('지원자 데이터 가져오는 중 에러 발생', error);
+        this.showNotification('지원자 데이터를 가져오는 중 문제가 발생했습니다.', 'error');
       }
     },
     showPopup() {
@@ -100,44 +119,71 @@ export default {
       this.hidePopup();
       this.sendResults();
     },
+    // 합/불 결과를 서버에 전송하기 전 데이터 검증 메서드
+    validateResults() {
+      const valid = this.applicants.every(applicant => applicant.decision !== null);
+      if (!valid) {
+        this.showNotification('모든 지원자에 대해 합/불 상태를 설정해 주세요.', 'error');
+      }
+      return valid;
+    },
+    // 합/불 결과를 서버에 전송하는 메서드
     async sendResults() {
-      console.log('결과 전송 중...');
+      if (!this.validateResults()) {
+        return;
+      }
+      
       const results = this.applicants.map(applicant => ({
-        id: applicant.id,
-        decision: applicant.decision
+        aplictId: applicant.aplictId, // 필드명 확인
+        aplictStatus: applicant.decision, // 필드명 확인
       }));
 
+      // 전송할 데이터에서 필수 값 확인
+      const hasInvalidData = results.some(result => !result.aplictId || !result.aplictStatus);
+      if (hasInvalidData) {
+        this.showNotification('모든 지원자의 합격/불합격 상태가 설정되지 않았습니다.', 'error');
+        return;
+      }
+
       try {
-        const response = await fetch(this.submitUrl, {
-          method: 'POST',
+        const response = await axios.post(this.submitUrl, results, {
           headers: {
             'Authorization': `Bearer ${store.state.accessToken}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ applicants: results })
         });
 
-        if (response.ok) {
-          console.log('결과 전송 성공');
-        } else {
-          console.error('결과 전송 실패', response.statusText);
-        }
+        console.log('결과 전송 성공:', response.data);
+        this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
       } catch (error) {
-        console.error('결과 전송 중 에러 발생', error);
+        console.error('결과 전송 실패:', error.response ? error.response.data : error.message);
+        this.showNotification('결과 전송에 실패했습니다.', 'error');
       }
     },
+    
+    // 지원자의 합/불 상태를 토글하는 메서드
     toggleDecision(applicant, decision) {
-      if (applicant.decision === decision) {
-        applicant.decision = null;
-      } else {
-        applicant.decision = decision;
-      }
-    },
+  if (['PASS', 'FAIL'].includes(decision)) {
+    applicant.decision = decision; // 유효한 값만 설정
+  } else {
+    console.error("잘못된 상태 값: ", decision);
+    this.showNotification('잘못된 합격/불합격 상태입니다. 상태는 PASS 또는 FAIL이어야 합니다.', 'error');
+  }
+},
+    // 전체 지원자의 합/불 상태를 설정하는 메서드
     setAllApplicantsStatus(status) {
       this.applicants.forEach(applicant => {
         applicant.decision = status;
       });
-    }
+    },
+    // 사용자에게 알림 메시지를 표시하는 메서드
+    showNotification(message, type) {
+      this.notification.message = message;
+      this.notification.type = type;
+      setTimeout(() => {
+        this.notification.message = '';
+      }, 3000); // 3초 후 알림 사라짐
+    },
   },
 };
 </script>
