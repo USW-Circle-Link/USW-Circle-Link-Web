@@ -88,8 +88,16 @@ export default {
           this.$router.push({ name: 'adminmain' });
         }
       } catch (error) {
-        this.error = "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
-        alert(this.error);
+        const { message, code } = error.response.data;
+
+        if (code === 'USR-211') {
+          alert("아이디 혹은 비밀번호가 일치하지 않습니다");
+        } else if (code === 'ATTEMPT-503') {
+          alert("최대 시도 횟수를 초과했습니다. 1분 후 다시 시도 하세요");
+        } else {
+          this.error = "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
+          alert(this.error);
+        }
       }
     }
   }
