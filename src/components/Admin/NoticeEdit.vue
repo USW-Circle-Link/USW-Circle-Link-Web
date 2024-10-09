@@ -88,9 +88,9 @@ export default {
           };
 
           const photoUrls = response.data.data.noticePhotos || [];
-          // 모든 이미지 (JPG, PNG)를 동일하게 처리
+          // 모든 이미지 (JPG, PNG 등)를 처리
           for (let i = 0; i < photoUrls.length; i++) {
-            const file = await this.urlToFile(photoUrls[i], `image_${i + 1}.jpg`); // 파일로 변환 (형식은 자동 처리)
+            const file = await this.urlToFile(photoUrls[i]); // 확장자는 자동 처리됨
             if (file) {
               this.noticePhotos.push({ id: i + 1, src: photoUrls[i], file, order: i + 1 });
             }
@@ -104,12 +104,20 @@ export default {
         this.noticePhotos = [];
       }
     },
-    // URL을 파일로 변환
-    async urlToFile(url, filename) {
+    // URL을 파일로 변환 (확장자 동적 처리)
+    async urlToFile(url) {
       try {
         const response = await fetch(url);
         const blob = await response.blob();
-        return new File([blob], filename, { type: blob.type });
+
+        // MIME 타입에 따른 확장자 결정
+        const mimeType = blob.type;
+        const extension = mimeType.split("/")[1]; // 이미지 타입에 따라 확장자를 동적으로 결정
+
+        // 파일 이름을 동적으로 할당
+        const filename = `image_${new Date().getTime()}.${extension}`;
+
+        return new File([blob], filename, { type: mimeType });
       } catch (error) {
         console.error('Error converting URL to file:', error);
         return null;
@@ -139,43 +147,19 @@ export default {
         return;
       }
 
-      if (!this.validateFile(file)) {
-        return;
-      }
-      // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
-      // 파일 업로드 이미지 사이즈는 10mb 이하
       const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
       const fileExtension = file.name.split('.').pop().toLowerCase();
-      //const maxFileSize = 10 * 1024 * 1024; // 10MB를 바이트로 변환
-      console.log(file.size);
       if (validExtensions.includes(fileExtension)) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const newImageOrder = this.noticePhotos.length + 1;
-        this.noticePhotos.push({ id: null, src: e.target.result, file, order: newImageOrder });
-      };
-      reader.readAsDataURL(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const newImageOrder = this.noticePhotos.length + 1;
+          this.noticePhotos.push({ id: null, src: e.target.result, file, order: newImageOrder });
+        };
+        reader.readAsDataURL(file);
       } else {
         console.error("Invalid file format:", fileExtension);
-        alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+        alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
       }
-    },
-    // 파일 검증
-    validateFile(file) {
-      const validTypes = ['image/png', 'image/jpeg'];
-      const maxSize = 10 * 1024 * 1024; // 5MB
-
-      if (!validTypes.includes(file.type)) {
-        alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
-        return false;
-      }
-
-      if (file.size > maxSize) {
-        alert('파일 크기가 5MB를 초과합니다.');
-        return false;
-      }
-
-      return true;
     },
     // 이미지 변경 핸들러
     onImageChange(index) {
@@ -183,23 +167,16 @@ export default {
       if (fileInput && fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
 
-        if (!this.validateFile(file)) {
-          return;
-        }
-        // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
-        // 파일 업로드 이미지 사이즈는 10mb 이하
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = fileInput.name.split('.').pop().toLowerCase();
-        const maxFileSize = 10 * 1024 * 1024; // 10MB를 바이트로 변환
-        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
+        if (validExtensions.includes(fileExtension)) {
           const reader = new FileReader();
           reader.onload = (e) => {
-            this.noticePhotos[index] = {...this.noticePhotos[index], src: e.target.result, file};
+            this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
           };
           reader.readAsDataURL(file);
         } else {
-          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
-          this.errorMessage = '파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.';
+          alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
         }
       } else {
         console.error('fileInput is not found or files are empty.');
@@ -218,96 +195,94 @@ export default {
     },
     // 공지사항 제출 핸들러
     async submitNotice() {
-  // 제목과 내용의 길이 제한
-  const maxTitleLength = 100;
-  const maxContentLength = 1000;
+      const maxTitleLength = 100;
+      const maxContentLength = 1000;
 
-  // 제목과 내용 길이 검증
-  if (this.notice.noticeTitle.length > maxTitleLength) {
-    alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
-    return;
-  }
-
-  if (this.notice.noticeContent.length > maxContentLength) {
-    alert(`공지사항 내용은 ${maxContentLength}자 이내로 작성해야 합니다.`);
-    return;
-  }
-
-  if (!this.validateInput()) {
-    return;
-  }
-
-  try {
-    this.isLoading = true;
-    const accessToken = store.state.accessToken;
-    const form = new FormData();
-
-    const noticeData = {
-      noticeTitle: this.sanitizeInput(this.notice.noticeTitle),
-      noticeContent: this.sanitizeInput(this.notice.noticeContent),
-      photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
-      photoOrders: this.noticePhotos.map(photo => photo.order),
-    };
-
-    form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
-
-    this.noticePhotos.forEach((image) => {
-      if (image.file) {
-        form.append('photos', image.file); // 파일이 있는 경우에만 업로드
+      if (this.notice.noticeTitle.length > maxTitleLength) {
+        alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
+        return;
       }
-    });
 
-    const response = await axios.put(
-      `http://15.164.246.244:8080/notices/${this.id}`,
-      form,
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'multipart/form-data',
-        }
+      if (this.notice.noticeContent.length > maxContentLength) {
+        alert(`공지사항 내용은 ${maxContentLength}자 이내로 작성해야 합니다.`);
+        return;
       }
-    );
 
-    if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
-      await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
-        if (this.noticePhotos[index] && this.noticePhotos[index].file) {
-          try {
-            const photoResponse = await axios.put(photoUrl, this.noticePhotos[index].file, {
-              headers: {
-                'Content-Type': this.noticePhotos[index].file.type,
-              }
-            });
-          } catch (uploadError) {
-            console.error(`Image ${index + 1} failed to upload:`, uploadError);
+      if (!this.validateInput()) {
+        return;
+      }
+
+      try {
+        this.isLoading = true;
+        const accessToken = store.state.accessToken;
+        const form = new FormData();
+
+        const noticeData = {
+          noticeTitle: this.sanitizeInput(this.notice.noticeTitle),
+          noticeContent: this.sanitizeInput(this.notice.noticeContent),
+          photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
+          photoOrders: this.noticePhotos.map(photo => photo.order),
+        };
+
+        form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
+
+        this.noticePhotos.forEach((image) => {
+          if (image.file) {
+            form.append('photos', image.file); // 파일이 있는 경우에만 업로드
           }
-        }
-      }));
-    }
+        });
 
-    alert('공지사항이 성공적으로 수정되었습니다!');
-    this.$router.push({ name: 'Notice' });
-  } catch (error) {
-    if (error.response) {
-      const status = error.response.status;
-      if (status === 400) {
-        alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
-      } else if (status === 404) {
-        alert('공지사항이 존재하지 않습니다.');
-      } else if (status === 413) {
-        alert('최대 5개의 사진이 업로드 가능합니다.');
-      } else if (status === 422) {
-        alert('제목과 내용을 모두 입력해주세요.');
-      } else {
-        alert('공지사항 수정에 실패했습니다.');
+        const response = await axios.put(
+          `http://15.164.246.244:8080/notices/${this.id}`,
+          form,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'multipart/form-data',
+            }
+          }
+        );
+
+        if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
+          await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
+            if (this.noticePhotos[index] && this.noticePhotos[index].file) {
+              try {
+                const photoResponse = await axios.put(photoUrl, this.noticePhotos[index].file, {
+                  headers: {
+                    'Content-Type': this.noticePhotos[index].file.type,
+                  }
+                });
+              } catch (uploadError) {
+                console.error(`Image ${index + 1} failed to upload:`, uploadError);
+              }
+            }
+          }));
+        }
+
+        alert('공지사항이 성공적으로 수정되었습니다!');
+        this.$router.push({ name: 'Notice' });
+      } catch (error) {
+        if (error.response) {
+          const status = error.response.status;
+          if (status === 400) {
+            alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
+          } else if (status === 404) {
+            alert('공지사항이 존재하지 않습니다.');
+          } else if (status === 413) {
+            alert('최대 5개의 사진이 업로드 가능합니다.');
+          } else if (status === 422) {
+            alert('제목과 내용을 모두 입력해주세요.');
+          } else {
+            alert('공지사항 수정에 실패했습니다.');
+          }
+        } else {
+          console.error('Error submitting notice:', error);
+          alert('공지사항 수정에 실패했습니다.');
+        }
+      } finally {
+        this.isLoading = false;
       }
-    } else {
-      console.error('Error submitting notice:', error);
-      alert('공지사항 수정에 실패했습니다.');
-    }
-  } finally {
-    this.isLoading = false;
-  }
-},
+    },
   },
   created() {
     this.fetchNotice(this.id);
@@ -315,11 +290,9 @@ export default {
 };
 </script>
 
-
-
-
-
 <style scoped>
+@import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
+
 * {
   box-sizing: border-box;
 }
