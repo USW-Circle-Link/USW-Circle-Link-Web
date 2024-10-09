@@ -62,7 +62,7 @@ export default {
   name: 'SidebarMenu',
   data() {
     return {
-      imageSrc: '',
+      imageSrc: require('@/assets/profile.png'),
       data: '',
       department: ''
     }
@@ -116,7 +116,9 @@ export default {
           const imageResponse = await axios.get(this.data.mainPhotoUrl, {
             responseType: 'blob'
           });
-          this.imageSrc = URL.createObjectURL(imageResponse.data);
+          if(imageResponse.data !== ''){
+            this.imageSrc = URL.createObjectURL(imageResponse.data);
+          }
         }
       } catch (error) {
         console.error('Fetch error:', error);
