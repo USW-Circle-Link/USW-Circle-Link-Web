@@ -301,9 +301,9 @@ export default {
 
 .notice-image {
   width: 100%;
-  height: 200px; /* 고정된 높이 설정 */
+  height: 100%; /* 고정된 높이 설정 */
   object-fit: cover; /* 이미지 비율을 유지하면서 잘 맞추어 줍니다 */
-  border-radius: 8px;
+ /* border-radius: 8px;*/
 }
 
 

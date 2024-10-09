@@ -218,81 +218,96 @@ export default {
     },
     // 공지사항 제출 핸들러
     async submitNotice() {
-      if (!this.validateInput()) {
-        return;
+  // 제목과 내용의 길이 제한
+  const maxTitleLength = 100;
+  const maxContentLength = 1000;
+
+  // 제목과 내용 길이 검증
+  if (this.notice.noticeTitle.length > maxTitleLength) {
+    alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
+    return;
+  }
+
+  if (this.notice.noticeContent.length > maxContentLength) {
+    alert(`공지사항 내용은 ${maxContentLength}자 이내로 작성해야 합니다.`);
+    return;
+  }
+
+  if (!this.validateInput()) {
+    return;
+  }
+
+  try {
+    this.isLoading = true;
+    const accessToken = store.state.accessToken;
+    const form = new FormData();
+
+    const noticeData = {
+      noticeTitle: this.sanitizeInput(this.notice.noticeTitle),
+      noticeContent: this.sanitizeInput(this.notice.noticeContent),
+      photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
+      photoOrders: this.noticePhotos.map(photo => photo.order),
+    };
+
+    form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
+
+    this.noticePhotos.forEach((image) => {
+      if (image.file) {
+        form.append('photos', image.file); // 파일이 있는 경우에만 업로드
       }
+    });
 
-      try {
-        this.isLoading = true;
-        const accessToken = store.state.accessToken;
-        const form = new FormData();
+    const response = await axios.put(
+      `http://15.164.246.244:8080/notices/${this.id}`,
+      form,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data',
+        }
+      }
+    );
 
-        const noticeData = {
-          noticeTitle: this.sanitizeInput(this.notice.noticeTitle),
-          noticeContent: this.sanitizeInput(this.notice.noticeContent),
-          photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
-          photoOrders: this.noticePhotos.map(photo => photo.order),
-        };
-
-        form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
-
-        this.noticePhotos.forEach((image, index) => {
-          if (image.file) {
-            form.append('photos', image.file); // 파일이 있는 경우에만 업로드
-          }
-        });
-
-        const response = await axios.put(
-            `http://15.164.246.244:8080/notices/${this.id}`,
-            form,
-            {
+    if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
+      await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
+        if (this.noticePhotos[index] && this.noticePhotos[index].file) {
+          try {
+            const photoResponse = await axios.put(photoUrl, this.noticePhotos[index].file, {
               headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'multipart/form-data',
+                'Content-Type': this.noticePhotos[index].file.type,
               }
-            }
-        );
-
-        if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
-          await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
-            if (this.noticePhotos[index] && this.noticePhotos[index].file) {
-              try {
-                const photoResponse = await axios.put(photoUrl, this.noticePhotos[index].file, {
-                  headers: {
-                    'Content-Type': this.noticePhotos[index].file.type,
-                  }
-                });
-              } catch (uploadError) {
-                console.error(`Image ${index + 1} failed to upload:`, uploadError);
-              }
-            }
-          }));
-        }
-
-        alert('공지사항이 성공적으로 수정되었습니다!');
-        this.$router.push({ name: 'Notice' });
-      } catch (error) {
-        if (error.response) {
-          const status = error.response.status;
-          if (status === 400) {
-            alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
-          } else if (status === 404) {
-            alert('공지사항이 존재하지 않습니다.');
-          } else if (status === 413) {
-            alert('최대 5개의 사진이 업로드 가능합니다.');
-          } else if (status === 422) {
-            alert('제목과 내용을 모두 입력해주세요.');
-          } else {
-            alert('공지사항 수정에 실패했습니다.');
+            });
+          } catch (uploadError) {
+            console.error(`Image ${index + 1} failed to upload:`, uploadError);
           }
-        } else {
-          console.error('Error submitting notice:', error);
-          alert('공지사항 수정에 실패했습니다.');
         }
-      } finally {
-        this.isLoading = false;
+      }));
+    }
+
+    alert('공지사항이 성공적으로 수정되었습니다!');
+    this.$router.push({ name: 'Notice' });
+  } catch (error) {
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 400) {
+        alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
+      } else if (status === 404) {
+        alert('공지사항이 존재하지 않습니다.');
+      } else if (status === 413) {
+        alert('최대 5개의 사진이 업로드 가능합니다.');
+      } else if (status === 422) {
+        alert('제목과 내용을 모두 입력해주세요.');
+      } else {
+        alert('공지사항 수정에 실패했습니다.');
       }
-    },
+    } else {
+      console.error('Error submitting notice:', error);
+      alert('공지사항 수정에 실패했습니다.');
+    }
+  } finally {
+    this.isLoading = false;
+  }
+},
   },
   created() {
     this.fetchNotice(this.id);

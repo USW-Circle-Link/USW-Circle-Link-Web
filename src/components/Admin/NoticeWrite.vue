@@ -121,63 +121,78 @@ export default {
     },
 
     async submitNotice() {
-      try {
-        const form = new FormData();
+  // 제목과 내용의 길이 제한
+  const maxTitleLength = 100;
+  const maxContentLength = 1000;
 
-        // 공지사항 데이터를 JSON으로 변환하여 FormData에 추가
-        const noticeData = {
-          noticeTitle: this.notice.noticeTitle,
-          noticeContent: this.notice.noticeContent,
-          photoOrders: this.images.map((_, index) => index + 1) // 이미지 순서 추가
-        };
-        form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
+  // 제목과 내용 길이 검증
+  if (this.notice.noticeTitle.length > maxTitleLength) {
+    alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
+    return;
+  }
 
-        // 이미지 파일들을 FormData에 추가
-        this.images.forEach((image, index) => {
-          form.append('photos', image.file);
-        });
+  if (this.notice.noticeContent.length > maxContentLength) {
+    alert(`공지사항 내용은 ${maxContentLength}자 이내로 작성해야 합니다.`);
+    return;
+  }
 
-        const response = await axios.post('http://15.164.246.244:8080/notices', form, {
+  try {
+    const form = new FormData();
+
+    // 공지사항 데이터를 JSON으로 변환하여 FormData에 추가
+    const noticeData = {
+      noticeTitle: this.notice.noticeTitle,
+      noticeContent: this.notice.noticeContent,
+      photoOrders: this.images.map((_, index) => index + 1) // 이미지 순서 추가
+    };
+    form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
+
+    // 이미지 파일들을 FormData에 추가
+    this.images.forEach((image, index) => {
+      form.append('photos', image.file);
+    });
+
+    const response = await axios.post('http://15.164.246.244:8080/notices', form, {
+      headers: {
+        'Authorization': `Bearer ${store.state.accessToken}`, // Vuex store에서 토큰 가져오기
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    // 공지사항 등록 후 noticePhotos로 이미지 재업로드
+    if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
+      await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
+        const photoResponse = await axios.put(photoUrl, this.images[index].file, {
           headers: {
-            'Authorization': `Bearer ${store.state.accessToken}`, // Vuex store에서 토큰 가져오기
-            'Content-Type': 'multipart/form-data',
-          },
+            'Content-Type': this.images[index].file.type,
+          }
         });
+        console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
+      }));
+    }
 
-        // 공지사항 등록 후 noticePhotos로 이미지 재업로드
-        if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
-          await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
-            const photoResponse = await axios.put(photoUrl, this.images[index].file, {
-              headers: {
-                'Content-Type': this.images[index].file.type,
-              }
-            });
-            console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
-          }));
-        }
-
-        alert('공지사항이 성공적으로 등록되었습니다!');
-        this.$router.push({ name: 'Notice' }); // 작성 완료 후 Notice 페이지로 이동
-      } catch (error) {
-        // 인증되지 않은 사용자 오류 처리
-        if (error.response && error.response.status === 401) {
-          alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-        }
-        // 업로드 가능한 사진 갯수를 초과한 경우 처리
-        else if (error.response && error.response.data.code === 'FILE-308') {
-          alert('업로드 가능한 사진 갯수를 초과했습니다.');
-        }
-        // 제목과 내용을 입력하지 않은 경우 처리
-        else if (error.response && error.response.data.code === 'NOT-203') {
-          alert('제목과 내용을 모두 입력해주세요.');
-        }
-        // 그 외의 오류 처리
-        else {
-          console.error('Error submitting notice:', error.response ? error.response.data : error);
-          alert('공지사항 제출에 실패했습니다.');
-        }
-      }
-    },
+    alert('공지사항이 성공적으로 등록되었습니다!');
+    this.$router.push({ name: 'Notice' }); // 작성 완료 후 Notice 페이지로 이동
+  } catch (error) {
+    // 인증되지 않은 사용자 오류 처리
+    if (error.response && error.response.status === 401) {
+      alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
+    }
+    // 업로드 가능한 사진 갯수를 초과한 경우 처리
+    else if (error.response && error.response.data.code === 'FILE-308') {
+      alert('업로드 가능한 사진 갯수를 초과했습니다.');
+    }
+    // 제목과 내용을 입력하지 않은 경우 처리
+    else if (error.response && error.response.data.code === 'NOT-203') {
+      alert('제목과 내용을 모두 입력해주세요.');
+    }
+    // 그 외의 오류 처리
+    else {
+      console.error('Error submitting notice:', error.response ? error.response.data : error);
+      alert('공지사항 제출에 실패했습니다.');
+    }
+  }
+},
   },
   created() {
     this.fetchNotices();
