@@ -37,6 +37,12 @@ instance.interceptors.response.use(response => {
         }
     }
 
+    // 액세스 토큰 불일치 시 로그아웃 처리
+    if (error.response && error.response.status === 403) {
+        store.dispatch('logout');
+        router.push({ name: 'login' });
+    }
+
     return Promise.reject(error);
 });
 
