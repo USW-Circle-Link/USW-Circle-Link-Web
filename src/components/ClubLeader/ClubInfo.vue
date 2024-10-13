@@ -1,6 +1,6 @@
 <template>
   <div class="ClubInfo">
-    <img :src="imageSrc" alt="Flag Logo" class="logo" v-if="imageSrc" oncontextmenu="return false;"/>
+    <img :src="imageSrc" alt="Flag Logo" class="logo" oncontextmenu="return false;"/>
     <div class="Info">
       <div class="info">
         <p class="clubname">{{data.clubName}}</p>
@@ -29,7 +29,7 @@ export default {
   data() {
     return {
       data: {},
-      imageSrc:  require('@/assets/profile.png'), // 이미지를 저장할 변수 추가
+      imageSrc: require('@/assets/profile.png'), // 기본 프로필 이미지
     };
   },
   computed: {
@@ -43,27 +43,27 @@ export default {
   methods: {
     async pageLoadFunction() {
       console.log('Page has been loaded!');
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
-      const clubId = store.state.clubId; // 저장된 clubId 가져오기
+      const accessToken = store.state.accessToken;
+      const clubId = store.state.clubId;
 
       try {
         const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           }
         });
 
         this.data = response.data.data;
 
-        // mainPhotoUrl로부터 이미지 로드
         if (this.data.mainPhotoUrl) {
           const imageResponse = await axios.get(this.data.mainPhotoUrl, {
-            responseType: 'blob' // 이미지를 blob으로 받기 위해 responseType을 설정
+            responseType: 'blob'
           });
 
-          // 이미지 URL을 생성하여 이미지 src에 할당
-          this.imageSrc = URL.createObjectURL(imageResponse.data);
+          if (imageResponse.data.size > 0) {
+            this.imageSrc = URL.createObjectURL(imageResponse.data);
+          }
         }
       } catch (error) {
         console.error('Fetch error:', error);

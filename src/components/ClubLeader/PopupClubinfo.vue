@@ -71,7 +71,10 @@ export default {
         });
 
         this.data = response.data.data;  // 동아리 기본 정보 설정
-        this.mainPhoto = this.data.mainPhoto;
+
+        if (this.data.mainPhoto) {
+          this.mainPhoto = this.data.mainPhoto;
+        }
 
         // 활동 사진들을 비동기로 가져오며, 오류가 있는 경우 해당 URL은 제외
         const introPhotosPromises = this.data.introPhotos.map(async (url) => {
