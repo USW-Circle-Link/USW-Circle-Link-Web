@@ -123,12 +123,16 @@ export default {
         console.error('FCM 토큰 가져오는 중 오류 발생:', err);
       });
 
-    navigator.serviceWorker.addEventListener('message', (event) => {
-      console.log('Data received from service worker:', event.data);
-      if (event.data && event.data.msg === 'Message received') {
-        this.handleNewNotification({ body: event.data.data });
-      }
-    });
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        console.log('Data received from service worker:', event.data);
+        if (event.data && event.data.msg === 'Message received') {
+          this.handleNewNotification({ body: event.data.data });
+        }
+      });
+    } else {
+      console.error('Service worker is not supported in this browser.');
+    }
 
     onMessage(messaging, (payload) => {
       console.log('Message received in foreground:', payload);
