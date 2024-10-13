@@ -45,7 +45,7 @@ export default {
     return {
       images: [],  // 동아리 활동 사진을 담을 배열
       data: {},  // 동아리 기본 정보를 담을 객체
-      mainPhoto: ''  // 메인 사진 URL
+      mainPhoto:  require('@/assets/profile.png')  // 메인 사진 URL, 없을 경우 기본이미지
     };
   },
   computed: {

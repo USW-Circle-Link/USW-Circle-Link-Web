@@ -29,7 +29,7 @@ export default {
   data() {
     return {
       data: {},
-      imageSrc: '', // 이미지를 저장할 변수 추가
+      imageSrc:  require('@/assets/profile.png'), // 이미지를 저장할 변수 추가
     };
   },
   computed: {
