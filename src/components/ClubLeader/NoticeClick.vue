@@ -18,7 +18,7 @@
         </p>
       </div>
       <!-- noticeContent를 HTML로 렌더링 -->
-      <div class="notice-content" v-html="notice.noticeContent"></div>
+      <div class="notice-content" v-html="formattedContent"></div>
 
       <!-- 이미지를 렌더링 -->
       <div class="notice-images" v-if="images.length > 0">
@@ -161,6 +161,9 @@ export default {
     handleImageError(index) {
       this.images[index].src = '@/assets/placeholder.png'; // 이미지 로드 실패 시 대체 이미지
     },
+    get formattedContent() {
+      return this.notice.noticeContent.replace(/\n/g, '<br>');
+    }
   },
   watch: {
     $route(to) {
