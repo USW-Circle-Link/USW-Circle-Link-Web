@@ -111,6 +111,9 @@ export default {
 
           // 이미지 URL을 생성하여 이미지 src에 할당
           this.imageSrc = URL.createObjectURL(imageResponse.data);
+        } else {
+          // mainPhotoUrl이 없을 경우 기본 프로필 이미지 설정
+          this.imageSrc = require('@/assets/profile.png');
         }
       } catch (error) {
         console.error('Fetch error:', error);
