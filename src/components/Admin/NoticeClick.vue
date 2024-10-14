@@ -17,15 +17,15 @@
           <span class="notice-meta">{{ formattedDate(notice.noticeCreatedAt) }}</span>
         </p>
       </div>
-      <div class="notice-content" v-html="notice.noticeContent"></div>
+      <div class="notice-content" v-html="formattedContent"></div>
 
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
-          <img 
-            :src="image.src" 
-            alt="Notice Image" 
-            class="notice-image" 
-            @error="handleImageError(index)"
+          <img
+              :src="image.src"
+              alt="Notice Image"
+              class="notice-image"
+              @error="handleImageError(index)"
           />
         </div>
       </div>
@@ -39,13 +39,13 @@
         <thead>
         </thead>
         <tbody>
-          <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
-            <td>
-              <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
-            </td>
-            <td>{{ notice.adminName }}</td>
-            <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
-          </tr>
+        <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
+          <td>
+            <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
+          </td>
+          <td>{{ notice.adminName }}</td>
+          <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
+        </tr>
         </tbody>
       </table>
       <div class="pagination">
@@ -79,6 +79,9 @@ export default {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
       return this.notices.slice(start, end);
+    },
+    formattedContent() {
+      return this.notice ? this.notice.noticeContent.replace(/\n/g, '<br>') : '';
     }
   },
   created() {
@@ -218,8 +221,6 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 * {
   box-sizing: border-box;
@@ -268,7 +269,6 @@ export default {
   /* height: 626px; 고정 높이를 제거하여 자동으로 늘어나게 합니다. */
 }
 
-
 .notice-title {
   color: #333;
   font-size: 20px;
@@ -301,16 +301,13 @@ export default {
   width: 100%;
   height: 100%; /* 고정된 높이 설정 */
   object-fit: cover; /* 이미지 비율을 유지하면서 잘 맞추어 줍니다 */
- /* border-radius: 8px;*/
+  /* border-radius: 8px;*/
 }
-
 
 .image-container {
   width: 100%;
   max-width: 300px;
 }
-
-
 
 .actions {
   display: flex;
@@ -395,5 +392,3 @@ button {
   color: #000;
 }
 </style>
-
-

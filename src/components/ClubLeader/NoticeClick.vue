@@ -174,7 +174,7 @@ export default {
 
 
 <style scoped>
-@import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
+
 
 * {
   box-sizing: border-box;

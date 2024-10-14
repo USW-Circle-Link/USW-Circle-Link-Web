@@ -7,7 +7,7 @@
         <label for="title-input" class="label">제목</label>
         <input id="title-input" v-model="notice.noticeTitle" class="title-input" />
       </div>
-      <div class="content-container">
+      <div class="content-container">요
         <label for="content-input" class="label">내용</label>
         <textarea id="content-input" v-model="notice.noticeContent" class="content-input"></textarea>
       </div>
@@ -142,7 +142,7 @@ export default {
     // 공지사항 데이터를 JSON으로 변환하여 FormData에 추가
     const noticeData = {
       noticeTitle: this.notice.noticeTitle,
-      noticeContent: this.notice.noticeContent,
+      noticeContent: this.notice.noticeContent.replace(/\n/g, '<br>'), // 줄바꿈 문자를 <br> 태그로 변환
       photoOrders: this.images.map((_, index) => index + 1) // 이미지 순서 추가
     };
     form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
