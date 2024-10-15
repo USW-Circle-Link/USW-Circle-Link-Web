@@ -17,8 +17,8 @@
           <span class="notice-meta">{{ formattedDate(notice.noticeCreatedAt) }}</span>
         </p>
       </div>
-      <!-- noticeContent를 HTML로 렌더링 -->
-      <div class="notice-content" v-html="formattedContent"></div>
+      <!-- noticeContent를 HTML로 렌더링하고 줄바꿈을 처리 -->
+      <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
 
       <!-- 이미지를 렌더링 -->
       <div class="notice-images" v-if="images.length > 0">
@@ -123,7 +123,6 @@ export default {
           throw new Error('Failed to fetch notice');
         }
         const data = response.data.data;
-        //console.log('Fetched notice:', data);
         this.notice = data;
 
         // 기존 이미지 로드 및 추가된 이미지를 유지
@@ -154,6 +153,10 @@ export default {
     changePage(page) {
       this.currentPage = page;
     },
+    // 줄바꿈 문자를 <br>로 변환하는 함수
+    convertNewlinesToBr(text) {
+      return text ? text.replace(/\n/g, '<br>') : '';
+    },
     formattedDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString();
@@ -161,9 +164,6 @@ export default {
     handleImageError(index) {
       this.images[index].src = '@/assets/placeholder.png'; // 이미지 로드 실패 시 대체 이미지
     },
-    get formattedContent() {
-      return this.notice.noticeContent.replace(/\n/g, '<br>');
-    }
   },
   watch: {
     $route(to) {
@@ -175,9 +175,8 @@ export default {
 
 
 
-
 <style scoped>
-
+@import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
 
 * {
   box-sizing: border-box;
