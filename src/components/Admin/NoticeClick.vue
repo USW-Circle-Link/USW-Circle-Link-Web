@@ -17,15 +17,16 @@
           <span class="notice-meta">{{ formattedDate(notice.noticeCreatedAt) }}</span>
         </p>
       </div>
-      <div class="notice-content" v-html="formattedContent"></div>
+      <!-- 줄바꿈을 <br> 태그로 변환한 내용을 v-html로 출력 -->
+      <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
 
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
-          <img
-              :src="image.src"
-              alt="Notice Image"
-              class="notice-image"
-              @error="handleImageError(index)"
+          <img 
+            :src="image.src" 
+            alt="Notice Image" 
+            class="notice-image" 
+            @error="handleImageError(index)"
           />
         </div>
       </div>
@@ -39,13 +40,13 @@
         <thead>
         </thead>
         <tbody>
-        <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
-          <td>
-            <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
-          </td>
-          <td>{{ notice.adminName }}</td>
-          <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
-        </tr>
+          <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
+            <td>
+              <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
+            </td>
+            <td>{{ notice.adminName }}</td>
+            <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
+          </tr>
         </tbody>
       </table>
       <div class="pagination">
@@ -79,9 +80,6 @@ export default {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
       return this.notices.slice(start, end);
-    },
-    formattedContent() {
-      return this.notice ? this.notice.noticeContent.replace(/\n/g, '<br>') : '';
     }
   },
   created() {
@@ -106,7 +104,6 @@ export default {
         this.fetchNotice(this.$route.params.id);
       } catch (error) {
         if (error.response && error.response.status === 401) {
-          // Handle Unauthorized error
           alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
           this.$router.push({ name: 'Login' });
         } else {
@@ -135,7 +132,6 @@ export default {
 
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          // Handle Not Found error
           alert('공지사항이 존재하지 않습니다.');
           this.$router.push({ name: 'Notice' }); // Redirect to notice list
         } else {
@@ -191,11 +187,9 @@ export default {
           }
         } catch (error) {
           if (error.response && error.response.status === 404) {
-            // Handle 404 Not Found error
             alert('공지사항이 이미 삭제되었거나 존재하지 않습니다.');
             this.$router.push({ name: 'Notice' }); // Redirect to notice list
           } else if (error.response && error.response.status === 401) {
-            // Handle 401 Unauthorized error
             alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
             this.$router.push({ name: 'Login' }); // Redirect to login page
           } else {
@@ -204,6 +198,10 @@ export default {
           }
         }
       }
+    },
+    // 줄바꿈 문자를 <br>로 변환하는 함수
+    convertNewlinesToBr(text) {
+      return text ? text.replace(/\n/g, '<br>') : '';
     },
     formattedDate(dateString) {
       const date = new Date(dateString);
@@ -220,6 +218,8 @@ export default {
   }
 };
 </script>
+
+
 
 <style scoped>
 * {
@@ -269,6 +269,7 @@ export default {
   /* height: 626px; 고정 높이를 제거하여 자동으로 늘어나게 합니다. */
 }
 
+
 .notice-title {
   color: #333;
   font-size: 20px;
@@ -301,13 +302,16 @@ export default {
   width: 100%;
   height: 100%; /* 고정된 높이 설정 */
   object-fit: cover; /* 이미지 비율을 유지하면서 잘 맞추어 줍니다 */
-  /* border-radius: 8px;*/
+ /* border-radius: 8px;*/
 }
+
 
 .image-container {
   width: 100%;
   max-width: 300px;
 }
+
+
 
 .actions {
   display: flex;
@@ -392,3 +396,5 @@ button {
   color: #000;
 }
 </style>
+
+
