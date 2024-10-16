@@ -34,7 +34,7 @@
           </template>
         </draggable>
 
-        <!-- 이미지 추가 버튼을 이미지 옆에 배치 -->
+        <!-- 이미지 추가 버튼 -->
         <div v-if="noticePhotos.length < 5" class="image-preview image-upload">
           <input type="file" @change="onImageUpload" ref="fileInput" />
           <span>+</span>
@@ -84,13 +84,13 @@ export default {
         if (response.data && response.data.data) {
           this.notice = {
             noticeTitle: response.data.data.noticeTitle,
-            noticeContent: response.data.data.noticeContent,
+            // 서버에서 받아온 <br> 태그를 \n으로 변환
+            noticeContent: response.data.data.noticeContent.replace(/<br\s*\/?>/g, '\n'),
           };
 
           const photoUrls = response.data.data.noticePhotos || [];
-          // 모든 이미지 (JPG, PNG 등)를 처리
           for (let i = 0; i < photoUrls.length; i++) {
-            const file = await this.urlToFile(photoUrls[i]); // 확장자는 자동 처리됨
+            const file = await this.urlToFile(photoUrls[i]);
             if (file) {
               this.noticePhotos.push({ id: i + 1, src: photoUrls[i], file, order: i + 1 });
             }
@@ -109,14 +109,9 @@ export default {
       try {
         const response = await fetch(url);
         const blob = await response.blob();
-
-        // MIME 타입에 따른 확장자 결정
         const mimeType = blob.type;
         const extension = mimeType.split("/")[1]; // 이미지 타입에 따라 확장자를 동적으로 결정
-
-        // 파일 이름을 동적으로 할당
         const filename = `image_${new Date().getTime()}.${extension}`;
-
         return new File([blob], filename, { type: mimeType });
       } catch (error) {
         console.error('Error converting URL to file:', error);
@@ -166,7 +161,6 @@ export default {
       const fileInput = this.$refs[`fileInput${index}`];
       if (fileInput && fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
-
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = fileInput.name.split('.').pop().toLowerCase();
         if (validExtensions.includes(fileExtension)) {
@@ -196,7 +190,7 @@ export default {
     // 공지사항 제출 핸들러
     async submitNotice() {
       const maxTitleLength = 100;
-      const maxContentLength = 1000;
+      const maxContentLength = 3000;
 
       if (this.notice.noticeTitle.length > maxTitleLength) {
         alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
@@ -219,7 +213,10 @@ export default {
 
         const noticeData = {
           noticeTitle: this.sanitizeInput(this.notice.noticeTitle),
-          noticeContent: this.sanitizeInput(this.notice.noticeContent),
+          // Replace newlines with <br> for storage in the backend, but avoid replacing already existing <br>
+          noticeContent: this.sanitizeInput(this.notice.noticeContent).replace(/(?:\r\n|\r|\n)/g, function(match) {
+            return (match === '<br>' || match === '<br/>') ? match : '<br>';
+          }),
           photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
           photoOrders: this.noticePhotos.map(photo => photo.order),
         };
@@ -243,42 +240,11 @@ export default {
           }
         );
 
-        if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
-          await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
-            if (this.noticePhotos[index] && this.noticePhotos[index].file) {
-              try {
-                const photoResponse = await axios.put(photoUrl, this.noticePhotos[index].file, {
-                  headers: {
-                    'Content-Type': this.noticePhotos[index].file.type,
-                  }
-                });
-              } catch (uploadError) {
-                console.error(`Image ${index + 1} failed to upload:`, uploadError);
-              }
-            }
-          }));
-        }
-
         alert('공지사항이 성공적으로 수정되었습니다!');
         this.$router.push({ name: 'Notice' });
       } catch (error) {
-        if (error.response) {
-          const status = error.response.status;
-          if (status === 400) {
-            alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
-          } else if (status === 404) {
-            alert('공지사항이 존재하지 않습니다.');
-          } else if (status === 413) {
-            alert('최대 5개의 사진이 업로드 가능합니다.');
-          } else if (status === 422) {
-            alert('제목과 내용을 모두 입력해주세요.');
-          } else {
-            alert('공지사항 수정에 실패했습니다.');
-          }
-        } else {
-          console.error('Error submitting notice:', error);
-          alert('공지사항 수정에 실패했습니다.');
-        }
+        console.error('Error submitting notice:', error);
+        alert('공지사항 수정에 실패했습니다.');
       } finally {
         this.isLoading = false;
       }
@@ -291,7 +257,6 @@ export default {
 </script>
 
 <style scoped>
-
 * {
   box-sizing: border-box;
 }
@@ -329,19 +294,20 @@ export default {
   border: 1px solid #ddd;
   border-radius: 5px;
   resize: none;
+  line-height: 1.4;
 }
 
 .image-upload-container {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;  /* 전체 너비 */
+  width: 100%;
   background-color: white;
   padding: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
-  overflow-x: auto; /* 이미지가 가로로 넘칠 때 스크롤 가능하도록 설정 */
-  flex-wrap: nowrap; /* 한 줄로 배치 */
+  overflow-x: auto;
+  flex-wrap: nowrap;
 }
 
 .image-items {
