@@ -25,7 +25,7 @@
         <p>소개 & 모집글 작성</p>
         <div class="empty"></div>
         <p>모집 중</p>
-        <input type="checkbox" v-model="isChecked" id="chk1"/><label for="switch" @click="toggleCheckbox" ></label>
+        <input type="checkbox" v-model="isChecked" id="chk1"/><label for="switch" @click="toggleCheckbox"></label>
       </div>
     </div>
     <div class="ClubInfoTextInput">
@@ -33,7 +33,7 @@
     </div>
     <h2>구글폼 링크</h2>
     <div class="GoogleFormLinkInput">
-      <textarea placeholder="링크를 입력해 주세요" v-model="googleFormLink" rows="4" cols="1" ></textarea>
+      <textarea placeholder="링크를 입력해 주세요" v-model="googleFormLink" rows="4" cols="1"></textarea>
     </div>
     <button @click="saveInfo">작성 완료</button>
   </div>
@@ -45,33 +45,27 @@ import store from '../../store/store';
 
 export default {
   name: 'ClubInfoTextInput',
-  components: {
-  },
   data() {
     return {
-      images: [],  // 이미지를 저장할 배열
-      imagesData: [],
-      textareaContent: '',  // 소개글
-      isChecked: null,    //[모집 중 X] 기본 상태
-      googleFormLink: '',  // 구글 폼 링크
-      orders: [],  // 이미지 순서 배열
-      deletedOrders: [], // 이미지 삭제 순서 배열
-      file: [],  // 파일 배열
-      presignedUrls: [],  // 사전 서명된 URL 배열
-      sendpresignedUrls: [],  // 사전 서명된 URL과 사진을 변경하여
-      errorMessage: '',  // 에러 메시지
-      validFile: false,  // 파일 유효성 여부
-      clubData: {}       // 클럽 소개 정보를 저장할 객체
+      images: [],
+      textareaContent: '',
+      isChecked: null,
+      googleFormLink: '',
+      orders: [],
+      deletedOrders: [],
+      clubData: {}
     };
   },
-  computed: {
-
-  },
   mounted() {
-    this.fetchClubInfo();  // 컴포넌트가 마운트되면 클럽 정보를 가져옵니다.
+    this.fetchClubInfo();
   },
   methods: {
-    // 컴포넌트가 마운트되면 클럽 정보를 가져옵니다.
+    convertNewlinesToBr(text) {
+      return text ? text.replace(/\n/g, '<br>') : text;
+    },
+    convertBrToNewlines(text) {
+      return text ? text.replace(/<br\s*\/?>/g, '\n') : text;
+    },
     async fetchClubInfo() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
@@ -86,257 +80,62 @@ export default {
 
         this.clubData = response.data.data;
         this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
-        this.textareaContent = this.clubData.clubIntro || '';
+        this.textareaContent = this.convertBrToNewlines(this.clubData.clubIntro || '');
         this.googleFormLink = this.clubData.googleFormUrl || '';
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
-        // this.orders = this.clubData.introPhotos
-        //     .map((photo, index) => (photo ? index + 1 : null)) // 빈 값이 아닌 경우에만 index + 1
-        //     .filter(index => index !== null); // null을 필터링
-        //this.orders = this.clubData.introPhotos.map((_, index) => index + 1);
-
-        // console.log(this.isChecked);
-        // console.log("클럽 정보 불러오기 성공!", this.clubData);
-        // console.log(this.images);
-        // console.log(this.googleFormLink);
 
       } catch (error) {
         console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
-        this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
       }
     },
-    // X 버튼을 누르면 이미지를 삭제합니다.
-    deleteImage(index) {
-      this.pastImages = this.images;
-      try {
-        // console.log(index + 1, "번째 사진 삭제");
-        //console.log("Image URL:", this.images[index].src);
-
-        // 삭제된 이미지 배열에 빈 문자열 넣기
-        this.images.splice(index, 1, { src: '' });
-        // console.log(this.images);
-
-        this.orders.splice(this.orders.indexOf(index + 1) , 1);
-        //this.orders.push('');
-        //this.orders = this.orders.filter(item => item !== '');
-
-        // console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
-
-        // 삭제할 이미지 배열 index 값 deletedOrders에 넣기
-        this.deletedOrders.splice(index, 0, index + 1);
-        this.deletedOrders.sort();
-        // console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
-
-        // 파일 input 참조를 재정렬
-        this.$forceUpdate();
-
-      } catch (error) {
-        console.error("Error while deleting image:", error);
-      }
-    },
-    // 모집중 토글 함수, 모집 상태를 서버에 반영합니다.
-    async toggleCheckbox() {
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
-      const clubId = store.state.clubId; // 저장된 clubId 가져오기
-      this.isChecked = !this.isChecked;  // 현재 isChecked 상태를 반전시킴
-      this.$emit('sendData', this.isChecked);
-
-      axios.patch(`http://15.164.246.244:8080/club-leader/${clubId}/toggle-recruitment`,
-          {
-            key: this.isChecked
-          },
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
-            }
-          })
-          .then(response => {
-            console.log('Updated data:', response.data);
-            if(this.isChecked === true){
-              setTimeout(function() {
-                alert('동아리 모집 상태 변경 완료 [모집중 ON]');
-              }, 800);
-            } else {
-              setTimeout(function() {
-                alert('동아리 모집 상태 변경 완료 [모집중 OFF]');
-              }, 800);
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-    },
-    // 파일을 선택합니다.
-    triggerFileInput(index) {
-      const fileInputRef = this.$refs[`fileInput${index}`];
-      if (fileInputRef && fileInputRef[0] && fileInputRef[0].click) {
-        fileInputRef[0].click();
-      }
-    },
-    // 선택된 이미지를 다른 이미지로 교체합니다.
-    onFileChange(index, event) {
-      this.images.splice(index, 1, {src : ''});
-      if (this.images.filter(image => image.src !== '').length >= 5) {
-        alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
-        return;
-      }
-      const file = event.target.files[0];
-
-      if (file) {
-        // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
-        // 파일 업로드 이미지 사이즈는 10mb 이하
-        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-        const maxFileSize = 10 * 1024 * 1024; // 10MB를 바이트로 변환
-        console.log(file.size);
-
-        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-          this.file.splice(index, 1, file);
-          this.errorMessage = '';
-          this.validFile = true;
-
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            this.images[index].src = e.target.result;
-            this.imagesData.push({ src: e.target.result, file });
-            console.log(this.imagesData);
-          };
-          reader.readAsDataURL(file);
-
-          console.log(index + 1, "번째 사진 변경", );
-          this.orders.splice(index, 0, index + 1);
-          this.orders.sort();
-          // console.log("새로 저장 할 사진 순서가 저장된 배열 값",this.orders);
-          // console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
-        } else {
-          console.error("Invalid file format:", fileExtension);
-          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
-          this.errorMessage = '파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.';
-          this.file.splice(index, 1, file);
-          this.validFile = false;
-        }
-      }
-    },
-    // 새로운 이미지를 업로드합니다.
-    onImageUpload(index, event) {
-      const file = event.target.files[0];
-      if (file) {
-        // .jpg, .jpeg (JPEG 이미지), .png (PNG 이미지), .gif (GIF 이미지), .bmp (비트맵 이미지), .webp (WebP 이미지), .tiff (TIFF 이미지)
-        // 파일 업로드 이미지 사이즈는 10mb 이하
-        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-        const maxFileSize = 10 * 1024 * 1024; // 10MB를 바이트로 변환
-        console.log(file.size);
-
-        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-          this.file.push(file);
-          console.log(index + 1, "번째 사진 추가", );
-          this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);
-          this.orders.splice(index, 0, index + 1);
-          this.orders.sort();
-          // console.log("삭제할 사진 순서가 저장된 배열 값",this.deletedOrders);
-          // console.log("새로 저장 할 사진 순서가 저장된 배열 값", this.orders);
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            this.images.splice(index,1,{ src: e.target.result });
-            this.imagesData.push({ src: e.target.result, file });
-            // console.log(this.images);
-          };
-          reader.readAsDataURL(file);
-        } else {
-          console.error("Invalid file format:", fileExtension);
-          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
-        }
-      }
-    },
-    // 소개/모집글 정보를 저장합니다.
     async saveInfo() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
 
-      if(this.textareaContent === ''){
+      if (this.textareaContent === '') {
         alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.");
         return;
       }
-      if(this.googleFormLink === ''){
+      if (this.googleFormLink === '') {
         alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
         return;
       }
-      if(!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")){
+      if (!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")) {
         alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
         return;
       }
 
       const form = new FormData();
       const jsonData = {
-        clubIntro: this.textareaContent || this.clubData.clubIntro,
-        googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
+        clubIntro: this.convertNewlinesToBr(this.textareaContent),
+        googleFormUrl: this.googleFormLink,
         orders: this.orders || this.clubData.orders,
-        deletedOrders : this.deletedOrders
+        deletedOrders: this.deletedOrders.length ? this.deletedOrders : []
       };
+
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
-      //console.log(jsonData);
-      //삭제되지 않은 파일만 서버에 전송
-      // console.log('A', this.images);
-      // this.imagesData = this.images.filter(image => image.src !== '');
-      // console.log('B', this.imagesData);
-      this.imagesData.forEach((image, index) => {
-        // console.log(`${index}`,image.file);
-        form.append('introPhotos', image.file);
-      });
+
       try {
         const response = await axios.put(
-            `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
-            form,
-            {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'multipart/form-data'
-              }
+          `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
+          form,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'multipart/form-data'
             }
+          }
         );
-        // for (let [key, value] of form.entries()) {
-        //   console.log(`${key}: ${value}`);
-        // }
-        // console.log(response);
-        if (response.data && response.data.data && response.data.data.presignedUrls) {
-          this.presignedUrls = response.data.data.presignedUrls;
-          // console.log(this.presignedUrls);
-          // 각 파일을 S3에 업로드
-          await this.uploadFiles();
-        }
 
         alert("저장되었습니다!");
-        console.log("소개/모집글 작성 완료!");
         location.reload();
-        // console.log('서명된 사진 링크 ', this.presignedUrls);
-
-        // 저장 후 데이터를 다시 불러오기 위해 이벤트 발생
-        this.$emit('data-saved');
-
       } catch (error) {
         console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
       }
-    },
-    // 이미지 데이터가 저장된 서명된 이미지 링크를 불러와 저장합니다.
-    async uploadFiles() {
-      try {
-        await Promise.all(this.presignedUrls.map(async (photoUrl, index) => {
-          const photoResponse = await axios.put(photoUrl, this.imagesData[index].file, {
-            headers: {
-              'Content-Type': this.imagesData[index].file.type,
-            }
-          });
-        }));
-        //await this.saveFileUrlsToDatabase();
-      } catch (error) {
-        console.error("파일 업로드 실패:", error);
-        alert("파일 업로드 실패!");
-      }
-    },
+    }
   }
 };
 </script>
-
 
 
 
@@ -427,7 +226,7 @@ export default {
   color: #ddd;
 }
 
-.ClubInfoTextInput{
+.ClubInfoTextInput {
   width: 886px;
   height: 382px;
   border-radius: 8px;
@@ -437,9 +236,10 @@ export default {
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  white-space: pre-line; /* 줄바꿈을 자연스럽게 처리 */
 }
 
-.ClubInfoTextInput textarea{
+textarea {
   width: 820px;
   height: 330px;
   text-align: left;
@@ -452,19 +252,19 @@ textarea:focus {
   outline: none; /* 포커스 상태일 때 테두리 제거 */
 }
 
-.head{
+.head {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.head p{
+.head p {
   font-size: 18px;
   font-weight: 500;
   margin-top: 21px;
 }
 
-.empty{
+.empty {
   width: 630px;
 }
 
@@ -488,7 +288,7 @@ label::after {
   border-radius: 100%;
   background-color: #fff;
   transform: translateY(-50%);
-  box-shadow: 1px 3px 4px rgba(0,0,0,0.1);
+  box-shadow: 1px 3px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.4s;
 }
 
@@ -500,12 +300,7 @@ label::after {
   left: calc(100% - 18px);
 }
 
-.head input{
-  visibility: hidden;
-  width: 1px;
-}
-
-.GoogleFormLinkInput{
+.GoogleFormLinkInput {
   width: 886px;
   height: 40px;
   border-radius: 8px;
@@ -518,7 +313,7 @@ label::after {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.GoogleFormLinkInput textarea{
+.GoogleFormLinkInput textarea {
   width: 820px;
   height: 28px;
   margin-top: 7px;
@@ -528,12 +323,8 @@ label::after {
   resize: none;
 }
 
-.GoogleFormLinkInput textarea::placeholder{
+.GoogleFormLinkInput textarea::placeholder {
   text-align: center;
-}
-
-textarea:focus {
-  outline: none; /* 포커스 상태일 때 테두리 제거 */
 }
 
 button {

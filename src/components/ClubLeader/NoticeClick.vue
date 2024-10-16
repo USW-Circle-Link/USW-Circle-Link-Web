@@ -176,7 +176,7 @@ export default {
 
 
 <style scoped>
-@import url('https://webfontworld.github.io/goodchoice/Jalnan.css');
+
 
 * {
   box-sizing: border-box;
@@ -244,8 +244,9 @@ export default {
   font-size: 14px;
   color: #333;
   margin-top: 20px;
-  line-height: 1.6;
+  line-height: 1.0; /* 줄 간격을 줄임 */
 }
+
 
 .notice-images {
   display: grid;
