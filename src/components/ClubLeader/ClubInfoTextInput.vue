@@ -25,15 +25,15 @@
         <p>소개 & 모집글 작성</p>
         <div class="empty"></div>
         <p>모집 중</p>
-        <input type="checkbox" v-model="isChecked" id="chk1"/><label for="switch" @click="toggleCheckbox"></label>
+        <input type="checkbox" v-model="isChecked" id="chk1"/><label for="switch" @click="toggleCheckbox" ></label>
       </div>
     </div>
     <div class="ClubInfoTextInput">
-      <textarea v-model="textareaContent" rows="4" cols="50"></textarea>
+      <textarea v-model="textareaContent" rows="4" cols="50" @input="formatTextarea"></textarea>
     </div>
     <h2>구글폼 링크</h2>
     <div class="GoogleFormLinkInput">
-      <textarea placeholder="링크를 입력해 주세요" v-model="googleFormLink" rows="4" cols="1"></textarea>
+      <textarea placeholder="링크를 입력해 주세요" v-model="googleFormLink" rows="4" cols="1" ></textarea>
     </div>
     <button @click="saveInfo">작성 완료</button>
   </div>
@@ -47,25 +47,26 @@ export default {
   name: 'ClubInfoTextInput',
   data() {
     return {
-      images: [],
-      textareaContent: '',
-      isChecked: null,
-      googleFormLink: '',
-      orders: [],
-      deletedOrders: [],
-      clubData: {}
+      images: [],  // 이미지 배열
+      imagesData: [],
+      textareaContent: '',  // 소개글
+      isChecked: null,    //[모집 중 X] 기본 상태
+      googleFormLink: '',  // 구글 폼 링크
+      orders: [],  // 이미지 순서 배열
+      deletedOrders: [], // 이미지 삭제 순서 배열
+      file: [],  // 파일 배열
+      presignedUrls: [],  // 사전 서명된 URL 배열
+      sendpresignedUrls: [],  // 사전 서명된 URL과 사진을 변경하여
+      errorMessage: '',  // 에러 메시지
+      validFile: false,  // 파일 유효성 여부
+      clubData: {}       // 클럽 소개 정보를 저장할 객체
     };
   },
   mounted() {
-    this.fetchClubInfo();
+    this.fetchClubInfo();  // 컴포넌트가 마운트되면 클럽 정보를 가져옵니다.
   },
   methods: {
-    convertNewlinesToBr(text) {
-      return text ? text.replace(/\n/g, '<br>') : text;
-    },
-    convertBrToNewlines(text) {
-      return text ? text.replace(/<br\s*\/?>/g, '\n') : text;
-    },
+    // 클럽 정보 가져오기
     async fetchClubInfo() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
@@ -80,63 +81,195 @@ export default {
 
         this.clubData = response.data.data;
         this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
-        this.textareaContent = this.convertBrToNewlines(this.clubData.clubIntro || '');
+        this.textareaContent = this.clubData.clubIntro || '';
         this.googleFormLink = this.clubData.googleFormUrl || '';
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
 
       } catch (error) {
         console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
+        this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
       }
     },
+    // 이미지 삭제
+    deleteImage(index) {
+      this.pastImages = this.images;
+      try {
+        this.images.splice(index, 1, { src: '' });
+        this.orders.splice(this.orders.indexOf(index + 1) , 1);
+        this.deletedOrders.splice(index, 0, index + 1);
+        this.deletedOrders.sort();
+        this.$forceUpdate();
+      } catch (error) {
+        console.error("Error while deleting image:", error);
+      }
+    },
+    // 모집중 토글 함수
+    async toggleCheckbox() {
+      const accessToken = store.state.accessToken; 
+      const clubId = store.state.clubId; 
+      this.isChecked = !this.isChecked; 
+      this.$emit('sendData', this.isChecked);
+
+      axios.patch(`http://15.164.246.244:8080/club-leader/${clubId}/toggle-recruitment`, {
+          key: this.isChecked
+        }, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        })
+        .then(response => {
+          if (this.isChecked === true) {
+            setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 ON]'), 800);
+          } else {
+            setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 OFF]'), 800);
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    },
+    // 파일 선택 트리거
+    triggerFileInput(index) {
+      const fileInputRef = this.$refs[`fileInput${index}`];
+      if (fileInputRef && fileInputRef[0] && fileInputRef[0].click) {
+        fileInputRef[0].click();
+      }
+    },
+    // 파일 변경 처리
+    onFileChange(index, event) {
+      this.images.splice(index, 1, {src : ''});
+      if (this.images.filter(image => image.src !== '').length >= 5) {
+        alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
+        return;
+      }
+      const file = event.target.files[0];
+
+      if (file) {
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const maxFileSize = 10 * 1024 * 1024; 
+
+        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
+          this.file.splice(index, 1, file);
+          this.errorMessage = '';
+          this.validFile = true;
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.images[index].src = e.target.result;
+            this.imagesData.push({ src: e.target.result, file });
+          };
+          reader.readAsDataURL(file);
+
+          this.orders.splice(index, 0, index + 1);
+          this.orders.sort();
+        } else {
+          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+          this.errorMessage = '파일 형식이 맞지 않습니다.';
+          this.validFile = false;
+        }
+      }
+    },
+    // 새로운 이미지 업로드
+    onImageUpload(index, event) {
+      const file = event.target.files[0];
+      if (file) {
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const maxFileSize = 10 * 1024 * 1024;
+
+        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
+          this.file.push(file);
+          this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);
+          this.orders.splice(index, 0, index + 1);
+          this.orders.sort();
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.images.splice(index,1,{ src: e.target.result });
+            this.imagesData.push({ src: e.target.result, file });
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("파일 형식이 맞지 않습니다.");
+        }
+      }
+    },
+    // 파일에 줄바꿈 처리
+    formatTextarea(event) {
+      this.textareaContent = event.target.value.replace(/\n/g, '\n');
+    },
+    // 소개/모집글 정보 저장
     async saveInfo() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
 
-      if (this.textareaContent === '') {
+      if(this.textareaContent === ''){
         alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.");
         return;
       }
-      if (this.googleFormLink === '') {
+      if(this.googleFormLink === ''){
         alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
         return;
       }
-      if (!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")) {
+      if(!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")){
         alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
         return;
       }
 
       const form = new FormData();
+      const formattedIntro = this.textareaContent.replace(/\n/g, '<br/>');  // 줄바꿈을 <br>로 변환
       const jsonData = {
-        clubIntro: this.convertNewlinesToBr(this.textareaContent),
-        googleFormUrl: this.googleFormLink,
+        clubIntro: formattedIntro || this.clubData.clubIntro,
+        googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
         orders: this.orders || this.clubData.orders,
-        deletedOrders: this.deletedOrders.length ? this.deletedOrders : []
+        deletedOrders : this.deletedOrders
       };
-
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
+
+      this.imagesData.forEach((image, index) => {
+        form.append('introPhotos', image.file);
+      });
 
       try {
         const response = await axios.put(
-          `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
-          form,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'multipart/form-data'
+            `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
+            form,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data'
+              }
             }
-          }
         );
+        if (response.data && response.data.data && response.data.data.presignedUrls) {
+          this.presignedUrls = response.data.data.presignedUrls;
+          await this.uploadFiles();
+        }
 
         alert("저장되었습니다!");
         location.reload();
+        this.$emit('data-saved');
+
       } catch (error) {
         console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
       }
-    }
+    },
+    // 이미지 업로드
+    async uploadFiles() {
+      try {
+        await Promise.all(this.presignedUrls.map(async (photoUrl, index) => {
+          await axios.put(photoUrl, this.imagesData[index].file, {
+            headers: {
+              'Content-Type': this.imagesData[index].file.type,
+            }
+          });
+        }));
+      } catch (error) {
+        console.error("파일 업로드 실패:", error);
+        alert("파일 업로드 실패!");
+      }
+    },
   }
 };
 </script>
-
 
 
 <style scoped>
@@ -226,7 +359,7 @@ export default {
   color: #ddd;
 }
 
-.ClubInfoTextInput {
+.ClubInfoTextInput{
   width: 886px;
   height: 382px;
   border-radius: 8px;
@@ -236,10 +369,9 @@ export default {
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-  white-space: pre-line; /* 줄바꿈을 자연스럽게 처리 */
 }
 
-textarea {
+.ClubInfoTextInput textarea{
   width: 820px;
   height: 330px;
   text-align: left;
@@ -252,19 +384,19 @@ textarea:focus {
   outline: none; /* 포커스 상태일 때 테두리 제거 */
 }
 
-.head {
+.head{
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.head p {
+.head p{
   font-size: 18px;
   font-weight: 500;
   margin-top: 21px;
 }
 
-.empty {
+.empty{
   width: 630px;
 }
 
@@ -288,7 +420,7 @@ label::after {
   border-radius: 100%;
   background-color: #fff;
   transform: translateY(-50%);
-  box-shadow: 1px 3px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 1px 3px 4px rgba(0,0,0,0.1);
   transition: all 0.4s;
 }
 
@@ -300,31 +432,39 @@ label::after {
   left: calc(100% - 18px);
 }
 
-.GoogleFormLinkInput {
+.head input{
+  visibility: hidden;
+  width: 1px;
+}
+
+.GoogleFormLinkInput{
   width: 886px;
   height: 40px;
   border-radius: 8px;
   background-color: #ffffff;
   margin: 0 auto;
   display: flex;
-  align-content: center;
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.GoogleFormLinkInput textarea {
+.GoogleFormLinkInput textarea{
   width: 820px;
   height: 28px;
-  margin-top: 7px;
+  margin-top: 10px;
   text-align: left;
   border: none;
   font-size: 16px;
   resize: none;
 }
 
-.GoogleFormLinkInput textarea::placeholder {
+.GoogleFormLinkInput textarea::placeholder{
   text-align: center;
+}
+
+textarea:focus {
+  outline: none; /* 포커스 상태일 때 테두리 제거 */
 }
 
 button {
