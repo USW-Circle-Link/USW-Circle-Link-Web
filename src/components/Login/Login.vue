@@ -105,6 +105,8 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
 .login-container {
   display: flex;
   flex-direction: column;
@@ -120,10 +122,10 @@ export default {
 }
 
 .subtitle {
-  color: #C0C0C0F7;
-  font-size: 34px;
-  font-weight: 320;
-  margin-bottom: 10px;
+  color: #9D9D9D;
+  font-size: 33px;
+  font-weight: 310;
+  margin-bottom: 20px;
   margin-left: 30px;
   text-align: center; /* 문구 가운데 정렬 */
 }
@@ -140,14 +142,15 @@ export default {
 }
 
 .logo-text {
-  color: #FFC700;
-  font-family: "Jalnan";
+  color: #FFC01D;
+  text-align: center;
+  font-family: "Jua", sans-serif; /* Ensure fallback font is provided */
+  font-size: 72px;
   font-style: normal;
-  font-size: 60px;
-  font-weight: bold;
-  line-height: 14px;
+  font-weight: 400;
+  line-height: 71px; /* 98.611% */
+  letter-spacing: -1.775px;
 }
-
 .login-box {
   margin-top: 0px;
   background: white;
@@ -189,7 +192,7 @@ option {
 .login-button {
   width: 100%;
   padding: 15px;
-  background-color: #ffcc00;
+  background-color: #FFB052;
   border: none;
   border-radius: 5px;
   font-size: 18px;
@@ -199,6 +202,6 @@ option {
 }
 
 .login-button:hover {
-  background-color: #e6b800;
+  background-color: #FFB052;
 }
 </style>
