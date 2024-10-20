@@ -27,6 +27,9 @@ components: {NotificationButton},
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+
 .header {
   width: 100%;
   display: flex;
@@ -43,19 +46,19 @@ components: {NotificationButton},
 }
 
 .logo {
-width: 20px;
-height: 17px;
-padding: 5px;
-transform: scaleX(-1);
-margin-left: 200px;
+  width: 30px;
+  height: 25px;
+  padding: 5px;
+  transform: scaleX(-1);
+  margin-left: 240px;
 }
 
 .title {
-color: #FFC700;
-font-family: "Jalnan";
-font-size: 14px;
-font-style: normal;
-font-weight: 400;
-line-height: 14px; /* 100% */
+  color: #FFC01D;
+  font-family: "Jua", sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 405;
+  line-height: 14px; /* 100% */
 }
 </style>

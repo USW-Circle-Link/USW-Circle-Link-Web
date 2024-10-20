@@ -18,6 +18,9 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+
 .header {
   width: 100%;
   display: flex;
@@ -27,20 +30,21 @@ export default {
   box-shadow: 0px 2.5px 0px 0px rgba(0, 0, 0, 0.13);
   margin-bottom: 40px;
 }
+
 .logo {
-  width: 17px;
-  height: 17px;
+  width: 30px;
+  height: 25px;
   padding: 5px;
   transform: scaleX(-1);
-  margin-left: 200px;
+  margin-left: 240px;
 }
 
 .title {
-  color: #FFC700;
-  font-family: "Jalnan";
-  font-size: 14px;
+  color: #FFC01D;
+  font-family: "Jua", sans-serif;
+  font-size: 20px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 405;
   line-height: 14px; /* 100% */
 }
 </style>
