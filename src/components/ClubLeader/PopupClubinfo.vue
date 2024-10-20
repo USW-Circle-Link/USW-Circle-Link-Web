@@ -98,7 +98,7 @@ export default {
       }
     },
     convertNewlinesToBr(text) {
-      return text ? text.replace(/\n/g, '<br>') : '';
+      return text ? text.replace(/\n/g, '') : '';
     }
   }
 };

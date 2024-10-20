@@ -4,7 +4,7 @@
     <div class="image-upload-container">
       <div v-for="(image, index) in images" :key="index" class="image-preview">
         <div v-if="image.src" class="image-preview">
-          <img :src="image.src" alt="Uploaded Image" class="uploaded-image" oncontextmenu="return false;"/>
+          <img :src="image.src" alt="Uploaded Image" class="uploaded-image" oncontextmenu="return false;" />
           <div class="edit-icon" @click="triggerFileInput(index)">
             <img src="../../assets/penbrush.png" alt="Edit Icon" />
           </div>
@@ -20,20 +20,19 @@
       </div>
     </div>
     <div class="ClubUpdateHeader">
-      <h2>동아리 소개 수정</h2>
       <div class="head">
-        <p>소개 & 모집글 작성</p>
+        <h2>동아리 소개 수정</h2>
         <div class="empty"></div>
         <p>모집 중</p>
-        <input type="checkbox" v-model="isChecked" id="chk1"/><label for="switch" @click="toggleCheckbox" ></label>
+        <input type="checkbox" v-model="isChecked" id="chk1" /><label for="switch" @click="toggleCheckbox"></label>
       </div>
     </div>
     <div class="ClubInfoTextInput">
-      <textarea v-model="textareaContent" rows="4" cols="50" @input="formatTextarea"></textarea>
+      <textarea v-model="textareaContent" rows="4" cols="50"></textarea>
     </div>
     <h2>구글폼 링크</h2>
     <div class="GoogleFormLinkInput">
-      <textarea placeholder="링크를 입력해 주세요" v-model="googleFormLink" rows="4" cols="1" ></textarea>
+      <textarea placeholder="링크를 입력해 주세요" v-model="googleFormLink" rows="4" cols="1"></textarea>
     </div>
     <button @click="saveInfo">작성 완료</button>
   </div>
@@ -47,23 +46,22 @@ export default {
   name: 'ClubInfoTextInput',
   data() {
     return {
-      images: [],  // 이미지 배열
-      imagesData: [],
+      images: [],
       textareaContent: '',  // 소개글
-      isChecked: null,    //[모집 중 X] 기본 상태
-      googleFormLink: '',  // 구글 폼 링크
-      orders: [],  // 이미지 순서 배열
-      deletedOrders: [], // 이미지 삭제 순서 배열
-      file: [],  // 파일 배열
-      presignedUrls: [],  // 사전 서명된 URL 배열
-      sendpresignedUrls: [],  // 사전 서명된 URL과 사진을 변경하여
-      errorMessage: '',  // 에러 메시지
-      validFile: false,  // 파일 유효성 여부
-      clubData: {}       // 클럽 소개 정보를 저장할 객체
+      isChecked: null,
+      googleFormLink: '',
+      orders: [],
+      deletedOrders: [],
+      file: [],
+      presignedUrls: [],
+      imagesData: [],  // 이미지 정보
+      errorMessage: '',
+      validFile: false,
+      clubData: {},
     };
   },
   mounted() {
-    this.fetchClubInfo();  // 컴포넌트가 마운트되면 클럽 정보를 가져옵니다.
+    this.fetchClubInfo();  // 클럽 정보를 가져옵니다.
   },
   methods: {
     // 클럽 정보 가져오기
@@ -81,7 +79,8 @@ export default {
 
         this.clubData = response.data.data;
         this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
-        this.textareaContent = this.clubData.clubIntro || '';
+        // 줄바꿈 처리 수정
+        this.textareaContent = (this.clubData.clubIntro || '').replace(/\n<br>\n/g, '\n');
         this.googleFormLink = this.clubData.googleFormUrl || '';
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
 
@@ -95,7 +94,7 @@ export default {
       this.pastImages = this.images;
       try {
         this.images.splice(index, 1, { src: '' });
-        this.orders.splice(this.orders.indexOf(index + 1) , 1);
+        this.orders.splice(this.orders.indexOf(index + 1), 1);
         this.deletedOrders.splice(index, 0, index + 1);
         this.deletedOrders.sort();
         this.$forceUpdate();
@@ -103,7 +102,7 @@ export default {
         console.error("Error while deleting image:", error);
       }
     },
-    // 모집중 토글 함수
+    // 모집중 토글
     async toggleCheckbox() {
       const accessToken = store.state.accessToken;
       const clubId = store.state.clubId;
@@ -135,7 +134,7 @@ export default {
     },
     // 파일 변경 처리
     onFileChange(index, event) {
-      this.images.splice(index, 1, {src : ''});
+      this.images.splice(index, 1, { src: '' });
       if (this.images.filter(image => image.src !== '').length >= 5) {
         alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
         return;
@@ -168,7 +167,7 @@ export default {
         }
       }
     },
-    // 새로운 이미지 업로드
+    // 이미지 업로드
     onImageUpload(index, event) {
       const file = event.target.files[0];
       if (file) {
@@ -183,7 +182,7 @@ export default {
           this.orders.sort();
           const reader = new FileReader();
           reader.onload = (e) => {
-            this.images.splice(index,1,{ src: e.target.result });
+            this.images.splice(index, 1, { src: e.target.result });
             this.imagesData.push({ src: e.target.result, file });
           };
           reader.readAsDataURL(file);
@@ -192,35 +191,31 @@ export default {
         }
       }
     },
-    // 파일에 줄바꿈 처리
-    formatTextarea(event) {
-      this.textareaContent = event.target.value.replace(/\n/g, '\n');
-    },
-    // 소개/모집글 정보 저장
+    // 정보 저장
     async saveInfo() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
 
-      if(this.textareaContent === ''){
+      if (this.textareaContent === '') {
         alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.");
         return;
       }
-      if(this.googleFormLink === ''){
+      if (this.googleFormLink === '') {
         alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
         return;
       }
-      if(!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")){
+      if (!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")) {
         alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
         return;
       }
 
       const form = new FormData();
-      const formattedIntro = this.textareaContent.replace(/\n/g, '<br/>');  // 줄바꿈을 <br>로 변환
       const jsonData = {
-        clubIntro: formattedIntro || this.clubData.clubIntro,
+        // 줄바꿈을 <br>로 변환
+        clubIntro: this.textareaContent.replace(/\n/g, '<br>'),
         googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
         orders: this.orders || this.clubData.orders,
-        deletedOrders : this.deletedOrders
+        deletedOrders: this.deletedOrders
       };
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
 
