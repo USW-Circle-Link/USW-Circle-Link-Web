@@ -23,13 +23,13 @@
     <div class="description">
       <h3>동아리 소개</h3>
       <div>
-        <p>{{ data.clubIntro }}</p>
+        <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
       </div>
     </div>
     <!-- 서버 응답값을 화면에 표시  <pre>{{ data }}</pre>-->
-    
   </div>
 </template>
+
 
 <script>
 import ImageSlider from "@/components/ClubLeader/ImageSlider.vue";
@@ -96,10 +96,14 @@ export default {
         console.error('Fetch error:', error);
         this.error = error.message;
       }
+    },
+    convertNewlinesToBr(text) {
+      return text ? text.replace(/\n/g, '<br>') : '';
     }
   }
 };
 </script>
+
 
 
 

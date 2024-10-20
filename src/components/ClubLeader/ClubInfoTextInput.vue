@@ -105,26 +105,26 @@ export default {
     },
     // 모집중 토글 함수
     async toggleCheckbox() {
-      const accessToken = store.state.accessToken; 
-      const clubId = store.state.clubId; 
-      this.isChecked = !this.isChecked; 
+      const accessToken = store.state.accessToken;
+      const clubId = store.state.clubId;
+      this.isChecked = !this.isChecked;
       this.$emit('sendData', this.isChecked);
 
       axios.patch(`http://15.164.246.244:8080/club-leader/${clubId}/toggle-recruitment`, {
-          key: this.isChecked
-        }, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          }
-        })
-        .then(response => {
-          if (this.isChecked === true) {
-            setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 ON]'), 800);
-          } else {
-            setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 OFF]'), 800);
-          }
-        })
-        .catch(error => console.error('Error:', error));
+        key: this.isChecked
+      }, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      })
+          .then(response => {
+            if (this.isChecked === true) {
+              setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 ON]'), 800);
+            } else {
+              setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 OFF]'), 800);
+            }
+          })
+          .catch(error => console.error('Error:', error));
     },
     // 파일 선택 트리거
     triggerFileInput(index) {
@@ -145,7 +145,7 @@ export default {
       if (file) {
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
-        const maxFileSize = 10 * 1024 * 1024; 
+        const maxFileSize = 10 * 1024 * 1024;
 
         if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
           this.file.splice(index, 1, file);
