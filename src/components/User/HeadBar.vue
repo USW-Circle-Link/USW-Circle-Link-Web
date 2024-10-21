@@ -50,7 +50,7 @@ components: {NotificationButton},
   height: 25px;
   padding: 5px;
   transform: scaleX(-1);
-  margin-left: 240px;
+  margin-left: 300px;
 }
 
 .title {

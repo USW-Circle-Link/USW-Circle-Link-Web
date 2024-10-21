@@ -45,7 +45,7 @@ margin-bottom: 40px;
   height: 25px;
   padding: 5px;
   transform: scaleX(-1);
-  margin-left: 240px;
+  margin-left: 315px;
 }
 
 .title {
