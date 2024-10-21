@@ -89,7 +89,7 @@ export default {
           this.leaderName = this.clubInfo.leaderName || '';
           this.clubInsta = this.clubInfo.clubInsta || '';
           this.leaderHp = this.clubInfo.leaderHp || '';
-          this.defaultPhotoUrl = this.clubInfo.mainPhotoUrl || '@/assets/logo.png';  // 기본 이미지로 설정
+          this.defaultPhotoUrl = this.clubInfo.mainPhoto ? this.clubInfo.mainPhoto : require('@/assets/profile.png');
           this.mainPhoto = this.defaultPhotoUrl;  // 기본 이미지 또는 서버에서 받아온 이미지로 설정
           this.clubName = this.clubInfo.clubName || '';  // 서버에서 동아리명을 받아옴
 

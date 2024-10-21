@@ -36,7 +36,7 @@ export default {
   height: 25px;
   padding: 5px;
   transform: scaleX(-1);
-  margin-left: 315px;
+  margin-left: 260px;
 }
 
 .title {
