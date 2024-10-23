@@ -15,12 +15,7 @@ const routes = [
         component: () => import('../components/ClubLeader/PopupClubinfo.vue'),
         //   meta: { requiresAuth: true, requiresLeader: true },
     },
-    {
-        path: '/TermsOfUse',
-        name: 'TermsOfUse',
-        component: () => import('../components/ClubLeader/TermsOfUse.vue'),
-        //   meta: { requiresAuth: true, requiresLeader: true },
-    },
+
     {
         path: '/main',
         name: 'main',
@@ -64,7 +59,12 @@ const routes = [
                 name: 'morepass',
                 component: () => import('../components/ClubLeader/MorePass.vue'),
             },
-
+            {
+                path: '/TermsOfUse',
+                name: 'TermsOfUse',
+                component: () => import('../components/ClubLeader/TermsOfUse.vue'),
+                //   meta: { requiresAuth: true, requiresLeader: true },
+            },
         ]
     },
     {

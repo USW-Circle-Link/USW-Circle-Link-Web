@@ -46,7 +46,7 @@
     <div class="empty"></div>
     <div class="line1"></div>
     <div class="footer">
-      <a @click="openNewWindow2">이용약관</a>
+      <a @click.prevent="navigateTo('TermsOfUse')">이용약관</a>
       <div class="line2"></div>
       <a @click.prevent="logout">로그아웃</a>
     </div>
@@ -80,13 +80,6 @@ export default {
     },
     openNewWindow1() {
       const path = '/ClubProfile'; // 이동할 경로
-      const url = `${path}`; // 상대 경로만 지정
-      const windowName = '_blank';
-      const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no';
-      window.open(url, windowName, windowFeatures);
-    },
-    openNewWindow2() {
-      const path = '/TermsOfUse'; // 이동할 경로
       const url = `${path}`; // 상대 경로만 지정
       const windowName = '_blank';
       const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no';
