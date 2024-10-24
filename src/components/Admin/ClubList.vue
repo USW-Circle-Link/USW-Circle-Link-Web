@@ -84,7 +84,7 @@
       <div class="description">
         <h3>동아리 소개</h3>
         <div>
-          <p>{{ data.clubIntro }}</p>
+          <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
         </div>
       </div>
       <!-- 서버 응답값을 화면에 표시  <pre>{{ data }}</pre>-->
@@ -232,7 +232,10 @@ export default {
         console.error('Fetch error:', error);
         this.error = error.message;
       }
-    }
+    },
+    convertNewlinesToBr(text) {
+      return text ? text.replace(/\n/g, '') : '';
+    },
   },
   created() {
     this.fetchClubs(); // Fetch clubs when the component is created
@@ -448,6 +451,7 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000; /* 화면 상단에 표시 */
+  overflow-y: auto;
 }
 
 .club-profile {
@@ -585,6 +589,7 @@ body {
   align-items: center;
   align-content: center;
   background-color: #fff;
+  overflow-y: auto;
 }
 
 .description p{

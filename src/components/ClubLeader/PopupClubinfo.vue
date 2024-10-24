@@ -246,6 +246,7 @@ export default {
   align-items: center;
   align-content: center;
   background-color: #fff;
+  overflow-y: auto;
 }
 
 .description p{
