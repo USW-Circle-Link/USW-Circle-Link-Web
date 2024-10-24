@@ -75,6 +75,12 @@ const routes = [
         //  meta: { requiresAuth: true, requiresAdmin: true },
         children: [
             {
+                path: '/AdminTermsOfUse',
+                name: 'AdminTermsOfUse',
+                component: () => import('../components/Admin/AdminTermsOfUse.vue'),
+                meta: { layout: 'no-layout' } // 특수한 레이아웃을 사용하지 않도록 설정
+            },
+            {
                 path: '',
                 name: 'admindashboard',
                 component: () => import('../components/Admin/ClubList.vue'),

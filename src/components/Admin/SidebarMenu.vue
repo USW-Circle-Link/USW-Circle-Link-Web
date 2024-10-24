@@ -40,7 +40,7 @@
     <div class="empty"></div>
     <div class="line1"></div>
     <div class="footer">
-      <a @click="openNewWindow">이용약관</a>
+      <a @click.prevent="navigateTo('AdminTermsOfUse')">이용약관</a>
       <div class="line2"></div>
       <a @click.prevent="logout">로그아웃</a>
     </div>
@@ -62,13 +62,6 @@ export default {
           throw err;
         }
       });
-    },
-    openNewWindow() {
-      const path = '/AdminTermsOfUse'; // 이동할 경로
-      const url = `${path}`; // 상대 경로만 지정
-      const windowName = '_blank';
-      const windowFeatures = 'width=600,height=800,resizable=no,scrollbars=no';
-      window.open(url, windowName, windowFeatures);
     },
 
     logout() {
