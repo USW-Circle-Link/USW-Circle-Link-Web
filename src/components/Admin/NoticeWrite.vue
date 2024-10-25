@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>공지사항 작성</h2>
+    <h2 class="title">공지사항 작성</h2>
 
     <div v-if="notice">
       <div class="title-container">
@@ -180,15 +180,32 @@ export default {
 </script>
 
 <style scoped>
-* {
-  box-sizing: border-box;
+.title {
+  color: black;
+  font-size: 25px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  position: relative; /* 상대 위치 설정 */
+  display: inline-block;
+  z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
 }
 
-.page-title {
-  text-align: center;
-  margin-bottom: 20px;
-  font-weight: bold;
-  font-size: 24px;
+.title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
+  width: 102.5%;
+  height: 19px; /* 형광펜 두께 */
+  background-color: #FFB052;
+; /* 노란색 배경 */
+  z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
+  transform: skew(-12deg); /* 기울기 효과 추가 */
+}
+
+
+* {
+  box-sizing: border-box;
 }
 
 .title-container, .content-container, .image-upload-container {

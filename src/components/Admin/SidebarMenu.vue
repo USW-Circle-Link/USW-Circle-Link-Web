@@ -13,7 +13,7 @@
         <li class="list3">
           <div class="top" @click="navigateTo('clublist')">
             <i class="icon home"></i>
-            <p class="menu">소속 동아리</p>
+            <p class="menu">동아리</p>
             <div class="yellowLine"></div>
           </div>
         </li>
