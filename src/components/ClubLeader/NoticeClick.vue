@@ -14,6 +14,7 @@
       <div class="meta-info">
         <p>
           <span class="notice-title">{{ notice.noticeTitle }}</span>
+          <span class="notice-adminName">{{ adminName }}</span> <!-- Add this line -->
           <span class="notice-meta">{{ formattedDate(notice.noticeCreatedAt) }}</span>
         </p>
       </div>
@@ -68,6 +69,7 @@ export default {
       currentPage: 1,
       itemsPerPage: 5,
       images: [],  // 이미지 배열 추가
+      adminName: this.$route.params.adminName || '', // Add this line
     };
   },
   computed: {
@@ -247,6 +249,12 @@ export default {
   background-color: #FFB052;
   z-index: -1;
   transform: skew(-12deg);
+}
+
+.notice-adminName {
+  font-size: 14px;
+  color: #000000;
+  margin-left: 10px;
 }
 
 .notice-meta {
