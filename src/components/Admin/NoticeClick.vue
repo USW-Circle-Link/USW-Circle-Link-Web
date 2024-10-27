@@ -276,7 +276,23 @@ export default {
   font-family: Pretendard;
   font-weight: 700;
   margin-bottom: 10px;
+  position: relative;
+  display: inline-block;
+  z-index: 1;
 }
+
+.notice-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 2px;
+  width: 100%; /* 텍스트 길이에 맞춰 자동으로 조정 */
+  height: 19px;
+  background-color: #FFB052;
+  z-index: -1;
+  transform: skew(-12deg);
+}
+
 
 .notice-meta {
   font-size: 14px;
