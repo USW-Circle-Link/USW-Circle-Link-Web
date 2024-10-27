@@ -17,7 +17,7 @@
             </tr>
             <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
               <td>
-                <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
+                <button @click="goToNotice(notice.noticeId, notice.adminName)">{{ notice.noticeTitle }}</button>
               </td>
               <td>{{ notice.adminName }}</td>
               <td>{{ new Date(notice.noticeCreatedAt).toLocaleDateString() }}</td>
@@ -66,6 +66,9 @@ export default {
     }
   },
   methods: {
+    goToNotice(id, adminName) {
+      this.$router.push({ name: 'AdminNoticeClick', params: { id, adminName } });
+    },
     async fetchNotices() {
       try {
         const accessToken = store.state.accessToken;
