@@ -17,7 +17,7 @@
             </tr>
             <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
               <td>
-                <button @click="goToNotice(notice.noticeId, notice.adminName)">{{ notice.noticeTitle }}</button>
+                <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
               </td>
               <td>{{ notice.adminName }}</td>
               <td>{{ new Date(notice.noticeCreatedAt).toLocaleDateString() }}</td>
@@ -65,9 +65,6 @@ export default {
     }
   },
   methods: {
-    goToNotice(noticeId, adminName) {
-      this.$router.push({ name: 'NoticeClick', params: { id: noticeId, adminName: adminName } });
-    },
     async fetchNotices(page = 1) { // 기본 페이지를 1로 설정
       try {
         const accessToken = store.state.accessToken;
