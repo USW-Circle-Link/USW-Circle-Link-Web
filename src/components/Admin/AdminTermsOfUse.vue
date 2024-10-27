@@ -120,10 +120,26 @@ export default {
 
 /* 타이틀 스타일 */
 .title {
-  font-size: 24px;
+  color: black;
+  font-size: 25px;
   font-weight: bold;
-  margin-bottom: 20px;
-  color: #333;
+  margin-bottom: 10px;
+  position: relative; /* 상대 위치 설정 */
+  display: inline-block;
+  z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
+  width: 10.5%;
+  height: 19px; /* 형광펜 두께 */
+  background-color: #FFB052;
+; /* 노란색 배경 */
+  z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
+  transform: skew(-12deg); /* 기울기 효과 추가 */
 }
 
 /* 공지사항 박스 설정 */

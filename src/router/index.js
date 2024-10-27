@@ -138,32 +138,32 @@ const router = createRouter({
     routes,
 });
 
-router.beforeEach((to, from, next) => {
-
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-        if (!store.getters.isAuthenticated) {
-
-            next({ name: 'login' });
-        } else if (to.matched.some(record => record.meta.requiresAdmin)) {
-
-            if (store.getters.role !== 'ADMIN') {
-                next({ name: 'login' });
-            } else {
-                next();
-            }
-        } else if (to.matched.some(record => record.meta.requiresLeader)) {
-
-            if (store.getters.role !== 'LEADER') {
-                next({ name: 'login' });
-            } else {
-                next();
-            }
-        } else {
-            next();
-        }
-    } else {
-        next();
-    }
-});
+// router.beforeEach((to, from, next) => {
+//
+//     if (to.matched.some(record => record.meta.requiresAuth)) {
+//         if (!store.getters.isAuthenticated) {
+//
+//             next({ name: 'login' });
+//         } else if (to.matched.some(record => record.meta.requiresAdmin)) {
+//
+//             if (store.getters.role !== 'ADMIN') {
+//                 next({ name: 'login' });
+//             } else {
+//                 next();
+//             }
+//         } else if (to.matched.some(record => record.meta.requiresLeader)) {
+//
+//             if (store.getters.role !== 'LEADER') {
+//                 next({ name: 'login' });
+//             } else {
+//                 next();
+//             }
+//         } else {
+//             next();
+//         }
+//     } else {
+//         next();
+//     }
+// });
 
 export default router;
