@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="content">
+    <div class="contents">
       <h2 class="title">이용약관</h2>
       <div class="notices">
         <table>
@@ -113,9 +113,8 @@ export default {
 }
 
 /* 콘텐츠 영역 설정 */
-.content {
+.contents {
   flex: 1;
-  padding: 40px;
 }
 
 /* 타이틀 스타일 */
