@@ -65,7 +65,6 @@ export default {
     await this.fetchClubInfo();  // 동아리 정보를 불러옴
   },
   methods: {
-    // URL로부터 파일을 생성하는 함수
     async urlToFile(url, filename) {
       const response = await fetch(url);
       const blob = await response.blob();
@@ -85,15 +84,14 @@ export default {
         });
 
         if (response.data && response.data.data) {
-          this.clubInfo = response.data.data; // 클럽 정보를 저장
+          this.clubInfo = response.data.data;
           this.leaderName = this.clubInfo.leaderName || '';
           this.clubInsta = this.clubInfo.clubInsta || '';
           this.leaderHp = this.clubInfo.leaderHp || '';
-          this.defaultPhotoUrl = this.clubInfo.mainPhotoUrl || '@/assets/logo.png';  // 기본 이미지로 설정
-          this.mainPhoto = this.defaultPhotoUrl;  // 기본 이미지 또는 서버에서 받아온 이미지로 설정
-          this.clubName = this.clubInfo.clubName || '';  // 서버에서 동아리명을 받아옴
+          this.defaultPhotoUrl = this.clubInfo.mainPhoto ? this.clubInfo.mainPhoto : require('@/assets/profile.png');
+          this.mainPhoto = this.defaultPhotoUrl;
+          this.clubName = this.clubInfo.clubName || '';
 
-          // 이미지 URL을 파일로 변환 (이미지 URL이 있을 경우에만 실행)
           if (this.defaultPhotoUrl) {
             this.file = await this.urlToFile(this.defaultPhotoUrl, 'image.png');
           }
@@ -112,29 +110,29 @@ export default {
       try {
         const formData = new FormData();
 
-        // 서버에서 기대하는 필드들로 데이터 구성
+        // 선택적 필드를 위한 데이터 구성
         const updatedData = {
-          leaderName: this.leaderName || '',  // Null 체크 후 빈 문자열로 대체
-          leaderHp: this.leaderHp || '',      // Null 체크 후 빈 문자열로 대체
-          clubInsta: this.clubInsta || ''     // Null 체크 후 빈 문자열로 대체
+          leaderName: this.leaderName || '',
+          leaderHp: this.leaderHp || ''
         };
 
-        // JSON 데이터를 FormData에 추가
+        if (this.clubInsta) {
+          updatedData.clubInsta = this.clubInsta;
+        }
+
         formData.append("clubInfoRequest", new Blob([JSON.stringify(updatedData)], { type: 'application/json' }));
 
-        // 파일이 있는 경우에만 파일을 전송
         if (this.file) {
-          formData.append("mainPhoto", this.file);  // 새로 선택한 이미지가 있으면 전송
+          formData.append("mainPhoto", this.file);
         } else {
-          formData.append("mainPhoto", "");  // 파일이 없을 때 빈 값 전송
+          formData.append("mainPhoto", "");
         }
 
-        // formData 내용을 출력하여 확인
+        // formData 내용 로그 출력
         for (let pair of formData.entries()) {
-          console.log(pair[0] + ', ' + pair[1]); 
+          console.log(`${pair[0]}: ${pair[1]}`);
         }
 
-        // 서버로 업데이트 요청을 전송
         const response = await axios.put(
           `https://api.donggurami.net/club-leader/${clubId}/info`,
           formData,
@@ -146,28 +144,29 @@ export default {
           }
         );
 
-      //  console.log("프로필 업데이트 성공:", response.data);
         alert('수정 완료!');
 
-        // 업로드된 파일이 있으면 S3로 전송
         if (this.file && response.data.data.presignedUrl) {
           this.presignedUrl = response.data.data.presignedUrl;
           await this.uploadFile();
         }
 
-        this.$emit('update'); // 부모 컴포넌트에 업데이트 요청
+        this.$emit('update');
       } catch (error) {
-       // console.error('프로필 업데이트 중 오류:', error);
+        // 500 에러를 분석하기 위해 상세한 오류 정보를 기록
+        console.error('프로필 업데이트 중 오류 발생:', error);
         if (error.response) {
-         // console.error('응답 데이터:', error.response.data);
+          console.error('응답 상태 코드:', error.response.status);
+          console.error('응답 데이터:', error.response.data);
+          alert(`오류: ${error.response.data.message || '서버 오류가 발생했습니다.'}`);
+        } else {
+          alert('프로필 업데이트 중 오류가 발생했습니다.');
         }
-        alert('프로필 업데이트 중 오류가 발생했습니다.');
       } finally {
         this.isLoading = false;
       }
     },
 
-    // 파일 업로드 로직 (파일이 있을 때만 실행)
     async uploadFile() {
       try {
         await axios.put(this.presignedUrl, this.file, {
@@ -190,7 +189,6 @@ export default {
     async onFileChange(event) {
       this.file = event.target.files[0];
 
-      // 파일 크기 및 형식 검증
       if (this.file && !this.validateFile(this.file)) {
         this.file = null;
         return;
@@ -207,7 +205,7 @@ export default {
 
     validateFile(file) {
       const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      const maxSize = 2 * 1024 * 1024; // 2MB
+      const maxSize = 2 * 1024 * 1024; 
 
       if (!validTypes.includes(file.type)) {
         alert('지원하지 않는 파일 형식입니다. JPG, PNG 또는 GIF 파일을 선택해주세요.');
@@ -228,7 +226,7 @@ export default {
 
     onImageError() {
       console.error("이미지 로딩에 실패했습니다.");
-      this.mainPhoto = '@/assets/logo.png';  // 기본 이미지로 대체
+      this.mainPhoto = '@/assets/logo.png';
     }
   }
 };
@@ -239,7 +237,7 @@ export default {
 
 <style scoped>
 .profile-edit-container {
-  padding-top: 50px;
+  padding-top: 40px;
   text-align: center;
   position: relative;
 }
@@ -248,8 +246,24 @@ export default {
   position: absolute;
   top: 20px;
   left: 20px;
+  font-size: 25px;
+  font-weight: bold;
+  display: inline-block;
+  z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
 }
 
+.profile-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
+  width: 102%;
+  height: 19px; /* 형광펜 두께 */
+  background-color: #FFB052;
+; /* 노란색 배경 */
+  z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
+  transform: skew(-12deg); /* 기울기 효과 추가 */
+}
 .profile-edit {
   display: flex;
   justify-content: center;
