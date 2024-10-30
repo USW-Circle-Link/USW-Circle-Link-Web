@@ -36,18 +36,25 @@ body {
 }
 
 .main-content{
+  padding-top: 140px;
   display: flex;
-  justify-content: space-evenly;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .sidebar{
-  flex-direction: column;
   display: flex;
+  position: fixed;
+  overflow: auto;
+  margin-left: 10%;
+  width: 25%;
+  height: 100%;
 }
 
 .content{
   flex-direction: column;
   display: flex;
+  margin-left:35%;
 }
 
 
