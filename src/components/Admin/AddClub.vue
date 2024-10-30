@@ -1,5 +1,5 @@
 <template>
-  <h2>동아리 추가</h2>
+  <div class="title">동아리 추가</div>
   <div class="form-container">
     <form @submit.prevent="submitForm">
       <div class="form-group">
@@ -162,6 +162,29 @@ export default {
 </script>
 
 <style scoped>
+
+.title {
+  color: black;
+  font-size: 25px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  position: relative; /* 상대 위치 설정 */
+  display: inline-block;
+  z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
+  width: 13%;
+  height: 19px; /* 형광펜 두께 */
+  background-color: #FFB052;
+; /* 노란색 배경 */
+  z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
+  transform: skew(-12deg); /* 기울기 효과 추가 */
+}
 .form-container {
   width: 860px;
   padding: 20px;
