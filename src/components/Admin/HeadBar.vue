@@ -29,6 +29,10 @@ export default {
   background: #fff;
   box-shadow: 0px 2.5px 0px 0px rgba(0, 0, 0, 0.13);
   margin-bottom: 40px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
 }
 
 .logo {
