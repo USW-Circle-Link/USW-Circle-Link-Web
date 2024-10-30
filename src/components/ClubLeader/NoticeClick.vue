@@ -23,11 +23,11 @@
       <!-- 이미지를 렌더링 -->
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
-          <img 
-            :src="image.src" 
-            alt="Notice Image" 
-            class="notice-image" 
-            @error="handleImageError(index)"
+          <img
+              :src="image.src"
+              alt="Notice Image"
+              class="notice-image"
+              @error="handleImageError(index)"
           />
         </div>
       </div>
@@ -35,16 +35,16 @@
     <div class="notice-list">
       <table>
         <thead>
-          <!-- 헤더 추가 가능 -->
+        <!-- 헤더 추가 가능 -->
         </thead>
         <tbody>
-          <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
-            <td>
-              <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
-            </td>
-            <td>{{ notice.adminName }}</td>
-            <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
-          </tr>
+        <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
+          <td>
+            <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
+          </td>
+          <td>{{ notice.adminName }}</td>
+          <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
+        </tr>
         </tbody>
       </table>
       <div class="pagination">

@@ -230,14 +230,14 @@ export default {
         });
 
         const response = await axios.put(
-          `http://15.164.246.244:8080/notices/${this.id}`,
-          form,
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'multipart/form-data',
+            `http://15.164.246.244:8080/notices/${this.id}`,
+            form,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data',
+              }
             }
-          }
         );
 
         alert('공지사항이 성공적으로 수정되었습니다!');
