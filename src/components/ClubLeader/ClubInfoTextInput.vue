@@ -259,6 +259,7 @@ export default {
   height: 153.96px;
   background-color: white;
   padding: 10px;
+  margin: auto;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   justify-content: space-around;
