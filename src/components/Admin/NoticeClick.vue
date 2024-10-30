@@ -233,6 +233,7 @@ export default {
   align-items: center;
   padding-top: 20px;
   margin-top: 20px;
+  padding-bottom: 40px;
 }
 
 .header {
@@ -312,14 +313,10 @@ export default {
   max-width: 300px;
 }
 
-
-
 .actions {
   display: flex;
-  justify-content: flex-end;
-  width: 1000px;
   margin-bottom: 20px;
-  margin-right: 180px;
+  margin-left: 670px;
 }
 
 .edit-button, .delete-button {
@@ -333,11 +330,15 @@ export default {
 }
 
 .edit-button {
+  width: 65px;
+  height: 37px;
   background-color: #5b9bd5;
   color: white;
 }
 
 .delete-button {
+  width: 65px;
+  height: 37px;
   background-color: #ed7d31;
   color: white;
 }
