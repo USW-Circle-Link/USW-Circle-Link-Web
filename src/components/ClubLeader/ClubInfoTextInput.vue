@@ -61,9 +61,10 @@ export default {
     };
   },
   mounted() {
-    this.fetchClubInfo();
+    this.fetchClubInfo();  // 클럽 정보를 가져옵니다.
   },
   methods: {
+    // 클럽 정보 가져오기
     async fetchClubInfo() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
@@ -78,15 +79,19 @@ export default {
 
         this.clubData = response.data.data;
         this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
-        this.textareaContent = this.clubData.clubIntro || '';
+        // 줄바꿈 처리 수정
+        this.textareaContent = (this.clubData.clubIntro || '').replace(/\n?<br>\n?/gi, '\n');
         this.googleFormLink = this.clubData.googleFormUrl || '';
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
+
+        console.log(this.textareaContent);
 
       } catch (error) {
         console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
         this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
       }
     },
+    // 이미지 삭제
     deleteImage(index) {
       this.pastImages = this.images;
       try {
@@ -99,6 +104,7 @@ export default {
         console.error("Error while deleting image:", error);
       }
     },
+    // 모집중 토글
     async toggleCheckbox() {
       const accessToken = store.state.accessToken;
       const clubId = store.state.clubId;
@@ -121,12 +127,14 @@ export default {
           })
           .catch(error => console.error('Error:', error));
     },
+    // 파일 선택 트리거
     triggerFileInput(index) {
       const fileInputRef = this.$refs[`fileInput${index}`];
       if (fileInputRef && fileInputRef[0] && fileInputRef[0].click) {
         fileInputRef[0].click();
       }
     },
+    // 파일 변경 처리
     onFileChange(index, event) {
       this.images.splice(index, 1, { src: '' });
       if (this.images.filter(image => image.src !== '').length >= 5) {
@@ -161,6 +169,7 @@ export default {
         }
       }
     },
+    // 이미지 업로드
     onImageUpload(index, event) {
       const file = event.target.files[0];
       if (file) {
@@ -184,6 +193,7 @@ export default {
         }
       }
     },
+    // 정보 저장
     async saveInfo() {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
@@ -202,20 +212,15 @@ export default {
       }
 
       const form = new FormData();
-
-      // JSON 데이터를 문자열로 변환할 때 replacer 함수를 사용하여 줄바꿈 처리
       const jsonData = {
-        clubIntro: this.textareaContent,
+        // 줄바꿈을 <br>로 변환
+        clubIntro: this.textareaContent.replace(/\n/g, '<br>'),
+        //clubIntro: this.textareaContent,
         googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
         orders: this.orders || this.clubData.orders,
         deletedOrders: this.deletedOrders
       };
-
-      const jsonString = JSON.stringify(jsonData, null, 2)
-          .replace(/\\n/g, '\n')  // 이스케이프된 줄바꿈을 실제 줄바꿈으로 변환
-          .replace(/\n/g, '\\n'); // 실제 줄바꿈을 서버가 인식할 수 있는 형태로 변환
-
-      form.append('clubIntroRequest', new Blob([jsonString], { type: 'application/json' }));
+      form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
 
       this.imagesData.forEach((image, index) => {
         form.append('introPhotos', image.file);
@@ -232,7 +237,6 @@ export default {
               }
             }
         );
-
         if (response.data && response.data.data && response.data.data.presignedUrls) {
           this.presignedUrls = response.data.data.presignedUrls;
           await this.uploadFiles();
@@ -246,9 +250,25 @@ export default {
         console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
       }
     },
+    // 이미지 업로드
+    async uploadFiles() {
+      try {
+        await Promise.all(this.presignedUrls.map(async (photoUrl, index) => {
+          await axios.put(photoUrl, this.imagesData[index].file, {
+            headers: {
+              'Content-Type': this.imagesData[index].file.type,
+            }
+          });
+        }));
+      } catch (error) {
+        console.error("파일 업로드 실패:", error);
+        alert("파일 업로드 실패!");
+      }
+    },
   }
 };
 </script>
+
 
 <style scoped>
 .image-upload-container {
@@ -263,6 +283,10 @@ export default {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   justify-content: space-around;
+}
+
+h2{
+  font-size: 24px;
 }
 
 .image-preview {
