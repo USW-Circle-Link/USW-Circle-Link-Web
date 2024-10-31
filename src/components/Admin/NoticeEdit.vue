@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="title">공지사항 수정</h2>
+    <h2>공지사항 수정</h2>
 
     <div v-if="notice">
       <div class="title-container">
@@ -9,22 +9,19 @@
       </div>
       <div class="content-container">
         <label for="content-input" class="label">내용</label>
-        <textarea id="content-input" v-model="textareaContent" placeholder="공지사항 내용" class="content-input"></textarea>
+        <textarea id="content-input" v-model="notice.noticeContent" placeholder="공지사항 내용" class="content-input"></textarea>
       </div>
 
-      <!-- 이미지 업로드 컨테이너 -->
       <div class="image-upload-container">
         <draggable v-model="noticePhotos" @end="updateImageOrder" class="image-items">
           <template #item="{ element, index }">
             <div class="image-preview">
               <img :src="element.src" alt="Uploaded Image" class="uploaded-image" @error="onImageError" />
 
-              <!-- 이미지 수정 아이콘 -->
               <div class="edit-icon" @click="editImage(index)">
                 <img src="@/assets/penbrush.png" alt="Edit Icon" />
               </div>
 
-              <!-- 삭제 버튼 추가 (X 아이콘) -->
               <div class="delete-icon" @click="deleteImage(index)">
                 <span>X</span>
               </div>
@@ -34,7 +31,6 @@
           </template>
         </draggable>
 
-        <!-- 이미지 추가 버튼 -->
         <div v-if="noticePhotos.length < 5" class="image-preview image-upload">
           <input type="file" @change="onImageUpload" ref="fileInput" />
           <span>+</span>
@@ -61,7 +57,6 @@ export default {
     return {
       notice: { noticeTitle: '', noticeContent: '' },
       noticePhotos: [],
-      textareaContent: '', // 줄바꿈과 공백 처리된 내용
       isLoading: false,
     };
   },
@@ -80,15 +75,13 @@ export default {
             'Content-Type': 'application/json',
           },
         });
-
         if (response.data && response.data.data) {
           this.notice = {
             noticeTitle: response.data.data.noticeTitle,
+            noticeContent: (response.data.data.noticeContent || '')
+              .replace(/\n?<br>\n?/gi, '\n') // 줄바꿈 처리
+              .replace(/&nbsp;/g, ' ')       // 공백 처리
           };
-          this.textareaContent = (response.data.data.noticeContent || '')
-            .replace(/\n?<br>\n?/gi, '\n') // <br>을 줄바꿈으로
-            .replace(/&nbsp;/g, ' ');      // &nbsp;를 공백으로 변환
-
           const photoUrls = response.data.data.noticePhotos || [];
           for (let i = 0; i < photoUrls.length; i++) {
             const file = await this.urlToFile(photoUrls[i]);
@@ -124,7 +117,7 @@ export default {
       return element.innerHTML;
     },
     validateInput() {
-      if (!this.notice.noticeTitle || !this.textareaContent) {
+      if (!this.notice.noticeTitle || !this.notice.noticeContent) {
         alert('제목과 내용을 모두 입력해주세요.');
         return false;
       }
@@ -136,19 +129,20 @@ export default {
         return;
       }
       const file = event.target.files[0];
-      if (file) {
-        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-        if (validExtensions.includes(fileExtension)) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const newImageOrder = this.noticePhotos.length + 1;
-            this.noticePhotos.push({ id: null, src: e.target.result, file, order: newImageOrder });
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert("파일 형식이 맞지 않습니다.");
-        }
+      if (!file) {
+        return;
+      }
+      const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      if (validExtensions.includes(fileExtension)) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const newImageOrder = this.noticePhotos.length + 1;
+          this.noticePhotos.push({ id: null, src: e.target.result, file, order: newImageOrder });
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
       }
     },
     onImageChange(index) {
@@ -164,59 +158,55 @@ export default {
           };
           reader.readAsDataURL(file);
         } else {
-          alert("파일 형식이 맞지 않습니다.");
+          alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
         }
+      } else {
+        console.error('fileInput is not found or files are empty.');
       }
     },
     editImage(index) {
       const fileInput = this.$refs['fileInput' + index];
       if (fileInput && fileInput.click) {
         fileInput.click();
+      } else {
+        console.error('fileInput is undefined or does not have a click method.');
       }
     },
     deleteImage(index) {
       this.noticePhotos.splice(index, 1);
     },
     async submitNotice() {
-      const maxTitleLength = 100;
+      const maxTitleLength = 300;
       const maxContentLength = 3000;
-
       if (this.notice.noticeTitle.length > maxTitleLength) {
         alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
         return;
       }
-
-      if (this.textareaContent.length > maxContentLength) {
+      if (this.notice.noticeContent.length > maxContentLength) {
         alert(`공지사항 내용은 ${maxContentLength}자 이내로 작성해야 합니다.`);
         return;
       }
-
       if (!this.validateInput()) {
         return;
       }
-
       try {
         this.isLoading = true;
         const accessToken = store.state.accessToken;
         const form = new FormData();
-
         const noticeData = {
           noticeTitle: this.sanitizeInput(this.notice.noticeTitle),
-          noticeContent: this.textareaContent
-            .replace(/ /g, '&nbsp;') // 공백을 &nbsp;로
-            .replace(/\n/g, '<br>'), // 줄바꿈을 <br>로 변환
+          noticeContent: this.sanitizeInput(this.notice.noticeContent)
+            .replace(/ /g, '&nbsp;') // 공백을 `&nbsp;`로 변환
+            .replace(/\n/g, '<br>'),  // 줄바꿈을 `<br>`로 변환
           photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
           photoOrders: this.noticePhotos.map(photo => photo.order),
         };
-
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
-
         this.noticePhotos.forEach((image) => {
           if (image.file) {
             form.append('photos', image.file);
           }
         });
-
         const response = await axios.put(
           `http://15.164.246.244:8080/notices/${this.id}`,
           form,
@@ -227,11 +217,45 @@ export default {
             }
           }
         );
-
+        if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
+          await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
+            if (this.noticePhotos[index] && this.noticePhotos[index].file) {
+              try {
+                await axios.put(photoUrl, this.noticePhotos[index].file, {
+                  headers: {
+                    'Content-Type': this.noticePhotos[index].file.type,
+                  }
+                });
+              } catch (uploadError) {
+                console.error(`Image ${index + 1} failed to upload:`, uploadError);
+              }
+            }
+          }));
+        }
         alert('공지사항이 성공적으로 수정되었습니다!');
         this.$router.push({ name: 'Notice' });
       } catch (error) {
-        alert('공지사항 수정에 실패했습니다.');
+        if (error.response) {
+          const status = error.response.status;
+          if (status === 400) {
+            alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
+          } else if (status === 404) {
+            alert('공지사항이 존재하지 않습니다.');
+          } else if (status === 413) {
+            alert('최대 5개의 사진이 업로드 가능합니다.');
+          } else if (status === 422) {
+            alert('제목과 내용을 모두 입력해주세요.');
+          } else if (status === 401) {
+            alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
+            this.$router.push({ name: 'Login' }); // Redirect to login page
+            return;
+          } else {
+            alert('공지사항 수정에 실패했습니다.');
+          }
+        } else {
+          console.error('Error submitting notice:', error);
+          alert('공지사항 수정에 실패했습니다.');
+        }
       } finally {
         this.isLoading = false;
       }
@@ -243,67 +267,61 @@ export default {
 };
 </script>
 
+
+
 <style scoped>
+
+
 * {
   box-sizing: border-box;
 }
 
-.title {
-  color: black;
-  font-size: 25px;
+.page-title {
+  text-align: center;
+  margin-bottom: 20px;
   font-weight: bold;
-  margin-bottom: 10px;
-  position: relative;
-  display: inline-block;
-  z-index: 1;
-}
-
-.title::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 2px;
-  width: 102.5%;
-  height: 19px;
-  background-color: #FFB052;
-  z-index: -1;
-  transform: skew(-12deg);
+  font-size: 24px;
 }
 
 .title-container, .content-container, .image-upload-container {
   margin-bottom: 20px;
-  width: 100%; /* 전체 가로 폭 맞추기 */
-  max-width: 817px; /* 이미지 업로드와 동일한 최대 넓이 */
 }
 
-.title-input,
-.content-input {
+.label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.title-input {
   width: 100%;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ddd;
-  border-radius: 8px; /* 둥근 모서리 적용 */
+  border-radius: 5px;
 }
 
 .content-input {
   width: 817px;
   height: 382px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
   resize: none;
-  line-height: 1.4;
-  white-space: pre-wrap;
 }
 
 .image-upload-container {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
+  width: 100%;  /* 전체 너비 */
   background-color: white;
   padding: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  overflow-x: auto;
-  flex-wrap: nowrap;
+  border-radius: 5px;
+  overflow-x: auto; /* 이미지가 가로로 넘칠 때 스크롤 가능하도록 설정 */
+  flex-wrap: nowrap; /* 한 줄로 배치 */
 }
 
 .image-items {
@@ -314,7 +332,7 @@ export default {
 .image-preview {
   position: relative;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 5px;
   overflow: hidden;
   width: 153.96px;
   height: 153.96px;
@@ -360,7 +378,7 @@ export default {
   width: 153.96px;
   height: 153.96px;
   border: 2px dashed #ddd;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
   position: relative;
   flex: 0 0 auto;
@@ -386,7 +404,7 @@ export default {
   margin: 20px auto;
   background-color: #ffc107;
   border: none;
-  border-radius: 8px;
+  border-radius: 5px;
   font-size: 16px;
   font-weight: bold;
   color: white;
@@ -398,7 +416,3 @@ export default {
   background-color: #e0a800;
 }
 </style>
-
-
-
-
