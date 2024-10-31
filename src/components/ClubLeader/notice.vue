@@ -179,7 +179,7 @@ export default {
   position: absolute;
   left: 0;
   bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
-  width: 10.5%;
+  width: 100%;
   height: 19px; /* 형광펜 두께 */
   background-color: #FFB052;
 ; /* 노란색 배경 */
