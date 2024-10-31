@@ -9,7 +9,7 @@
       </div>
       <div class="content-container">
         <label for="content-input" class="label">내용</label>
-        <textarea id="content-input" v-model="notice.noticeContent" placeholder="공지사항 내용" class="content-input"></textarea>
+        <textarea id="content-input" v-model="textareaContent" placeholder="공지사항 내용" class="content-input"></textarea>
       </div>
 
       <!-- 이미지 업로드 컨테이너 -->
@@ -60,12 +60,12 @@ export default {
   data() {
     return {
       notice: { noticeTitle: '', noticeContent: '' },
-      noticePhotos: [], // 기존 이미지와 새 이미지를 모두 포함하는 배열
+      noticePhotos: [],
+      textareaContent: '', // 줄바꿈과 공백 처리된 내용
       isLoading: false,
     };
   },
   methods: {
-    // 이미지 순서 변경 시 호출
     updateImageOrder() {
       this.noticePhotos.forEach((photo, index) => {
         photo.order = index + 1;
@@ -84,9 +84,10 @@ export default {
         if (response.data && response.data.data) {
           this.notice = {
             noticeTitle: response.data.data.noticeTitle,
-            // 서버에서 받아온 <br> 태그를 \n으로 변환
-            noticeContent: response.data.data.noticeContent.replace(/<br\s*\/?>/g, '\n'),
           };
+          this.textareaContent = (response.data.data.noticeContent || '')
+            .replace(/\n?<br>\n?/gi, '\n') // <br>을 줄바꿈으로
+            .replace(/&nbsp;/g, ' ');      // &nbsp;를 공백으로 변환
 
           const photoUrls = response.data.data.noticePhotos || [];
           for (let i = 0; i < photoUrls.length; i++) {
@@ -104,13 +105,12 @@ export default {
         this.noticePhotos = [];
       }
     },
-    // URL을 파일로 변환 (확장자 동적 처리)
     async urlToFile(url) {
       try {
         const response = await fetch(url);
         const blob = await response.blob();
         const mimeType = blob.type;
-        const extension = mimeType.split("/")[1]; // 이미지 타입에 따라 확장자를 동적으로 결정
+        const extension = mimeType.split("/")[1];
         const filename = `image_${new Date().getTime()}.${extension}`;
         return new File([blob], filename, { type: mimeType });
       } catch (error) {
@@ -124,45 +124,39 @@ export default {
       return element.innerHTML;
     },
     validateInput() {
-      if (!this.notice.noticeTitle || !this.notice.noticeContent) {
+      if (!this.notice.noticeTitle || !this.textareaContent) {
         alert('제목과 내용을 모두 입력해주세요.');
         return false;
       }
       return true;
     },
-    // 이미지 업로드 핸들러
     onImageUpload(event) {
       if (this.noticePhotos.length >= 5) {
         alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
         return;
       }
-
       const file = event.target.files[0];
-      if (!file) {
-        return;
-      }
-
-      const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-      const fileExtension = file.name.split('.').pop().toLowerCase();
-      if (validExtensions.includes(fileExtension)) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const newImageOrder = this.noticePhotos.length + 1;
-          this.noticePhotos.push({ id: null, src: e.target.result, file, order: newImageOrder });
-        };
-        reader.readAsDataURL(file);
-      } else {
-        console.error("Invalid file format:", fileExtension);
-        alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+      if (file) {
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        if (validExtensions.includes(fileExtension)) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const newImageOrder = this.noticePhotos.length + 1;
+            this.noticePhotos.push({ id: null, src: e.target.result, file, order: newImageOrder });
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("파일 형식이 맞지 않습니다.");
+        }
       }
     },
-    // 이미지 변경 핸들러
     onImageChange(index) {
       const fileInput = this.$refs[`fileInput${index}`];
       if (fileInput && fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-        const fileExtension = fileInput.name.split('.').pop().toLowerCase();
+        const fileExtension = file.name.split('.').pop().toLowerCase();
         if (validExtensions.includes(fileExtension)) {
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -170,24 +164,19 @@ export default {
           };
           reader.readAsDataURL(file);
         } else {
-          alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+          alert("파일 형식이 맞지 않습니다.");
         }
-      } else {
-        console.error('fileInput is not found or files are empty.');
       }
     },
     editImage(index) {
       const fileInput = this.$refs['fileInput' + index];
       if (fileInput && fileInput.click) {
         fileInput.click();
-      } else {
-        console.error('fileInput is undefined or does not have a click method.');
       }
     },
     deleteImage(index) {
       this.noticePhotos.splice(index, 1);
     },
-    // 공지사항 제출 핸들러
     async submitNotice() {
       const maxTitleLength = 100;
       const maxContentLength = 3000;
@@ -197,7 +186,7 @@ export default {
         return;
       }
 
-      if (this.notice.noticeContent.length > maxContentLength) {
+      if (this.textareaContent.length > maxContentLength) {
         alert(`공지사항 내용은 ${maxContentLength}자 이내로 작성해야 합니다.`);
         return;
       }
@@ -213,10 +202,9 @@ export default {
 
         const noticeData = {
           noticeTitle: this.sanitizeInput(this.notice.noticeTitle),
-          // Replace newlines with <br> for storage in the backend, but avoid replacing already existing <br>
-          noticeContent: this.sanitizeInput(this.notice.noticeContent).replace(/(?:\r\n|\r|\n)/g, function(match) {
-            return (match === '<br>' || match === '<br/>') ? match : '<br>';
-          }),
+          noticeContent: this.textareaContent
+            .replace(/ /g, '&nbsp;') // 공백을 &nbsp;로
+            .replace(/\n/g, '<br>'), // 줄바꿈을 <br>로 변환
           photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
           photoOrders: this.noticePhotos.map(photo => photo.order),
         };
@@ -225,25 +213,24 @@ export default {
 
         this.noticePhotos.forEach((image) => {
           if (image.file) {
-            form.append('photos', image.file); // 파일이 있는 경우에만 업로드
+            form.append('photos', image.file);
           }
         });
 
         const response = await axios.put(
-            `http://15.164.246.244:8080/notices/${this.id}`,
-            form,
-            {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'multipart/form-data',
-              }
+          `http://15.164.246.244:8080/notices/${this.id}`,
+          form,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'multipart/form-data',
             }
+          }
         );
 
         alert('공지사항이 성공적으로 수정되었습니다!');
         this.$router.push({ name: 'Notice' });
       } catch (error) {
-        console.error('Error submitting notice:', error);
         alert('공지사항 수정에 실패했습니다.');
       } finally {
         this.isLoading = false;
@@ -257,68 +244,53 @@ export default {
 </script>
 
 <style scoped>
+* {
+  box-sizing: border-box;
+}
+
 .title {
   color: black;
   font-size: 25px;
   font-weight: bold;
   margin-bottom: 10px;
-  position: relative; /* 상대 위치 설정 */
+  position: relative;
   display: inline-block;
-  z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
+  z-index: 1;
 }
 
 .title::after {
   content: '';
   position: absolute;
   left: 0;
-  bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
+  bottom: 2px;
   width: 102.5%;
-  height: 19px; /* 형광펜 두께 */
+  height: 19px;
   background-color: #FFB052;
-; /* 노란색 배경 */
-  z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
-  transform: skew(-12deg); /* 기울기 효과 추가 */
-}
-
-
-* {
-  box-sizing: border-box;
-}
-
-.page-title {
-  text-align: center;
-  margin-bottom: 20px;
-  font-weight: bold;
-  font-size: 24px;
+  z-index: -1;
+  transform: skew(-12deg);
 }
 
 .title-container, .content-container, .image-upload-container {
   margin-bottom: 20px;
+  width: 100%; /* 전체 가로 폭 맞추기 */
+  max-width: 817px; /* 이미지 업로드와 동일한 최대 넓이 */
 }
 
-.label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.title-input {
+.title-input,
+.content-input {
   width: 100%;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ddd;
-  border-radius: 5px;
+  border-radius: 8px; /* 둥근 모서리 적용 */
 }
 
 .content-input {
   width: 817px;
   height: 382px;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
   resize: none;
   line-height: 1.4;
+  white-space: pre-wrap;
 }
 
 .image-upload-container {
@@ -329,7 +301,7 @@ export default {
   background-color: white;
   padding: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
+  border-radius: 8px;
   overflow-x: auto;
   flex-wrap: nowrap;
 }
@@ -342,7 +314,7 @@ export default {
 .image-preview {
   position: relative;
   border: 1px solid #ddd;
-  border-radius: 5px;
+  border-radius: 8px;
   overflow: hidden;
   width: 153.96px;
   height: 153.96px;
@@ -388,7 +360,7 @@ export default {
   width: 153.96px;
   height: 153.96px;
   border: 2px dashed #ddd;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   position: relative;
   flex: 0 0 auto;
@@ -414,7 +386,7 @@ export default {
   margin: 20px auto;
   background-color: #ffc107;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: bold;
   color: white;
@@ -426,3 +398,7 @@ export default {
   background-color: #e0a800;
 }
 </style>
+
+
+
+

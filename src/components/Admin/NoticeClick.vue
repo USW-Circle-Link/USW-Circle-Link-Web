@@ -22,10 +22,10 @@
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
           <img
-              :src="image.src"
-              alt="Notice Image"
-              class="notice-image"
-              @error="handleImageError(index)"
+            :src="image.src"
+            alt="Notice Image"
+            class="notice-image"
+            @error="handleImageError(index)"
           />
         </div>
       </div>
@@ -36,16 +36,14 @@
     </div>
     <div class="notice-list">
       <table>
-        <thead>
-        </thead>
         <tbody>
-        <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
-          <td>
-            <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
-          </td>
-          <td>{{ notice.adminName }}</td>
-          <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
-        </tr>
+          <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
+            <td>
+              <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
+            </td>
+            <td>{{ notice.adminName }}</td>
+            <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
+          </tr>
         </tbody>
       </table>
       <div class="pagination">
@@ -58,7 +56,7 @@
 </template>
 
 <script>
-import store from '@/store/store'; // Vuex store 가져오기
+import store from '@/store/store';
 import axios from 'axios';
 
 export default {
@@ -68,7 +66,7 @@ export default {
       notice: null,
       currentPage: 1,
       itemsPerPage: 5,
-      images: [],  // 이미지 배열 추가
+      images: [], // Image array for notice photos
     };
   },
   computed: {
@@ -79,7 +77,7 @@ export default {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
       return this.notices.slice(start, end);
-    }
+    },
   },
   created() {
     this.fetchNotices();
@@ -90,7 +88,7 @@ export default {
         const accessToken = store.state.accessToken;
         const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
         });
@@ -102,14 +100,7 @@ export default {
         }
         this.fetchNotice(this.$route.params.id);
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          // Handle Unauthorized error
-          alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-          this.$router.push({ name: 'Login' });
-        } else {
-          console.error('Error fetching notices:', error);
-          this.notices = [];
-        }
+        this.handleError(error, 'Error fetching notices');
       }
     },
     async fetchNotice(id) {
@@ -117,28 +108,43 @@ export default {
         const accessToken = store.state.accessToken;
         const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
         });
-        if (!response.data || !response.data.data) {
-          throw new Error('Failed to fetch notice');
-        }
-        const data = response.data.data;
-        this.notice = data;
-
-        // noticePhotos 배열의 URL을 이미지로 로드하여 images 배열에 저장
-        this.images = data.noticePhotos.map(photoUrl => ({ src: photoUrl, isNew: false }));
-
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          // Handle Not Found error
-          alert('공지사항이 존재하지 않습니다.');
-          this.$router.push({ name: 'Notice' }); // Redirect to notice list
+        if (response.data && response.data.data) {
+          this.notice = response.data.data;
+          this.loadImages(response.data.data.noticePhotos);
         } else {
-          console.error('Error fetching notice:', error);
-          this.notice = null;
+          throw new Error('Notice data not found');
         }
+      } catch (error) {
+        this.handleError(error, 'Error fetching notice');
+      }
+    },
+    loadImages(photoUrls) {
+      if (Array.isArray(photoUrls)) {
+        this.images = photoUrls.map(photoUrl => {
+          const isBase64 = photoUrl.startsWith('data:image/');
+          const imageUrl = isBase64 ? photoUrl : `${photoUrl}`;
+          return { src: imageUrl, isNew: false };
+        });
+      }
+    },
+    handleImageError(index) {
+      // Fallback image for failed loads
+      this.images[index].src = require('@/assets/rigth.png'); // 기본 이미지로 변경
+    },
+    handleError(error, message) {
+      if (error.response && error.response.status === 404) {
+        alert(`${message}: Resource not found.`);
+        this.$router.push({ name: 'Notice' });
+      } else if (error.response && error.response.status === 401) {
+        alert('Unauthorized access. Please log in again.');
+        this.$router.push({ name: 'Login' });
+      } else {
+        console.error(`${message}:`, error);
+        alert(`${message}. Please try again later.`);
       }
     },
     prevNotice() {
@@ -165,12 +171,12 @@ export default {
       }
     },
     async deleteNotice() {
-      if (this.notice && confirm("이 공지사항을 삭제하시겠습니까?")) {
+      if (this.notice && confirm('이 공지사항을 삭제하시겠습니까?')) {
         try {
           const accessToken = store.state.accessToken;
           const response = await axios.delete(`http://15.164.246.244:8080/notices/${this.notice.noticeId}`, {
             headers: {
-              'Authorization': `Bearer ${accessToken}`,
+              Authorization: `Bearer ${accessToken}`,
               'Content-Type': 'application/json',
             },
           });
@@ -187,18 +193,7 @@ export default {
             alert('공지사항 삭제에 실패했습니다.');
           }
         } catch (error) {
-          if (error.response && error.response.status === 404) {
-            // Handle 404 Not Found error
-            alert('공지사항이 이미 삭제되었거나 존재하지 않습니다.');
-            this.$router.push({ name: 'Notice' }); // Redirect to notice list
-          } else if (error.response && error.response.status === 401) {
-            // Handle 401 Unauthorized error
-            alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-            this.$router.push({ name: 'Login' }); // Redirect to login page
-          } else {
-            console.error('공지사항 삭제 중 오류가 발생했습니다:', error);
-            alert('공지사항 삭제 중 오류가 발생했습니다.');
-          }
+          this.handleError(error, '공지사항 삭제 중 오류');
         }
       }
     },
@@ -206,15 +201,12 @@ export default {
       const date = new Date(dateString);
       return date.toLocaleDateString();
     },
-    handleImageError(index) {
-      this.images[index].src = '@/assets/rigth.png'; // 이미지 로드 실패 시 대체 이미지
-    },
   },
   watch: {
     $route(to) {
       this.fetchNotice(to.params.id);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -233,7 +225,6 @@ export default {
   align-items: center;
   padding-top: 20px;
   margin-top: 20px;
-  padding-bottom: 40px;
 }
 
 .header {
@@ -290,7 +281,9 @@ export default {
   font-size: 14px;
   color: #333;
   margin-top: 20px;
-  line-height: 1.6;
+  line-height: 1.0;
+  border-top: 0.5px solid  #868686; /* 회색 구분선 추가 */
+  padding-top: 10px; /* 텍스트와 구분선 사이에 여백 추가 */
 }
 
 .notice-images {
@@ -313,10 +306,14 @@ export default {
   max-width: 300px;
 }
 
+
+
 .actions {
   display: flex;
+  justify-content: flex-end;
+  width: 1000px;
   margin-bottom: 20px;
-  margin-left: 670px;
+  margin-right: 180px;
 }
 
 .edit-button, .delete-button {
@@ -330,15 +327,11 @@ export default {
 }
 
 .edit-button {
-  width: 65px;
-  height: 37px;
   background-color: #5b9bd5;
   color: white;
 }
 
 .delete-button {
-  width: 65px;
-  height: 37px;
   background-color: #ed7d31;
   color: white;
 }

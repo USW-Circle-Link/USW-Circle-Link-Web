@@ -9,7 +9,7 @@
       </div>
       <div class="content-container">
         <label for="content-input" class="label">내용</label>
-        <textarea id="content-input" v-model="notice.noticeContent" class="content-input"></textarea>
+        <textarea id="content-input" v-model="textareaContent" class="content-input"></textarea>
       </div>
       <div class="image-upload-container">
         <div v-for="(image, index) in images" :key="index" class="image-preview">
@@ -31,7 +31,7 @@
 
 <script>
 import axios from 'axios';
-import store from '@/store/store'; // Vuex store 가져오기
+import store from '@/store/store';
 
 export default {
   name: 'NoticeEdit',
@@ -41,36 +41,22 @@ export default {
       notice: { noticeTitle: '', noticeContent: '' },
       notices: [],
       images: [], // 이미지 파일과 미리보기를 저장할 배열
+      textareaContent: '', // 줄바꿈과 공백 처리된 내용
     };
   },
   methods: {
-    async fetchNotices() {
-      try {
-        const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
-          headers: {
-            'Authorization': `Bearer ${store.state.accessToken}`, // 토큰 추가
-          },
-        });
-        if (response.data && response.data._embedded && Array.isArray(response.data._embedded.noticeListResponseList)) {
-          this.notices = response.data._embedded.noticeListResponseList;
-        } else {
-          this.notices = [];
-          console.warn('Unexpected response format:', response.data);
-        }
-        this.fetchNotice(this.id);
-      } catch (error) {
-        console.error('Error fetching notices:', error);
-        this.notices = [];
-        alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
-      }
-    },
+    // 공지사항 데이터를 불러와서 변환합니다.
     fetchNotice(id) {
       const notice = this.notices.find(notice => notice.noticeId == id);
       if (notice) {
         this.notice = notice;
+        this.textareaContent = (notice.noticeContent || '')
+          .replace(/<br\s*\/?>/gi, '\n')  // <br> 태그를 줄바꿈으로
+          .replace(/&nbsp;/g, ' ');       // &nbsp;를 공백으로 변환
         this.images = notice.noticePhotos ? notice.noticePhotos.map(src => ({ src })) : [];
       } else {
         this.notice = { noticeTitle: '', noticeContent: '' };
+        this.textareaContent = '';
         this.images = [];
       }
     },
@@ -111,7 +97,6 @@ export default {
     editImage(index) {
       this.$refs[`fileInput${index}`][0].click();
     },
-
     async submitNotice() {
       const maxTitleLength = 100;
       const maxContentLength = 3000;
@@ -121,22 +106,23 @@ export default {
         return;
       }
 
-      if (this.notice.noticeContent.length > maxContentLength) {
+      if (this.textareaContent.length > maxContentLength) {
         alert(`공지사항 내용은 ${maxContentLength}자 이내로 작성해야 합니다.`);
         return;
       }
 
       try {
         const form = new FormData();
-
         const noticeData = {
           noticeTitle: this.notice.noticeTitle,
-          noticeContent: this.notice.noticeContent,
+          noticeContent: this.textareaContent
+            .replace(/ /g, '&nbsp;')    // 공백을 &nbsp;로 변환
+            .replace(/\n/g, '<br>'),     // 줄바꿈을 <br>로 변환
           photoOrders: this.images.map((_, index) => index + 1)
         };
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
 
-        this.images.forEach((image, index) => {
+        this.images.forEach((image) => {
           form.append('photos', image.file);
         });
 
@@ -147,37 +133,22 @@ export default {
           },
         });
 
-        if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
-          await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
-            const photoResponse = await axios.put(photoUrl, this.images[index].file, {
-              headers: {
-                'Content-Type': this.images[index].file.type,
-              }
-            });
-            console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
-          }));
-        }
-
         alert('공지사항이 성공적으로 등록되었습니다!');
         this.$router.push({ name: 'Notice' });
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-        } else if (error.response && error.response.data.code === 'FILE-308') {
-          alert('업로드 가능한 사진 갯수를 초과했습니다.');
-        } else if (error.response && error.response.data.code === 'NOT-203') {
-          alert('제목과 내용을 모두 입력해주세요.');
-        } else {
-          alert('공지사항 제출에 실패했습니다.');
-        }
+        alert('공지사항 제출에 실패했습니다.');
       }
     },
   },
   created() {
-    this.fetchNotices();
-  }
+    this.fetchNotice(this.id);
+  },
 };
 </script>
+
+
+
+
 
 <style scoped>
 .title {
