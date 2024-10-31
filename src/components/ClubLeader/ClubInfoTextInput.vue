@@ -28,9 +28,14 @@
       </div>
     </div>
     <div class="ClubInfoTextInput">
-      <textarea v-model="textareaContent" rows="4" cols="50"></textarea>
+      <textarea 
+      v-model="textareaContent" 
+      rows="4" 
+      cols="50"
+      class="preserve-whitespace">
+    </textarea>
     </div>
-    <h2>구글폼 링크</h2>
+    <h2>지원서 링크</h2>
     <div class="GoogleFormLinkInput">
       <textarea placeholder="링크를 입력해 주세요" v-model="googleFormLink" rows="4" cols="1"></textarea>
     </div>
@@ -80,11 +85,11 @@ export default {
         this.clubData = response.data.data;
         this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
         // 줄바꿈 처리 수정
-        this.textareaContent = (this.clubData.clubIntro || '').replace(/\n?<br>\n?/gi, '\n');
+        this.textareaContent = (this.clubData.clubIntro || '')
+            .replace(/\n?<br>\n?/gi, '\n')
+            .replace(/&nbsp;/g, ' ');
         this.googleFormLink = this.clubData.googleFormUrl || '';
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
-
-        console.log(this.textareaContent);
 
       } catch (error) {
         console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
@@ -214,7 +219,9 @@ export default {
       const form = new FormData();
       const jsonData = {
         // 줄바꿈을 <br>로 변환
-        clubIntro: this.textareaContent.replace(/\n/g, '<br>'),
+        clubIntro: this.textareaContent
+            .replace(/ /g, '&nbsp;')
+            .replace(/\n/g, '<br>'),
         //clubIntro: this.textareaContent,
         googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
         orders: this.orders || this.clubData.orders,
@@ -271,6 +278,10 @@ export default {
 
 
 <style scoped>
+.preserve-whitespace {
+  white-space: pre-wrap;
+}
+
 .image-upload-container {
   display: flex;
   align-items: center;
@@ -381,6 +392,7 @@ h2{
   border: none;
   font-size: 16px;
   resize: none;
+  white-space: pre-wrap;
 }
 
 textarea:focus {
