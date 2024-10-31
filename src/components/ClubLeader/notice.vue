@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="contents">
+    <div class="content">
       <h2 class="title">공지사항</h2>
       <div class="notices">
         <table>
@@ -153,6 +153,16 @@ export default {
   }
 };
 </script>
+
+
+
+
+
+
+
+
+
+
 <style scoped>
 .title {
   color: black;
@@ -169,7 +179,7 @@ export default {
   position: absolute;
   left: 0;
   bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
-  width: 100%;
+  width: 10.5%;
   height: 19px; /* 형광펜 두께 */
   background-color: #FFB052;
 ; /* 노란색 배경 */
@@ -188,8 +198,9 @@ export default {
 }
 
 /* 콘텐츠 영역 설정 */
-.contents {
+.content {
   flex: 1;
+  padding: 40px;
 }
 
 /* 타이틀 스타일 */
