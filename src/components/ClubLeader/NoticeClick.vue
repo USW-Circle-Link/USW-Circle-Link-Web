@@ -189,7 +189,6 @@ export default {
   align-items: center;
   padding-top: 20px;
   margin-top: 20px;
-  padding-bottom: 40px;
 }
 
 .header {
@@ -234,21 +233,6 @@ export default {
   font-family: Pretendard;
   font-weight: 700;
   margin-bottom: 10px;
-  position: relative;
-  display: inline-block;
-  z-index: 1;
-}
-
-.notice-title::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 2px;
-  width: 100%; /* 텍스트 길이에 맞춰 자동으로 조정 */
-  height: 19px;
-  background-color: #FFB052;
-  z-index: -1;
-  transform: skew(-12deg);
 }
 
 .notice-meta {
@@ -266,7 +250,6 @@ export default {
   padding-top: 10px; /* 텍스트와 구분선 사이에 여백 추가 */
 }
 
-
 .notice-images {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 자동으로 열을 채워줍니다 */
@@ -276,10 +259,19 @@ export default {
 
 .notice-image {
   width: 100%;
-  height: 100%; /* 고정된 높이 설정 */
+  height: 200px; /* 고정된 높이 설정 */
   object-fit: cover; /* 이미지 비율을 유지하면서 잘 맞추어 줍니다 */
-  /*border-radius: 8px;*/
+  border-radius: 8px;
 }
+
+
+.image-container {
+  width: 100%;
+  max-width: 300px;
+}
+
+
+
 .actions {
   display: flex;
   justify-content: flex-end;
