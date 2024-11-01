@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <div class="profile">
-      <img src="../../assets/flag_logo.jpeg" alt="FLAG Logo" class="profile-img" />
+      <img src="../../assets/FLAG.jpg" alt="FLAG Logo" class="profile-img" />
       <div class="profile-info">
         <div class="profile-name">
           <h2>{{clubname}}</h2>
@@ -52,7 +52,7 @@ export default {
   name: 'SidebarMenu',
   data(){
     return{
-      clubname: '개발팀',
+      clubname: '운영팀',
     }
   },
   methods: {
