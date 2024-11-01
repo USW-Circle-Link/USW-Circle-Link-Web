@@ -77,6 +77,13 @@ export default {
     };
   },
   methods: {
+    navigateTo(routeName) {
+      this.$router.push({ name: routeName }).catch(err => {
+        if (err.name !== 'NavigationDuplicated') {
+          throw err;
+        }
+      });
+    },
     validateId() {
       const idPattern = /^[a-zA-Z0-9]{5,20}$/;
       if (!idPattern.test(this.id)) {
@@ -131,6 +138,7 @@ export default {
           }
         });
         alert('성공적으로 추가했습니다.');
+        this.navigateTo('clublist');
         this.clearForm();
         this.isPopupVisible = false;
       } catch (error) {
