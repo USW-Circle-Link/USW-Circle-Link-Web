@@ -326,6 +326,7 @@ body {
   align-items: center; /* 세로 중앙 정렬 */
   padding-left: 60px; /* 데이터 항목의 좌측 여백 조정 */
   font-size: 18px; /* 리스트 아이템의 글자 크기 키움 */
+  cursor: pointer;
 }
 
 .list-item-container {
