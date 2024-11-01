@@ -22,16 +22,16 @@
             <input type="text" id="clubName" v-model="clubName" class="club-name-input" readonly />
           </div>
           <div class="form-group">
-            <label for="leaderName">동아리장</label>
-            <input type="text" id="leaderName" v-model="leaderName" class="standard-input" />
+            <label for="leaderName">동아리장  <a style="color:red;">*</a></label>
+            <input placeholder="* 필수 입력값 입니다." type="text" id="leaderName" v-model="leaderName" class="standard-input" />
+          </div>
+          <div class="form-group">
+            <label for="phoneNumber">전화번호  <a style="color:red;">*</a></label>
+            <input placeholder="* 필수 입력값 입니다." type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" />
           </div>
           <div class="form-group">
             <label for="clubInsta">인스타그램</label>
             <input type="text" id="clubInsta" v-model="clubInsta" class="standard-input" />
-          </div>
-          <div class="form-group">
-            <label for="phoneNumber">전화번호</label>
-            <input type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" />
           </div>
           <div class="button-container">
             <button type="submit" :disabled="isLoading">{{ isLoading ? '업데이트 중...' : '수정하기' }}</button>
