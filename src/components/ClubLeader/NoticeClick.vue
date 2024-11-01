@@ -156,7 +156,7 @@ export default {
     },
     // 줄바꿈 문자를 <br>로 변환하는 함수
     convertNewlinesToBr(text) {
-      return text ? text.replace(/\n/g, '<br>') : '';
+      return text ? text.replace(/\n?<br>\n\?/gi, '<br>') : '';
     },
     formattedDate(dateString) {
       const date = new Date(dateString);
