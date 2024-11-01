@@ -301,6 +301,7 @@ nav .icon {
 .footer a {
   color: #999999;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .line2 {
