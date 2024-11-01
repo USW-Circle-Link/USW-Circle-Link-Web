@@ -203,18 +203,18 @@ export default {
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
 
-      if (this.textareaContent === '') {
-        alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.");
-        return;
-      }
-      if (this.googleFormLink === '') {
-        alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
-        return;
-      }
-      if (!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")) {
-        alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
-        return;
-      }
+      // if (this.textareaContent === '') {
+      //   alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.");
+      //   return;
+      // }
+      // if (this.googleFormLink === '') {
+      //   alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
+      //   return;
+      // }
+      // if (!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")) {
+      //   alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
+      //   return;
+      // }
 
       const form = new FormData();
       const jsonData = {
