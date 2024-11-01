@@ -349,6 +349,7 @@ export default {
   border: none;
   align-items: center;
   margin-right: 60px;
+  cursor: pointer;
 }
 
 .spreadsheets p{
