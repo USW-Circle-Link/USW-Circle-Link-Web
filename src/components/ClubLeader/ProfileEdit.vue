@@ -3,11 +3,11 @@
     <h2 class="profile-title">동아리 정보 수정</h2>
     <div class="profile-edit">
       <div class="image-container">
-        <img
-            :src="mainPhoto || defaultPhotoUrl"
-            alt="동아리 이미지"
-            @load="onImageLoad"
-            @error="onImageError"
+        <img 
+          :src="mainPhoto || defaultPhotoUrl" 
+          alt="동아리 이미지" 
+          @load="onImageLoad" 
+          @error="onImageError" 
         />
         <div class="edit-icon" @click="triggerFileInput">
           <img src="@/assets/penbrush.png" alt="Edit Icon" />
@@ -22,16 +22,16 @@
             <input type="text" id="clubName" v-model="clubName" class="club-name-input" readonly />
           </div>
           <div class="form-group">
-            <label for="leaderName">동아리장</label>
-            <input type="text" id="leaderName" v-model="leaderName" class="standard-input" />
+            <label for="leaderName">동아리장  <a style="color:red;">*</a></label>
+            <input  type="text" id="leaderName" v-model="leaderName" class="standard-input" />
+          </div>
+          <div class="form-group">
+            <label for="phoneNumber">전화번호  <a style="color:red;">*</a></label>
+            <input  type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" />
           </div>
           <div class="form-group">
             <label for="clubInsta">인스타그램</label>
             <input type="text" id="clubInsta" v-model="clubInsta" class="standard-input" />
-          </div>
-          <div class="form-group">
-            <label for="phoneNumber">전화번호</label>
-            <input type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" />
           </div>
           <div class="button-container">
             <button type="submit" :disabled="isLoading">{{ isLoading ? '업데이트 중...' : '수정하기' }}</button>
@@ -134,14 +134,14 @@ export default {
         }
 
         const response = await axios.put(
-            `https://api.donggurami.net/club-leader/${clubId}/info`,
-            formData,
-            {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'multipart/form-data',
-              }
+          `https://api.donggurami.net/club-leader/${clubId}/info`,
+          formData,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'multipart/form-data',
             }
+          }
         );
 
         alert('수정 완료!');
@@ -205,7 +205,7 @@ export default {
 
     validateFile(file) {
       const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      const maxSize = 2 * 1024 * 1024;
+      const maxSize = 2 * 1024 * 1024; 
 
       if (!validTypes.includes(file.type)) {
         alert('지원하지 않는 파일 형식입니다. JPG, PNG 또는 GIF 파일을 선택해주세요.');
