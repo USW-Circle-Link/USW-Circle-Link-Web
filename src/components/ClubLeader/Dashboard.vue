@@ -127,7 +127,7 @@ export default {
       console.log(clubId + '클럽 ID')
       console.log('Page has been loaded!');
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?page=0&size=2`, { //${clubId}
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?page=0&size=500`, { //${clubId}
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
             'Content-Type': 'application/json'

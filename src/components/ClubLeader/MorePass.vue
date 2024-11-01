@@ -61,7 +61,7 @@ export default {
         message: '',
         type: ''
       },
-      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants?page=0&size=2`, // 지원자 명단을 가져오는 서버 URL
+      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants?page=0&size=500`, // 지원자 명단을 가져오는 서버 URL
       submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants/notifyMultiple`, // 합/불 결과를 보내는 서버 URL
     };
   },
