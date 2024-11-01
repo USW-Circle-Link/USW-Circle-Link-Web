@@ -1,40 +1,30 @@
 <template>
   <div>
-    <h2>공지사항 작성</h2>
+    <h2 class="title">공지사항 작성</h2>
 
     <div v-if="notice">
       <div class="title-container">
         <label for="title-input" class="label">제목</label>
-        <input id="title-input" v-model="notice.noticeTitle" placeholder="공지사항 제목" class="title-input" />
+        <input id="title-input" v-model="notice.noticeTitle" class="title-input" />
       </div>
       <div class="content-container">
         <label for="content-input" class="label">내용</label>
-        <textarea id="content-input" v-model="notice.noticeContent" placeholder="공지사항 내용" class="content-input"></textarea>
+        <textarea id="content-input" v-model="notice.noticeContent" class="content-input"></textarea>
       </div>
-
       <div class="image-upload-container">
-        <draggable v-model="noticePhotos" @end="updateImageOrder" class="image-items">
-          <template #item="{ element, index }">
-            <div class="image-preview">
-              <img :src="element.src" alt="Uploaded Image" class="uploaded-image" @error="onImageError" />
-              <div class="edit-icon" @click="editImage(index)">
-                <img src="@/assets/penbrush.png" alt="Edit Icon" />
-              </div>
-              <div class="delete-icon" @click="deleteImage(index)">
-                <span>X</span>
-              </div>
-              <input type="file" :ref="'fileInput' + index" @change="onImageChange(index)" style="display: none;" />
-            </div>
-          </template>
-        </draggable>
-
-        <div v-if="noticePhotos.length < 5" class="image-preview image-upload">
-          <input type="file" @change="onImageUpload" ref="fileInput" />
+        <div v-for="(image, index) in images" :key="index" class="image-preview">
+          <img :src="image.src" alt="Uploaded Image" class="uploaded-image" />
+          <div class="edit-icon" @click="editImage(index)">
+            <img src="@/assets/penbrush.png" alt="Edit Icon" />
+          </div>
+          <input type="file" :ref="'fileInput' + index" @change="onImageChange(index)" style="display: none;" />
+        </div>
+        <div v-if="images.length < 5" class="image-upload">
+          <input type="file" @change="onImageUpload" />
           <span>+</span>
         </div>
       </div>
-
-      <button class="submit-button" @click="submitNotice" :disabled="isLoading">작성 완료</button>
+      <button class="submit-button" @click="submitNotice">작성 완료</button>
     </div>
   </div>
 </template>
@@ -42,245 +32,181 @@
 <script>
 import axios from 'axios';
 import store from '@/store/store';
-import draggable from 'vuedraggable';
 
 export default {
-  name: 'NoticeEdit',
-  components: {
-    draggable,
-  },
+  name: 'NoticeWrite',
   props: ['id'],
   data() {
     return {
       notice: { noticeTitle: '', noticeContent: '' },
-      noticePhotos: [],
-      isLoading: false,
+      notices: [],
+      images: [], // 이미지 파일과 미리보기를 저장할 배열
     };
   },
   methods: {
-    updateImageOrder() {
-      this.noticePhotos.forEach((photo, index) => {
-        photo.order = index + 1;
-      });
-    },
-    async fetchNotice(id) {
+    async fetchNotices() {
       try {
-        const accessToken = store.state.accessToken;
-        const response = await axios.post(`http://15.164.246.244:8080/notices`, {
+        const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${store.state.accessToken}`,
           },
         });
-        if (response.data && response.data.data) {
-          this.notice = {
-            noticeTitle: response.data.data.noticeTitle,
-            noticeContent: (response.data.data.noticeContent || '')
-              .replace(/\n?<br>\n?/gi, '\n') // 줄바꿈 처리
-              .replace(/&nbsp;/g, ' ')       // 공백 처리
-          };
-          const photoUrls = response.data.data.noticePhotos || [];
-          for (let i = 0; i < photoUrls.length; i++) {
-            const file = await this.urlToFile(photoUrls[i]);
-            if (file) {
-              this.noticePhotos.push({ id: i + 1, src: photoUrls[i], file, order: i + 1 });
-            }
-          }
+        if (response.data && response.data._embedded && Array.isArray(response.data._embedded.noticeListResponseList)) {
+          this.notices = response.data._embedded.noticeListResponseList;
         } else {
+          this.notices = [];
           console.warn('Unexpected response format:', response.data);
         }
+        this.fetchNotice(this.id);
       } catch (error) {
-        console.error('Error fetching notice:', error);
+        console.error('Error fetching notices:', error);
+        this.notices = [];
+        alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
+      }
+    },
+    fetchNotice(id) {
+      const notice = this.notices.find(notice => notice.noticeId == id);
+      if (notice) {
+        this.notice = notice;
+        this.images = notice.noticePhotos ? notice.noticePhotos.map(src => ({ src })) : [];
+      } else {
         this.notice = { noticeTitle: '', noticeContent: '' };
-        this.noticePhotos = [];
+        this.images = [];
       }
-    },
-    async urlToFile(url) {
-      try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const mimeType = blob.type;
-        const extension = mimeType.split("/")[1];
-        const filename = `image_${new Date().getTime()}.${extension}`;
-        return new File([blob], filename, { type: mimeType });
-      } catch (error) {
-        console.error('Error converting URL to file:', error);
-        return null;
-      }
-    },
-    sanitizeInput(input) {
-      const element = document.createElement('div');
-      element.innerText = input;
-      return element.innerHTML;
-    },
-    validateInput() {
-      if (!this.notice.noticeTitle || !this.notice.noticeContent) {
-        alert('제목과 내용을 모두 입력해주세요.');
-        return false;
-      }
-      return true;
     },
     onImageUpload(event) {
-      if (this.noticePhotos.length >= 5) {
-        alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
-        return;
-      }
       const file = event.target.files[0];
-      if (!file) {
-        return;
-      }
-      const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-      const fileExtension = file.name.split('.').pop().toLowerCase();
-      if (validExtensions.includes(fileExtension)) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const newImageOrder = this.noticePhotos.length + 1;
-          this.noticePhotos.push({ id: null, src: e.target.result, file, order: newImageOrder });
-        };
-        reader.readAsDataURL(file);
-      } else {
-        alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
-      }
-    },
-    onImageChange(index) {
-      const fileInput = this.$refs[`fileInput${index}`];
-      if (fileInput && fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
+      if (file) {
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
         if (validExtensions.includes(fileExtension)) {
           const reader = new FileReader();
           reader.onload = (e) => {
-            this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
+            this.images.push({ src: e.target.result, file });
           };
           reader.readAsDataURL(file);
         } else {
-          alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
         }
-      } else {
-        console.error('fileInput is not found or files are empty.');
+      }
+    },
+    onImageChange(index) {
+      const fileInput = this.$refs[`fileInput${index}`][0];
+      if (fileInput && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const maxFileSize = 10 * 1024 * 1024; // 10MB
+        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.images.splice(index, 1, { src: e.target.result, file }); // Vue 3에서 splice로 대체
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("파일 형식이 맞지 않거나 파일 크기가 10MB를 초과합니다. \n10MB 이하의 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 선택하세요.");
+        }
       }
     },
     editImage(index) {
-      const fileInput = this.$refs['fileInput' + index];
-      if (fileInput && fileInput.click) {
-        fileInput.click();
-      } else {
-        console.error('fileInput is undefined or does not have a click method.');
-      }
+      this.$refs[`fileInput${index}`][0].click();
     },
-    deleteImage(index) {
-      this.noticePhotos.splice(index, 1);
-    },
+
     async submitNotice() {
-      const maxTitleLength = 300;
+      const maxTitleLength = 100;
       const maxContentLength = 3000;
+
       if (this.notice.noticeTitle.length > maxTitleLength) {
         alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
         return;
       }
+
       if (this.notice.noticeContent.length > maxContentLength) {
         alert(`공지사항 내용은 ${maxContentLength}자 이내로 작성해야 합니다.`);
         return;
       }
-      if (!this.validateInput()) {
-        return;
-      }
+
       try {
-        this.isLoading = true;
-        const accessToken = store.state.accessToken;
         const form = new FormData();
+
         const noticeData = {
-          noticeTitle: this.sanitizeInput(this.notice.noticeTitle),
-          noticeContent: this.sanitizeInput(this.notice.noticeContent)
-            .replace(/ /g, '&nbsp;') // 공백을 `&nbsp;`로 변환
-            .replace(/\n/g, '<br>'),  // 줄바꿈을 `<br>`로 변환
-          photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
-          photoOrders: this.noticePhotos.map(photo => photo.order),
+          noticeTitle: this.notice.noticeTitle,
+          noticeContent: this.notice.noticeContent,
+          photoOrders: this.images.map((_, index) => index + 1)
         };
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
-        this.noticePhotos.forEach((image) => {
-          if (image.file) {
-            form.append('photos', image.file);
-          }
+
+        this.images.forEach((image, index) => {
+          form.append('photos', image.file);
         });
-        
-        const response = await axios.post(
-          `http://15.164.246.244:8080/notices`,
-          form,
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'multipart/form-data',
-            }
-          }
-        );
+
+        const response = await axios.post('http://15.164.246.244:8080/notices', form, {
+          headers: {
+            'Authorization': `Bearer ${store.state.accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
 
         if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
           await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
-            if (this.noticePhotos[index] && this.noticePhotos[index].file) {
-              try {
-                await axios.put(photoUrl, this.noticePhotos[index].file, {
-                  headers: {
-                    'Content-Type': this.noticePhotos[index].file.type,
-                  }
-                });
-              } catch (uploadError) {
-                console.error(`Image ${index + 1} failed to upload:`, uploadError);
+            const photoResponse = await axios.put(photoUrl, this.images[index].file, {
+              headers: {
+                'Content-Type': this.images[index].file.type,
               }
-            }
+            });
+           // console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
           }));
         }
-        alert('공지사항이 성공적으로 수정되었습니다!');
+
+        alert('공지사항이 성공적으로 등록되었습니다!');
         this.$router.push({ name: 'Notice' });
       } catch (error) {
-        if (error.response) {
-          const status = error.response.status;
-          if (status === 400) {
-            alert('지원하지 않는 파일 확장자입니다. PNG 또는 JPG 형식의 이미지만 업로드할 수 있습니다.');
-          } else if (status === 404) {
-            alert('공지사항이 존재하지 않습니다.');
-          } else if (status === 413) {
-            alert('최대 5개의 사진이 업로드 가능합니다.');
-          } else if (status === 422) {
-            alert('제목과 내용을 모두 입력해주세요.');
-          } else if (status === 401) {
-            alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-            this.$router.push({ name: 'Login' });
-            return;
-          } else {
-            alert('공지사항 수정에 실패했습니다.');
-          }
+        if (error.response && error.response.status === 401) {
+          alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
+        } else if (error.response && error.response.data.code === 'FILE-308') {
+          alert('업로드 가능한 사진 갯수를 초과했습니다.');
+        } else if (error.response && error.response.data.code === 'NOT-203') {
+          alert('제목과 내용을 모두 입력해주세요.');
         } else {
-          console.error('Error submitting notice:', error);
-          alert('공지사항 수정에 실패했습니다.');
+          alert('공지사항 제출에 실패했습니다.');
         }
-      } finally {
-        this.isLoading = false;
       }
     },
   },
   created() {
-    this.fetchNotice(this.id);
+    this.fetchNotices();
   }
 };
 </script>
 
 
-
-
 <style scoped>
+.title {
+  color: black;
+  font-size: 25px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  position: relative; /* 상대 위치 설정 */
+  display: inline-block;
+  z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
+  width: 102.5%;
+  height: 19px; /* 형광펜 두께 */
+  background-color: #FFB052;
+; /* 노란색 배경 */
+  z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
+  transform: skew(-12deg); /* 기울기 효과 추가 */
+}
 
 
 * {
   box-sizing: border-box;
-}
-
-.page-title {
-  text-align: center;
-  margin-bottom: 20px;
-  font-weight: bold;
-  font-size: 24px;
 }
 
 .title-container, .content-container, .image-upload-container {
@@ -315,18 +241,12 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;  /* 전체 너비 */
+  width: 815px;
+  height: 153.96px;
   background-color: white;
   padding: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
-  overflow-x: auto; /* 이미지가 가로로 넘칠 때 스크롤 가능하도록 설정 */
-  flex-wrap: nowrap; /* 한 줄로 배치 */
-}
-
-.image-items {
-  display: flex;
-  gap: 10px;
 }
 
 .image-preview {
@@ -358,17 +278,6 @@ export default {
 .edit-icon img {
   width: 100%;
   height: 100%;
-}
-
-.delete-icon {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  padding: 5px;
-  border-radius: 50%;
-  cursor: pointer;
 }
 
 .image-upload {
