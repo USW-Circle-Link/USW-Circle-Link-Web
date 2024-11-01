@@ -131,7 +131,9 @@ export default {
 
         const noticeData = {
           noticeTitle: this.notice.noticeTitle,
-          noticeContent: this.notice.noticeContent,
+          noticeContent: this.notice.noticeContent
+              .replace(/ /g, '&nbsp;')
+              .replace(/\n/g, '<br>'),
           photoOrders: this.images.map((_, index) => index + 1)
         };
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
