@@ -423,6 +423,7 @@ label {
   background: #d3d3d3;
   border-radius: 60px;
   transition: background 0.4s;
+  cursor: pointer;
 }
 
 label::after {
@@ -498,5 +499,6 @@ button {
   margin-top: 30px;
   margin-left: 774px;
   margin-bottom: 30px;
+  cursor: pointer;
 }
 </style>
