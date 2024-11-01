@@ -166,7 +166,7 @@ export default {
       this.currentPage = page;
     },
     convertNewlinesToBr(text) {
-      return text ? text.replace(/\n/g, '<br>') : '';
+      return text ? text.replace(/\n?<br>\n\?/gi, '<br>') : '';
     },
     editNotice() {
       if (this.notice && this.notice.noticeId) {
