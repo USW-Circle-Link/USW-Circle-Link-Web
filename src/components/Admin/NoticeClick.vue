@@ -290,24 +290,30 @@ export default {
   line-height: 1.0;
   border-top: 0.5px solid  #868686; /* 회색 구분선 추가 */
   padding-top: 10px; /* 텍스트와 구분선 사이에 여백 추가 */
+  justify-content: center; 
+
 }
 
-.notice-images {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 자동으로 열을 채워줍니다 */
+.notice-images { 
+  display: flex;
+  flex-direction: column; /* 이미지를 세로로 배치 */
+  align-items: center; /* 이미지들이 가운데 정렬되도록 설정 */
   grid-gap: 10px; /* 이미지 사이 간격 */
   margin-top: 20px;
 }
 
 .notice-image {
-  width: 100%;
-  height: 200px; /* 고정된 높이 설정 */
-  object-fit: cover; /* 이미지 비율을 유지하면서 잘 맞추어 줍니다 */
+  
+  width: 100%; /* 이미지의 최대 너비를 컨테이너에 맞게 설정 */
+  height: 100%; /* 필요시 이미지의 최대 높이 설정 */
   border-radius: 8px;
 }
 
 
 .image-container {
+  display: flex;
+  justify-content: center; /* 가로 가운데 정렬 */
+  align-items: center; /* 세로 가운데 정렬 */
   width: 100%;
   max-width: 300px;
 }
