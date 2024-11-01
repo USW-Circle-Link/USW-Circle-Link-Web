@@ -11,7 +11,7 @@
         <button class="status-box reject-box" @click="setAllApplicantsStatus('FAIL')">전체 불합격</button>
       </div>
     </div>
-    <div class="content">
+    <div class="contents">
       <div class="applicant-list">
         <div class="applicant-item" v-for="applicant in applicants" :key="applicant.aplictId">
           <p>{{ applicant.userName }}</p>
@@ -259,7 +259,7 @@ export default {
   color: white;
   cursor: pointer;
 }
-.content {
+.contents {
   display: flex;
   flex-direction: column;
 }
