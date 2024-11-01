@@ -225,6 +225,7 @@ export default {
   align-items: center;
   padding-top: 20px;
   margin-top: 20px;
+  margin-bottom: 40px;
 }
 
 .header {
