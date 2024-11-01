@@ -96,6 +96,13 @@ export default {
         this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
       }
     },
+    navigateTo(routeName) {
+      this.$router.push({ name: routeName }).catch(err => {
+        if (err.name !== 'NavigationDuplicated') {
+          throw err;
+        }
+      });
+    },
     // 이미지 삭제
     deleteImage(index) {
       this.pastImages = this.images;
@@ -250,7 +257,7 @@ export default {
         }
 
         alert("저장되었습니다!");
-        location.reload();
+        this.navigateTo('dashboard');
         this.$emit('data-saved');
 
       } catch (error) {
