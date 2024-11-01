@@ -244,12 +244,14 @@ export default {
   background-color: #4CAF50;
   font-size: 12px;
   color: white;
+  cursor: pointer;
 }
 .reject-box {
   background-color: #f44336;
   color: white;
   font-size: 12px;
   margin-inline-end: 10px;
+  cursor: pointer;
 }
 .send-result-btn {
   width: 140px;

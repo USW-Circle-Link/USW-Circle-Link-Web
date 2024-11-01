@@ -249,6 +249,7 @@ export default {
   background-color: #4CAF50;
   font-size: 12px;
   color: white;
+
 }
 .reject-box {
   background-color: #f44336;
@@ -309,9 +310,11 @@ export default {
 .buttons-group label.checked {
   background-color: #4CAF50;
   color: white;
+  cursor: pointer;
 }
 .buttons-group label.checked:nth-child(2) {
   background-color: #f44336;
+  cursor: pointer;
 }
 .popup-overlay {
   position: fixed;
