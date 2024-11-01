@@ -115,6 +115,7 @@ export default {
 /* 콘텐츠 영역 설정 */
 .contents {
   flex: 1;
+  padding-bottom: 40px;
 }
 
 /* 타이틀 스타일 */
