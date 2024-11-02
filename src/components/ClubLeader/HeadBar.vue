@@ -51,6 +51,8 @@ components: {NotificationButton},
   padding: 5px;
   transform: scaleX(-1);
   margin-left: 260px;
+  cursor: pointer; 
+
 }
 
 .title {
@@ -60,5 +62,6 @@ components: {NotificationButton},
   font-style: normal;
   font-weight: 405;
   line-height: 14px; /* 100% */
+  cursor: pointer; 
 }
 </style>
