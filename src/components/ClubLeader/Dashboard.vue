@@ -142,22 +142,22 @@ export default {
       }
     },
     async removeMember(index) {
-      this.clubMembers.splice(index, 1);
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
+      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
+      const clubMemberId = this.clubMembers[index].clubMemberId; // 선택한 멤버의 clubMemberId 가져오기
+
       try {
-        const response = await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/2`, { //
+        const response = await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/${clubMemberId}`, { // clubMemberId 사용
           headers: {
-            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
+            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
             'Content-Type': 'application/json'
           }
         });
         const responseData = response.data;
         this.message = responseData.message;
-        this.clubMembers = responseData.data.content;
-        alert("동아리원 퇴출이 완료되었습니다.");
+        this.clubMembers.splice(index, 1); // 성공적으로 삭제되면 로컬 리스트에서 제거
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error deleting member:', error);
       }
     },
     async sheetDownload(){
