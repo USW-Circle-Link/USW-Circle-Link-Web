@@ -5,7 +5,7 @@
       <div class="logo-container">
         <img src="@/assets/dongurami_logo.png" alt="Dongurami Logo" class="logo" />
         <span class="logo-text">동구라미</span>
-      </div>
+      </div> 
     </div>
     <div class="login-box">
       <form @submit.prevent="login">
