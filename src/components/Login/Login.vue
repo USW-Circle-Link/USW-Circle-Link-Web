@@ -10,19 +10,29 @@
     <div class="login-box">
       <form @submit.prevent="login">
         <div class="input-container">
-          <span class="icon"></span>
+          <span class="icon vector"></span>
           <input type="text" placeholder="ID" v-model="id" required />
         </div>
         <div class="input-container">
-          <span class="icon"></span>
+          <span class="icon password"></span>
           <input type="password" placeholder="PASSWORD" v-model="password" required />
         </div>
 
-        <div class="input-container">
-          <select v-model="loginType" required>
-            <option value="LEADER">동아리 관리자</option>
-            <option value="ADMIN">동아리 연합회/개발팀</option>
-          </select>
+        <div class="custom-dropdown" @click="toggleDropdown">
+          <div class="dropdown-selected">
+            {{ selectedOption || '동아리 관리자' }}
+          </div>
+          <span class="dropdown-icon">&#9662;</span>
+          <ul v-if="isOpen" class="dropdown-options" >
+            <li
+                v-for="option in options"
+                :key="option"
+                :class="{ 'dropdown-option-selected': option === selectedOption }"
+                @click="selectOption(option)"
+            >
+              {{ option }}
+            </li>
+          </ul>
         </div>
         <button type="submit" class="login-button">로그인</button>
       </form>
@@ -40,10 +50,19 @@ export default {
       id: "",
       password: "",
       loginType: "LEADER",
-      error: ""
+      error: "",
+      selectedOption: null,
+      options: ['동아리 관리자', '동아리 연합회 / 개발팀'],
+      isOpen: false
     };
   },
   methods: {
+    toggleDropdown() {
+      this.isOpen = !this.isOpen;
+    },
+    selectOption(option) {
+      this.selectedOption = option;
+    },
     // 입력 값 검증: SQL 키워드 및 공백 검사
     validateInput(value) {
       const sqlKeywords = ["select", "insert", "update", "delete"];
@@ -63,6 +82,12 @@ export default {
         alert(this.error);
         return;
       }
+
+      const loginTypeMap = {
+        "동아리 관리자": "LEADER",
+        "동아리 연합회 / 개발팀": "ADMIN"
+      };
+      this.loginType = loginTypeMap[this.selectedOption] || null;
 
       try {
         // 서버에 요청을 보냄
@@ -168,12 +193,27 @@ export default {
   border-radius: 5px;
   padding: 10px;
   background-color: #fff;
+  flex-direction: row;
+}
+
+.input-container input::placeholder{
+  color: #9D9D9D;
+  font-size: 16px;
 }
 
 .icon {
-  font-size: 24px;
-  margin-right: 10px;
-  color: #888;
+  width: 26px;
+  height: 26px;
+  color: #9D9D9D;
+  margin-left: 10px;
+}
+
+.vector {
+  background: url('@/assets/vector.svg') no-repeat center center;
+}
+
+.password {
+  background: url('@/assets/password.svg') no-repeat center center;
 }
 
 input, select {
@@ -182,16 +222,91 @@ input, select {
   flex-grow: 1;
   padding: 10px;
   font-size: 18px;
-  color: #888; /* input, select 텍스트 색상 회색으로 설정 */
+  color: #9D9D9D; /* input, select 텍스트 색상 회색으로 설정 */
 }
 
 option {
   color: #888; /* option 텍스트 색상 회색으로 설정 */
 }
 
+.custom-dropdown {
+  position: relative;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border: 1.5px solid #e7e7e7;
+  border-radius: 5px;
+  padding: 10px 15px 10px 15px;
+  background-color: #fff;
+  justify-content: space-between;
+}
+
+.dropdown-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #fff;
+  cursor: pointer;
+  color: #9D9D9D;
+}
+
+.dropdown-icon {
+  font-size: 24px;
+  color: #9D9D9D;
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #D7D7D7;
+  border-radius: 8px;
+  margin-top: 5px;
+  background-color: #fff;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  color: #9D9D9D;
+  z-index: 1;
+  padding: 0; /* 기본 padding 제거 */
+}
+
+.dropdown-options li {
+  padding: 20px 25px 20px 25px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+  list-style: none; /* 점 없애기 */
+}
+
+.dropdown-options li:first-child:hover {
+  background-color: #FFB052;
+  border-radius: 8px 8px 0px 0px;
+}
+
+.dropdown-options li:last-child:hover {
+  background-color: #FFB052;
+  border-radius: 0px 0px 8px 8px;
+}
+
+.dropdown-option-selected:first-child {
+  background-color: #ffa726;
+  color: white;
+  border-radius: 8px 8px 0px 0px;
+}
+
+.dropdown-option-selected:last-child {
+  background-color: #ffa726;
+  color: white;
+  border-radius: 0px 0px 8px 8px;
+}
+
 .login-button {
   width: 100%;
   padding: 15px;
+  margin-left: 1px;
   background-color: #FFB052;
   border: none;
   border-radius: 5px;
