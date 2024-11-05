@@ -218,7 +218,8 @@ label {
 }
 
 input, select {
-  width: 100%;
+  width: 145px;
+  height: 34px;
   padding: 8px;
   box-sizing: border-box;
   border: 1px solid #ccc;
@@ -235,6 +236,7 @@ input, select {
   cursor: pointer;
   background-color: #FFC700;
   color: #ffffff;
+  font-size: 15px;
 }
 
 .popupbtn:hover {
