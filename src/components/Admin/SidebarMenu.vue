@@ -161,6 +161,7 @@ nav li {
 
 .list1:hover {
   height: 100px;
+  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 .list1:hover a {
