@@ -240,6 +240,7 @@ option {
   padding: 10px 15px 10px 15px;
   background-color: #fff;
   justify-content: space-between;
+  cursor: pointer;
 }
 
 .dropdown-selected {
