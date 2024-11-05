@@ -346,6 +346,7 @@ h3 {
   background-color: #fff;
   justify-content: space-between;
   width: 25%;
+  cursor: pointer;
 }
 
 .dropdown-selected {
