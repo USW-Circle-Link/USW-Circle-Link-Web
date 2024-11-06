@@ -51,7 +51,7 @@ export default {
       password: "",
       loginType: "LEADER",
       error: "",
-      selectedOption: null,
+      selectedOption: '동아리 관리자',
       options: ['동아리 관리자', '동아리 연합회 / 개발팀'],
       isOpen: false
     };
