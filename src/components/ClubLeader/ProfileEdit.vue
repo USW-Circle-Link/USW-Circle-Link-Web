@@ -22,21 +22,25 @@
             <input type="text" id="clubName" v-model="clubName" class="club-name-input" readonly />
           </div>
           <div class="form-group">
-            <label for="leaderName">동아리장 <span style="color: red;">*</span></label>
+            <label for="leaderName">
+              동아리장 <span style="color: red;">*</span>
+            </label>
             <input type="text" id="leaderName" v-model="leaderName" class="standard-input" />
           </div>
           <div class="form-group">
-            <label for="phoneNumber">전화번호 <span style="color: red;">*</span></label>
-            <input type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" @input="validatePhoneNumber"/>
+            <label for="phoneNumber">
+              전화번호 <span style="color: red;">*</span>
+            </label>
+            <input type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" />
           </div>
           <div class="form-group">
             <label for="clubInsta">인스타그램</label>
-            <input 
-              type="text" 
-              id="clubInsta" 
-              v-model="clubInsta" 
-              class="standard-input" 
-              placeholder="인스타그램 아이디를 적어주세요" 
+            <input
+              type="text"
+              id="clubInsta"
+              v-model="clubInsta"
+              class="standard-input"
+              placeholder="인스타 아이디를 입력해주세요"
               maxlength="25"
             />
           </div>
@@ -60,25 +64,22 @@ export default {
       leaderName: '',
       clubInsta: '',
       leaderHp: '',
-      mainPhoto: '',
-      defaultPhotoUrl: '@/assets/logo.png', // 기본 이미지 URL
+      mainPhoto: '',  // 미리보기로 표시할 이미지 (수정된 경우)
+      defaultPhotoUrl: require('@/assets/profile.png'), // 기본 이미지 URL 설정
       isLoading: false,
-      file: null,
-      clubName: '',
-      clubInfo: {},
-      presignedUrl: ''
+      file: null,  // 업로드할 파일
+      clubName: '', // 동아리명
+      clubInfo: {}, // 클럽 정보를 저장할 객체
+      presignedUrl: '' // S3 업로드를 위한 사전 서명된 URL
     };
   },
   async created() {
     await this.fetchClubInfo();
+    if (this.defaultPhotoUrl) {
+      this.file = await this.urlToFile(this.defaultPhotoUrl, 'image.jpg', 'image/jpeg');
+    }
   },
   methods: {
-    async urlToFile(url, filename) {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      return new File([blob], filename, { type: blob.type });
-    },
-
     async fetchClubInfo() {
       const accessToken = store.state.accessToken;
       const clubId = store.state.clubId;
@@ -96,92 +97,92 @@ export default {
           this.leaderName = this.clubInfo.leaderName || '';
           this.clubInsta = this.clubInfo.clubInsta || '';
           this.leaderHp = this.clubInfo.leaderHp || '';
-          this.defaultPhotoUrl = this.clubInfo.mainPhotoUrl || '@/assets/logo.png';
+          this.defaultPhotoUrl = this.clubInfo.mainPhotoUrl || require('@/assets/profile.png');
           this.mainPhoto = this.defaultPhotoUrl;
           this.clubName = this.clubInfo.clubName || '';
 
-          if (this.defaultPhotoUrl) {
-            this.file = await this.urlToFile(this.defaultPhotoUrl, 'image.png');
-          }
+          console.log(this.clubInfo); // 클럽 정보 출력
         }
       } catch (error) {
-        console.error('동아리 정보를 불러오는 중 오류 발생:', error);
-        alert('동아리 정보를 불러오는 중 오류가 발생했습니다.');
+        console.error('Error fetching club info:', error);
+        alert('Error fetching club info.');
       }
     },
 
-    async updateProfile() {
-  this.isLoading = true;
-  const accessToken = store.state.accessToken;
-  const clubId = store.state.clubId;
-
-  try {
-    const formData = new FormData();
-
-    // 필수 데이터 구성 (이름, 전화번호, 인스타)
-    const updatedData = {
-      leaderName: this.leaderName || '',
-      leaderHp: this.leaderHp || '',
-      clubInsta: this.clubInsta || ''
-    };
-
-    formData.append("clubInfoRequest", new Blob([JSON.stringify(updatedData)], { type: 'application/json' }));
-
-    // 이미지를 반드시 전송하기 위해 파일 설정 확인
-    if (this.file) {
-      // 사용자가 새로 선택한 이미지가 있을 경우 이 파일을 사용
-      formData.append("mainPhoto", this.file);
-    } else if (this.defaultPhotoUrl || this.mainPhoto) {
-      // 기존 이미지가 있을 경우 URL로부터 File 생성 후 전송
-      const existingImageUrl = this.defaultPhotoUrl || this.mainPhoto;
-      const response = await fetch(existingImageUrl);
-      if (!response.ok) throw new Error('기존 이미지를 불러오는 중 오류 발생');
+    async urlToFile(url, filename, mimeType = 'image/jpeg') {
+      const response = await fetch(url);
       const blob = await response.blob();
-      const existingFile = new File([blob], "existingImage.png", { type: blob.type });
-      formData.append("mainPhoto", existingFile);
-    } else {
-      // 이미지가 없을 경우 기본 빈 파일을 전송
-      const emptyFile = new Blob([], { type: 'image/png' });
-      formData.append("mainPhoto", emptyFile, "empty.png");
-    }
+      return new File([blob], filename, { type: mimeType });
+    },
 
-    const response = await axios.put(
-      `https://api.donggurami.net/club-leader/${clubId}/info`,
-      formData,
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
+    async updateProfile() {
+      this.isLoading = true;
+      const accessToken = store.state.accessToken;
+      const clubId = store.state.clubId;
+
+      try {
+        const formData = new FormData();
+
+        const updatedData = {
+          clubName: this.clubName,
+          leaderName: this.leaderName || this.clubInfo.leaderName,
+          leaderHp: this.leaderHp || this.clubInfo.leaderHp,
+          clubInsta: this.clubInsta || this.clubInfo.clubInsta,
+          mainPhotoUrl: this.defaultPhotoUrl
+        };
+
+        formData.append("clubInfoRequest", new Blob([JSON.stringify(updatedData)], { type: 'application/json' }));
+
+        if (this.file) {
+          formData.append("mainPhoto", this.file);
+        } else if (this.defaultPhotoUrl) {
+          const existingFile = await this.urlToFile(this.defaultPhotoUrl, 'existingImage.jpg', 'image/jpeg');
+          formData.append("mainPhoto", existingFile);
         }
+
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ', ' + pair[1]);
+        }
+
+        const response = await axios.put(
+          `https://api.donggurami.net/club-leader/${clubId}/info`,
+          formData,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'multipart/form-data',
+            }
+          }
+        );
+
+        alert('수정 완료!');
+        this.$emit('update');
+
+        if (this.file && response.data.data.presignedUrl) {
+          this.presignedUrl = response.data.data.presignedUrl;
+          await this.uploadFile();
+        }
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        if (error.response) {
+          console.error('Server response:', error.response.data);
+          alert(`오류: ${error.response.data.message || '서버 오류가 발생했습니다.'}`);
+        }
+      } finally {
+        this.isLoading = false;
       }
-    );
-
-    alert('수정 완료!');
-
-    if (this.file && response.data.data.presignedUrl) {
-      this.presignedUrl = response.data.data.presignedUrl;
-      await this.uploadFile();
-    }
-
-    this.$emit('update');
-  } catch (error) {
-    if (error.response && error.response.data) {
-      console.error('응답 데이터:', error.response.data);
-    }
-    alert('프로필 업데이트 중 오류가 발생했습니다.');
-  } finally {
-    this.isLoading = false;
-  }
-},
+    },
 
     async uploadFile() {
       try {
         await axios.put(this.presignedUrl, this.file, {
           headers: {
-            'Content-Type': this.file ? this.file.type : 'application/octet-stream',
+            'Content-Type': this.file.type,
           },
         });
       } catch (error) {
-        alert('파일 업로드 중 오류가 발생했습니다.');
+        console.error('파일 업로드 실패:', error);
+        alert('파일 업로드 실패!');
       }
     },
 
@@ -207,14 +208,11 @@ export default {
     },
 
     validateFile(file) {
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/tiff'];
-      const invalidExtensions = ['exe', 'bat', 'cmd', 'sh', 'php', 'js', 'py', 'dll', 'msi'];
+      const validTypes = ['image/jpeg', 'image/png'];
       const maxSize = 2 * 1024 * 1024;
 
-      const fileExtension = file.name.split('.').pop().toLowerCase();
-
-      if (!validTypes.includes(file.type) || invalidExtensions.includes(fileExtension)) {
-        alert('지원하지 않는 파일 형식입니다. JPG, PNG, GIF, BMP, WebP, 또는 TIFF 파일을 선택해주세요.');
+      if (!validTypes.includes(file.type)) {
+        alert('지원하지 않는 파일 형식입니다. JPG 또는 PNG 파일을 선택해주세요.');
         return false;
       }
 
@@ -226,27 +224,17 @@ export default {
       return true;
     },
 
-    validatePhoneNumber() {
-      const phoneNumberRegex = /^[0-9]*$/;
-      if (!phoneNumberRegex.test(this.leaderHp)) {
-        alert('전화번호는 숫자만 입력할 수 있습니다.');
-        this.leaderHp = this.leaderHp.replace(/[^0-9]/g, '');
-      }
-    },
-
     onImageLoad() {
       console.log("이미지가 성공적으로 로딩되었습니다.");
     },
 
     onImageError() {
       console.error("이미지 로딩에 실패했습니다.");
-      this.mainPhoto = '@/assets/logo.png';
+      this.mainPhoto = this.defaultPhotoUrl;
     }
   }
 };
 </script>
-
-
 
 
 <style scoped>
