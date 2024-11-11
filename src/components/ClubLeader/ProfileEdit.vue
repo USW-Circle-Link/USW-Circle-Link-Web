@@ -18,18 +18,18 @@
       <div class="form-container">
         <form @submit.prevent="updateProfile">
           <div class="form-group">
-            <label for="clubName">동아리명</label>
+            <label class="clubName" for="clubName">동아리명</label>
             <input type="text" id="clubName" v-model="clubName" class="club-name-input" readonly />
           </div>
           <div class="form-group">
             <label for="leaderName">
-              동아리장 <span style="color: red;">*</span>
+              <span style="color: red;">*</span> 동아리장
             </label>
             <input type="text" id="leaderName" v-model="leaderName" class="standard-input" />
           </div>
           <div class="form-group">
             <label for="phoneNumber">
-              전화번호 <span style="color: red;">*</span>
+              <span style="color: red;">*</span> 전화번호
             </label>
             <input type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" />
           </div>
@@ -304,6 +304,10 @@ export default {
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
+}
+
+.form-group .clubName{
+  margin-left: 5px;
 }
 
 label {
