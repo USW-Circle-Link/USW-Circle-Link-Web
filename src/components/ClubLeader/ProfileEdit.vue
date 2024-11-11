@@ -306,9 +306,6 @@ export default {
   margin-bottom: 10px;
 }
 
-.form-group .clubName{
-  margin-left: 5px;
-}
 
 label {
   width: 100px;
