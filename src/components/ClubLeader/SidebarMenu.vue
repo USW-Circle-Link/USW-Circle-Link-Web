@@ -68,9 +68,11 @@ export default {
     }
   },
   mounted() {
+
     this.pageLoadFunction();
   },
   methods: {
+    // 함수 실행 시 routeName의 컴포넌트로 이동
     navigateTo(routeName) {
       this.$router.push({ name: routeName }).catch(err => {
         if (err.name !== 'NavigationDuplicated') {
@@ -89,28 +91,39 @@ export default {
       this.$store.dispatch('logout');
       this.$router.push({ name: 'login' });
     },
+    // 동아리 정보 불러오기
     async pageLoadFunction() {
       console.log('Page has been loaded!');
-      const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const accessToken = store.state.accessToken;  // 저장된 accessToken 가져오기
+      const clubId = store.state.clubId;  // 저장된 clubId 가져오기
 
       try {
         const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
             'Content-Type': 'application/json'
           }
         });
 
-        this.data = response.data.data;
-        this.department = this.getDepartmentName(this.data.department);
+        this.data = response.data.data; // 동아리 기본 정보 설정
+        this.department = this.getDepartmentName(this.data.department); // 한글로 리턴된 값을 department에 저장
 
+        // mainPhotoUrl이 존재하는지 확인
         if (this.data.mainPhotoUrl) {
-          const imageResponse = await axios.get(this.data.mainPhotoUrl, {
-            responseType: 'blob'
-          });
-          if(imageResponse.data !== ''){
-            this.imageSrc = URL.createObjectURL(imageResponse.data);
+          try {
+            // mainPhotoUrl을 통해 이미지를 비동기로 가져옴
+            const imageResponse = await axios.get(this.data.mainPhotoUrl, {
+              responseType: 'blob' // 응답 타입을 blob으로 설정하여 이진 데이터로 받음
+            });
+
+            // 응답 데이터가 비어있지 않은지 확인
+            if (imageResponse.data !== '') {
+              // blob 데이터를 URL 객체로 변환하여 imageSrc에 할당
+              this.imageSrc = URL.createObjectURL(imageResponse.data);
+            }
+          } catch (error) {
+            // 이미지 로딩 중 오류가 발생하면 콘솔에 에러 로그 출력
+            console.error('이미지 로딩 중 오류 발생:', error);
           }
         }
       } catch (error) {
@@ -118,6 +131,7 @@ export default {
         this.error = error.message;
       }
     },
+    // 서버로부터 받아온 분과 정보(영어 문자열)를 한글로 변환 하여 리턴
     getDepartmentName(departmentCode) {
       const departmentMapping = {
         'ACADEMIC': '학술',
@@ -157,8 +171,8 @@ export default {
   height: 79px;
   flex-shrink: 0;
   border-radius: 50%;
-  margin: 10px 0px 10px 0px;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  margin: 10px 0 10px 0;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .profile-name {
@@ -167,25 +181,23 @@ export default {
 
 .profile-info h2 {
   color: #000;
-  font-family: Pretendard;
   font-size: 24px;
   font-style: normal;
   font-weight: 600;
   line-height: 16px;
-  text-alin: center;
-  margin: 20px 0px 15px 0px;
+  text-align: center;
+  margin: 20px 0 15px 0;
 }
 
 .profile-info p {
   color: #000;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
   text-align: center;
   line-height: 6px;
   letter-spacing: -0.3px;
-  margin: 0px 0px 12px 0px;
+  margin: 0 0 12px 0;
 }
 
 nav {
@@ -203,7 +215,7 @@ nav li {
   align-items: center;
   align-content: center;
   cursor: pointer;
-  margin: 0px 0px 0px 0px;
+  margin: 0 0 0 0;
   height: 55px;
   z-index: 2;
 }
@@ -223,7 +235,7 @@ nav li {
 
 .list1:hover {
   height: 100px;
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 .list1:hover a {
@@ -307,7 +319,6 @@ router-link{
 
 .menu {
   width: 173px;
-  font-family: Pretendard;
   font-size: 18px;
   font-weight: 500;
   line-height: 16px;
@@ -327,11 +338,11 @@ nav li:hover .yellowLine {
 }
 
 nav .list2:hover .top {
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 nav .list1:hover .top {
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 nav li .yellowLine {
@@ -342,7 +353,7 @@ nav li .yellowLine {
 nav .icon {
   width: 20px;
   height: 20px;
-  margin: 0px 15px 3.5px 30px;
+  margin: 0 15px 3.5px 30px;
 }
 
 .home {
@@ -384,7 +395,7 @@ nav .icon {
   width: 1px;
   height: 13px;
   background-color: #bbbbbb;
-  margin: 0px 20px 0px 20px;
+  margin: 0 20px 0 20px;
 }
 
 .footer a:hover {
