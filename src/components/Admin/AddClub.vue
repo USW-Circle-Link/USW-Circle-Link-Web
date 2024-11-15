@@ -1,277 +1,250 @@
 <template>
-  <div class="title">소속 동아리 리스트</div>
-  <!-- 소속 동아리 리스트 -->
-  <div class="header">
-    <div class="header-row">
-      <div class="header-item">소속 분과</div>
-      <div class="header-item">동아리명</div>
-      <div class="header-item">동아리장</div>
-      <div class="header-item">인원</div>
-      <div class="header-item"></div>
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- 동아리 리스트 -->
-    <div class="list">
-      <div class="list-item-container" v-for="(club, index) in displayedClubs" :key="index">
-        <div class="list-item-row" @click= openPopupClubInfo(club.clubName)>
-          <div class="list-item">{{ club.department }}</div>
-          <div class="list-item">{{ club.clubName }}</div>
-          <div class="list-item">{{ club.leaderName }}</div>
-          <div class="list-item">{{ club.numberOfClubMembers }}</div>
+  <div class="title">동아리 추가</div>
+  <!--  동아리 추가 정보 입력 폼  -->
+  <div class="form-container">
+    <form @submit.prevent="submitForm">
+      <!-- 아이디 -->
+      <div class="form-group-col">
+        <div class="form-group-row">
+          <label for="id">아이디</label>
+          <input type="text" id="id" v-model="id" placeholder="아이디" required @input="validateId" />
         </div>
-        <div class="delete-container">
-          <button class="delete-btn" @click="openPopup(club.clubId, index)">삭제</button>
+        <span v-if="idError" class="error">{{ idError }}</span>
+      </div>
+      <!-- 비밀번호 -->
+      <div class="form-group-col">
+        <div class="form-group-row">
+          <label for="password">비밀번호</label>
+          <input type="password" id="password" v-model="password" placeholder="비밀번호" required @input="validatePassword" />
+        </div>
+        <span v-if="passwordError" class="error">{{ passwordError }}</span>
+      </div>
+      <!-- 비밀번호 확인 -->
+      <div class="form-group-col">
+        <div class="form-group-row">
+          <label for="confirmPassword">비밀번호 확인</label>
+          <input type="password" id="confirmPassword" v-model="confirmPassword" placeholder="비밀번호 확인" required />
+        </div>
+        <span v-if="clubNameError" class="error"></span>
+      </div>
+      <!-- 동아리명 -->
+      <div class="form-group-col">
+        <div class="form-group-row">
+          <label for="clubName">동아리명</label>
+          <input type="text" id="clubName" v-model="clubName" placeholder="동아리명" required @input="validateClubName" />
+        </div>
+        <span v-if="clubNameError" class="error">{{ clubNameError }}</span>
+      </div>
+      <!-- 분과 -->
+      <div class="form-group">
+        <label for="clubName">분과</label>
+        <div class="custom-dropdown" @click="toggleDropdown">
+          <div class="dropdown-selected">
+            {{ selectedOption || '학술' }}
+          </div>
+          <span class="dropdown-icon">&#9662;</span>
+          <ul v-if="isOpen" class="dropdown-options" >
+            <li
+                v-for="option in options"
+                :key="option"
+                :class="{ 'dropdown-option-selected': option === selectedOption }"
+                @click="selectOption(option)"
+            >
+              {{ option }}
+            </li>
+          </ul>
         </div>
       </div>
-    </div>
-
-    <!-- 페이지네이션 -->
-    <div class="pagination">
-      <!-- 이전 페이지 -->
-      <button @click="prevPage">
-        <img src="@/assets/left.png" alt="Previous" />
-      </button>
-      <!-- 페이지 번호 -->
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        @click="setPage(page)"
-        :class="{ active: page === currentPage }"
-      >
-        {{ page }}
-      </button>
-      <!-- 다음 페이지 -->
-      <button @click="nextPage">
-        <img src="@/assets/rigth.png" alt="Next" />
-      </button>
-    </div>
-  </div>
-
-  <!-- 동아리 삭제 팝업창  -->
-  <div v-if="isPopupVisible" class="popup-overlay">
-    <div class="popup">
-      <h3>삭제 확인</h3>
-      <p>이 동아리를 삭제하시겠습니까?</p>
-      <input v-model="adminPw" type="password" placeholder="관리자 비밀번호" />
-      <div class="popup-buttons">
-        <button @click="confirmDelete">확인</button>
-        <button @click="cancelDelete">취소</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 동아리 상세 정보 팝업창 -->
-  <div v-if="isClubInfoPopupVisible" ref="popup" class="ClubInfoPopup-overlay">
-    <div class="club-profile">
-      <ImageSlider :images="images" oncontextmenu="return false;"/>
-      <div class="ClubInfo">
-        <img :src="mainPhoto" alt="Flag Logo" class="logo" oncontextmenu="return false;"/>
-        <div class="Info">
-          <div class="info">
-            <p class="clubname">{{ data.clubName }}</p>
-            <div class="line1"></div>
-            <p class="clubleader">동아리장</p>
-            <p class="name">{{ data.leaderName }}</p>
-          </div>
-          <div class="phoneNum">
-            <div class="icon phone"></div>
-            <p>{{ formattedPhoneNumber }}</p>
-          </div>
-          <div class="instaName">
-            <div class="icon insta"></div>
-            <p>@{{ data.clubInsta }}</p>
+      <!-- 팝업창 -->
+      <div class="popupbtn" @click="openPopup()">추가하기</div>
+      <div v-if="isPopupVisible" class="popup-overlay">
+        <div class="popup">
+          <h3>동아리 추가</h3>
+          <p>‘{{ clubName }}’(을)를 추가하시겠습니까?</p>
+          <input
+              type="password"
+              placeholder="관리자 비밀번호를 입력해 주세요."
+              v-model="adminPw"
+          />
+          <div class="buttons">
+            <button @click="cancelDelete">취소</button>
+            <button type="submit">추가</button>
           </div>
         </div>
       </div>
-      <div class="description">
-        <h3>동아리 소개</h3>
-        <div>
-          <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
-        </div>
-      </div>
-      <button class="popup-button" @click="closePopup">닫기</button>
-    </div>
+    </form>
   </div>
 </template>
 
 <script>
-import ImageSlider from "@/components/Admin/ImageSlider.vue";
 import axios from "axios";
 import store from "@/store/store";
-
 export default {
-  components: {
-    ImageSlider
-  },
   data() {
     return {
-      currentPage: 1, // 페이지네이션 현재 페이지
-      clubsPerPage: 10, // 화면에 나타내는 동아리 최대 개수
-      clubs: [], // 서버에서 가져온 클럽을 저장할 배열
-      isPopupVisible: false, // 동아리 삭제 확인 팝업창 가시성 플래그
-      isClubInfoPopupVisible: false, // 동아리 상세 정보 팝업창 가시성 플래그
-      adminPw: '', // 삭제를 위한 비밀번호 입력
-      clubToDelete: null, // 삭제할 클럽 ID
-      deleteIndex: null, // 배열의 클럽 인덱스
-      images: [],  // 동아리 활동 사진을 담을 배열
-      data: {},  // 동아리 기본 정보를 담을 객체
-      mainPhoto:  require('@/assets/profile.png')  // 메인 사진 URL, 없을 경우 기본이미지
+      // 동연회/개발팀이 동아리 회장에게 생성해주는 동아리 계정 정보
+      id: '', // 아이디
+      password: '', // 비밀번호
+      confirmPassword: '', // 비밀번호 확인
+      clubName: '', // 동아리 이름
+      department: '', // 분과
+
+      // 정보 입력 값 에러 메세지 변수
+      idError: '',
+      passwordError: '',
+      clubNameError: '',
+
+      // 동아리 분과 선택을 위한 드롭 다운 리스트 옵션 문자열이 저장된 배열
+      options: ['학술', '종교', '예술', '체육', '공연', '봉사'],
+
+      // 선택한 분과 화면에 나타내기
+      selectedOption: null,
+
+      // 분과 선택을 위해 드롭다운 리스트 가시성 플래그
+      isOpen: false,
+
+      // 동아리 "추가하기" 버튼을 누르면 나오는 팝업창 가시성 플래그
+      isPopupVisible: false,
+
+      // 동연회/개발팀 비밀번호
+      adminPw: '',
     };
   },
-  computed: {
-    // 총 페이지 수 계산
-    totalPages() {
-      return Math.ceil(this.clubs.length / this.clubsPerPage);
-    },
-    // 페이지 나태내기
-    displayedClubs() {
-      const start = (this.currentPage - 1) * this.clubsPerPage;
-      return this.clubs.slice(start, start + this.clubsPerPage);
-    },
-    // 전화번호 000-0000-0000 으로 번환
-    formattedPhoneNumber() {
-      return this.data.leaderHp ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : '';
-    }
-  },
   methods: {
-    async fetchClubs() {
-      try {
-        const response = await axios.get('http://15.164.246.244:8080/admin/clubs', {
-          headers: {
-            'Authorization': `Bearer ${store.state.accessToken}` // Correct usage of the store
-          }
-        });
-        this.clubs = response.data.data; // Store the fetched clubs in the data array
-        console.log(this.clubs);
-      } catch (error) {
-        console.error('Error fetching clubs:', error);
-        alert('동아리 리스트를 불러오는데 실패했습니다.');
-      }
-    },
-    openPopup(clubId, index) {
-      this.clubToDelete = clubId;
-      this.deleteIndex = index;
-      this.isPopupVisible = true; // Open popup
-    },
-    cancelDelete() {
-      this.isPopupVisible = false; // Close popup
-      this.adminPw = ''; // Reset password
-    },
-    closePopup(){
-      this.isClubInfoPopupVisible = false;
-    },
-    async confirmDelete() {
-      if (!this.adminPw) {
-        alert('관리자 비밀번호를 입력하세요.');
-        return;
-      }
-
-      try {
-        const response = await axios.delete(`http://15.164.246.244:8080/admin/clubs/${this.clubToDelete}`, {
-          headers: {
-            'Authorization': `Bearer ${store.state.accessToken}` // Correct usage of the store
-          },
-          data: { adminPw: this.adminPw } // Send password as part of the request
-        });
-        console.log('Club deleted successfully:', response.data);
-        alert('동아리가 성공적으로 삭제되었습니다.');
-        this.clubs.splice(this.deleteIndex, 1); // Remove club from the list
-        this.isPopupVisible = false; // Close popup
-      } catch (error) {
-        console.error('Error deleting club:', error);
-        alert('동아리 삭제에 실패했습니다.');
-      }
-    },
-    setPage(page) {
-      this.currentPage = page;
-    },
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
-      }
-    },
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-      }
-    },
-    async openPopupClubInfo(clubName) {
-      const club = this.clubs.find(club => club.clubName === clubName);
-      console.log(club.clubId);
-      console.log('Popup has been loaded!');
-      this.isClubInfoPopupVisible = true;
-
-      // 동아리 정보를 불러오기 전에 일단 mainPhoto를 기본 이미지로 초기화
-      this.mainPhoto = require('@/assets/profile.png');
-      this.images = []; //images도 일단 초기화
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
-
-      try {
-        const response = await axios.get(`http://15.164.246.244:8080/admin/clubs/${club.clubId}`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
-            'Content-Type': 'application/json'
-          }
-        });
-
-        this.data = response.data.data;  // 동아리 기본 정보 설정
-        console.log(this.data);
-        if (this.data.mainPhoto) {
-          this.mainPhoto = this.data.mainPhoto;
+    // 함수 실행 시 routeName의 컴포넌트로 이동
+    navigateTo(routeName) {
+      this.$router.push({ name: routeName }).catch(err => {
+        if (err.name !== 'NavigationDuplicated') {
+          throw err;
         }
+      });
+    },
 
-        // 활동 사진들을 비동기로 가져오며, 오류가 있는 경우 해당 URL은 제외
-        const introPhotosPromises = this.data.introPhotos.map(async (url) => {
-          try {
-            const response = await axios.get(url, { responseType: 'blob' });
-            if (response.status === 200 && response.data.type.startsWith('image')) {
-              return URL.createObjectURL(response.data); // Blob을 URL로 변환
-            }
-          } catch (error) {
-            console.error(`Failed to load image from URL: ${url}`, error);
-            return null;  // 실패한 경우 null을 반환
-          }
-        });
-
-        // null이 아닌 값들만 필터링하여 images에 저장
-        this.images = (await Promise.all(introPhotosPromises)).filter(image => image !== null);
-
-      } catch (error) {
-        console.error('Fetch error:', error);
-        this.error = error.message;
+    // 사용자가 입력안 아이디, 비밀번호, 동아리 이름 값을 검사하여 입력 조건에 맞지 않으면 에러 메세지 출력
+    validateId() {
+      const idPattern = /^[a-zA-Z0-9]{5,20}$/;
+      if (!idPattern.test(this.id)) {
+        this.idError = '* 아이디는 5~20자 이내의 숫자와 문자만 입력 가능합니다.';
+      } else {
+        this.idError = '';
       }
     },
-    convertNewlinesToBr(text) {
-      return text ? text.replace(/\n/g, '') : '';
+    validatePassword() {
+      const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+]{5,20}$/;
+      if (!passwordPattern.test(this.password)) {
+        this.passwordError = '* 비밀번호는 5~20자 이내의 숫자, 문자, 특수문자만 입력 가능합니다.';
+      } else {
+        this.passwordError = '';
+      }
     },
-  },
-  created() {
-    this.fetchClubs(); // Fetch clubs when the component is created
+    validateClubName() {
+      if (this.clubName.length > 10) {
+        this.clubNameError = '* 동아리명은 10자 이내로 입력해야 합니다.';
+      } else {
+        this.clubNameError = '';
+      }
+    },
+
+    // "추가하기" 버튼을 눌러 팝업창 나타내기
+    openPopup() {
+      // 입력 조건에 맞는지 검사후 팝업창 나타내기
+      if (this.password !== this.confirmPassword) {
+        alert('비밀번호가 일치하지 않습니다.');
+      }
+      else if (this.idError || this.passwordError || this.clubNameError) {
+        alert('입력값을 확인해 주세요.');
+      } else {
+        this.isPopupVisible = true;
+      }
+    },
+
+    // 팝업창 "취소" 버튼을 눌러 팝업창을 지우고 입력폼 값 초기화
+    cancelDelete() {
+      this.isPopupVisible = false;
+      this.id = '';
+      this.password = '';
+      this.confirmPassword = '';
+      this.clubName = '';
+      this.department = '';
+    },
+
+    // 분과 선택을 위해 클릭 시 드롭다운 리스트를 나타내고 지우기
+    toggleDropdown() {
+      this.isOpen = !this.isOpen;
+    },
+
+    // 선택한 분과 selectedOption에 저장
+    selectOption(option) {
+      this.selectedOption = option;
+    },
+
+    // 팝업창 동연회/개발팀 비밀번호 입력 후 "추가" 버튼으로 동아리 추가하기
+    async submitForm() {
+
+      // 서버로는 영어로 된 분과 정보를 보내야하기 때문에 한글로 된 분과명을 영어로 매핑해주는 객체
+      const DepartmentTypeMap = {
+        '학술': "ACADEMIC",
+        '종교': "RELIGION",
+        '예술': "ART",
+        '체육': "SPORT",
+        '공연': "SHOW",
+        '봉사': "VOLUNTEER"
+      };
+      // 사용자가 선택한 값(selectedOption)을 객체(DepartmentTypeMap)에서 찾아 분과 값(department)에 저장
+      this.department = DepartmentTypeMap[this.selectedOption] || null;
+
+      // 서버에 전달할 동아리 추가 정보
+      const formData = {
+        leaderAccount: this.id,
+        leaderPw: this.password,
+        leaderPwConfirm: this.password,
+        clubName: this.clubName,
+        department: this.department,
+        adminPw: this.adminPw
+      };
+
+      try {
+        await axios.post('http://15.164.246.244:8080/admin/clubs', formData, {
+          headers: {
+            'Authorization': `Bearer ${store.state.accessToken}`
+          }
+        });
+        alert('성공적으로 추가했습니다.'); // 동아리 추가 성공 알림
+        this.navigateTo('clublist');  // 추가를 마치면 메인화면(clublist.vue)으로 이동
+        this.clearForm(); // 입력 폼 초기화
+        this.isPopupVisible = false;  // 팝업창 닫기
+      } catch (error) {
+        if (error.response) {
+          console.error('응답 에러 상태 코드 : ', error.response.status);
+        }
+        // 서버에서 보낸 에러 코드에 따라 사용자에게 에러 정보 제공
+        if (error.response.status === 400) {
+          alert('동아리 추가에 실패했습니다. 관리자 비밀번호가 틀렸습니다.');
+        }
+        if (error.response.status === 409) {
+          alert('동아리 추가에 실패했습니다. 이미 존재하는 동아리 입니다.');
+        }
+        if (error.response.status === 422) {
+          alert('동아리 추가에 실패했습니다. 이미 존재하는 동아리 회장 아이디 입니다.');
+        }
+        this.isPopupVisible = false;  // 팝업창 닫기
+      }
+    },
+
+    // 입력 폼 초기화
+    clearForm() {
+      this.id = '';
+      this.password = '';
+      this.confirmPassword = '';
+      this.clubName = '';
+      this.department = '';
+      this.adminPw = '';
+    }
   }
 };
 </script>
 
-
 <style scoped>
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
-  margin: 0;
-  padding: 20px;
-}
-
-.container {
-  width: 820px;
-  margin: 0 auto;
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 620px;
-   /* 페이지네이션을 하단에 고정 */
-}
 
 .title {
   color: black;
@@ -288,7 +261,7 @@ body {
   position: absolute;
   left: 0;
   bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
-  width: 22%;
+  width: 13%;
   height: 19px; /* 형광펜 두께 */
   background-color: #FFB052;
 ; /* 노란색 배경 */
@@ -296,348 +269,211 @@ body {
   transform: skew(-12deg); /* 기울기 효과 추가 */
 }
 
-/* Header Section */
-.header {
-  margin-bottom: 10px;
-  background-color: white;
-  border-radius: 5px;
-  margin-top: 20px; /* 헤더를 아래로 20px 내림 */
+.form-container {
+  width: 860px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  height: 530px;
 }
 
-.header-row {
-  display: flex;
-  text-align: center;
-  background-color: white;
-  font-weight: bold;
-  width: 800px;
-}
-
-.header-item {
-  flex: 1;
-  text-align: end; /* 왼쪽 정렬 */
-  padding: 10px 0; /* 헤더의 상하 여백을 조정 */
-  line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
-}
-
-.header-item-row .header-item:nth-child(3), /* 동아리장 컬럼 */
-.header-item-row .header-item:nth-child(4)  /* 인원 컬럼 */ {
-  padding-left: 20px; /* 왼쪽으로 20px 옮기기 */
-}
-
-/* List Items Section */
-.list {
+h2 {
+  text-align: left;
+  color: #333;
   margin-bottom: 20px;
-  margin-top: 20px; /* 리스트를 아래로 20px 내림 */
 }
 
-.list-item {
-  flex: 1;
+.form-group {
+  width: 100%;
+  height: 70px;
   display: flex;
-  align-items: center; /* 세로 중앙 정렬 */
-  padding-left: 60px; /* 데이터 항목의 좌측 여백 조정 */
-  font-size: 18px; /* 리스트 아이템의 글자 크기 키움 */
-  cursor: pointer;
+  align-items: center;
 }
 
-.list-item-container {
+.form-group-col {
+  width: 100%;
+  height: 90px;
+  flex-direction: column;
   display: flex;
+  align-items: center;
+}
+
+.form-group-col span{
+  width: 100%;
+  margin-left: 45%;
+  padding: 0;
+}
+
+.form-group-row {
+  width: 100%;
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+}
+
+input {
+  width: 70%;
   align-items: center;
   margin-bottom: 10px;
-}
-
-.list-item-row {
-  display: flex;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #e0e0e0;
-  width: 730px; /* 줄여진 너비 */
+  border: 1.5px solid #e7e7e7;
   border-radius: 5px;
-  height: 26px;
+  padding: 20px 25px 20px 25px;
+  background-color: #fff;
 }
 
-.delete-container {
-  display: flex;
-  align-items: center;
-  margin-left: 10px;
+input::placeholder{
+  color: #9D9D9D;
+  font-size: 16px;
 }
 
-.delete-btn {
-  background-color: #e57373;
+label {
+  width: 20%;
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.popupbtn {
+  margin-left: 88%;
+  margin-top: 60px;
+  width: 60px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #FFC700;
   color: #ffffff;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  visibility: hidden;
-  opacity: 0;
-  transition: visibility 0s, opacity 0.2s ease-in-out;
+  font-size: 15px;
 }
 
-.list-item-container:hover .delete-btn {
-  visibility: visible;
-  opacity: 1;
+.popupbtn:hover {
+  background-color: #e6b800;
 }
 
-/* Pagination */
-.pagination {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.pagination button {
-  background: none;
-  margin: 0 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-  border: none;
-}
-
-.pagination button.active {
-  color: #ffc700;
-}
-/* Popup Overlay and Popup Window */
 .popup-overlay {
-  position: fixed; /* 화면 전체를 덮음 */
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* 화면 상단에 표시 */
 }
 
 .popup {
-  background-color: #fff;
-  padding: 30px; /* 팝업 패딩을 조금 더 여유롭게 */
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 450px; /* 1.5배 키움 */
-  z-index: 1001; /* 팝업창을 오버레이보다 위에 배치 */
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  text-align: center;
 }
 
-.popup h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.5em; /* 글씨 크기를 더 크게 */
+h3 {
+  margin: 0 0 10px;
 }
 
-.popup p {
-  margin-bottom: 20px;
-  font-size: 1.2em; /* 글씨 크기를 더 크게 */
-}
-
-.popup input {
-  width: 95%;
-  padding: 10px;
-  margin-bottom: 20px; /* 입력 칸과 버튼 사이 간격 추가 */
-  font-size: 1.2em; /* 입력 칸의 글씨 크기를 더 크게 */
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.popup-buttons {
+.custom-dropdown {
+  position: relative;
+  user-select: none;
   display: flex;
-  justify-content: space-between;
-}
-
-.popup-buttons button {
-  background-color: #ffc107; /* 확인 버튼 색상 변경 */
-  color: #fff;
-  border: none;
-  padding: 10px 30px; /* 버튼 크기를 더 크게 */
+  align-items: center;
+  border: 1.5px solid #e7e7e7;
   border-radius: 5px;
-  font-size: 1.2em; /* 버튼 글씨 크기를 더 크게 */
+  padding: 8px 15px 8px 15px;
+  background-color: #fff;
+  justify-content: space-between;
+  width: 25%;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
-.popup-buttons button:hover {
-  background-color: #e0a800;
+.dropdown-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #fff;
+  cursor: pointer;
+  color: #9D9D9D;
 }
 
-.popup-buttons button:last-child {
-  background-color: #b0bec5;
+.dropdown-icon {
+  font-size: 24px;
+  color: #9D9D9D;
 }
 
-.popup-buttons button:last-child:hover {
-  background-color: #90a4ae;
-}
-
-.ClubInfoPopup-overlay {
-  position: fixed; /* 화면 전체를 덮음 */
-  top: 0;
+.dropdown-options {
+  position: absolute;
+  top: 100%;
   left: 0;
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* 화면 상단에 표시 */
-  overflow-y: auto;
-}
-
-.club-profile {
-  max-width: 600px;
-  height: 825px;
-  margin: auto;
-  background: #F0F2F5;
+  border: 1px solid #D7D7D7;
   border-radius: 8px;
-}
-
-.socials a {
-  margin: 0 10px;
-}
-
-.ClubInfo {
-  width: 584px;
-  height: 150px;
-  display: flex;
-  margin-bottom: 30px;
-  border-radius: 8px;
-}
-
-.ClubInfo img{
-  height: 150px;
-}
-
-.logo{
-  max-width:100%;
-  max-height:100%;
-  width:auto;
-  height:auto;
-  background-size: contain;
-  object-fit: fill;
-  border-radius: 8px;
-  margin: 0 40px 0 40px;
-}
-
-.Info{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  vertical-align: middle;
-}
-
-.info{
-  display: flex;
-  align-items: center;
-}
-
-.clubname{
-  color: #000;
-  font-family: Pretendard;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 24px; /* 100% */
-  letter-spacing: -0.6px;
-  margin-right: 15px;
-}
-
-.clubleader{
-  color: #767676;
-  font-family: Pretendard;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 16px; /* 100% */
-  letter-spacing: -0.4px;
-  margin-left: 15px;
-  margin-right: 5px;
-}
-
-.name{
-  color: #353549;
-  font-family: Pretendard;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 16px;
-  letter-spacing: -0.4px;
-}
-
-.phone{
-  width: 16px;
-  margin-right: 7px;
-  background: url('@/assets/phone.svg') no-repeat center center;
-}
-
-.insta{
-  width: 16px;
-  margin-right: 7px;
-  background: url('@/assets/insta.svg') no-repeat center center;
-}
-
-.line1{
-  width: 1px;
-  height: 12px;
-  background: #DBDBDB;
-  margin-bottom: 4px;
-}
-
-.phoneNum{
-  display: flex;
-  height: 30px;
-}
-
-.phoneNum p{
-  font-size: 16px;
-  text-align: center;
-  line-height: 30px;
-  margin: 0;
-}
-
-.instaName{
-  display: flex;
-  height: 30px;
-}
-
-.instaName p{
-  font-size: 16px;
-  text-align: center;
-  line-height: 30px;
-  margin: 0;
-}
-
-.description {
-  text-align: left;
-  margin-left: 40px;
-}
-
-.description div{
-  width: 500px;
-  height: 287px;
-  border-radius: 8px;
-  align-items: center;
-  align-content: center;
+  margin-top: 1px;
   background-color: #fff;
-  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: #9D9D9D;
+  z-index: 1;
+  padding: 0; /* 기본 padding 제거 */
 }
 
-.description p{
-  width: 460px;
-  height: 247px;
-  margin-left: 20px;
-}
-
-.popup-button{
-  margin-left: 445px;
-  margin-top: 20px;
-  border: none;
-  border-radius: 8px;
-  justify-content: space-between;
-  background-color: #ffc107; /* 확인 버튼 색상 변경 */
-  color: #fff;
-  padding: 10px 30px; /* 버튼 크기를 더 크게 */
-  font-size: 1.2em; /* 버튼 글씨 크기를 더 크게 */
+.dropdown-options li {
+  padding: 18px 25px 18px 25px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 16px;
+  transition: background-color 0.2s;
+  list-style: none; /* 점 없애기 */
 }
 
-</style>
+.dropdown-options li:hover {
+  background-color: #FFB052;
+}
 
+.dropdown-options li:first-child:hover {
+  background-color: #FFB052;
+  border-radius: 8px 8px 0 0;
+}
+
+.dropdown-options li:last-child:hover {
+  background-color: #FFB052;
+  border-radius: 0 0 8px 8px;
+}
+
+.dropdown-option-selected:first-child {
+  background-color: #ffa726;
+  color: white;
+  border-radius: 8px 8px 0 0;
+}
+
+.dropdown-option-selected:last-child {
+  background-color: #ffa726;
+  color: white;
+  border-radius: 0 0 8px 8px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.popup-overlay button {
+  margin-top: 20px;
+  width: 100px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.popup-overlay button {
+  background-color: #ffc107;
+  color: white;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+}
+</style>
