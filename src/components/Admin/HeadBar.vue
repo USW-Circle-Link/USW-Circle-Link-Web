@@ -27,7 +27,7 @@ export default {
   align-items: center;
   height: 86px;
   background: #fff;
-  box-shadow: 0px 2.5px 0px 0px rgba(0, 0, 0, 0.13);
+  box-shadow: 0 2.5px 0 0 rgba(0, 0, 0, 0.13);
   margin-bottom: 40px;
   position: fixed;
   top: 0;
