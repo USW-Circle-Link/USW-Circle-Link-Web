@@ -55,8 +55,8 @@ export default {
   name: 'ApplicantManagement',
   data() {
     return {
-      applicants: [],
-      showConfirmPopup: false,
+      applicants: [],//지원자 목록 배열
+      showConfirmPopup: false,//합/불 확인 팝업 표시 여부
       notification: {
         message: '',
         type: ''
@@ -65,6 +65,7 @@ export default {
       submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants/notifyMultiple`, // 합/불 결과를 보내는 서버 URL
     };
   },
+  //로드 되면 지원자 목록 가져오기
   mounted() {
     this.fetchApplicants();
   },
@@ -81,23 +82,23 @@ export default {
         });
         if (response.ok) {
           const result = await response.json();
-          console.log('Fetched data:', result); // 응답 데이터 출력
-
+        //  console.log('Fetched data:', result); // 응답 데이터 출력
+          //데이터 형식이 올바른 지 확인 후,지원자 배열에 저장
           const data = result.data;
           if (data && Array.isArray(data.content)) {
             this.applicants = data.content.map(applicant => ({
-              aplictId: applicant.aplictId, // 필드명 수정
-              userName: applicant.userName,
-              studentNumber: applicant.studentNumber,
-              major: applicant.major,
-              userHp: applicant.userHp,
-              decision: null, // decision 필드 초기화
+              aplictId: applicant.aplictId, // 지원자 id
+              userName: applicant.userName,//이름
+              studentNumber: applicant.studentNumber,//학번
+              major: applicant.major,//전공
+              userHp: applicant.userHp,//연락처
+              decision: null, // 합/불 결정 초기화
             }));
 
-            console.log("Formatted applicants:", this.applicants); // 변환된 지원자 데이터 출력
+            //console.log(":", this.applicants); // 변환된 지원자 데이터 출력
             this.showNotification('지원자 목록을 성공적으로 가져왔습니다.', 'success');
           } else {
-            console.error('지원자 데이터 형식 오류', data);
+            //console.error('지원자 데이터 형식 오류', data);
             this.showNotification('지원자 데이터를 처리하는 중 오류가 발생했습니다.', 'error');
           }
         } else {
@@ -110,11 +111,14 @@ export default {
       }
     },
     showPopup() {
+      //합/불 결과 전송 확인 팝업을 표시
       this.showConfirmPopup = true;
     },
+    //팝업 숨김
     hidePopup() {
       this.showConfirmPopup = false;
     },
+    //팝업 숨기고 결과를 전송하는 메서드 호출
     confirmSendResults() {
       this.hidePopup();
       this.sendResults();
@@ -125,20 +129,20 @@ export default {
       if (!valid) {
         this.showNotification('모든 지원자에 대해 합/불 상태를 설정해 주세요.', 'error');
       }
-      return valid;
+      return valid;//합/불 상태가 모두 설정 된 경우 true반환
     },
     // 합/불 결과를 서버에 전송하는 메서드
     async sendResults() {
       if (!this.validateResults()) {
-        return;
+        return;//검증 실패시 전송 중단
       }
-      
+    
       const results = this.applicants.map(applicant => ({
         aplictId: applicant.aplictId, // 필드명 확인
         aplictStatus: applicant.decision, // 필드명 확인
       }));
 
-      // 전송할 데이터에서 필수 값 확인
+        //전송할 데이터에서 필수 값이 누락되지 않았는 지 확인
       const hasInvalidData = results.some(result => !result.aplictId || !result.aplictStatus);
       if (hasInvalidData) {
         this.showNotification('모든 지원자의 합격/불합격 상태가 설정되지 않았습니다.', 'error');
@@ -153,11 +157,13 @@ export default {
           },
         });
 
-        console.log('결과 전송 성공:', response.data);
+        //console.log('결과 전송 성공:', response.data);
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
+        window.location.reload();  // 페이지 새로고침
       } catch (error) {
-        console.error('결과 전송 실패:', error.response ? error.response.data : error.message);
+        //console.error('결과 전송 실패:', error.response ? error.response.data : error.message);
         this.showNotification('결과 전송에 실패했습니다.', 'error');
+        window.location.reload();  // 페이지 새로고침
       }
     },
 
@@ -249,13 +255,14 @@ export default {
   background-color: #4CAF50;
   font-size: 12px;
   color: white;
-
+  cursor: pointer;
 }
 .reject-box {
   background-color: #f44336;
   color: white;
   font-size: 12px;
   margin-inline-end: 10px;
+  cursor: pointer;
 }
 .send-result-btn {
   width: 180px;

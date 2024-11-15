@@ -72,9 +72,11 @@ export default {
     };
   },
   computed: {
+    //총 페이지 수 계산
     totalPages() {
       return Math.ceil(this.notices.length / this.itemsPerPage);
     },
+    //현재 페이지에 맞는 공지사항 데이터만 반환
     paginatedNotices() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
@@ -82,11 +84,14 @@ export default {
     }
   },
   created() {
+    //공지사항 목록 불러옴
     this.fetchNotices();
   },
+  //공지사항 목록 서버에서 가져오기
   methods: {
     async fetchNotices() {
       try {
+        
         const accessToken = store.state.accessToken;
         const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
           headers: {
@@ -94,23 +99,26 @@ export default {
             'Content-Type': 'application/json',
           },
         });
+        //서버에서 받은 데이터가 맞는 지 확인 후 공지사항 배열에 저장
         if (response.data && response.data._embedded && Array.isArray(response.data._embedded.noticeListResponseList)) {
           this.notices = response.data._embedded.noticeListResponseList;
         } else {
           this.notices = [];
-          console.warn('Unexpected response format:', response.data);
+          //console.warn(':', response.data);
         }
+        //현재 url에 있는 공지사항 id로 해당 공지사항 세부정보
         this.fetchNotice(this.$route.params.id);
       } catch (error) {
-        console.error('Error fetching notices:', error);
+       // console.error('Error fetching notices:', error);
         if (error.response && error.response.status === 401) {
           alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-          this.$router.push({ name: 'Login' }); // Redirect to login page
+          this.$router.push({ name: 'Login' }); 
         } else {
           this.notices = [];
         }
       }
     },
+    //선택한 공지사항의 세부정보를 보기 위해 서버에서 가져옴
     async fetchNotice(id) {
       try {
         const accessToken = store.state.accessToken;
@@ -121,51 +129,58 @@ export default {
           },
         });
         if (!response.data || !response.data.data) {
-          throw new Error('Failed to fetch notice');
+          throw new Error('공지사항을 불러오는 데 실패하였습니다.');
         }
         const data = response.data.data;
         this.notice = data;
 
-        // 기존 이미지 로드 및 추가된 이미지를 유지
+        // 기존 이미지 로드 및 추가된 이미지를 가져와서 보여주기
         this.images = data.noticePhotos.map(photoUrl => ({ src: photoUrl, isNew: false }));
       } catch (error) {
-        console.error('Error fetching notice:', error);
+        //console.error(':', error);
         if (error.response && error.response.status === 404) {
           alert('공지사항이 존재하지 않습니다.');
-          this.$router.push({ name: 'NoticeList' }); // Redirect to notice list page
+          this.$router.push({ name: 'NoticeList' }); 
         } else {
           this.notice = null;
         }
       }
     },
+    //이전 공지사항 세부정보로 이동
     prevNotice() {
       const currentIndex = this.notices.findIndex(notice => notice.noticeId == this.$route.params.id);
       const prevIndex = (currentIndex - 1 + this.notices.length) % this.notices.length;
       this.$router.push({ name: 'NoticeClick', params: { id: this.notices[prevIndex].noticeId } });
     },
+    //다음 공지사항 세부정보로 이동
     nextNotice() {
       const currentIndex = this.notices.findIndex(notice => notice.noticeId == this.$route.params.id);
       const nextIndex = (currentIndex + 1) % this.notices.length;
       this.$router.push({ name: 'NoticeClick', params: { id: this.notices[nextIndex].noticeId } });
     },
+    //클릭한 공지사항의 세부정보 페이지로 이동
     goToNotice(id) {
       this.$router.push({ name: 'NoticeClick', params: { id } });
     },
+    //페이지 변경 시 현재 페이지 번호 바뀜
     changePage(page) {
       this.currentPage = page;
     },
     // 줄바꿈 문자를 <br>로 변환하는 함수
     convertNewlinesToBr(text) {
-      return text ? text.replace(/\n?<br>\n\?/gi, '<br>') : '';
+      return text ? text.replace(/\n/g, '<br>') : '';
     },
+    //날짜 보여주는 함수
     formattedDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString();
     },
+    //이미지 로드 실패시 띄우는 대체 이미지
     handleImageError(index) {
       this.images[index].src = '@/assets/placeholder.png'; // 이미지 로드 실패 시 대체 이미지
     },
   },
+  //라우트가 변경될 떄마다 공지사항 정보를 다시 가져옴
   watch: {
     $route(to) {
       this.fetchNotice(to.params.id);
@@ -260,17 +275,14 @@ export default {
 }
 
 .notice-image {
-  
-  width: 100%; /* 이미지의 최대 너비를 컨테이너에 맞게 설정 */
-  height: 100%; /* 필요시 이미지의 최대 높이 설정 */
+  width: 100%;
+  height: 100%; /* 고정된 높이 설정 */
+  object-fit: cover; /* 이미지 비율을 유지하면서 잘 맞추어 줍니다 */
   border-radius: 8px;
 }
 
 
 .image-container {
-  display: flex;
-  justify-content: center; /* 가로 가운데 정렬 */
-  align-items: center; /* 세로 가운데 정렬 */
   width: 100%;
   max-width: 300px;
 }

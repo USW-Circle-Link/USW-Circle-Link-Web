@@ -51,18 +51,18 @@ export default {
   name: 'ClubInfoTextInput',
   data() {
     return {
-      images: [],
+      images: [],//업로드 된 이미지 정보
       textareaContent: '',  // 소개글
-      isChecked: null,
-      googleFormLink: '',
-      orders: [],
-      deletedOrders: [],
-      file: [],
-      presignedUrls: [],
+      isChecked: null,//모집 여부 체크 상태
+      googleFormLink: '',//구글 폼 링크
+      orders: [],//이미지 순서 정보
+      deletedOrders: [],//삭제 된 이미지 순서 정보
+      file: [],//파일 리스트
+      presignedUrls: [],//url리스트
       imagesData: [],  // 이미지 정보
       errorMessage: '',
-      validFile: false,
-      clubData: {},
+      validFile: false,//유효한 파일 여부
+      clubData: {},//클럽 정보
     };
   },
   mounted() {
@@ -81,7 +81,7 @@ export default {
             'Content-Type': 'application/json'
           }
         });
-
+        //가져온 클럽 데이터를 저장
         this.clubData = response.data.data;
         this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
         // 줄바꿈 처리 수정
@@ -92,10 +92,10 @@ export default {
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
 
       } catch (error) {
-        console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
+        //console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
         this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
       }
-    },
+    },//특정 경로로 이동하는 메서드
     navigateTo(routeName) {
       this.$router.push({ name: routeName }).catch(err => {
         if (err.name !== 'NavigationDuplicated') {
@@ -105,18 +105,18 @@ export default {
     },
     // 이미지 삭제
     deleteImage(index) {
-      this.pastImages = this.images;
+      this.pastImages = this.images;//현재 이미지를 임시 저장
       try {
-        this.images.splice(index, 1, { src: '' });
-        this.orders.splice(this.orders.indexOf(index + 1), 1);
-        this.deletedOrders.splice(index, 0, index + 1);
-        this.deletedOrders.sort();
-        this.$forceUpdate();
+        this.images.splice(index, 1, { src: '' });//해당 인덱스의 이미지를 제거
+        this.orders.splice(this.orders.indexOf(index + 1), 1);//순서 정보 업데이트
+        this.deletedOrders.splice(index, 0, index + 1);//삭제 된 순서 저장
+        this.deletedOrders.sort();//순서 정렬
+        this.$forceUpdate();//변경사항 적용 강제
       } catch (error) {
-        console.error("Error while deleting image:", error);
+        //console.error("Error while deleting image:", error);
       }
     },
-    // 모집중 토글
+    // 모집중 토글(on/off)
     async toggleCheckbox() {
       const accessToken = store.state.accessToken;
       const clubId = store.state.clubId;
@@ -131,6 +131,7 @@ export default {
         }
       })
           .then(response => {
+            //모집 상태 변경 완료 후 알림
             if (this.isChecked === true) {
               setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 ON]'), 800);
             } else {
@@ -143,36 +144,36 @@ export default {
     triggerFileInput(index) {
       const fileInputRef = this.$refs[`fileInput${index}`];
       if (fileInputRef && fileInputRef[0] && fileInputRef[0].click) {
-        fileInputRef[0].click();
+        fileInputRef[0].click();//파일 선택 창 열기
       }
     },
     // 파일 변경 처리
     onFileChange(index, event) {
-      this.images.splice(index, 1, { src: '' });
+      this.images.splice(index, 1, { src: '' });//이미지 초기화
       if (this.images.filter(image => image.src !== '').length >= 5) {
         alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
         return;
       }
       const file = event.target.files[0];
-
+      //파일 확장자 및 크기 검사
       if (file) {
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
         const maxFileSize = 10 * 1024 * 1024;
 
         if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-          this.file.splice(index, 1, file);
+          this.file.splice(index, 1, file);//파일 추가
           this.errorMessage = '';
           this.validFile = true;
 
           const reader = new FileReader();
           reader.onload = (e) => {
-            this.images[index].src = e.target.result;
-            this.imagesData.push({ src: e.target.result, file });
+            this.images[index].src = e.target.result;//미리보기 이미지 설정
+            this.imagesData.push({ src: e.target.result, file });//이미지 데이터 추가
           };
           reader.readAsDataURL(file);
 
-          this.orders.splice(index, 0, index + 1);
+          this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
           this.orders.sort();
         } else {
           alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
@@ -184,6 +185,7 @@ export default {
     // 이미지 업로드
     onImageUpload(index, event) {
       const file = event.target.files[0];
+      //파일 유효성 검사
       if (file) {
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -191,8 +193,8 @@ export default {
 
         if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
           this.file.push(file);
-          this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);
-          this.orders.splice(index, 0, index + 1);
+          this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);//삭제 된 순서 제거
+          this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
           this.orders.sort();
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -235,7 +237,7 @@ export default {
         deletedOrders: this.deletedOrders
       };
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
-
+      //이미지 데이터 폼에 추가
       this.imagesData.forEach((image, index) => {
         form.append('introPhotos', image.file);
       });
@@ -253,12 +255,12 @@ export default {
         );
         if (response.data && response.data.data && response.data.data.presignedUrls) {
           this.presignedUrls = response.data.data.presignedUrls;
-          await this.uploadFiles();
+          await this.uploadFiles();//파일 업로드
         }
 
         alert("저장되었습니다!");
-        this.navigateTo('dashboard');
-        this.$emit('data-saved');
+        this.navigateTo('dashboard');//완료 되면 홈 화면으로 이동
+        this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
 
       } catch (error) {
         console.error("오류가 발생했습니다:", error.response ? error.response.data : error);

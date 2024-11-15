@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-   
+
   </div>
 </template>
 
@@ -55,16 +55,17 @@ export default {
   name: 'ApplicantManagement',
   data() {
     return {
-      applicants: [],
-      showConfirmPopup: false,
+      applicants: [],//지원자 목록 배열
+      showConfirmPopup: false,//합/불 확인 팝업 표시
       notification: {
-        message: '',
-        type: ''
+        message: '',//사용자에게 표시 할 알림 메세지
+        type: '' // 알림 메시지 타입
       },
       fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/applicants?page=0&size=500`, // 지원자 명단을 가져오는 서버 URL
       submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/applicants/notifyMultiple`, // 합/불 결과를 보내는 서버 URL
     };
   },
+  //지원자 명단 가져오기
   mounted() {
     this.fetchApplicants();
   },
@@ -81,20 +82,20 @@ export default {
         });
         if (response.ok) {
           const result = await response.json();
-          console.log('Fetched data:', result); // 응답 데이터 출력
-
+        //  console.log(':', result); // 응답 데이터 출력
+        // 데이터가 올바른 형식인지(서버가 기대하는) 확인 후 지원자 배열에 저장
           const data = result.data;
           if (data && Array.isArray(data.content)) {
             this.applicants = data.content.map(applicant => ({
-              aplictId: applicant.aplictId, // 필드명 수정
-              userName: applicant.userName,
-              studentNumber: applicant.studentNumber,
-              major: applicant.major,
-              userHp: applicant.userHp,
-              decision: null, // decision 필드 초기화
+              aplictId: applicant.aplictId, // 지원자 id
+              userName: applicant.userName,//지원자 이름
+              studentNumber: applicant.studentNumber,//학번
+              major: applicant.major,//전공
+              userHp: applicant.userHp,//전화번호
+              decision: null, // decision 필드 초기화(합/불 경정 초기화)
             }));
 
-            console.log("Formatted applicants:", this.applicants); // 변환된 지원자 데이터 출력
+          //  console.log(":", this.applicants); // 변환된 지원자 데이터 출력
             this.showNotification('지원자 목록을 성공적으로 가져왔습니다.', 'success');
           } else {
             console.error('지원자 데이터 형식 오류', data);
@@ -109,12 +110,15 @@ export default {
         this.showNotification('지원자 데이터를 가져오는 중 문제가 발생했습니다.', 'error');
       }
     },
+    //합/불 결과 전송 확인 팝업 표시
     showPopup() {
       this.showConfirmPopup = true;
     },
+    ////합/불 결과 전송 확인 팝업 숨김
     hidePopup() {
       this.showConfirmPopup = false;
     },
+    //결과 전송 확인 후 팝업을 숨기고 전송
     confirmSendResults() {
       this.hidePopup();
       this.sendResults();
@@ -133,15 +137,15 @@ export default {
         return;
       }
       console.log('결과 전송 중...');
-      
+      //지원자 합/불 상태를 결과 배열로 구성
       const results = this.applicants.map(applicant => ({
-        aplictId: applicant.aplictId, // 필드명 수정
-        aplictStatus: applicant.decision, // 필드명 수정
+        aplictId: applicant.aplictId, // 지원자 id
+        aplictStatus: applicant.decision, // 합/불 상태
       }));
 
       // 전송할 데이터 로그 출력
-      console.log("전송할 데이터:", results);
-
+    //  console.log("전송할 데이터:", results);
+//합/불 결과 서버에 요청
       try {
         const response = await axios.post(this.submitUrl, results, {
           headers: {
@@ -150,11 +154,14 @@ export default {
           },
         });
 
-        console.log('결과 전송 성공:', response.data);
+        //결과 전송 성공 시 페이지 새로고침
+        //console.log('결과 전송 성공:', response.data);
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
+        window.location.reload();  // 페이지 새로고침
       } catch (error) {
-        console.error('결과 전송 실패:', error.response ? error.response.data : error.message);
+       // console.error('결과 전송 실패:', error.response ? error.response.data : error.message);
         this.showNotification('결과 전송에 실패했습니다.', 'error');
+        window.location.reload();  // 페이지 새로고침
       }
     },
     // 지원자의 합/불 상태를 토글하는 메서드
@@ -163,6 +170,7 @@ export default {
     },
     // 전체 지원자의 합/불 상태를 설정하는 메서드
     setAllApplicantsStatus(status) {
+      //모든 지원자의 합/불 상태를 일괄 설정
       this.applicants.forEach(applicant => {
         applicant.decision = status;
       });

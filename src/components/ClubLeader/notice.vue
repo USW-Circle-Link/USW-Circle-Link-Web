@@ -52,19 +52,20 @@ export default {
     return {
       notices: [], // 공지사항 목록
       currentPage: 1, // 현재 페이지 번호
-      itemsPerPage: 12, // 페이지당 항목 수 (예: 12)
+      itemsPerPage: 12, // 페이지당 항목 수 
       totalPages: 1, // 전체 페이지 수, 초기값 설정
     };
   },
   computed: {
     paginatedNotices() {
-      return this.notices; // 이미 서버에서 페이징된 데이터를 가져오기 때문에 그대로 사용
+      return this.notices; //  서버에서 받은 페이징된 데이터를 그대로 반환
     },
     totalPagesArray() {
-      return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+      return Array.from({ length: this.totalPages }, (_, i) => i + 1);//totalPages의 값에 맞춰 각 페이지 번호를 배열 형태로 생성하여 반환
     }
   },
   methods: {
+    //작성된 공지사항 리스트 불러오기
     async fetchNotices(page = 1) { // 기본 페이지를 1로 설정
       try {
         const accessToken = store.state.accessToken;
@@ -83,28 +84,30 @@ export default {
         }
 
         if (!response.ok) {
-          throw new Error('Failed to fetch notices');
+          throw new Error('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
         }
 
         const data = await response.json();
 
+        //작성된 공지사항 데이터 최근 순으로 불러오기
         if (data && data._embedded && Array.isArray(data._embedded.noticeListResponseList)) {
           this.notices = data._embedded.noticeListResponseList.reverse();
           this.totalPages = data.page.totalPages; // 전체 페이지 수를 설정
           this.currentPage = data.page.number + 1; // 현재 페이지를 설정 (0부터 시작하므로 1을 더함)
 
           // 디버깅 로그 추가
-          console.log('Fetched Notices:', this.notices);
-          console.log('Current Page:', this.currentPage);
-          console.log('Total Pages:', this.totalPages);
+         // console.log(':', this.notices);
+         // console.log(':', this.currentPage);
+         // console.log(':', this.totalPages);
         } else {
           this.notices = []; // 데이터를 가져오지 못한 경우 빈 배열 설정
         }
       } catch (error) {
-        console.error('Error fetching notices:', error);
+        console.error('공지사항을 불러오는데 실패하였습니다.', error);
         this.notices = [];
       }
     },
+    //NoticeClick 페이지 이동
     goToNotice(noticeId) {
       this.$router.push({ name: 'NoticeClick', params: { id: noticeId } });
     },
@@ -113,11 +116,13 @@ export default {
       localStorage.setItem('currentPage', page); // 페이지 변경 시 현재 페이지를 localStorage에 저장
       this.fetchNotices(page); // 페이지 변경 시 해당 페이지의 데이터를 가져옴
     },
+    //이전페이지 이동
     previousPage() {
       if (this.currentPage > 1) {
         this.changePage(this.currentPage - 1);
       }
     },
+    //다음 페이지 이동
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.changePage(this.currentPage + 1);
