@@ -50,22 +50,24 @@ import draggable from 'vuedraggable';
 export default {
   name: 'NoticeEdit',
   components: {
-    draggable,
+    draggable,//이미지 순서 드래그해서 변경하기위함
   },
-  props: ['id'],
+  props: ['id'],//라우터에서 전달받은 공지사항 id
   data() {
     return {
-      notice: { noticeTitle: '', noticeContent: '' },
-      noticePhotos: [],
-      isLoading: false,
+      notice: { noticeTitle: '', noticeContent: '' },//공지사항 제목과 내용을 저장
+      noticePhotos: [],//공지사항에 첨부된 이미지 파일 목록
+      isLoading: false,//로딩 상태를 나타내는 플래그
     };
   },
   methods: {
+    //이미지 순서 업데이트 함수
     updateImageOrder() {
       this.noticePhotos.forEach((photo, index) => {
         photo.order = index + 1;
       });
     },
+    //서버에서 공지사항 데이터를 가져오는 함수
     async fetchNotice(id) {
       try {
         const accessToken = store.state.accessToken;
@@ -75,6 +77,7 @@ export default {
             'Content-Type': 'application/json',
           },
         });
+         // 공지사항 제목과 내용 설정 및 HTML 엔터티 처리
         if (response.data && response.data.data) {
           this.notice = {
             noticeTitle: response.data.data.noticeTitle,
@@ -82,6 +85,7 @@ export default {
               .replace(/\n?<br>\n?/gi, '\n') // 줄바꿈 처리
               .replace(/&nbsp;/g, ' ')       // 공백 처리
           };
+            // 공지사항 이미지 URL 배열을 파일 객체로 변환하여 추가
           const photoUrls = response.data.data.noticePhotos || [];
           for (let i = 0; i < photoUrls.length; i++) {
             const file = await this.urlToFile(photoUrls[i]);
@@ -90,14 +94,15 @@ export default {
             }
           }
         } else {
-          console.warn('Unexpected response format:', response.data);
+        //  console.warn('기대한 형식이 아닙니다:', response.data);
         }
       } catch (error) {
-        console.error('Error fetching notice:', error);
+      //  console.error('공지사항을 불러오는 데 오류가 발생했습니다:', error);
         this.notice = { noticeTitle: '', noticeContent: '' };
         this.noticePhotos = [];
       }
     },
+    // URL을 파일 객체로 변환하는 함수
     async urlToFile(url) {
       try {
         const response = await fetch(url);
@@ -111,6 +116,7 @@ export default {
         return null;
       }
     },
+    //사용자 입력을 HTML로 안전하게 변환하는 함수
     sanitizeInput(input) {
       const element = document.createElement('div');
       element.innerText = input;
@@ -123,6 +129,7 @@ export default {
       }
       return true;
     },
+    //이미지 업로드 핸들러
     onImageUpload(event) {
       if (this.noticePhotos.length >= 5) {
         alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
@@ -145,6 +152,7 @@ export default {
         alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
       }
     },
+    //이미지 변경 핸들러
     onImageChange(index) {
       const fileInput = this.$refs[`fileInput${index}`];
       if (fileInput && fileInput.files && fileInput.files[0]) {
@@ -161,22 +169,25 @@ export default {
           alert("파일 형식이 맞지 않습니다. .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
         }
       } else {
-        console.error('fileInput is not found or files are empty.');
+        //console.error('파일을 찾을 수 없습니다.');
       }
     },
+    //이미지 수정 핸들러
     editImage(index) {
       const fileInput = this.$refs['fileInput' + index];
       if (fileInput && fileInput.click) {
         fileInput.click();
       } else {
-        console.error('fileInput is undefined or does not have a click method.');
+        //console.error('');
       }
     },
+    //이미지 삭제 핸들러
     deleteImage(index) {
       this.noticePhotos.splice(index, 1);
     },
+    //공지사항 제출 함수
     async submitNotice() {
-      const maxTitleLength = 300;
+      const maxTitleLength = 100;
       const maxContentLength = 3000;
       if (this.notice.noticeTitle.length > maxTitleLength) {
         alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
@@ -201,6 +212,7 @@ export default {
           photoIds: this.noticePhotos.filter(photo => photo.id && !photo.file).map(photo => photo.id),
           photoOrders: this.noticePhotos.map(photo => photo.order),
         };
+        //공지사항 수정할 때마다 이미지 새롭게 다시 서버에 전송
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
         this.noticePhotos.forEach((image) => {
           if (image.file) {
@@ -217,6 +229,7 @@ export default {
             }
           }
         );
+        //서버에서 받은 데이터가 맞는 지 확인 후 공지사항 배열에 저장
         if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
           await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
             if (this.noticePhotos[index] && this.noticePhotos[index].file) {
@@ -227,7 +240,7 @@ export default {
                   }
                 });
               } catch (uploadError) {
-                console.error(`Image ${index + 1} failed to upload:`, uploadError);
+               // console.error(`Image ${index + 1} 이미지:`, uploadError);
               }
             }
           }));
@@ -262,7 +275,7 @@ export default {
     },
   },
   created() {
-    this.fetchNotice(this.id);
+    this.fetchNotice(this.id);// 컴포넌트 생성 시 공지사항을 서버에서 가져옴
   }
 };
 </script>

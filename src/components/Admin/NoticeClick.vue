@@ -23,10 +23,10 @@
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
           <img
-            :src="image.src"
-            alt="Notice Image"
-            class="notice-image"
-            @error="handleImageError(index)"
+              :src="image.src"
+              alt="Notice Image"
+              class="notice-image"
+              @error="handleImageError(index)"
           />
         </div>
       </div>
@@ -38,13 +38,13 @@
     <div class="notice-list">
       <table>
         <tbody>
-          <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
-            <td>
-              <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
-            </td>
-            <td>{{ notice.adminName }}</td>
-            <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
-          </tr>
+        <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
+          <td>
+            <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
+          </td>
+          <td>{{ notice.adminName }}</td>
+          <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
+        </tr>
         </tbody>
       </table>
       <div class="pagination">
@@ -63,26 +63,30 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      notices: [],
-      notice: null,
-      currentPage: 1,
-      itemsPerPage: 5,
-      images: [], // Image array for notice photos
+      notices: [],//공지사항 목록을 저장하는 배열
+      notice: null,//선택된 공지사항 상세 정보
+      currentPage: 1,//현재 페이지 번호
+      itemsPerPage: 5,//한 페이지에 표시할 공지사항 수
+      images: [], // 공지사항에 포함된 이미지 배열
     };
   },
   computed: {
+    //총 페이지 수 계산
     totalPages() {
       return Math.ceil(this.notices.length / this.itemsPerPage);
     },
+    //현재 페이지에 맞는 공지사항 데이터만 반환
     paginatedNotices() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
       return this.notices.slice(start, end);
     },
   },
+  //공지사항 목록 불러오기
   created() {
     this.fetchNotices();
   },
+  //공지사항목록 서버에서 가져오기 
   methods: {
     async fetchNotices() {
       try {
@@ -93,17 +97,20 @@ export default {
             'Content-Type': 'application/json',
           },
         });
+        //서버에서 받은 데이터가 맞는 지 확인 후 공지사항 배열에 저장
         if (response.data && response.data._embedded && Array.isArray(response.data._embedded.noticeListResponseList)) {
           this.notices = response.data._embedded.noticeListResponseList;
         } else {
           this.notices = [];
-          console.warn('Unexpected response format:', response.data);
+         // console.warn('기대한 응답이 아닙니다:', response.data);
         }
+        //현재 url에 있는 공지사항 id로 해당 공지사항 세부정보
         this.fetchNotice(this.$route.params.id);
       } catch (error) {
-        this.handleError(error, 'Error fetching notices');
+        //this.handleError(error, '공지사항을 불러오는 데 오류가 발생했습니다');
       }
     },
+    //선택한 공지사항의 세부정보를 보기 위해 서버에서 가져옴
     async fetchNotice(id) {
       try {
         const accessToken = store.state.accessToken;
@@ -118,12 +125,13 @@ export default {
           this.loadImages(response.data.data.noticePhotos);
 
         } else {
-          throw new Error('Notice data not found');
+          throw new Error('공지사항을 찾을 수 없습니다.');
         }
       } catch (error) {
-        this.handleError(error, 'Error fetching notice');
+        this.handleError(error, '공지사항을 불러오는 데 오류가 있습니다.');
       }
     },
+    //이미지 목록을 로드하는 함수
     loadImages(photoUrls) {
       if (Array.isArray(photoUrls)) {
         this.images = photoUrls.map(photoUrl => {
@@ -134,47 +142,55 @@ export default {
       }
     },
     handleImageError(index) {
-      // Fallback image for failed loads
+      // 이미지 가져오지 못 했을 때 기본 이미지 띄우기
       this.images[index].src = require('@/assets/rigth.png'); // 기본 이미지로 변경
     },
+    //오류 처리 함수
     handleError(error, message) {
       if (error.response && error.response.status === 404) {
-        alert(`${message}: Resource not found.`);
+        alert(`${message}: 공지사항이 존재하지 않습니다.`);
         this.$router.push({ name: 'Notice' });
       } else if (error.response && error.response.status === 401) {
-        alert('Unauthorized access. Please log in again.');
+        alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
         this.$router.push({ name: 'Login' });
       } else {
         console.error(`${message}:`, error);
-        alert(`${message}. Please try again later.`);
+        alert(`${message}. 다시 시도해주세요.`);
       }
     },
+    //이전 공지사항
     prevNotice() {
       const currentIndex = this.notices.findIndex(notice => notice.noticeId == this.$route.params.id);
       const prevIndex = (currentIndex - 1 + this.notices.length) % this.notices.length;
       this.$router.push({ name: 'AdminNoticeClick', params: { id: this.notices[prevIndex].noticeId } });
     },
+    //다음 공지사항
     nextNotice() {
       const currentIndex = this.notices.findIndex(notice => notice.noticeId == this.$route.params.id);
       const nextIndex = (currentIndex + 1) % this.notices.length;
       this.$router.push({ name: 'AdminNoticeClick', params: { id: this.notices[nextIndex].noticeId } });
     },
+    //해당 공지사항id의 AdminNoticeClick(공지사항 세부정보페이지)로 이동
     goToNotice(id) {
       this.$router.push({ name: 'AdminNoticeClick', params: { id } });
     },
+    //페이지 변경 시 현재 페이지 번호 바뀜
     changePage(page) {
       this.currentPage = page;
     },
+    //줄바꿈
     convertNewlinesToBr(text) {
       return text ? text.replace(/\n?<br>\n\?/gi, '<br>') : '';
     },
+    //공지사항 수정버튼 클릭 시 noticeedit로 이동
     editNotice() {
       if (this.notice && this.notice.noticeId) {
         this.$router.push({ name: 'noticeedit', params: { id: this.notice.noticeId } });
       } else {
-        console.error('No notice available to edit.');
+       // console.error('수정할 수 없습니다');
       }
     },
+    //공지사항 삭제버튼 클릭 시 
     async deleteNotice() {
       if (this.notice && confirm('이 공지사항을 삭제하시겠습니까?')) {
         try {
@@ -202,11 +218,13 @@ export default {
         }
       }
     },
+    //날짜 보여주는 함수
     formattedDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString();
     },
   },
+  //라우트가 변경될 떄마다 공지사항 정보를 다시 가져옴
   watch: {
     $route(to) {
       this.fetchNotice(to.params.id);
@@ -290,8 +308,6 @@ export default {
   line-height: 1.0;
   border-top: 0.5px solid  #868686; /* 회색 구분선 추가 */
   padding-top: 10px; /* 텍스트와 구분선 사이에 여백 추가 */
-  justify-content: center; 
-
 }
 
 .notice-images { 
@@ -303,17 +319,14 @@ export default {
 }
 
 .notice-image {
-  
-  width: 100%; /* 이미지의 최대 너비를 컨테이너에 맞게 설정 */
-  height: 100%; /* 필요시 이미지의 최대 높이 설정 */
+  width: 100%;
+  height: 100%; /* 고정된 높이 설정 */
+  object-fit: cover; /* 이미지 비율을 유지하면서 잘 맞추어 줍니다 */
   border-radius: 8px;
 }
 
 
 .image-container {
-  display: flex;
-  justify-content: center; /* 가로 가운데 정렬 */
-  align-items: center; /* 세로 가운데 정렬 */
   width: 100%;
   max-width: 300px;
 }
@@ -331,7 +344,7 @@ export default {
   padding: 10px 20px;
   margin: 0 5px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .edit-button {

@@ -35,15 +35,16 @@ import store from '@/store/store';
 
 export default {
   name: 'NoticeWrite',
-  props: ['id'],
+  props: ['id'],// 라우터에서 전달된 공지사항id
   data() {
     return {
-      notice: { noticeTitle: '', noticeContent: '' },
+      notice: { noticeTitle: '', noticeContent: '' },//공지사항 제목과 내용을 저장하는 객체
       notices: [],
       images: [], // 이미지 파일과 미리보기를 저장할 배열
     };
   },
   methods: {
+    //전체 공지사항 목록을 서버에서 가져오는 함수
     async fetchNotices() {
       try {
         const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
@@ -51,12 +52,14 @@ export default {
             'Authorization': `Bearer ${store.state.accessToken}`,
           },
         });
+        //서버에서 올바른 형식의 데이터를 받으면 notices 배열에 저장
         if (response.data && response.data._embedded && Array.isArray(response.data._embedded.noticeListResponseList)) {
           this.notices = response.data._embedded.noticeListResponseList;
         } else {
           this.notices = [];
           console.warn('Unexpected response format:', response.data);
         }
+        //특정 id에 해당하는 공지사항 세부 정보를 불러옴
         this.fetchNotice(this.id);
       } catch (error) {
         console.error('Error fetching notices:', error);
@@ -64,6 +67,7 @@ export default {
         alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
       }
     },
+    //공지사항 id로 특정 공지사항을 가져오는 함수
     fetchNotice(id) {
       const notice = this.notices.find(notice => notice.noticeId == id);
       if (notice) {
@@ -74,6 +78,7 @@ export default {
         this.images = [];
       }
     },
+    //이미지 파일을 업로드할 떄 실행되는 함수
     onImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -90,6 +95,7 @@ export default {
         }
       }
     },
+    //특정 인덱스의 이미지를 변경할 떄 실행되는 함수
     onImageChange(index) {
       const fileInput = this.$refs[`fileInput${index}`][0];
       if (fileInput && fileInput.files[0]) {
@@ -108,14 +114,15 @@ export default {
         }
       }
     },
+    //이미지 수정 클릭 시 파일 선택 창을 여는 함수
     editImage(index) {
       this.$refs[`fileInput${index}`][0].click();
     },
-
+//공지사항 제출 함수
     async submitNotice() {
       const maxTitleLength = 100;
       const maxContentLength = 3000;
-
+//제목과 내용의 길이를 검증
       if (this.notice.noticeTitle.length > maxTitleLength) {
         alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
         return;
@@ -128,16 +135,16 @@ export default {
 
       try {
         const form = new FormData();
-
+//공지사항 데이터를 폼 데이터에 추가
         const noticeData = {
           noticeTitle: this.notice.noticeTitle,
           noticeContent: this.notice.noticeContent
-              .replace(/ /g, '&nbsp;')
-              .replace(/\n/g, '<br>'),
+              .replace(/ /g, '&nbsp;')//공백을 '&nbsp;'로 변환
+              .replace(/\n/g, '<br>'),//줄바꿈을 '<br>'로 변환
           photoOrders: this.images.map((_, index) => index + 1)
         };
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
-
+//이미지 파일들을 폼 데이터에 추가
         this.images.forEach((image, index) => {
           form.append('photos', image.file);
         });
@@ -148,7 +155,7 @@ export default {
             'Content-Type': 'multipart/form-data',
           },
         });
-
+// 이미지 URL이 포함된 응답을 받은 후 각 URL에 대해 이미지 업로드 수행
         if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
           await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
             const photoResponse = await axios.put(photoUrl, this.images[index].file, {
@@ -156,7 +163,7 @@ export default {
                 'Content-Type': this.images[index].file.type,
               }
             });
-           // console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
+           // console.log(`Image ${index + 1} 이미지:`, photoResponse);
           }));
         }
 
@@ -176,7 +183,7 @@ export default {
     },
   },
   created() {
-    this.fetchNotices();
+    this.fetchNotices();// 컴포넌트 생성 시 전체 공지사항 목록을 서버에서 가져옴
   }
 };
 </script>
