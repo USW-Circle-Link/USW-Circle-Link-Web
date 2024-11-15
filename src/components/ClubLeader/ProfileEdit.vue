@@ -80,14 +80,15 @@ export default {
     }
   },
   methods: {
+     // 동아리 정보 로드 
     async fetchClubInfo() {
-      const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
+      const clubId = store.state.clubId; // 저장된 clubId 가져오기
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, { // 서버에 동아리 정보 요청
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
             'Content-Type': 'application/json',
           },
         });
@@ -108,16 +109,16 @@ export default {
         alert('Error fetching club info.');
       }
     },
-
+    // URL -> 파일 객체 반환 
     async urlToFile(url, filename, mimeType = 'image/jpeg') {
-      const response = await fetch(url);
+      const response = await fetch(url); // URL에서 데이터 로드 
       const blob = await response.blob();
-      return new File([blob], filename, { type: mimeType });
+      return new File([blob], filename, { type: mimeType }); // blob 데이터를 기반으로 파일 객체 생성 
     },
-
+    // 동아리 정보 업데이트
     async updateProfile() {
       this.isLoading = true;
-      const accessToken = store.state.accessToken;
+      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
       const clubId = store.state.clubId;
 
       try {
@@ -140,16 +141,17 @@ export default {
           formData.append("mainPhoto", existingFile);
         }
 
+        // FormData 내용 로그 출력
         for (let pair of formData.entries()) {
           console.log(pair[0] + ', ' + pair[1]);
         }
 
         const response = await axios.put(
-          `http://15.164.246.244:8080/club-leader/${clubId}/info`,
+          `http://15.164.246.244:8080/club-leader/${clubId}/info`, // 서버에 업데이트 요청
           formData,
           {
             headers: {
-              'Authorization': `Bearer ${accessToken}`,
+              'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
               'Content-Type': 'multipart/form-data',
             }
           }
@@ -172,7 +174,7 @@ export default {
         this.isLoading = false;
       }
     },
-
+    // 파일 업로드 
     async uploadFile() {
       try {
         await axios.put(this.presignedUrl, this.file, {
@@ -187,10 +189,10 @@ export default {
     },
 
     triggerFileInput() {
-      this.$refs.fileInput.click();
+      this.$refs.fileInput.click(); // 파일 선택 트리거 동작
     },
-
-    async onFileChange(event) {
+    // 파일 변경 시 실행
+    async onFileChange(event) { 
       this.file = event.target.files[0];
 
       if (this.file && !this.validateFile(this.file)) {
@@ -201,15 +203,15 @@ export default {
       if (this.file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.mainPhoto = e.target.result;
+          this.mainPhoto = e.target.result; // 미리보기로 표시할 이미지 업데이트 
         };
         reader.readAsDataURL(this.file);
       }
     },
-
+    // 파일 형식 & 크기 검증
     validateFile(file) {
-      const validTypes = ['image/jpeg', 'image/png'];
-      const maxSize = 2 * 1024 * 1024;
+      const validTypes = ['image/jpeg', 'image/png']; // JPG, PNG 형식의 파일만 허용
+      const maxSize = 2 * 1024 * 1024; // 크기 최대 2MB까지만 허용
 
       if (!validTypes.includes(file.type)) {
         alert('지원하지 않는 파일 형식입니다. JPG 또는 PNG 파일을 선택해주세요.');

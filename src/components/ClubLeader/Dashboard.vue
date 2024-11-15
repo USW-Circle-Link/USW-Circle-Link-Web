@@ -78,6 +78,7 @@ export default {
     this.getCurrentTime();
   },
   methods: {
+    // 현재 날짜를 YYYY-MM-DD 형식으로 반환 (엑셀파일 이름에 사용)
     getCurrentTime() {
       const now = new Date();
 
@@ -87,7 +88,8 @@ export default {
 
       return ` [${year}-${month}-${day}]`;
     },
-    async pageLoadFunction() {
+    // 동아리 정보 로드
+    async pageLoadFunction() { 
       console.log('Page has been loaded!');
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
@@ -101,7 +103,7 @@ export default {
         });
 
         this.data = response.data.data;
-        this.ExelFileName = response.data.data.clubName + ' 동아리 명단' + this.getCurrentTime();
+        this.ExelFileName = response.data.data.clubName + ' 동아리 명단' + this.getCurrentTime(); //엑셀 파일 이름 설정
 
         // mainPhotoUrl로부터 이미지 로드
         if (this.data.mainPhotoUrl) {
@@ -120,8 +122,9 @@ export default {
         this.error = error.message;
       }
     },
+    // 동아리 회원 목록 로드 
     async fetchData() {
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
+      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
       console.log(accessToken + '토큰값');
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
       console.log(clubId + '클럽 ID')
@@ -141,6 +144,7 @@ export default {
         console.error('Error fetching data:', error);
       }
     },
+    // 동아리 회원 퇴출
     async removeMember(index) {
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
@@ -160,9 +164,10 @@ export default {
         console.error('Error deleting member:', error);
       }
     },
+    // 엑셀 파일로 동아리 회원 명단 다운로드 
     async sheetDownload(){
       try {
-        const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
+        const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
         const clubId = store.state.clubId; // 저장된 clubId 가져오기
         const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members/export`, {
           responseType: 'blob', // Blob 형태로 응답을 받기 위해 설정
