@@ -49,13 +49,14 @@
 
 <script>
 export default {
-  name: 'SidebarMenu',
+  name: 'SidebarMenu', // 구성요소 이름
   data(){
     return{
-      clubname: '운영팀',
+      clubname: '운영팀', // 동연회/개발팀 프로필 이름
     }
   },
   methods: {
+    // 함수 실행 시 routeName의 컴포넌트로 이동
     navigateTo(routeName) {
       this.$router.push({ name: routeName }).catch(err => {
         if (err.name !== 'NavigationDuplicated') {
@@ -63,7 +64,7 @@ export default {
         }
       });
     },
-
+    // 로그아웃
     logout() {
       this.$store.dispatch('logout');
       this.$router.push({ name: 'login' });
@@ -96,8 +97,8 @@ export default {
   height: 79px;
   flex-shrink: 0;
   border-radius: 50%;
-  margin: 10px 0px 10px 0px;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  margin: 10px 0 10px 0;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .profile-name {
@@ -106,25 +107,23 @@ export default {
 
 .profile-info h2 {
   color: #000;
-  font-family: Pretendard;
   font-size: 24px;
   font-style: normal;
   font-weight: 600;
   line-height: 16px;
   text-align: center;
-  margin: 20px 0px 15px 0px;
+  margin: 20px 0 15px 0;
 }
 
 .profile-info p {
   color: #000;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
   text-align: center;
   line-height: 6px;
   letter-spacing: -0.3px;
-  margin: 0px 0px 12px 0px;
+  margin: 0 0 12px 0;
 }
 
 nav {
@@ -142,26 +141,12 @@ nav li {
   align-items: center;
   align-content: center;
   cursor: pointer;
-  margin: 0px 0px 0px 0px;
+  margin: 0;
   height: 55px;
-}
-
-.list1 {
-  width: 240px;
-  height: 55px;
-  display: flex;
-  flex-direction: column;
-  transition-property: height;
-  transition-duration: 0.2s;
 }
 
 .list1 a {
   visibility: hidden;
-}
-
-.list1:hover {
-  height: 100px;
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 .list1:hover a {
@@ -232,7 +217,6 @@ router-link{
 
 .menu {
   width: 173px;
-  font-family: Pretendard;
   font-size: 18px;
   font-weight: 500;
   line-height: 16px;
@@ -252,11 +236,11 @@ nav li:hover .yellowLine {
 }
 
 nav .list2:hover .top {
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 nav .list1:hover .top {
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 nav li .yellowLine {
@@ -267,7 +251,7 @@ nav li .yellowLine {
 nav .icon {
   width: 20px;
   height: 20px;
-  margin: 0px 15px 3.5px 30px;
+  margin: 0 15px 3.5px 30px;
 }
 
 .home {
@@ -309,7 +293,7 @@ nav .icon {
   width: 1px;
   height: 13px;
   background-color: #bbbbbb;
-  margin: 0px 20px 0px 20px;
+  margin: 0 20px 0 20px;
 }
 
 .footer a:hover {
