@@ -1,3 +1,4 @@
+
 <template>
   <div>
     <div class="ClubInfo">
@@ -20,10 +21,14 @@
       </div>
     </div>
     <div class="Dashboardhead">
-      <p>소속 동아리 회원 정보</p>
+      <div>
+        <p class="p1">동아리 회원 정보</p>
+        <p class="p2">현재 회원 : {{memberCount}} 명</p>
+      </div>
       <button @click="sheetDownload" class="spreadsheets">
-        <p>엑셀 파일 다운로드</p>
-        <img src="../../assets/spreadsheets.png" oncontextmenu="return false;"/>
+        <span v-if="isLoading" class="loading-icon"></span>
+        <p>{{ isLoading ? "다운로드 중..." : " 엑셀 파일 다운로드" }}</p>
+        <img alt="엑셀파일" src="../../assets/spreadsheets.png" oncontextmenu="return false;"/>
       </button>
     </div>
     <div id="Dashboard" class="Dashboard">
@@ -57,6 +62,8 @@ export default {
       sheet: null,
       message: '',
       clubMembers: [],
+      memberCount: 0,
+      isLoading: false, // 로딩 상태를 나타내는 변수
     }
   },
   computed: {
@@ -89,8 +96,8 @@ export default {
       return ` [${year}-${month}-${day}]`;
     },
     // 동아리 정보 로드
-    async pageLoadFunction() { 
-      console.log('Page has been loaded!');
+    async pageLoadFunction() {
+      // console.log('Page has been loaded!');
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
 
@@ -122,7 +129,7 @@ export default {
         this.error = error.message;
       }
     },
-    // 동아리 회원 목록 로드 
+    // 동아리 회원 목록 로드
     async fetchData() {
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
       console.log(accessToken + '토큰값');
@@ -164,12 +171,13 @@ export default {
         console.error('Error deleting member:', error);
       }
     },
-    // 엑셀 파일로 동아리 회원 명단 다운로드 
+    // 엑셀 파일로 동아리 회원 명단 다운로드
     async sheetDownload(){
+      this.isLoading = true; // 로딩 시작
       try {
-        const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
+        const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
         const clubId = store.state.clubId; // 저장된 clubId 가져오기
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members/export`, {
+        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/members/export`, {
           responseType: 'blob', // Blob 형태로 응답을 받기 위해 설정
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
@@ -188,6 +196,8 @@ export default {
       } catch (error) {
         console.error('Fetch error:', error);
         this.error = error.message;
+      } finally {
+        this.isLoading = false; // 로딩 종료
       }
     }
   }
@@ -231,7 +241,6 @@ export default {
 
 .clubname {
   color: #000;
-  font-family: Pretendard;
   font-size: 24px;
   font-style: normal;
   font-weight: 600;
@@ -242,7 +251,6 @@ export default {
 
 .clubleader {
   color: #767676;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -254,7 +262,6 @@ export default {
 
 .name {
   color: #353549;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
@@ -314,7 +321,6 @@ export default {
 }
 
 .Dashboard p {
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
@@ -333,14 +339,24 @@ export default {
   align-items: center;
 }
 
-.Dashboardhead p{
-  font-family: Pretendard;
+.Dashboardhead .p1{
   font-size: 18px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: -0.05em;
   text-align: left;
-  margin-left: 60px;
+  margin-left: 45px;
+  margin-bottom: 0;
+}
+
+.Dashboardhead .p2{
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: -0.05em;
+  text-align: left;
+  margin-left: 45px;
+  margin-top: 5px;
 }
 
 .spreadsheets{
@@ -358,7 +374,6 @@ export default {
 }
 
 .spreadsheets p{
-  font-family: Pretendard;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.05em;
@@ -369,7 +384,22 @@ export default {
 }
 
 .spreadsheets img{
-  margin-right: 7px;
+  margin-right: 5px;
+}
+
+.loading-icon {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3; /* 흰색 회색 */
+  border-top: 2px solid #7FB08C; /* 초록색 */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 5px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .Dashboard h1{
@@ -382,7 +412,7 @@ export default {
 
 table {
   width: 860px;
-  border-spacing: 0px 8px;
+  border-spacing: 0 8px;
   margin: 0 auto;
 }
 
@@ -393,7 +423,7 @@ td {
 }
 
 td:first-child{
-  border-radius: 8px 0px 0px 8px;
+  border-radius: 8px 0 0 8px;
   background-color: #F0F2F5;
 }
 
@@ -406,7 +436,7 @@ td:nth-last-child(3){
 }
 
 td:nth-last-child(2){
-  border-radius: 0px 8px 8px 0px;
+  border-radius: 0 8px 8px 0;
   padding-right: 20px;
   background-color: #F0F2F5;
 }
@@ -414,17 +444,6 @@ td:nth-last-child(2){
 td:last-child{
   background-color: #ffffff;
   width: 56px;
-}
-
-.Expulsion{
-  background-color: #e57373;
-  width: 56px;
-  height: 46px;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  margin-left: 8px;
 }
 
 .member-list {
