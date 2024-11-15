@@ -1,6 +1,6 @@
 <template>
   <div class="title">소속 동아리 리스트</div>
-  <!-- Header Section -->
+  <!-- 소속 동아리 리스트 -->
   <div class="header">
     <div class="header-row">
       <div class="header-item">소속 분과</div>
@@ -12,7 +12,7 @@
   </div>
 
   <div class="container">
-    <!-- List Items Section -->
+    <!-- 동아리 리스트 -->
     <div class="list">
       <div class="list-item-container" v-for="(club, index) in displayedClubs" :key="index">
         <div class="list-item-row" @click= openPopupClubInfo(club.clubName)>
@@ -27,11 +27,13 @@
       </div>
     </div>
 
-    <!-- Pagination -->
+    <!-- 페이지네이션 -->
     <div class="pagination">
+      <!-- 이전 페이지 -->
       <button @click="prevPage">
         <img src="@/assets/left.png" alt="Previous" />
       </button>
+      <!-- 페이지 번호 -->
       <button
         v-for="page in totalPages"
         :key="page"
@@ -40,13 +42,14 @@
       >
         {{ page }}
       </button>
+      <!-- 다음 페이지 -->
       <button @click="nextPage">
         <img src="@/assets/rigth.png" alt="Next" />
       </button>
     </div>
   </div>
 
-  <!-- Popup for Deletion Confirmation -->
+  <!-- 동아리 삭제 팝업창  -->
   <div v-if="isPopupVisible" class="popup-overlay">
     <div class="popup">
       <h3>삭제 확인</h3>
@@ -59,6 +62,7 @@
     </div>
   </div>
 
+  <!-- 동아리 상세 정보 팝업창 -->
   <div v-if="isClubInfoPopupVisible" ref="popup" class="ClubInfoPopup-overlay">
     <div class="club-profile">
       <ImageSlider :images="images" oncontextmenu="return false;"/>
@@ -87,7 +91,6 @@
           <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
         </div>
       </div>
-      <!-- 서버 응답값을 화면에 표시  <pre>{{ data }}</pre>-->
       <button class="popup-button" @click="closePopup">닫기</button>
     </div>
   </div>
@@ -96,7 +99,7 @@
 <script>
 import ImageSlider from "@/components/Admin/ImageSlider.vue";
 import axios from "axios";
-import store from "@/store/store"; // Ensure Vuex store is imported
+import store from "@/store/store";
 
 export default {
   components: {
@@ -104,98 +107,112 @@ export default {
   },
   data() {
     return {
-      currentPage: 1,
-      clubsPerPage: 10,
-      clubs: [], // Array to store fetched clubs
-      isPopupVisible: false, // Popup visibility flag
-      isClubInfoPopupVisible: false,
-      adminPw: '', // Input password for deletion
-      clubToDelete: null, // ID of the club to delete
-      deleteIndex: null, // Index of the club in the array
+      currentPage: 1, // 페이지네이션 현재 페이지
+      clubsPerPage: 10, // 화면에 나타내는 동아리 최대 개수
+      clubs: [], // 서버에서 가져온 클럽을 저장할 배열
+      isPopupVisible: false, // 동아리 삭제 확인 팝업창 가시성 플래그
+      isClubInfoPopupVisible: false, // 동아리 상세 정보 팝업창 가시성 플래그
+      adminPw: '', // 삭제를 위한 비밀번호 입력
+      clubToDelete: null, // 삭제할 클럽 ID
+      deleteIndex: null, // 배열의 클럽 인덱스
       images: [],  // 동아리 활동 사진을 담을 배열
       data: {},  // 동아리 기본 정보를 담을 객체
       mainPhoto:  require('@/assets/profile.png')  // 메인 사진 URL, 없을 경우 기본이미지
     };
   },
+  created() {
+    this.fetchClubs(); // 구성 요소가 생성되면 클럽 정보를 서버로부터 가져옵니다.
+  },
   computed: {
+    // 총 페이지 수 계산
     totalPages() {
       return Math.ceil(this.clubs.length / this.clubsPerPage);
     },
+    // 페이지 나태내기
     displayedClubs() {
       const start = (this.currentPage - 1) * this.clubsPerPage;
       return this.clubs.slice(start, start + this.clubsPerPage);
     },
+    // 전화번호 000-0000-0000 으로 변환
     formattedPhoneNumber() {
       return this.data.leaderHp ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : '';
     }
   },
   methods: {
+    // 서버로부터 동아리 정보 불러오기
     async fetchClubs() {
       try {
         const response = await axios.get('http://15.164.246.244:8080/admin/clubs', {
           headers: {
-            'Authorization': `Bearer ${store.state.accessToken}` // Correct usage of the store
+            'Authorization': `Bearer ${store.state.accessToken}` //매장의 올바른 사용법
           }
         });
-        this.clubs = response.data.data; // Store the fetched clubs in the data array
-        console.log(this.clubs);
+        this.clubs = response.data.data; // 가져온 클럽을 데이터 배열에 저장
+        // console.log(this.clubs);
       } catch (error) {
         console.error('Error fetching clubs:', error);
         alert('동아리 리스트를 불러오는데 실패했습니다.');
       }
     },
+    // 동아리 삭제 팝업창 열기
     openPopup(clubId, index) {
       this.clubToDelete = clubId;
       this.deleteIndex = index;
-      this.isPopupVisible = true; // Open popup
+      this.isPopupVisible = true; // 팝업 열기
     },
+    // 동아리 삭제 팝업창 "취소" 버튼
     cancelDelete() {
-      this.isPopupVisible = false; // Close popup
-      this.adminPw = ''; // Reset password
+      this.isPopupVisible = false; // 팝업 닫기
+      this.adminPw = ''; // 비밀번호 입력 폼 값 초기화
     },
-    closePopup(){
-      this.isClubInfoPopupVisible = false;
-    },
+    // 동아리 삭제 팝업창 "확인" 버튼
     async confirmDelete() {
       if (!this.adminPw) {
         alert('관리자 비밀번호를 입력하세요.');
         return;
       }
-
       try {
         const response = await axios.delete(`http://15.164.246.244:8080/admin/clubs/${this.clubToDelete}`, {
           headers: {
-            'Authorization': `Bearer ${store.state.accessToken}` // Correct usage of the store
+            'Authorization': `Bearer ${store.state.accessToken}` // 헤더에 accessToken 추가
           },
-          data: { adminPw: this.adminPw } // Send password as part of the request
+          data: { adminPw: this.adminPw } // 비밀번호 보내기
         });
         console.log('Club deleted successfully:', response.data);
         alert('동아리가 성공적으로 삭제되었습니다.');
-        this.clubs.splice(this.deleteIndex, 1); // Remove club from the list
-        this.isPopupVisible = false; // Close popup
+        this.clubs.splice(this.deleteIndex, 1); // 목록에서 클럽 제거
+        this.isPopupVisible = false; // 팝업 닫기
       } catch (error) {
         console.error('Error deleting club:', error);
         alert('동아리 삭제에 실패했습니다.');
       }
     },
+    // 현재 페이지 설정
     setPage(page) {
       this.currentPage = page;
     },
+    // 이전 페이지
     prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--;
       }
     },
+    // 다음 페이지
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
       }
     },
+    // 동아리 상세 정보 팝업창 열기
     async openPopupClubInfo(clubName) {
       const club = this.clubs.find(club => club.clubName === clubName);
       console.log(club.clubId);
       console.log('Popup has been loaded!');
       this.isClubInfoPopupVisible = true;
+
+      // 동아리 정보를 불러오기 전에 일단 mainPhoto를 기본 이미지로 초기화
+      this.mainPhoto = require('@/assets/profile.png');
+      this.images = []; //images도 일단 초기화
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
 
       try {
@@ -208,6 +225,7 @@ export default {
 
         this.data = response.data.data;  // 동아리 기본 정보 설정
         console.log(this.data);
+        // 사진 URL이 들어오면 mainPhoto에 사진 URL 저장
         if (this.data.mainPhoto) {
           this.mainPhoto = this.data.mainPhoto;
         }
@@ -233,12 +251,14 @@ export default {
         this.error = error.message;
       }
     },
+    // 동아리 상세 정보 팝업창 닫기
+    closePopup(){
+      this.isClubInfoPopupVisible = false; // 팝업 닫기
+    },
+    // 줄바꿈 변환
     convertNewlinesToBr(text) {
       return text ? text.replace(/\n/g, '') : '';
     },
-  },
-  created() {
-    this.fetchClubs(); // Fetch clubs when the component is created
   }
 };
 </script>
@@ -421,7 +441,7 @@ body {
 }
 
 .popup input {
-  width: 100%;
+  width: 95%;
   padding: 10px;
   margin-bottom: 20px; /* 입력 칸과 버튼 사이 간격 추가 */
   font-size: 1.2em; /* 입력 칸의 글씨 크기를 더 크게 */
@@ -520,7 +540,6 @@ body {
 
 .clubname{
   color: #000;
-  font-family: Pretendard;
   font-size: 24px;
   font-style: normal;
   font-weight: 600;
@@ -531,7 +550,6 @@ body {
 
 .clubleader{
   color: #767676;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -543,7 +561,6 @@ body {
 
 .name{
   color: #353549;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
