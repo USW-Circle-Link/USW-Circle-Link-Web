@@ -23,10 +23,10 @@
     <div class="description">
       <h3>동아리 소개</h3>
       <div>
+        <!-- 줄바꿈을 포함하여 p태그 안에 나타내기 -->
         <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
       </div>
     </div>
-    <!-- 서버 응답값을 화면에 표시  <pre>{{ data }}</pre>-->
   </div>
 </template>
 
@@ -37,7 +37,7 @@ import axios from 'axios';
 import store from "@/store/store";
 
 export default {
-  name: 'ClubProfile',
+  name: 'ClubProfile',  // 구성요소 이름
   components: {
     ImageSlider
   },
@@ -49,14 +49,17 @@ export default {
     };
   },
   computed: {
+    // 전화번호 000-0000-0000 으로 변환
     formattedPhoneNumber() {
       return this.data.leaderHp ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : '';
     }
   },
   mounted() {
+    // 컴포넌트 생성 시 동아리 정보 불러오기
     this.pageLoadFunction();
   },
   methods: {
+    // 동아리 정보 불러오기
     async pageLoadFunction() {
       console.log('Page has been loaded!');
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
@@ -97,6 +100,7 @@ export default {
         this.error = error.message;
       }
     },
+    // 줄바꿈 변환
     convertNewlinesToBr(text) {
       return text ? text.replace(/\n/g, '') : '';
     }
