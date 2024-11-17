@@ -11,16 +11,16 @@
       <form @submit.prevent="login">
         <div class="input-container">
           <span class="icon vector"></span>
-          <input type="text" placeholder="ID" v-model="id" required />
+          <input type="text" placeholder="ID" v-model="id" required />        <!-- ID 입력 필드 -->
         </div>
         <div class="input-container">
           <span class="icon password"></span>
-          <input type="password" placeholder="PASSWORD" v-model="password" required />
+          <input type="password" placeholder="PASSWORD" v-model="password" required />        <!-- 비밀번호 입력 필드 -->
         </div>
 
         <div class="custom-dropdown" @click="toggleDropdown">
           <div class="dropdown-selected">
-            {{ selectedOption || '동아리 관리자' }}
+            {{ selectedOption || '동아리 관리자' }}             <!-- 선택된 옵션 표시 (기본값: 동아리 관리자) -->
           </div>
           <span class="dropdown-icon">&#9662;</span>
           <ul v-if="isOpen" class="dropdown-options" >
@@ -47,20 +47,20 @@ export default {
   name: "Login",
   data() {
     return {
-      id: "",
-      password: "",
-      loginType: "LEADER",
-      error: "",
-      selectedOption: '동아리 관리자',
-      options: ['동아리 관리자', '동아리 연합회 / 개발팀'],
-      isOpen: false
+      id: "", // 사용자 ID
+      password: "", // 사용자 비밀번호
+      loginType: "LEADER", // 로그인 타입 (기본값: LEADER)
+      error: "", // 오류 메시지
+      selectedOption: '동아리 관리자', // 드롭다운 기본값
+      options: ['동아리 관리자', '동아리 연합회 / 개발팀'], // 드롭다운 옵션
+      isOpen: false // 드롭다운 열림 여부
     };
   },
   methods: {
-    toggleDropdown() {
+    toggleDropdown() { // 드롭다운 열기/닫기
       this.isOpen = !this.isOpen;
     },
-    selectOption(option) {
+    selectOption(option) { // 드롭다운 옵션 선택
       this.selectedOption = option;
     },
     // 입력 값 검증: SQL 키워드 및 공백 검사
@@ -83,7 +83,7 @@ export default {
         return;
       }
 
-      const loginTypeMap = {
+      const loginTypeMap = { // 드롭다운 옵션에 따른 로그인 타입 매핑
         "동아리 관리자": "LEADER",
         "동아리 연합회 / 개발팀": "ADMIN"
       };
@@ -103,7 +103,7 @@ export default {
         // 성공 메시지를 팝업으로 띄우기
         alert(message);
 
-        // Vuex에 저장하고 상태를 업데이트하는 액션 호출
+        // Vuex에 인증 데이터 저장하고 상태를 업데이트하는 액션 호출
         this.$store.dispatch('setAuthData', { accessToken, refreshToken, role, clubId });
 
         // role에 따라 라우팅
@@ -115,7 +115,7 @@ export default {
       } catch (error) {
         const { code } = error.response.data;
 
-        if (code === 'USR-211') {
+        if (code === 'USR-211') {         // 에러 코드에 따른 처리
           alert("아이디 혹은 비밀번호가 일치하지 않습니다");
         } else if (code === 'ATTEMPT-503') {
           alert("최대 시도 횟수를 초과했습니다. 1분 후 다시 시도 하세요");
