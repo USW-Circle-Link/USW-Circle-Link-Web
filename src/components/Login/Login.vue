@@ -38,6 +38,20 @@
       </form>
     </div>
   </div>
+
+  <div class="custom-popup" v-if="showFailurePopup">
+    <div class="popup-content">
+      <div class="popup-header">
+        <p class="popup-title">로그인 실패</p>
+      </div>
+      <div class="popup-separator"></div>
+      <div class="popup-body">
+        <p class="popup-message">{{ failureMessage }}</p>
+      </div>
+      <button @click="showFailurePopup = false" class="close-button">확인</button>
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -53,7 +67,9 @@ export default {
       error: "", // 오류 메시지
       selectedOption: '동아리 관리자', // 드롭다운 기본값
       options: ['동아리 관리자', '동아리 연합회 / 개발팀'], // 드롭다운 옵션
-      isOpen: false // 드롭다운 열림 여부
+      isOpen: false, // 드롭다운 열림 여부
+      showFailurePopup: false, // 로그인 실패 팝업 표시 여부
+      failureMessage: "", // 로그인 실패 메시지 종류
     };
   },
   methods: {
@@ -97,32 +113,33 @@ export default {
           loginType: this.loginType
         });
 
-        const { message, data } = response.data;
-        const { accessToken, refreshToken, role, clubId } = data;
+        if (response.data) {
+          const { message, data } = response.data;
+          const { accessToken, refreshToken, role, clubId } = data;
 
-        // 성공 메시지를 팝업으로 띄우기
-        alert(message);
+          // Vuex에 인증 데이터 저장하고 상태를 업데이트하는 액션 호출
+          this.$store.dispatch('setAuthData', { accessToken, refreshToken, role, clubId });
 
-        // Vuex에 인증 데이터 저장하고 상태를 업데이트하는 액션 호출
-        this.$store.dispatch('setAuthData', { accessToken, refreshToken, role, clubId });
-
-        // role에 따라 라우팅
-        if (role === 'LEADER') {
-          this.$router.push({ name: 'main' });
-        } else if (role === 'ADMIN') {
-          this.$router.push({ name: 'adminmain' });
+          // role에 따라 라우팅
+          if (role === 'LEADER') {
+            this.$router.push({ name: 'main' });
+          } else if (role === 'ADMIN') {
+            this.$router.push({ name: 'adminmain' });
+          }
+        } else {
+          throw new Error("서버 응답에 데이터가 없습니다.");
         }
       } catch (error) {
-        const { code } = error.response.data;
+        const { code } = error.response?.data || {};
 
-        if (code === 'USR-211') {         // 에러 코드에 따른 처리
-          alert("아이디 혹은 비밀번호가 일치하지 않습니다");
+        if (code === 'USR-211') {
+          this.failureMessage = "아이디 또는 비밀번호가 일치하지 않습니다.";
         } else if (code === 'ATTEMPT-503') {
-          alert("최대 시도 횟수를 초과했습니다. 1분 후 다시 시도 하세요");
+          this.failureMessage = "최대 시도 횟수를 초과했습니다. 1분 후 다시 시도 하세요.";
         } else {
-          this.error = "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
-          alert(this.error);
+          this.failureMessage = "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
         }
+        this.showFailurePopup = true;
       }
     }
   }
@@ -130,6 +147,75 @@ export default {
 </script>
 
 <style scoped>
+.custom-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 400px;
+  height: 130px;
+  text-align: left; /* Align text to the left */
+  position: relative;
+  margin-top: 185px; /* 팝업창을 아래로 내리기 */
+}
+
+.popup-header {
+  margin-bottom: 10px;
+}
+
+.popup-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  margin: 0; /* Remove extra spacing around the title */
+}
+
+.popup-separator {
+  border-bottom: 1px solid #d3d3d3; /* Light gray line */
+  margin: 10px 0;
+}
+
+.popup-body {
+  margin-bottom: 20px;
+}
+
+.popup-message {
+  font-size: 16px;
+  color: #333333; /* Darker gray for the message */
+  margin: 0; /* Remove extra spacing */
+}
+
+.close-button {
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.close-button:hover {
+  background-color: #e6953e; /* Darker shade of the original color */
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 
 .login-container {
