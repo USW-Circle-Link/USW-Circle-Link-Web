@@ -8,6 +8,7 @@
         <div class="form-group-row">
           <label for="id">아이디</label>
           <input type="text" id="id" v-model="id" placeholder="아이디" required @input="validateId" />
+          <button @click="idDuplicateCheck">중복 확인</button>
         </div>
         <span v-if="idError" class="error">{{ idError }}</span>
       </div>
@@ -32,6 +33,7 @@
         <div class="form-group-row">
           <label for="clubName">동아리명</label>
           <input type="text" id="clubName" v-model="clubName" placeholder="동아리명" required @input="validateClubName" />
+          <button @click="clubNameDuplicateCheck">중복 확인</button>
         </div>
         <span v-if="clubNameError" class="error">{{ clubNameError }}</span>
       </div>
@@ -55,24 +57,21 @@
           </ul>
         </div>
       </div>
-      <!-- 팝업창 -->
       <div class="popupbtn" @click="openPopup()">추가하기</div>
-      <div v-if="isPopupVisible" class="popup-overlay">
-        <div class="popup">
-          <h3>동아리 추가</h3>
-          <p>‘{{ clubName }}’(을)를 추가하시겠습니까?</p>
-          <input
-              type="password"
-              placeholder="관리자 비밀번호를 입력해 주세요."
-              v-model="adminPw"
-          />
-          <div class="buttons">
-            <button @click="cancelDelete">취소</button>
-            <button type="submit">추가</button>
-          </div>
+    </form>
+    <!-- 동아리 삭제 팝업창  -->
+    <div v-if="isPopupVisible" class="popup-overlay">
+      <div class="popup">
+        <h3>동아리 추가</h3>
+        <p>"{{ clubName }}" (을)를 추가하시겠습니까?</p>
+        <input v-model="adminPw" type="password" placeholder="관리자 비밀번호" />
+        <span v-if="adminPwError" class="error">{{ adminPwError }}</span>
+        <div class="popup-buttons">
+          <button @click="submitForm">추가</button>
+          <button @click="cancelDelete">취소</button>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 </template>
 
@@ -108,6 +107,7 @@ export default {
 
       // 동연회/개발팀 비밀번호
       adminPw: '',
+      adminPwError: '', // 정보 입력 값 에러 메세지 변수
     };
   },
   methods: {
@@ -144,7 +144,12 @@ export default {
         this.clubNameError = '';
       }
     },
-
+    idDuplicateCheck() { //아이디 중복 확인
+      alert('아이디 중복 확인');
+    },
+    clubNameDuplicateCheck() { //동아리 이름 중복 확인
+      alert('동아리 이름 중복 확인');
+    },
     // "추가하기" 버튼을 눌러 팝업창 나타내기
     openPopup() {
       // 입력 조건에 맞는지 검사후 팝업창 나타내기
@@ -219,15 +224,14 @@ export default {
         }
         // 서버에서 보낸 에러 코드에 따라 사용자에게 에러 정보 제공
         if (error.response.status === 400) {
-          alert('동아리 추가에 실패했습니다. 관리자 비밀번호가 틀렸습니다.');
+          this.adminPwError = '* 동아리 추가에 실패했습니다. 관리자 비밀번호가 틀렸습니다.';
         }
         if (error.response.status === 409) {
-          alert('동아리 추가에 실패했습니다. 이미 존재하는 동아리 입니다.');
+          this.adminPwError = '* 동아리 추가에 실패했습니다. 이미 존재하는 동아리 입니다.';
         }
         if (error.response.status === 422) {
-          alert('동아리 추가에 실패했습니다. 이미 존재하는 동아리 회장 아이디 입니다.');
+          this.adminPwError = '* 동아리 추가에 실패했습니다. 이미 존재하는 동아리 회장 아이디 입니다.';
         }
-        this.isPopupVisible = false;  // 팝업창 닫기
       }
     },
 
@@ -309,6 +313,23 @@ h2 {
   flex-direction: row;
   display: flex;
   align-items: center;
+  position: relative; /* 부모 요소를 기준으로 자식 요소 위치 지정 */
+}
+
+.form-group-row button{
+  width: 80px;
+  height: 45px;
+  position: absolute;
+  right: 40px;
+  top: 6px;
+  border-radius: 5px;
+  border: none;
+  background-color: #FFC700;
+  color: white;
+}
+
+.form-group-row button:hover{
+  background-color: #e6b800;
 }
 
 input {
@@ -350,28 +371,82 @@ label {
   background-color: #e6b800;
 }
 
+/* Popup Overlay and Popup Window */
 .popup-overlay {
-  position: fixed;
+  position: fixed; /* 화면 전체를 덮음 */
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000; /* 화면 상단에 표시 */
 }
 
 .popup {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 300px;
-  text-align: center;
+  background-color: #fff;
+  padding: 30px; /* 팝업 패딩을 조금 더 여유롭게 */
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 450px; /* 1.5배 키움 */
+  z-index: 1001; /* 팝업창을 오버레이보다 위에 배치 */
 }
 
-h3 {
-  margin: 0 0 10px;
+.popup h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.5em; /* 글씨 크기를 더 크게 */
+}
+
+.popup p {
+  margin-bottom: 20px;
+  font-size: 1.2em; /* 글씨 크기를 더 크게 */
+}
+
+.popup input {
+  width: 95%;
+  padding: 10px;
+  margin-bottom: 10px; /* 입력 칸과 버튼 사이 간격 추가 */
+  font-size: 1.2em; /* 입력 칸의 글씨 크기를 더 크게 */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.popup span{
+  margin-left: 10px;
+  color: red;
+  font-size: 12px;
+}
+
+.popup-buttons {
+  margin-top: 10px; /* 입력 칸과 버튼 사이 간격 추가 */
+  display: flex;
+  justify-content: space-between;
+}
+
+.popup-buttons button {
+  background-color: #ffc107; /* 확인 버튼 색상 변경 */
+  color: #fff;
+  border: none;
+  padding: 10px 30px; /* 버튼 크기를 더 크게 */
+  border-radius: 5px;
+  font-size: 1.2em; /* 버튼 글씨 크기를 더 크게 */
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.popup-buttons button:hover {
+  background-color: #e0a800;
+}
+
+.popup-buttons button:last-child {
+  background-color: #b0bec5;
+}
+
+.popup-buttons button:last-child:hover {
+  background-color: #90a4ae;
 }
 
 .custom-dropdown {
