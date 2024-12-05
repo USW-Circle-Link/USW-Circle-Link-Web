@@ -55,6 +55,7 @@
       <h3>삭제 확인</h3>
       <p>이 동아리를 삭제하시겠습니까?</p>
       <input v-model="adminPw" type="password" placeholder="관리자 비밀번호" />
+      <span v-if="passwordError" class="error">{{ passwordError }}</span>
       <div class="popup-buttons">
         <button @click="confirmDelete">확인</button>
         <button @click="cancelDelete">취소</button>
@@ -117,7 +118,8 @@ export default {
       deleteIndex: null, // 배열의 클럽 인덱스
       images: [],  // 동아리 활동 사진을 담을 배열
       data: {},  // 동아리 기본 정보를 담을 객체
-      mainPhoto:  require('@/assets/profile.png')  // 메인 사진 URL, 없을 경우 기본이미지
+      mainPhoto:  require('@/assets/profile.png'),  // 메인 사진 URL, 없을 경우 기본이미지
+      passwordError: '', // 정보 입력 값 에러 메세지 변수
     };
   },
   created() {
@@ -164,6 +166,7 @@ export default {
     cancelDelete() {
       this.isPopupVisible = false; // 팝업 닫기
       this.adminPw = ''; // 비밀번호 입력 폼 값 초기화
+      this.passwordError = '';  // 비밀번호 입력 에러 메세지 값 초기화
     },
     // 동아리 삭제 팝업창 "확인" 버튼
     async confirmDelete() {
@@ -184,7 +187,7 @@ export default {
         this.isPopupVisible = false; // 팝업 닫기
       } catch (error) {
         console.error('Error deleting club:', error);
-        alert('동아리 삭제에 실패했습니다.');
+        this.passwordError = '* 비밀번호를 다시 확인해주세요.';
       }
     },
     // 현재 페이지 설정
@@ -443,13 +446,20 @@ body {
 .popup input {
   width: 95%;
   padding: 10px;
-  margin-bottom: 20px; /* 입력 칸과 버튼 사이 간격 추가 */
+  margin-bottom: 10px; /* 입력 칸과 버튼 사이 간격 추가 */
   font-size: 1.2em; /* 입력 칸의 글씨 크기를 더 크게 */
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
+.popup span{
+  margin-left: 10px;
+  color: red;
+  font-size: 12px;
+}
+
 .popup-buttons {
+  margin-top: 10px; /* 입력 칸과 버튼 사이 간격 추가 */
   display: flex;
   justify-content: space-between;
 }
@@ -647,4 +657,3 @@ body {
 }
 
 </style>
-
