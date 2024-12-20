@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <div class="ClubInfo">
@@ -7,7 +6,7 @@
         <div class="info">
           <p class="clubname">{{data.clubName}}</p>
           <div class="line1"></div>
-          <p class="clubleader">동아리장</p>
+          <p class="clubleader">동아리 회장</p>
           <p class="name">{{data.leaderName}}</p>
         </div>
         <div class="phoneNum">
@@ -16,7 +15,7 @@
         </div>
         <div class="instaName">
           <div class="icon insta"></div>
-          <p>@{{data.clubInsta}}</p>
+          <a :href="data.clubInsta" target="_blank">인스타그램</a>
         </div>
       </div>
     </div>
@@ -26,9 +25,9 @@
         <p class="p2">현재 회원 : {{memberCount}} 명</p>
       </div>
       <button @click="sheetDownload" class="spreadsheets">
+        <img v-if="!isLoading" src="../../assets/spreadsheets.png" oncontextmenu="return false;" />
         <span v-if="isLoading" class="loading-icon"></span>
-        <p>{{ isLoading ? "다운로드 중..." : " 엑셀 파일 다운로드" }}</p>
-        <img alt="엑셀파일" src="../../assets/spreadsheets.png" oncontextmenu="return false;"/>
+        <p>{{ isLoading ? "다운로드 중" : "회원 명단 다운로드" }}</p>
       </button>
     </div>
     <div id="Dashboard" class="Dashboard">
@@ -43,6 +42,21 @@
           </li>
         </ul>
       </div>
+    </div>
+  </div>
+
+  <div class="custom-popup" v-if="showExpulsionPopup">
+    <div class="popup-content">
+      <div class="popup-header">
+        <p class="popup-title">동아리 회원 퇴출</p>
+      </div>
+      <div class="popup-separator"></div>
+      <div class="popup-body">
+        <p class="popup-message">해당 동아리 회원을 퇴출 하시겠습니까?</p>
+        <p class="popup-warning">퇴출 후 되돌릴 수 없으니 신중하게 선택해 주세요.</p>
+      </div>
+      <button @click="showExpulsionPopup = false" class="cancel-button">취소</button>
+      <button @click="expelMember" class="expel-button">퇴출</button>
     </div>
   </div>
 </template>
@@ -64,6 +78,8 @@ export default {
       clubMembers: [],
       memberCount: 0,
       isLoading: false, // 로딩 상태를 나타내는 변수
+      showExpulsionPopup: false,
+      memberToExpel: null,
     }
   },
   computed: {
@@ -85,7 +101,6 @@ export default {
     this.getCurrentTime();
   },
   methods: {
-    // 현재 날짜를 YYYY-MM-DD 형식으로 반환 (엑셀파일 이름에 사용)
     getCurrentTime() {
       const now = new Date();
 
@@ -95,9 +110,8 @@ export default {
 
       return ` [${year}-${month}-${day}]`;
     },
-    // 동아리 정보 로드
     async pageLoadFunction() {
-      // console.log('Page has been loaded!');
+      console.log('Page has been loaded!');
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
 
@@ -110,7 +124,7 @@ export default {
         });
 
         this.data = response.data.data;
-        this.ExelFileName = response.data.data.clubName + ' 동아리 명단' + this.getCurrentTime(); //엑셀 파일 이름 설정
+        this.ExelFileName = response.data.data.clubName + ' 동아리 명단' + this.getCurrentTime();
 
         // mainPhotoUrl로부터 이미지 로드
         if (this.data.mainPhotoUrl) {
@@ -129,10 +143,9 @@ export default {
         this.error = error.message;
       }
     },
-    // 동아리 회원 목록 로드
     async fetchData() {
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
-      console.log(accessToken + '토큰값');
+      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
+      //console.log(accessToken + '토큰값');
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
       console.log(clubId + '클럽 ID')
       console.log('Page has been loaded!');
@@ -147,37 +160,46 @@ export default {
 
         this.message = responseData.message;
         this.clubMembers = responseData.data.content;
+        this.memberCount = this.clubMembers.length;
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     },
-    // 동아리 회원 퇴출
-    async removeMember(index) {
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
-      const clubId = store.state.clubId; // 저장된 clubId 가져오기
-      const clubMemberId = this.clubMembers[index].clubMemberId; // 선택한 멤버의 clubMemberId 가져오기
 
-      try {
-        const response = await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/${clubMemberId}`, { // clubMemberId 사용
-          headers: {
-            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
-            'Content-Type': 'application/json'
-          }
-        });
-        const responseData = response.data;
-        this.message = responseData.message;
-        this.clubMembers.splice(index, 1); // 성공적으로 삭제되면 로컬 리스트에서 제거
-      } catch (error) {
-        console.error('Error deleting member:', error);
+    removeMember(index) {
+      this.memberToExpel = index;
+      this.showExpulsionPopup = true;
+    },
+    async expelMember() {
+      if (this.memberToExpel !== null) {
+        const index = this.memberToExpel;
+        const accessToken = store.state.accessToken;
+        const clubId = store.state.clubId;
+        const clubMemberId = this.clubMembers[index].clubMemberId;
+
+        try {
+          const response = await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/${clubMemberId}`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          this.clubMembers.splice(index, 1);
+          this.memberCount = this.clubMembers.length;
+        } catch (error) {
+          console.error('Error deleting member:', error);
+        } finally {
+          this.showExpulsionPopup = false;
+          this.memberToExpel = null;
+        }
       }
     },
-    // 엑셀 파일로 동아리 회원 명단 다운로드
     async sheetDownload(){
       this.isLoading = true; // 로딩 시작
       try {
         const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
         const clubId = store.state.clubId; // 저장된 clubId 가져오기
-        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/members/export`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members/export`, {
           responseType: 'blob', // Blob 형태로 응답을 받기 위해 설정
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
@@ -205,11 +227,106 @@ export default {
 </script>
 
 <style>
+.custom-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 460px;
+  height: 152px;
+  text-align: left;
+  position: relative;
+}
+
+.popup-header {
+  margin-bottom: 10px;
+}
+
+.popup-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  margin: 0;
+}
+
+.popup-separator {
+  border-bottom: 1px solid #d3d3d3;
+  margin: 10px 0;
+}
+
+.popup-body {
+  margin-bottom: 0px;
+  margin-top: 22px;
+}
+
+.popup-message {
+  font-size: 16px;
+  color: #333333;
+  margin: 0;
+}
+
+.popup-warning {
+  font-size: 14px;
+  color: #888888;
+  margin-top: 5px;
+}
+
+.expel-button {
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.expel-button:hover {
+  background-color: #e6953e;
+}
+
+.cancel-button {
+  background-color: #cccccc;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 120px;
+}
+
+.cancel-button:hover {
+  background-color: #999999;
+}
+
+
 @media screen and (max-width:600px) {
   .ClubInfo {
     width: 590px;
   }
 }
+
 
 .ClubInfo {
   width: 886px;
@@ -241,6 +358,7 @@ export default {
 
 .clubname {
   color: #000;
+  font-family: Pretendard;
   font-size: 24px;
   font-style: normal;
   font-weight: 600;
@@ -251,6 +369,7 @@ export default {
 
 .clubleader {
   color: #767676;
+  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -262,6 +381,7 @@ export default {
 
 .name {
   color: #353549;
+  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
@@ -305,10 +425,10 @@ export default {
   height: 30px;
 }
 
-.instaName p {
+.instaName a {
   font-size: 16px;
   text-align: center;
-  line-height: 30px;
+  line-height: 32px;
   margin: 0;
 }
 .Dashboard{
@@ -321,6 +441,7 @@ export default {
 }
 
 .Dashboard p {
+  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
@@ -340,6 +461,7 @@ export default {
 }
 
 .Dashboardhead .p1{
+  font-family: Pretendard;
   font-size: 18px;
   font-weight: 600;
   line-height: 18px;
@@ -350,6 +472,7 @@ export default {
 }
 
 .Dashboardhead .p2{
+  font-family: Pretendard;
   font-size: 12px;
   font-weight: 400;
   line-height: 18px;
@@ -360,31 +483,32 @@ export default {
 }
 
 .spreadsheets{
-  width: 170px;
+  width: 180px;
   height: 60px;
   display: flex;
   flex-shrink: 0;
   border-radius: 8px;
   background: #7FB08C;
-  justify-content: space-between;
+  justify-content: center;
   border: none;
   align-items: center;
+  align-content: center;
   margin-right: 60px;
   cursor: pointer;
 }
 
 .spreadsheets p{
+  font-family: Pretendard;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.05em;
   text-align: left;
   color: #FFFFFF;
-  margin-left: 7px;
   margin-bottom: 13px;
 }
 
 .spreadsheets img{
-  margin-right: 5px;
+  margin-right: 9px;
 }
 
 .loading-icon {
@@ -394,7 +518,7 @@ export default {
   border-top: 2px solid #7FB08C; /* 초록색 */
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-left: 5px;
+  margin-right: 14px;
 }
 
 @keyframes spin {
@@ -412,7 +536,7 @@ export default {
 
 table {
   width: 860px;
-  border-spacing: 0 8px;
+  border-spacing: 0px 8px;
   margin: 0 auto;
 }
 
@@ -423,7 +547,7 @@ td {
 }
 
 td:first-child{
-  border-radius: 8px 0 0 8px;
+  border-radius: 8px 0px 0px 8px;
   background-color: #F0F2F5;
 }
 
@@ -436,7 +560,7 @@ td:nth-last-child(3){
 }
 
 td:nth-last-child(2){
-  border-radius: 0 8px 8px 0;
+  border-radius: 0px 8px 8px 0px;
   padding-right: 20px;
   background-color: #F0F2F5;
 }
@@ -446,8 +570,20 @@ td:last-child{
   width: 56px;
 }
 
-.member-list {
-  max-width: 850px;
+.Expulsion{
+  background-color: #e57373;
+  width: 56px;
+  height: 46px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-left: 8px;
+}
+
+.member-list ul{
+  width: 858px;
+  padding-left: 15px;
 }
 
 .member-item {
@@ -470,7 +606,7 @@ td:last-child{
   border: none;
   border-radius: 5px;
   color: white;
-  padding: 5px 10px;
+  padding: 8px 13px;
   cursor: pointer;
 }
 
