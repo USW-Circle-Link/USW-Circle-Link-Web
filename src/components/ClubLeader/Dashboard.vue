@@ -11,11 +11,17 @@
         </div>
         <div class="phoneNum">
           <div class="icon phone"></div>
-          <p>{{formattedPhoneNumber}}</p>
+          <p class="detail">{{formattedPhoneNumber}}</p>
         </div>
         <div class="instaName">
           <div class="icon insta"></div>
           <a :href="data.clubInsta" target="_blank">인스타그램</a>
+        </div>
+        <div class="clubroom">
+          <div class="icon map"></div>
+          <p class="room">동아리방</p>
+          <div class="line2"></div>
+          <p class="detail">학생회관 {{formattedPhoneNumber}}</p>
         </div>
       </div>
     </div>
@@ -31,6 +37,24 @@
       </button>
     </div>
     <div id="Dashboard" class="Dashboard">
+      <!-- 탭 메뉴 추가 -->
+      <div class="tab-menu">
+        <button
+            :class="['tab-button', { active: currentTab === 'alphabetical' }]"
+            @click="changeTab('alphabetical')">
+          가나다순
+        </button>
+        <button
+            :class="['tab-button', { active: currentTab === 'nonMember' }]"
+            @click="changeTab('nonMember')">
+          비회원
+        </button>
+        <button
+            :class="['tab-button', { active: currentTab === 'member' }]"
+            @click="changeTab('member')">
+          회원
+        </button>
+      </div>
       <div class="member-list">
         <ul>
           <li v-for="(member, index) in formattedClubMembers" :key="member.clubMemberId" class="member-item">
@@ -61,6 +85,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 import store from '../../store/store'; // 일단 store.js에서 Vuex 상태를 가져옴
@@ -80,6 +105,7 @@ export default {
       isLoading: false, // 로딩 상태를 나타내는 변수
       showExpulsionPopup: false,
       memberToExpel: null,
+      currentTab: 'alphabetical', // 현재 선택된 탭
     }
   },
   computed: {
@@ -143,27 +169,40 @@ export default {
         this.error = error.message;
       }
     },
-    async fetchData() {
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
-      //console.log(accessToken + '토큰값');
-      const clubId = store.state.clubId; // 저장된 clubId 가져오기
-      console.log(clubId + '클럽 ID')
-      console.log('Page has been loaded!');
+    async fetchData(memberType = 'alphabetical') {
+      const accessToken = store.state.accessToken;
+      const clubId = store.state.clubId;
+
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?page=0&size=500`, { //${clubId}
+        let url = `http://15.164.246.244:8080/club-leader/${clubId}/members`;
+
+        // 탭에 따라 다른 엔드포인트 사용
+        if (memberType === 'nonMember') {
+          url += '/non-members';
+        } else if (memberType === 'member') {
+          url += '/members';
+        }
+
+        url += '?page=0&size=500';
+
+        const response = await axios.get(url, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           }
         });
-        const responseData = response.data;
 
+        const responseData = response.data;
         this.message = responseData.message;
         this.clubMembers = responseData.data.content;
         this.memberCount = this.clubMembers.length;
       } catch (error) {
         console.error('Error fetching data:', error);
       }
+    },
+    async changeTab(tab) {
+      this.currentTab = tab;
+      await this.fetchData(tab);
     },
 
     removeMember(index) {
@@ -333,7 +372,7 @@ export default {
   height: 276px;
   display: flex;
   background: #fff;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   border-radius: 8px;
 }
 
@@ -379,6 +418,28 @@ export default {
   margin-right: 5px;
 }
 
+.detail {
+  color: #666;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; /* 100% */
+  letter-spacing: -0.4px;
+  margin-left: 15px;
+  margin-right: 5px;
+}
+
+.room {
+  color: #666;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; /* 100% */
+  letter-spacing: -0.4px;
+}
+
 .name {
   color: #353549;
   font-family: Pretendard;
@@ -401,11 +462,26 @@ export default {
   background: url('../../assets/insta.svg') no-repeat center center;
 }
 
+.map {
+  width: 16px;
+  margin-right: 7px;
+  background: url('../../assets/map.svg') no-repeat center center;
+}
+
 .line1 {
   width: 1px;
   height: 12px;
   background: #DBDBDB;
   margin-bottom: 4px;
+}
+
+.line2 {
+  width: 1px;
+  height: 12px;
+  background: #DBDBDB;
+  margin-top: 10px;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 .phoneNum {
@@ -416,7 +492,19 @@ export default {
 .phoneNum p {
   font-size: 16px;
   text-align: center;
-  line-height: 30px;
+  line-height: 33px;
+  margin: 0;
+}
+
+.clubroom {
+  display: flex;
+  height: 30px;
+}
+
+.clubroom p {
+  font-size: 16px;
+  text-align: center;
+  line-height: 33px;
   margin: 0;
 }
 
@@ -612,6 +700,44 @@ td:last-child{
 
 .remove-btn:hover {
   background-color: #d32f2f;
+}
+.tab-menu {
+  display: flex;
+  padding: 0;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 20px;
+  border-radius: 8px 8px 0 0;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: Pretendard;
+  font-size: 14px;
+  color: #666;
+  position: relative;
+}
+
+.tab-button.active {
+  color: #7FB08C;
+  font-weight: 600;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #7FB08C;
+}
+
+.tab-button:hover {
+  color: #7FB08C;
 }
 
 </style>
