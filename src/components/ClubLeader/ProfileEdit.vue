@@ -3,45 +3,60 @@
     <h2 class="profile-title">동아리 정보 수정</h2>
     <div class="profile-edit">
       <div class="image-container">
-        <img 
-          :src="mainPhoto || defaultPhotoUrl" 
-          alt="동아리 이미지" 
-          @load="onImageLoad" 
-          @error="onImageError" 
+        <img
+            :src="mainPhoto || defaultPhotoUrl"
+            alt="동아리 이미지"
+            @load="onImageLoad"
+            @error="onImageError"
+            ref="mainImage"
         />
         <div class="edit-icon" @click="triggerFileInput">
           <img src="@/assets/penbrush.png" alt="Edit Icon" />
         </div>
         <input type="file" ref="fileInput" @change="onFileChange" style="display: none;" />
       </div>
-      <div class="vertical-line"></div>
+
+      <div class="vertical-line" :style="{ height: imageHeight + 'px' }"></div>
+
       <div class="form-container">
         <form @submit.prevent="updateProfile">
           <div class="form-group">
-            <label for="clubName">동아리명</label>
+            <label for="title">
+              <div class="label-container">
+                동아리 이름
+              </div>
+            </label>
             <input type="text" id="clubName" v-model="clubName" class="club-name-input" readonly />
           </div>
           <div class="form-group">
-            <label for="leaderName">
-              동아리장 <span style="color: red;">*</span>
+            <label for="title">
+              <div class="label-container">
+                <span class="required">*</span>동아리 회장
+              </div>
             </label>
-            <input type="text" id="leaderName" v-model="leaderName" class="standard-input" />
+            <input type="text" id="leaderName" v-model="leaderName" class="standard-input" placeholder="이름을 입력해주세요." />
           </div>
           <div class="form-group">
-            <label for="phoneNumber">
-              전화번호 <span style="color: red;">*</span>
+            <label for="title">
+              <div class="label-container">
+                <span class="required">*</span>전화번호
+              </div>
             </label>
-            <input type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" />
+            <input type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" placeholder="전화번호를 입력해주세요. ( - 제외 11자)" />
           </div>
           <div class="form-group">
-            <label for="clubInsta">인스타그램</label>
+            <label for="title">
+              <div class="label-container">
+                인스타그램
+              </div>
+            </label>
             <input
-              type="text"
-              id="clubInsta"
-              v-model="clubInsta"
-              class="standard-input"
-              placeholder="인스타 아이디를 입력해주세요"
-              maxlength="25"
+                type="text"
+                id="clubInsta"
+                v-model="clubInsta"
+                class="standard-input"
+                placeholder="인스타그램 링크를 입력해주세요."
+                maxlength="25"
             />
           </div>
           <div class="button-container">
@@ -70,7 +85,8 @@ export default {
       file: null,  // 업로드할 파일
       clubName: '', // 동아리명
       clubInfo: {}, // 클럽 정보를 저장할 객체
-      presignedUrl: '' // S3 업로드를 위한 사전 서명된 URL
+      presignedUrl: '', // S3 업로드를 위한 사전 서명된 URL
+      imageHeight: 220, // 초기 높이 설정
     };
   },
   async created() {
@@ -80,7 +96,7 @@ export default {
     }
   },
   methods: {
-     // 동아리 정보 로드 
+    // 동아리 정보 로드
     async fetchClubInfo() {
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
@@ -109,11 +125,11 @@ export default {
         alert('Error fetching club info.');
       }
     },
-    // URL -> 파일 객체 반환 
+    // URL -> 파일 객체 반환
     async urlToFile(url, filename, mimeType = 'image/jpeg') {
-      const response = await fetch(url); // URL에서 데이터 로드 
+      const response = await fetch(url); // URL에서 데이터 로드
       const blob = await response.blob();
-      return new File([blob], filename, { type: mimeType }); // blob 데이터를 기반으로 파일 객체 생성 
+      return new File([blob], filename, { type: mimeType }); // blob 데이터를 기반으로 파일 객체 생성
     },
     // 동아리 정보 업데이트
     async updateProfile() {
@@ -147,14 +163,14 @@ export default {
         }
 
         const response = await axios.put(
-          `http://15.164.246.244:8080/club-leader/${clubId}/info`, // 서버에 업데이트 요청
-          formData,
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
-              'Content-Type': 'multipart/form-data',
+            `http://15.164.246.244:8080/club-leader/${clubId}/info`, // 서버에 업데이트 요청
+            formData,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
+                'Content-Type': 'multipart/form-data',
+              }
             }
-          }
         );
 
         alert('수정 완료!');
@@ -174,7 +190,7 @@ export default {
         this.isLoading = false;
       }
     },
-    // 파일 업로드 
+    // 파일 업로드
     async uploadFile() {
       try {
         await axios.put(this.presignedUrl, this.file, {
@@ -192,7 +208,7 @@ export default {
       this.$refs.fileInput.click(); // 파일 선택 트리거 동작
     },
     // 파일 변경 시 실행
-    async onFileChange(event) { 
+    async onFileChange(event) {
       this.file = event.target.files[0];
 
       if (this.file && !this.validateFile(this.file)) {
@@ -203,7 +219,7 @@ export default {
       if (this.file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.mainPhoto = e.target.result; // 미리보기로 표시할 이미지 업데이트 
+          this.mainPhoto = e.target.result; // 미리보기로 표시할 이미지 업데이트
         };
         reader.readAsDataURL(this.file);
       }
@@ -228,53 +244,67 @@ export default {
 
     onImageLoad() {
       console.log("이미지가 성공적으로 로딩되었습니다.");
+      this.updateVerticalLineHeight();
+    },
+    updateVerticalLineHeight() {
+      const imageElement = this.$refs.mainImage;
+      if (imageElement) {
+        this.imageHeight = imageElement.clientHeight;
+      }
     },
 
     onImageError() {
       console.error("이미지 로딩에 실패했습니다.");
       this.mainPhoto = this.defaultPhotoUrl;
     }
-  }
+  },
+  mounted() {
+    this.updateVerticalLineHeight();
+  },
 };
 </script>
 
-
 <style scoped>
 .profile-edit-container {
-  padding-top: 50px;
+  padding-top: 20px;
   text-align: center;
   position: relative;
 }
 
 .profile-title {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 0px;
 }
 
 .profile-edit {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start; /* Align items to the start horizontally */
+  align-items: flex-start;
   background: #fff;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   width: 820px;
   height: 324px;
   margin: 0 auto;
-  border-radius: 8px 0px 0px 0px;
+  border-radius: 8px;
   margin: 50px auto 0 auto;
+  position: relative;
 }
 
 .image-container {
   position: relative;
-  flex: 1;
+  flex: 0.8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .image-container img {
-  width: 300px;
+  width: 270px;
   height: auto;
   border-radius: 8px;
+  margin: 0; /* Remove any margins */
+  padding: 0; /* Remove any padding */
 }
 
 .edit-icon {
@@ -292,30 +322,53 @@ export default {
 
 .vertical-line {
   width: 0px;
-  height: 194px;
   border: 1px solid #CACACA;
   margin-bottom: 40px;
+  margin-left: 17px;
+  margin-right: 25px;
 }
 
 .form-container {
-  flex: 1;
+  flex: 1.5;
 }
 
 .form-group {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.label-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.required {
+  position: absolute;
+  top: -6px; /* Adjust as needed */
+  left: -6px; /* Adjust as needed */
+  color: red;
+  font-size: 15px;
+  line-height: 1;
 }
 
 label {
   width: 100px;
-  font-weight: bold;
-  color: #000;
+  color: #5A5A5A;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 14px; /* 87.5% */
+  letter-spacing: -0.4px;
+  text-align: left;
 }
 
 .club-name-input {
-  width: 360.02px;
+  flex: 1;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
