@@ -19,25 +19,57 @@
         </div>
       </div>
     </div>
+
     <div class="ClubUpdateHeader">
       <div class="head">
-        <h2>동아리 소개 수정</h2>
+        <h2>동아리 소개 글 수정</h2>
+        </div>
+    </div>
+    <div class="ClubTextInput">
+      <textarea 
+      v-model="textareaContent" 
+      rows="4" 
+      cols="50"
+      class="preserve-whitespace"
+      @input="updateTextSize">
+    </textarea>
+    </div>
+
+    <p class="textSize">{{ textSize }} / 3000</p>
+
+    <div class="ClubRecruitHeader">
+      <div class="head">
+        <h2>동아리 모집 글 수정</h2>
         <div class="empty"></div>
         <p>모집 중</p>
         <input type="checkbox" v-model="isChecked" id="chk1" /><label for="switch" @click="toggleCheckbox"></label>
       </div>
     </div>
-    <div class="ClubInfoTextInput">
+    <div class="ClubTextInput" id="RecruitInputSpace"
+      :disabled="!isChecked" 
+      :class="{ 'RecruitToggleOff': !isChecked }" >
+      
       <textarea 
-      v-model="textareaContent" 
+      v-model="textareaRecruitContent" 
+      :disabled="!isChecked" 
+      :class="{ 'RecruitToggleOff': !isChecked }" 
       rows="4" 
       cols="50"
-      class="preserve-whitespace">
-    </textarea>
+      class="preserve-whitespace"
+      @input="updateRecruitTextSize">
+      </textarea>
     </div>
+
+    <p class="textSize">{{ RecruittextSize }} / 3000</p>
+
     <h2>지원서 링크</h2>
-    <div class="GoogleFormLinkInput">
-      <textarea placeholder="링크를 입력해 주세요" v-model="googleFormLink" rows="4" cols="1"></textarea>
+    <div class="GoogleFormLinkInput"
+      :disabled="!isChecked"
+      :class="{ 'RecruitToggleOff': !isChecked }">
+      <textarea placeholder="링크를 입력해 주세요" 
+      v-model="googleFormLink" rows="4" cols="1"
+      :disabled="!isChecked"
+      :class="{ 'RecruitToggleOff': !isChecked }"></textarea>
     </div>
     <button @click="saveInfo">작성 완료</button>
   </div>
@@ -51,18 +83,21 @@ export default {
   name: 'ClubInfoTextInput',
   data() {
     return {
-      images: [],//업로드 된 이미지 정보
+      images: [], //업로드 된 이미지 정보
       textareaContent: '',  // 소개글
-      isChecked: null,//모집 여부 체크 상태
-      googleFormLink: '',//구글 폼 링크
-      orders: [],//이미지 순서 정보
-      deletedOrders: [],//삭제 된 이미지 순서 정보
-      file: [],//파일 리스트
-      presignedUrls: [],//url리스트
+      textareaRecruitContent: '',  // 모집글
+      isChecked: null,
+      googleFormLink: '',
+      orders: [], //이미지 순서 정보
+      deletedOrders: [],
+      file: [],
+      presignedUrls: [],
       imagesData: [],  // 이미지 정보
       errorMessage: '',
-      validFile: false,//유효한 파일 여부
-      clubData: {},//클럽 정보
+      validFile: false,
+      clubData: {}, //클럽 정보
+      textSize: 0,
+      RecruittextSize: 0,
     };
   },
   mounted() {
@@ -81,6 +116,7 @@ export default {
             'Content-Type': 'application/json'
           }
         });
+        
         //가져온 클럽 데이터를 저장
         this.clubData = response.data.data;
         this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
@@ -88,6 +124,11 @@ export default {
         this.textareaContent = (this.clubData.clubIntro || '')
             .replace(/\n?<br>\n?/gi, '\n')
             .replace(/&nbsp;/g, ' ');
+        // 줄바꿈 처리 수정
+        /*
+        this.textareaRecruitContent = (this.clubData.clubRecruit || '') // this.clubData.clubRucruit부분 백엔드에 맞추어 추후 수정 필요 @
+            .replace(/\n?<br>\n?/gi, '\n')
+            .replace(/&nbsp;/g, ' ');*/
         this.googleFormLink = this.clubData.googleFormUrl || '';
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
 
@@ -95,7 +136,9 @@ export default {
         //console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
         this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
       }
-    },//특정 경로로 이동하는 메서드
+      this.updateTextSize();
+      this.updateRecruitTextSize();
+    },
     navigateTo(routeName) {
       this.$router.push({ name: routeName }).catch(err => {
         if (err.name !== 'NavigationDuplicated') {
@@ -113,7 +156,7 @@ export default {
         this.deletedOrders.sort();//순서 정렬
         this.$forceUpdate();//변경사항 적용 강제
       } catch (error) {
-        //console.error("Error while deleting image:", error);
+        console.error("Error while deleting image:", error);
       }
     },
     // 모집중 토글(on/off)
@@ -232,6 +275,13 @@ export default {
             .replace(/ /g, '&nbsp;')
             .replace(/\n/g, '<br>'),
         //clubIntro: this.textareaContent,
+
+        // 줄바꿈을 <br>로 변환
+        /*
+        clubRecruit: this.textareaRecruitContent // 백엔드에 맞추어 추후 수정 필요 @
+            .replace(/ /g, '&nbsp;')
+            .replace(/\n/g, '<br>'),*/
+
         googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
         orders: this.orders || this.clubData.orders,
         deletedOrders: this.deletedOrders
@@ -281,6 +331,26 @@ export default {
         alert("파일 업로드 실패!");
       }
     },
+    updateTextSize() {
+      // 문자 수가 3000자를 초과하는지 확인
+      if (this.textareaContent.length > 3000) {
+        alert("문자 수가 3000자를 초과했습니다.");
+        this.textareaContent = this.textareaContent.slice(0, 3000); // 3000자로 잘라서 저장
+      }
+
+      // 문자 수 업데이트
+      this.textSize = this.textareaContent.length;
+    },
+    updateRecruitTextSize(){
+      // 문자 수가 3000자를 초과하는지 확인
+      if (this.textareaRecruitContent.length > 3000) {
+        alert("문자 수가 3000자를 초과했습니다.");
+        this.textareaRecruitContent = this.textareaRecruitContent.slice(0, 3000); // 3000자로 잘라서 저장
+      }
+
+      // 문자 수 업데이트
+      this.RecruittextSize = this.textareaRecruitContent.length;
+    }
   }
 };
 </script>
@@ -382,7 +452,7 @@ h2{
   color: #ddd;
 }
 
-.ClubInfoTextInput{
+.ClubTextInput{
   width: 886px;
   height: 382px;
   border-radius: 8px;
@@ -394,7 +464,7 @@ h2{
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.ClubInfoTextInput textarea{
+.ClubTextInput textarea{
   width: 820px;
   height: 330px;
   text-align: left;
@@ -402,6 +472,16 @@ h2{
   font-size: 16px;
   resize: none;
   white-space: pre-wrap;
+}
+
+ /* 모집중 X일 때 */
+.RecruitToggleOff{
+  background-color: #e5e5e5 !important; /* 회색 배경*/
+  color: #a9a9a9; /* 회색 텍스트 */
+  cursor: not-allowed; /* 마우스 입력 불가 */
+  border-style: solid;
+  border-width: 1px;
+  border-color: #999999 
 }
 
 textarea:focus {
@@ -476,7 +556,7 @@ label::after {
 
 .GoogleFormLinkInput textarea{
   width: 820px;
-  height: 28px;
+  height: 25px;
   margin-top: 10px;
   text-align: left;
   border: none;
@@ -510,4 +590,11 @@ button {
   margin-bottom: 30px;
   cursor: pointer;
 }
+
+.textSize{
+  text-align: right;
+  margin-right: 10px;
+  font-size: 14px;
+}
+
 </style>
