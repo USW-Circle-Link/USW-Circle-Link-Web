@@ -1,7 +1,7 @@
 import store from '@/store/store';
 import { createRouter, createWebHistory } from 'vue-router';
 import AdminNoticeClick from '../components/Admin/NoticeClick.vue';
-import ProfileEdit from '../components/ClubLeader/ProfileEdit.vue';
+import ProfileEdit from '../components/ClubLeader/ClubInfoRewrite/ProfileEdit.vue';
 
 const routes = [
     {

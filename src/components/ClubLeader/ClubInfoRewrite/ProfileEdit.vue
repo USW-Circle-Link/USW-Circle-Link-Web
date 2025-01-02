@@ -11,7 +11,7 @@
             ref="mainImage"
         />
         <div class="edit-icon" @click="triggerFileInput">
-          <img src="@/assets/penbrush.png" alt="Edit Icon" />
+          <img src="../../../assets/penbrush.png" alt="Edit Icon" />
         </div>
         <input type="file" ref="fileInput" @change="onFileChange" style="display: none;" />
       </div>
@@ -44,6 +44,28 @@
             </label>
             <input type="text" id="phoneNumber" v-model="leaderHp" class="standard-input" placeholder="전화번호를 입력해주세요. ( - 제외 11자)" />
           </div>
+
+          <div class="form-group">
+            <label for="title">
+              <div class="label-container">
+                <span class="required">*</span>동아리방
+              </div>
+            </label>
+            <div class="room-select-container">
+              <button type="button" class="room-select-button" @click="openRoomModal">
+                <div class="icon map-pin"></div>
+                동아리방 선택
+              </button>
+              <input
+                  type="text"
+                  v-model="selectedRoom"
+                  class="standard-input"
+                  readonly
+                  :placeholder="selectedRoom || '미선택'"
+              />
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="title">
               <div class="label-container">
@@ -66,14 +88,25 @@
       </div>
     </div>
   </div>
+
+  <ClubRoomModal
+      :is-open="showRoomModal"
+      @close="closeRoomModal"
+      @select="onRoomSelect"
+  />
 </template>
 
 
 <script>
 import store from '@/store/store';
 import axios from 'axios';
+import ClubRoomModal from './ClubRoomModal.vue';
+
 
 export default {
+  components: {
+    ClubRoomModal,
+  },
   data() {
     return {
       leaderName: '',
@@ -87,6 +120,8 @@ export default {
       clubInfo: {}, // 클럽 정보를 저장할 객체
       presignedUrl: '', // S3 업로드를 위한 사전 서명된 URL
       imageHeight: 220, // 초기 높이 설정
+      selectedRoom: '',
+      showRoomModal: false,
     };
   },
   async created() {
@@ -96,6 +131,15 @@ export default {
     }
   },
   methods: {
+    openRoomModal() {
+      this.showRoomModal = true;
+    },
+    closeRoomModal() {
+      this.showRoomModal = false;
+    },
+    onRoomSelect(room) {
+      this.selectedRoom = room;
+    },
     // 동아리 정보 로드
     async fetchClubInfo() {
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
@@ -265,6 +309,61 @@ export default {
 </script>
 
 <style scoped>
+.room-select-container {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.room-select-container .standard-input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: left;
+  color: #828282;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+  height: 42px;
+  letter-spacing: -0.3px;
+}
+
+.room-select-container .standard-input:focus {
+  border-color: #777;
+  outline: none;
+}
+.room-select-button {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  cursor: pointer;
+  height: 41px;
+  font-size: 13px;
+  color: #5A5A5A;
+  width: 120px;
+}
+
+.room-select-button:hover {
+  border-color: #FFC700;
+  border-width: 1.5px;
+}
+
+.room-select-button .map-pin {
+  width: 16px;
+  height: 16px;
+  margin-left: 1px;
+  margin-right: 5px;
+  margin-bottom: 2px;
+  background: url('@/assets/map-pin.svg') no-repeat center center;
+  background-size: contain;
+}
+
+
 .profile-edit-container {
   padding-top: 20px;
   text-align: center;
@@ -372,10 +471,10 @@ label {
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  color: #999;
+  font-size: 12px;
+  font-weight: 400px;
+  text-align: left;
+  color: #828282;
   background-color: #f9f9f9;
   box-sizing: border-box;
 }
@@ -388,11 +487,21 @@ label {
 .standard-input {
   flex: 1;
   padding: 8px;
-  border: 0.5px solid #FFC700;
+  border: 0.5px solid #ccc; /* Default border color */
   border-radius: 4px;
   font-size: 12px;
   height: 23.99px;
   line-height: 14px;
+  color: #5A5A5A;
+  font-family: Pretendard;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+}
+
+.standard-input:focus {
+  border-color: #FFC700; /* Border color when focused */
+  outline: none; /* Remove default outline */
 }
 
 .button-container {
@@ -412,7 +521,5 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background: #FFC700;
-}
+
 </style>
