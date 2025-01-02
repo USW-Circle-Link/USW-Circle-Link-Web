@@ -1,14 +1,14 @@
 <template>
   <div class="MainBox">
     <div class="header">
-      <p class="common">지원자 합격 처리</p>
+      <p class="common">지원자 합격/불합격 처리</p>
     </div>
     <div class="status-actions">
-      <button class="send-result-btn" @click="showPopup">합/불 결과 전송하기</button>
+      <button class="send-result-btn" @click="showPopup">지원 결과 전송</button>
       <div class="status-boxes">
         <p class="whole">일괄 선택</p>
-        <button class="status-box approve-box" @click="setAllApplicantsStatus('PASS')">전체 합격</button>
-        <button class="status-box reject-box" @click="setAllApplicantsStatus('FAIL')">전체 불합격</button>
+        <button class="status-box approve-box" @click="setAllApplicantsStatus('PASS')">전체<br>합격</button>
+        <button class="status-box reject-box" @click="setAllApplicantsStatus('FAIL')">전체<br>불합격</button>
       </div>
     </div>
     <div class="contents">
@@ -20,10 +20,10 @@
           <p>{{ applicant.userHp }}</p>
           <div class="buttons-group">
             <label :class="{ checked: applicant.decision === 'PASS' }" @click="toggleDecision(applicant, 'PASS')">
-              <span>체크</span>
+              <span class="check-icon"></span>
             </label>
             <label :class="{ checked: applicant.decision === 'FAIL' }" @click="toggleDecision(applicant, 'FAIL')">
-              <span>체크</span>
+              <span class="check-icon"></span>
             </label>
           </div>
         </div>
@@ -32,8 +32,8 @@
 
     <div v-if="showConfirmPopup" class="popup-overlay">
       <div class="popup">
-        <button class="close-btn" @click="hidePopup">X</button>
-        <h2>합격/불합격 처리하기</h2>
+        <!--<button class="close-btn" @click="hidePopup">X</button>-->
+        <h2>지원 결과 전송</h2>
         <hr>
         <p class="confirm-message">합격/불합격 처리를 확정 하시겠습니까?</p>
         <p class="notice-message">확정 후 지원자에게 알림이 발송 되니 신중하게 선택해 주세요.</p>
@@ -241,7 +241,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 70px;
+  width: 55px;
   height: 43px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -249,13 +249,13 @@ export default {
   background-color: #f7f7f7;
 }
 .approve-box {
-  background-color: #4CAF50;
+  background-color: #7FB08C;
   font-size: 12px;
   color: white;
   cursor: pointer;
 }
 .reject-box {
-  background-color: #f44336;
+  background-color: #E57373;
   color: white;
   font-size: 12px;
   margin-inline-end: 10px;
@@ -305,18 +305,18 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 70px;
+  width: 55px;
   height: 43px;
   border-radius: 8px;
   cursor: pointer;
   background-color: #eee;
 }
 .buttons-group label.checked {
-  background-color: #4CAF50;
+  background-color: #7FB08C;
   color: white;
 }
 .buttons-group label.checked:nth-child(2) {
-  background-color: #f44336;
+  background-color: #E57373;
 }
 .popup-overlay {
   position: fixed;
@@ -360,19 +360,21 @@ hr {
   margin-top: 20px;
 }
 .popup-buttons button {
-  padding: 8px 16px;
+  padding: 8px 26px;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   margin-left: 10px;
 }
 .popup-buttons button:first-child {
   background: #ccc;
+  color: white;
 }
 .popup-buttons button:last-child {
   background: #f0b700;
   color: white;
 }
+/*
 .close-btn {
   position: absolute;
   top: 20px;
@@ -382,5 +384,11 @@ hr {
   font-size: 16px;
   cursor: pointer;
   color: black;
+}*/
+.check-icon {
+  background: url('../../assets/check-solid.svg') no-repeat center center;
+  width: 16px;
+  height: 16px;
+  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
 }
 </style>
