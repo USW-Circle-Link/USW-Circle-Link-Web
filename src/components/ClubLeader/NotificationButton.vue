@@ -65,20 +65,20 @@ export default {
   },
   mounted() {
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID",
-      measurementId: "YOUR_MEASUREMENT_ID",
+      apiKey: "AIzaSyCc1ZStuGuAAUYnosBu9hEs7I-mAy2Ej4Y",
+      authDomain: "project-1449470303390130162.firebaseapp.com",
+      projectId: "project-1449470303390130162",
+      storageBucket: "project-1449470303390130162.firebasestorage.app",
+      messagingSenderId: "311789790774",
+      appId: "1:311789790774:web:3341bee7cc5b9167b41a97",
+      measurementId: "G-3DJ4Y71M0N"
     };
 
     const app = initializeApp(firebaseConfig);
     const messaging = getMessaging(app);
 
     getToken(messaging, {
-      vapidKey: 'YOUR_PUBLIC_VAPID_KEY',
+      vapidKey: 'BJsokTZf_TvxU5vkIlSXB6jrf4a-NzFYM3p0XWZ9JAObk9Mvk3U9dZ5H41QQSNI6WsyFMePu1b4hXtLGERlRZTo',
     })
       .then((currentToken) => {
         if (currentToken) {
