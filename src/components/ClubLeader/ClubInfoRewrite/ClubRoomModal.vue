@@ -34,18 +34,18 @@
         </div>
         <div class="room-container">
           <div class="rooms-wrapper">
-          <div class="room-grid">
-            <button
-                v-for="room in roomsByFloor"
-                :key="room"
-                :class="['room-button', { active: selectedRoom === room }]"
-                @click="selectedRoom = room"
-            >
-              {{ room }}호
-            </button>
+            <div class="room-grid">
+              <button
+                  v-for="room in roomsByFloor"
+                  :key="room"
+                  :class="['room-button', { active: selectedRoom === room }]"
+                  @click="selectedRoom = room"
+              >
+                {{ room }}호
+              </button>
+            </div>
           </div>
         </div>
-      </div>
       </div>
       <div class="modal-footer">
         <button class="select-button" @click="selectRoom">선택하기</button>
@@ -71,7 +71,7 @@ export default {
       roomMap: {
         '지하': ['B101', 'B102', 'B103', 'B104', 'B105', 'B106', 'B107', 'B108', 'B109', 'B110', 'B111', 'B112', 'B113','B114', 'B115', 'B116', 'B117', 'B118', 'B119', 'B120', 'B121', 'B122', 'B123'],
         '1층': ['102', '103', '104', '105', '106', '107', '108', '109', '110', '112'],
-        '2층': ['109', '110', '112']
+        '2층': ['203', '205', '206','207', '208', '209', '210',]
       }
     }
   },
