@@ -19,6 +19,8 @@
           </div>
           <div class="bottom">
             <a @click.prevent="navigateTo('profileedit')">- 동아리 정보 수정</a>
+            <a @click.prevent="navigateTo('Accept')">- 동아리 회원가입 요청 관리</a>
+           
           </div>
         </li>
         <li class="list2">
