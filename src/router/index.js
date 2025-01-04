@@ -67,6 +67,11 @@ const routes = [
                 component: ProfileEdit
             },
             {
+                path: 'Accept',
+                name: 'Accept',
+                component: () => import('../components/ClubLeader/Accept.vue'),
+            },
+            {
                 path: 'morepass',
                 name: 'morepass',
                 component: () => import('../components/ClubLeader/MorePass.vue'),
