@@ -1,15 +1,26 @@
-<template>
+
+<template> 
   <div>
     <h2 class="title">공지사항 작성</h2>
 
     <div v-if="notice">
       <div class="title-container">
         <label for="title-input" class="label">제목</label>
-        <input id="title-input" v-model="notice.noticeTitle" class="title-input" />
+        <input id="title-input" v-model="notice.noticeTitle" class="title-input" placeholder="제목을 입력해주세요.(100자이내)" />
       </div>
       <div class="content-container">
         <label for="content-input" class="label">내용</label>
-        <textarea id="content-input" v-model="notice.noticeContent" class="content-input"></textarea>
+        <div class="textarea-wrapper">
+          <textarea 
+          id="content-input" 
+          v-model="notice.noticeContent" 
+          class="content-input" 
+          placeholder="내용을 입력해 주세요.사진은 5장까지 첨부 가능합니다."
+          @input="limitContentLength" 
+        ></textarea>
+
+          <div class="character-count">{{ notice.noticeContent.length }} / 3000</div> <!-- 글자 수 표시 -->
+        </div>
       </div>
       <div class="image-upload-container">
         <div v-for="(image, index) in images" :key="index" class="image-preview">
@@ -35,16 +46,21 @@ import store from '@/store/store';
 
 export default {
   name: 'NoticeWrite',
-  props: ['id'],// 라우터에서 전달된 공지사항id
+  props: ['id'],
   data() {
     return {
-      notice: { noticeTitle: '', noticeContent: '' },//공지사항 제목과 내용을 저장하는 객체
+      notice: { noticeTitle: '', noticeContent: '' },
       notices: [],
       images: [], // 이미지 파일과 미리보기를 저장할 배열
     };
   },
   methods: {
-    //전체 공지사항 목록을 서버에서 가져오는 함수
+    limitContentLength() {
+    const maxContentLength = 3000;
+    if (this.notice.noticeContent.length > maxContentLength) {
+      this.notice.noticeContent = this.notice.noticeContent.slice(0, maxContentLength);
+    }
+  },
     async fetchNotices() {
       try {
         const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
@@ -52,14 +68,12 @@ export default {
             'Authorization': `Bearer ${store.state.accessToken}`,
           },
         });
-        //서버에서 올바른 형식의 데이터를 받으면 notices 배열에 저장
         if (response.data && response.data._embedded && Array.isArray(response.data._embedded.noticeListResponseList)) {
           this.notices = response.data._embedded.noticeListResponseList;
         } else {
           this.notices = [];
           console.warn('Unexpected response format:', response.data);
         }
-        //특정 id에 해당하는 공지사항 세부 정보를 불러옴
         this.fetchNotice(this.id);
       } catch (error) {
         console.error('Error fetching notices:', error);
@@ -67,7 +81,6 @@ export default {
         alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
       }
     },
-    //공지사항 id로 특정 공지사항을 가져오는 함수
     fetchNotice(id) {
       const notice = this.notices.find(notice => notice.noticeId == id);
       if (notice) {
@@ -78,7 +91,6 @@ export default {
         this.images = [];
       }
     },
-    //이미지 파일을 업로드할 떄 실행되는 함수
     onImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -95,7 +107,6 @@ export default {
         }
       }
     },
-    //특정 인덱스의 이미지를 변경할 떄 실행되는 함수
     onImageChange(index) {
       const fileInput = this.$refs[`fileInput${index}`][0];
       if (fileInput && fileInput.files[0]) {
@@ -114,15 +125,14 @@ export default {
         }
       }
     },
-    //이미지 수정 클릭 시 파일 선택 창을 여는 함수
     editImage(index) {
       this.$refs[`fileInput${index}`][0].click();
     },
-//공지사항 제출 함수
+
     async submitNotice() {
       const maxTitleLength = 100;
       const maxContentLength = 3000;
-//제목과 내용의 길이를 검증
+
       if (this.notice.noticeTitle.length > maxTitleLength) {
         alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
         return;
@@ -135,16 +145,16 @@ export default {
 
       try {
         const form = new FormData();
-//공지사항 데이터를 폼 데이터에 추가
+
         const noticeData = {
           noticeTitle: this.notice.noticeTitle,
           noticeContent: this.notice.noticeContent
-              .replace(/ /g, '&nbsp;')//공백을 '&nbsp;'로 변환
-              .replace(/\n/g, '<br>'),//줄바꿈을 '<br>'로 변환
+              .replace(/ /g, '&nbsp;')
+              .replace(/\n/g, '<br>'),
           photoOrders: this.images.map((_, index) => index + 1)
         };
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
-//이미지 파일들을 폼 데이터에 추가
+
         this.images.forEach((image, index) => {
           form.append('photos', image.file);
         });
@@ -155,7 +165,7 @@ export default {
             'Content-Type': 'multipart/form-data',
           },
         });
-// 이미지 URL이 포함된 응답을 받은 후 각 URL에 대해 이미지 업로드 수행
+
         if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
           await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
             const photoResponse = await axios.put(photoUrl, this.images[index].file, {
@@ -163,7 +173,7 @@ export default {
                 'Content-Type': this.images[index].file.type,
               }
             });
-           // console.log(`Image ${index + 1} 이미지:`, photoResponse);
+           // console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
           }));
         }
 
@@ -183,7 +193,7 @@ export default {
     },
   },
   created() {
-    this.fetchNotices();// 컴포넌트 생성 시 전체 공지사항 목록을 서버에서 가져옴
+    this.fetchNotices();
   }
 };
 </script>
@@ -206,13 +216,18 @@ export default {
   left: 0;
   bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
   width: 102.5%;
-  height: 19px; /* 형광펜 두께 */
-  background-color: #FFB052;
+  
 ; /* 노란색 배경 */
   z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
   transform: skew(-12deg); /* 기울기 효과 추가 */
 }
 
+.character-count {
+    text-align: right; /* 글자 수 우측 정렬 */
+    font-size: 14px; /* 글자 크기 */
+    color: #666; /* 글자 색상 */
+    margin-top: 5px; /* 위쪽 여백 */
+}
 
 * {
   box-sizing: border-box;
@@ -236,6 +251,23 @@ export default {
   border-radius: 5px;
 }
 
+/* 텍스트 영역 wrapper 스타일 */
+.textarea-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* 글자 수 카운터 스타일 */
+.character-count {
+  position: absolute;
+  bottom: 10px; /* textarea 내부에서 아래쪽 여백 */
+  right: 15px; /* textarea 내부에서 오른쪽 여백 */
+  font-size: 12px;
+  color: #999;
+  pointer-events: none; /* 클릭 불가 설정 */
+}
+
 .content-input {
   width: 817px;
   height: 382px;
@@ -244,6 +276,7 @@ export default {
   border: 1px solid #ddd;
   border-radius: 5px;
   resize: none;
+  position: relative; /* 카운터 위치 조정을 위해 relative 설정 */
 }
 
 .image-upload-container {
@@ -317,10 +350,11 @@ export default {
 
 .submit-button {
   display: block;
-  width: 112.5px;
+  width: 102.5px;
+  height: 45px;
   padding: 10px;
-  margin: 20px auto;
-  background-color: #ffc107;
+  margin: 20px 0 20px auto; 
+  background-color: #FFB052;
   border: none;
   border-radius: 5px;
   font-size: 16px;
@@ -330,7 +364,5 @@ export default {
   text-align: center;
 }
 
-.submit-button:hover {
-  background-color: #e0a800;
-}
+
 </style>

@@ -1,3 +1,4 @@
+
 <template>
   <div class="container">
     <div class="contents">
@@ -61,17 +62,14 @@ export default {
     paginatedNotices() {
       return this.notices; // 이미 서버에서 페이징된 데이터를 가져오기 때문에 그대로 사용
     },
-    //totalPages의 값에 맞춰 각 페이지 번호를 배열 형태로 생성하여 반환
     totalPagesArray() {
       return Array.from({ length: this.totalPages }, (_, i) => i + 1);
     }
   },
   methods: {
-    //해당 공지사항의 id 값에 따라 AdminNoticeClick로 이동
     goToNotice(id, adminName) {
       this.$router.push({ name: 'AdminNoticeClick', params: { id, adminName } });
     },
-    //공지사항 데이터 가져오기
     async fetchNotices() {
       try {
         const accessToken = store.state.accessToken;
@@ -84,34 +82,33 @@ export default {
           }
         });
 
-        // 
+        // If the response is not OK, handle different error cases
         if (!response.ok) {
-          //401오류 발생 시 로그인 페이지로 이동하게
+          // Check for 401 Unauthorized error
           if (response.status === 401) {
             alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-            this.$router.push({ name: 'Login' }); // 
+            this.$router.push({ name: 'Login' }); // Redirect to login page
             return;
           }
-          throw new Error('공지사항을 불러오는 데 실패했습니다.');
+          throw new Error('Failed to fetch notices');
         }
 
         const data = await response.json();
-      //  console.log('데이터:', data); // 응답 데이터 확인
-        //작성된 공지사항 데이터 최근 순으로 불러오기
+        console.log('Fetched data:', data); // 응답 데이터 확인
+
         if (data && data._embedded && Array.isArray(data._embedded.noticeListResponseList)) {
           this.notices = data._embedded.noticeListResponseList.reverse();
           this.totalPages = data.page.totalPages;
           this.currentPage = data.page.number + 1; // 페이지 번호는 0부터 시작하므로 1을 더함
         } else {
           this.notices = []; // 데이터를 가져오지 못한 경우 빈 배열 설정
-          //console.warn('기대한 응답이 아닙니다:', data);
+          console.warn('Unexpected response format:', data);
         }
       } catch (error) {
-       // console.error('공지사항을 불러오는 데 오류가 발생했습니다:', error);
+        console.error('Error fetching notices:', error);
         this.notices = [];
       }
     },
-    //클릭한 공지사항의 id에 따라 경로가 /adminmain으로 시작한다면 AdminNoticeClick으로 이동하여 클릭한 공지사항의 세부정보를 볼 수 있게
     goToNotice(noticeId) {
       const currentPath = this.$route.path;
       if (currentPath.startsWith('/adminmain')) {
@@ -124,13 +121,11 @@ export default {
       this.currentPage = page;
       this.fetchNotices(); // 페이지 변경 시 데이터를 다시 가져옴
     },
-    //이전페이지 이동
     previousPage() {
       if (this.currentPage > 1) {
         this.changePage(this.currentPage - 1);
       }
     },
-    //다음 페이지 이동
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.changePage(this.currentPage + 1);

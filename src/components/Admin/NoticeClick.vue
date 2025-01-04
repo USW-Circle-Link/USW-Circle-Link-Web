@@ -23,28 +23,68 @@
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
           <img
-              :src="image.src"
-              alt="Notice Image"
-              class="notice-image"
-              @error="handleImageError(index)"
+            :src="image.src"
+            alt="Notice Image"
+            class="notice-image"
+            @error="handleImageError(index)"
           />
         </div>
       </div>
     </div>
-    <div class="actions">
-      <button class="edit-button" @click="editNotice" :disabled="!notice">수정</button>
-      <button class="delete-button" @click="deleteNotice" :disabled="!notice">삭제</button>
+
+    <!-- 삭제 팝업창 -->
+    <div v-if="showDeletePopup" class="delete-popup-overlay">
+      <div class="delete-popup">
+        <p class="popup-title">공지사항 삭제</p>
+        <div class="popup-divider"></div>
+
+        <p>
+          <span class="popup-highlight">작성된 공지사항을 삭제하시겠습니까?</span><br /><br />
+          삭제된 글은 복구할 수 없습니다.
+        </p>
+        <div class="popup-buttons">
+          <button @click="cancelDelete" class="cancel-button">취소</button>
+          <button @click="confirmDelete" class="confirm-button">삭제</button>
+        </div>
+      </div>
     </div>
+
+    <div class="actions">
+      <button class="edit-button" @click="editNotice">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" class="edit-icon">
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M14.44 5.78L4.198 16.02a2 2 0 0 0-.565 1.125l-.553 3.774l3.775-.553A2 2 0 0 0 7.98 19.8L18.22 9.56m-3.78-3.78l2.229-2.23a1.6 1.6 0 0 1 2.263 0l1.518 1.518a1.6 1.6 0 0 1 0 2.263l-2.23 2.23M14.44 5.78l3.78 3.78"
+          />
+        </svg>
+        수정
+      </button>
+
+      <button class="delete-button" @click="showDeletePopup = true" :disabled="!notice">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" class="delete-icon">
+          <path
+            fill="#FF6F6F"
+            d="M7.616 20q-.672 0-1.144-.472T6 18.385V6H5V5h4v-.77h6V5h4v1h-1v12.385q0 .69-.462 1.153T16.384 20zM17 6H7v12.385q0 .269.173.442t.443.173h8.769q.23 0 .423-.192t.192-.424zM9.808 17h1V8h-1zm3.384 0h1V8h-1zM7 6v13z"
+          />
+        </svg>
+        삭제
+      </button>
+    </div>
+
     <div class="notice-list">
       <table>
         <tbody>
-        <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
-          <td>
-            <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
-          </td>
-          <td>{{ notice.adminName }}</td>
-          <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
-        </tr>
+          <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
+            <td>
+              <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
+            </td>
+            <td>{{ notice.adminName }}</td>
+            <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
+          </tr>
         </tbody>
       </table>
       <div class="pagination">
@@ -63,168 +103,116 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      notices: [],//공지사항 목록을 저장하는 배열
-      notice: null,//선택된 공지사항 상세 정보
-      currentPage: 1,//현재 페이지 번호
-      itemsPerPage: 5,//한 페이지에 표시할 공지사항 수
-      images: [], // 공지사항에 포함된 이미지 배열
+      notices: [],
+      notice: null,
+      currentPage: 1,
+      itemsPerPage: 5,
+      images: [], // 이미지 배열
+      showDeletePopup: false, // 삭제 팝업 상태
     };
   },
   computed: {
-    //총 페이지 수 계산
     totalPages() {
       return Math.ceil(this.notices.length / this.itemsPerPage);
     },
-    //현재 페이지에 맞는 공지사항 데이터만 반환
     paginatedNotices() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.notices.slice(start, end);
+      return this.notices.slice(start, start + this.itemsPerPage);
     },
   },
-  //공지사항 목록 불러오기
   created() {
     this.fetchNotices();
   },
-  //공지사항목록 서버에서 가져오기 
   methods: {
+    convertNewlinesToBr(text) {
+  return text ? text.replace(/\n/g, '<br>') : ''; 
+},
+
     async fetchNotices() {
       try {
         const accessToken = store.state.accessToken;
         const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
           },
         });
-        //서버에서 받은 데이터가 맞는 지 확인 후 공지사항 배열에 저장
-        if (response.data && response.data._embedded && Array.isArray(response.data._embedded.noticeListResponseList)) {
-          this.notices = response.data._embedded.noticeListResponseList;
-        } else {
-          this.notices = [];
-         // console.warn('기대한 응답이 아닙니다:', response.data);
-        }
-        //현재 url에 있는 공지사항 id로 해당 공지사항 세부정보
+        this.notices = response.data._embedded?.noticeListResponseList || [];
         this.fetchNotice(this.$route.params.id);
       } catch (error) {
-        //this.handleError(error, '공지사항을 불러오는 데 오류가 발생했습니다');
+        this.handleError(error, '공지사항 목록을 가져오는 중 오류');
       }
     },
-    //선택한 공지사항의 세부정보를 보기 위해 서버에서 가져옴
     async fetchNotice(id) {
       try {
         const accessToken = store.state.accessToken;
         const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
           },
         });
-        if (response.data && response.data.data) {
-          this.notice = response.data.data;
-          this.loadImages(response.data.data.noticePhotos);
-
-        } else {
-          throw new Error('공지사항을 찾을 수 없습니다.');
-        }
+        this.notice = response.data.data;
+        this.loadImages(response.data.data.noticePhotos);
       } catch (error) {
-        this.handleError(error, '공지사항을 불러오는 데 오류가 있습니다.');
+        this.handleError(error, '공지사항을 가져오는 중 오류');
       }
     },
-    //이미지 목록을 로드하는 함수
     loadImages(photoUrls) {
       if (Array.isArray(photoUrls)) {
-        this.images = photoUrls.map(photoUrl => {
-          const isBase64 = photoUrl.startsWith('data:image/');
-          const imageUrl = isBase64 ? photoUrl : `${photoUrl}`;
-          return { src: imageUrl, isNew: false };
-        });
+        this.images = photoUrls.map((photoUrl) => ({ src: photoUrl }));
       }
     },
     handleImageError(index) {
-      // 이미지 가져오지 못 했을 때 기본 이미지 띄우기
-      this.images[index].src = require('@/assets/rigth.png'); // 기본 이미지로 변경
+      this.images[index].src = require('@/assets/rigth.png');
     },
-    //오류 처리 함수
-    handleError(error, message) {
-      if (error.response && error.response.status === 404) {
-        alert(`${message}: 공지사항이 존재하지 않습니다.`);
+    cancelDelete() {
+      this.showDeletePopup = false;
+    },
+    async confirmDelete() {
+      try {
+        const accessToken = store.state.accessToken;
+        await axios.delete(`http://15.164.246.244:8080/notices/${this.notice.noticeId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        alert('공지사항이 삭제되었습니다.');
+        this.notices = this.notices.filter((n) => n.noticeId !== this.notice.noticeId);
+        this.showDeletePopup = false;
         this.$router.push({ name: 'Notice' });
-      } else if (error.response && error.response.status === 401) {
-        alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-        this.$router.push({ name: 'Login' });
-      } else {
-        console.error(`${message}:`, error);
-        alert(`${message}. 다시 시도해주세요.`);
+      } catch (error) {
+        alert('삭제 중 오류가 발생했습니다.');
+        this.showDeletePopup = false;
       }
     },
-    //이전 공지사항
+    handleError(error, message) {
+      console.error(message, error);
+      alert(`${message}: ${error.message}`);
+    },
     prevNotice() {
-      const currentIndex = this.notices.findIndex(notice => notice.noticeId == this.$route.params.id);
+      const currentIndex = this.notices.findIndex((n) => n.noticeId === this.$route.params.id);
       const prevIndex = (currentIndex - 1 + this.notices.length) % this.notices.length;
       this.$router.push({ name: 'AdminNoticeClick', params: { id: this.notices[prevIndex].noticeId } });
     },
-    //다음 공지사항
     nextNotice() {
-      const currentIndex = this.notices.findIndex(notice => notice.noticeId == this.$route.params.id);
+      const currentIndex = this.notices.findIndex((n) => n.noticeId === this.$route.params.id);
       const nextIndex = (currentIndex + 1) % this.notices.length;
       this.$router.push({ name: 'AdminNoticeClick', params: { id: this.notices[nextIndex].noticeId } });
     },
-    //해당 공지사항id의 AdminNoticeClick(공지사항 세부정보페이지)로 이동
-    goToNotice(id) {
-      this.$router.push({ name: 'AdminNoticeClick', params: { id } });
-    },
-    //페이지 변경 시 현재 페이지 번호 바뀜
     changePage(page) {
       this.currentPage = page;
     },
-    //줄바꿈
-    convertNewlinesToBr(text) {
-      return text ? text.replace(/\n?<br>\n\?/gi, '<br>') : '';
+    goToNotice(id) {
+      this.$router.push({ name: 'AdminNoticeClick', params: { id } });
     },
-    //공지사항 수정버튼 클릭 시 noticeedit로 이동
     editNotice() {
       if (this.notice && this.notice.noticeId) {
         this.$router.push({ name: 'noticeedit', params: { id: this.notice.noticeId } });
       } else {
-       // console.error('수정할 수 없습니다');
+        console.error('No notice available to edit.');
       }
     },
-    //공지사항 삭제버튼 클릭 시 
-    async deleteNotice() {
-      if (this.notice && confirm('이 공지사항을 삭제하시겠습니까?')) {
-        try {
-          const accessToken = store.state.accessToken;
-          const response = await axios.delete(`http://15.164.246.244:8080/notices/${this.notice.noticeId}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (response.status === 200) {
-            alert('공지사항이 삭제되었습니다.');
-            this.notices = this.notices.filter(notice => notice.noticeId !== this.notice.noticeId);
-            if (this.notices.length > 0) {
-              this.$router.push({ name: 'AdminNoticeClick', params: { id: this.notices[0].noticeId } });
-            } else {
-              this.$router.push({ name: 'Notice' });
-            }
-          } else {
-            alert('공지사항 삭제에 실패했습니다.');
-          }
-        } catch (error) {
-          this.handleError(error, '공지사항 삭제 중 오류');
-        }
-      }
-    },
-    //날짜 보여주는 함수
     formattedDate(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleDateString();
+      return new Date(dateString).toLocaleDateString();
     },
   },
-  //라우트가 변경될 떄마다 공지사항 정보를 다시 가져옴
   watch: {
     $route(to) {
       this.fetchNotice(to.params.id);
@@ -325,7 +313,10 @@ export default {
   border-radius: 8px;
 }
 
-
+.popup-highlight {
+  color: black;
+  font-weight: bold;
+}
 .image-container {
   width: 100%;
   max-width: 300px;
@@ -333,34 +324,132 @@ export default {
 
 .actions {
   display: flex;
+  justify-content: flex-start; /* 왼쪽으로 정렬 */
   margin-bottom: 20px;
-  margin-left: 670px;
+  margin-left: 600px; /* 방법 1: 왼쪽으로 70px 이동 */
 }
 
 .edit-button, .delete-button {
   background: #f0f0f0;
   border: none;
   border-radius: 4px;
-  padding: 10px 20px;
+  padding: 8px 20px 15px 20px; /* 위 5px, 오른쪽 20px, 아래 15px, 왼쪽 20px */
   margin: 0 5px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 16px;
 }
 
 .edit-button {
-  width: 65px;
+  width: 95px;
   height: 37px;
-  background-color: #5b9bd5;
-  color: white;
+  background-color: white;
+  color: #8E8E8E;
+  border: 1px solid #8E8E8E;
 }
 
 .delete-button {
-  width: 65px;
+  width: 95px;
   height: 37px;
-  background-color: #ed7d31;
-  color: white;
+  background-color: white;
+  color: #FF6F6F;
+  border: 1px solid #FF6F6F;
+}
+.delete-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 반투명한 검은 배경 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; /* 다른 요소 위에 보이게 설정 */
 }
 
+.delete-popup {
+  background: #fff; /* 배경색 */
+  padding: 24px; /* 내부 여백 */
+  border-radius: 8px; /* 둥근 모서리 */
+  width: 452px; /* 팝업 너비 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
+  text-align: left; /* 텍스트 왼쪽 정렬 */
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* 요소 간 여백 */
+}
+
+.popup-divider {
+  border-top: 1px solid #ddd; /* 연한 회색 가로줄 */
+  margin: 10px 0; /* 위아래 여백 설정 */
+}
+
+
+.popup-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 10px;
+}
+
+.delete-popup p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px; /* 버튼 사이 여백 */
+  margin-top: 10px;
+}
+
+.cancel-button,
+.confirm-button {
+  font-size: 14px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-button {
+  background-color: #e0e0e0; /* 연한 회색 */
+  color: #666;
+}
+
+.confirm-button {
+  background-color: #FFB052; /* 강조 색상 */
+  color: #fff; /* 글자색 흰색 */
+}
+
+.cancel-button:hover {
+  background-color: #d5d5d5; /* 호버 시 색상 변경 */
+}
+
+/* .confirm-button:hover {
+  background-color: #e09b4d;
+} */
+
+.cancel-button,
+.confirm-button {
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cancel-button {
+  background-color: #ddd;
+  color: #333;
+}
+
+.confirm-button {
+  background-color:  #FFB052;
+  color: #fff;
+}
 .notice-list {
   width: 817px;
   height: auto;
@@ -415,4 +504,5 @@ button {
   font-weight: bold;
   color: #000;
 }
-</style>
+</style> 
+
