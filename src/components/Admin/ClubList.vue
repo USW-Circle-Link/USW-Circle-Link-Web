@@ -1,37 +1,39 @@
 <template>
   <div class="title">소속 동아리 리스트</div>
-  <!-- Header Section -->
+  <!-- 소속 동아리 리스트 -->
   <div class="header">
     <div class="header-row">
-      <div class="header-item">소속 분과</div>
-      <div class="header-item">동아리명</div>
-      <div class="header-item">동아리장</div>
-      <div class="header-item">인원</div>
-      <div class="header-item"></div>
+      <div class="header-item-department">분과</div>
+      <div class="header-item-clubname">동아리 이름</div>
+      <div class="header-item-clubleader">동아리 회장</div>
+      <div class="header-item-numberOfClubMembers">인원</div>
+      <div class="header-item-delete"></div>
     </div>
   </div>
 
   <div class="container">
-    <!-- List Items Section -->
+    <!-- 동아리 리스트 -->
     <div class="list">
       <div class="list-item-container" v-for="(club, index) in displayedClubs" :key="index">
-        <div class="list-item-row" @click="openPopupClubInfo(club.clubName)">
-          <div class="list-item">{{ club.department }}</div>
-          <div class="list-item">{{ club.clubName }}</div>
-          <div class="list-item">{{ club.leaderName }}</div>
-          <div class="list-item">{{ club.numberOfClubMembers }}</div>
+        <div class="list-item-row" @click= openPopupClubInfo(club.clubName)>
+          <div class="list-item-department">{{ club.department }}</div>
+          <div class="list-item-clubname">{{ club.clubName }}</div>
+          <div class="list-item-clubleader">{{ club.leaderName }}</div>
+          <div class="list-item-numberOfClubMembers">{{ club.numberOfClubMembers }}</div>
         </div>
-        <div class="delete-container">
-          <button class="delete-btn" @click="openPopup(club.clubId, index)">삭제</button>
+        <div class="list-item-delete">
+          <button class="delete-btn" @click="openPopup(club.clubId, index, club.clubName)">삭제</button>
         </div>
       </div>
     </div>
 
-    <!-- Pagination -->
+    <!-- 페이지네이션 -->
     <div class="pagination">
+      <!-- 이전 페이지 -->
       <button @click="prevPage">
         <img src="@/assets/left.png" alt="Previous" />
       </button>
+      <!-- 페이지 번호 -->
       <button
         v-for="page in totalPages"
         :key="page"
@@ -40,254 +42,238 @@
       >
         {{ page }}
       </button>
+      <!-- 다음 페이지 -->
       <button @click="nextPage">
         <img src="@/assets/rigth.png" alt="Next" />
       </button>
     </div>
   </div>
 
-  <!-- Popup for Deletion Confirmation -->
+  <!-- 동아리 삭제 팝업창  -->
   <div v-if="isPopupVisible" class="popup-overlay">
     <div class="popup">
-      <h3>삭제 확인</h3>
-      <p>이 동아리를 삭제하시겠습니까?</p>
+      <h3>동아리 삭제</h3>
+      <div class="line2"></div>
+      <p class="popup-message">'{{PopupClubName}}'을(를) 삭제하시겠습니까?</p>
       <input v-model="adminPw" type="password" placeholder="관리자 비밀번호" />
-      <div class="popup-buttons">
-        <button @click="confirmDelete">확인</button>
-        <button @click="cancelDelete">취소</button>
-      </div>
+      <p class="popup-warning">{{adminPwError}}</p>
+      <button class="expel-button" @click="confirmDelete">확인</button>
+      <button class="cancel-button" @click="cancelDelete">취소</button>
     </div>
   </div>
 
+  <!-- 동아리 상세 정보 팝업창 -->
   <div v-if="isClubInfoPopupVisible" ref="popup" class="ClubInfoPopup-overlay">
     <div class="club-profile">
-      <button @click="closePopup" class="close-popup-btn">✖</button>
-      <ImageSlider :images="images" oncontextmenu="return false;" />
-
-      <!-- Club Information Section -->
+      <ImageSlider :images="images" oncontextmenu="return false;"/>
       <div class="ClubInfo">
-        <img :src="mainPhoto" alt="Flag Logo" class="logo" oncontextmenu="return false;" />
+        <img :src="mainPhoto" alt="Flag Logo" class="logo" oncontextmenu="return false;"/>
         <div class="Info">
-          <div class="club-details">
-            <p class="clubname"><strong>{{ data.clubName }}</strong></p>
-            <p class="clubleader">동아리장 <span class="name"><strong>{{ data.leaderName }}</strong></span></p>
-            <div class="hashtags">
-              <span v-for="tag in data.tags" :key="tag" class="hashtag">#{{ tag }}</span>
-            </div>
+          <div class="info">
+            <p class="clubname">{{ data.clubName }}</p>
+            <div class="line1"></div>
+            <p class="clubleader">동아리장</p>
+            <p class="name">{{ data.leaderName }}</p>
           </div>
-        </div>
-        <!-- More Options Button -->
-        <div class="more-options">
-          <button @click="toggleContactInfo" class="dots-button">
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-          <!-- Contact Information -->
-          <div v-if="showContactInfo" class="contact-info-popup">
-            <div class="popup-header">
-              <p><strong>동아리 정보</strong></p>
-              <button class="close-btn" @click="toggleContactInfo">✖</button>
-            </div>
-            <hr />
-            <div class="location">
-              <div class="icon location"></div>
-              <span>동아리방 | {{ data.clubRoom }}</span>
-            </div>
-            <hr />
-            <div class="phoneNum">
-              <div class="icon phone"></div>
-              <span>{{ formattedPhoneNumber }}</span>
-            </div>
-            <hr />
-            <div class="instaName">
-              <div class="icon insta"></div>
-              <a :href="instagramLink" target="_blank">@{{ data.clubInsta }}</a>
-            </div>
+          <div class="phoneNum">
+            <div class="icon phone"></div>
+            <p>{{ formattedPhoneNumber }}</p>
+          </div>
+          <div class="instaName">
+            <div class="icon insta"></div>
+            <p>@{{ data.clubInsta }}</p>
           </div>
         </div>
       </div>
-
-      <!-- Tabs Section -->
-      <div class="tabs-container">
-        <div class="tabs-and-content">
-          <div class="tabs">
-            <button :class="{ active: activeTab === 'intro' }" @click="activeTab = 'intro'">동아리 소개 글</button>
-            <button :class="{ active: activeTab === 'recruit' }" @click="activeTab = 'recruit'">동아리 모집 글</button>
-          </div>
-
-          <!-- Dynamic Content Section -->
-          <div class="tab-content">
-            <div v-if="activeTab === 'intro'" class="description">
-              <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
-            </div>
-            <div v-if="activeTab === 'recruit'" class="description">
-              <p v-html="convertNewlinesToBr(data.clubRecruit)"></p>
-            </div>
-          </div>
+      <div class="description">
+        <h3>동아리 소개</h3>
+        <div>
+          <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
         </div>
       </div>
+      <!-- 서버 응답값을 화면에 표시  <pre>{{ data }}</pre>-->
+      <button class="popup-button" @click="closePopup">닫기</button>
     </div>
   </div>
 </template>
 
 <script>
+import ImageSlider from "@/components/Admin/ImageSlider.vue";
 import axios from "axios";
-import store from "@/store/store";
-import ImageSlider from "@/components/ClubLeader/ImageSlider.vue";
-
-const API_BASE_URL = "http://15.164.246.244:8080";
+import store from "@/store/store"; // Ensure Vuex store is imported
 
 export default {
-  name: "ClubList",
   components: {
-    ImageSlider,
+    ImageSlider
   },
   data() {
     return {
-      images: [],
-      data: {
-        clubIntro: "",
-        clubRecruit: "",
-        tags: ["개발", "프로그래밍"], // Example tags
+      currentPage: 1, // 페이지네이션 현재 페이지
+      clubsPerPage: 10, // 화면에 나타내는 동아리 최대 개수
+      clubs: [], // 서버에서 가져온 클럽을 저장할 배열
+      isPopupVisible: false, // 동아리 삭제 확인 팝업창 가시성 플래그
+      isClubInfoPopupVisible: false, // 동아리 상세 정보 팝업창 가시성 플래그
+      adminPw: '', // 삭제를 위한 비밀번호 입력
+      clubToDelete: null, // 삭제할 클럽 ID
+      deleteIndex: null, // 배열의 클럽 인덱스
+      images: [],  // 동아리 활동 사진을 담을 배열
+      data: {},  // 동아리 기본 정보를 담을 객체
+      mainPhoto:  require('@/assets/profile.png'),  // 메인 사진 URL, 없을 경우 기본이미지
+      adminPwError: '', // 정보 입력 값 에러 메세지 변수
+      PopupClubName: null, // 삭제할 동아리 이름
+      // 영어 -> 한글 매핑 객체
+      DepartmentTypeMap: {
+        ACADEMIC: "학술",
+        RELIGION: "종교",
+        ART: "예술",
+        SPORT: "체육",
+        SHOW: "공연",
+        VOLUNTEER: "봉사",
       },
-      mainPhoto: require("@/assets/profile.png"),
-      currentPage: 1,
-      clubsPerPage: 10,
-      clubs: [],
-      isPopupVisible: false,
-      isClubInfoPopupVisible: false,
-      adminPw: "",
-      clubToDelete: null,
-      deleteIndex: null,
-      activeTab: "intro",
-      showContactInfo: false,
     };
   },
+  created() {
+    this.fetchClubs(); // 구성 요소가 생성되면 클럽 정보를 서버로부터 가져옵니다.
+  },
   computed: {
+    // 총 페이지 수 계산
     totalPages() {
       return Math.ceil(this.clubs.length / this.clubsPerPage);
     },
+    // 페이지 나태내기
     displayedClubs() {
       const start = (this.currentPage - 1) * this.clubsPerPage;
       return this.clubs.slice(start, start + this.clubsPerPage);
     },
+    // 전화번호 000-0000-0000 으로 변환
     formattedPhoneNumber() {
-      return this.data.leaderHp
-        ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")
-        : "";
-    },
-    instagramLink() {
-      return this.data.clubInsta || "#";
+      return this.data.leaderHp ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : '';
     },
   },
   methods: {
-    convertNewlinesToBr(text) {
-      return text ? text.replace(/\n/g, "<br>") : "";
-    },
+    // 서버로부터 동아리 정보 불러오기
     async fetchClubs() {
-      const accessToken = store.state.accessToken;
-      if (!accessToken) {
-        alert("로그인이 필요합니다.");
-        return;
-      }
       try {
-        const response = await axios.get(`${API_BASE_URL}/admin/clubs`, {
+        const response = await axios.get('https://api.donggurami.net/admin/clubs', {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+            'Authorization': `Bearer ${store.state.accessToken}`
+          }
         });
-        this.clubs = response.data.data || [];
+        this.clubs = response.data.data; // 가져온 클럽을 데이터 배열에 저장
+        console.log(this.clubs);
       } catch (error) {
-        console.error("Error fetching clubs:", error);
-        alert("동아리 리스트를 불러오는데 실패했습니다.");
+        console.error('Error fetching clubs:', error);
+        alert('동아리 리스트를 불러오는데 실패했습니다.');
       }
     },
-    async openPopupClubInfo(clubName) {
-  const club = this.clubs.find((club) => club.clubName === clubName);
-  if (!club) return;
-
-  this.isClubInfoPopupVisible = true;
-  this.mainPhoto = require("@/assets/profile.png");
-  this.images = [];
-
-  try {
-    const response = await axios.get(`${API_BASE_URL}/admin/clubs/${club.clubId}`, {
-      headers: {
-        Authorization: `Bearer ${store.state.accessToken}`,
-      },
-    });
-    this.data = response.data.data || {};
-    if (this.data.mainPhoto) this.mainPhoto = this.data.mainPhoto;
-
-    // Load introPhotos
-    const introPhotosPromises = this.data.introPhotos.map(async (url) => {
-      try {
-        const imageResponse = await axios.get(url, { responseType: "blob" });
-        return URL.createObjectURL(imageResponse.data);
-      } catch (error) {
-        console.error("Failed to load image:", error);
-        return null;
-      }
-    });
-
-    this.images = (await Promise.all(introPhotosPromises)).filter(Boolean);
-  } catch (error) {
-    console.error("Error fetching club info:", error);
-    alert("동아리 정보를 가져오는데 실패했습니다.");
-  }
-},
-    openPopup(clubId, index) {
+    // 동아리 삭제 팝업창 열기
+    openPopup(clubId, index, clubName) {
+      this.PopupClubName = clubName;
       this.clubToDelete = clubId;
       this.deleteIndex = index;
-      this.isPopupVisible = true;
+      this.isPopupVisible = true; // Open popup
     },
-    closePopup() {
-  this.isClubInfoPopupVisible = false;
-},
+    // 동아리 삭제 팝업창 "취소" 버튼
     cancelDelete() {
-      this.isPopupVisible = false;
-      this.adminPw = "";
+      this.isPopupVisible = false; // Close popup
+      this.adminPw = ''; // Reset password
     },
+    closePopup(){
+      this.isClubInfoPopupVisible = false;
+    },
+    // 동아리 삭제 팝업창 "확인" 버튼
     async confirmDelete() {
       if (!this.adminPw) {
-        alert("관리자 비밀번호를 입력하세요.");
+        alert('관리자 비밀번호를 입력하세요.');
         return;
       }
+
       try {
-              await axios.delete(`${API_BASE_URL}/admin/clubs/${this.clubToDelete}`, {
-        headers: {
-          Authorization: `Bearer ${store.state.accessToken}`,
-        },
-        data: { adminPw: this.adminPw },
-      });
-        this.clubs.splice(this.deleteIndex, 1);
-        this.isPopupVisible = false;
-        alert("동아리가 성공적으로 삭제되었습니다.");
+        const response = await axios.delete(`https://api.donggurami.net/admin/clubs/${this.clubToDelete}`, {
+          headers: {
+            'Authorization': `Bearer ${store.state.accessToken}` // Correct usage of the store
+          },
+          data: { adminPw: this.adminPw } // Send password as part of the request
+        });
+        console.log('Club deleted successfully:', response.data);
+        alert('동아리가 성공적으로 삭제되었습니다.');
+        this.clubs.splice(this.deleteIndex, 1); // Remove club from the list
+        this.isPopupVisible = false; // Close popup
       } catch (error) {
-        console.error("Error deleting club:", error);
-        alert("동아리를 삭제하는데 실패했습니다.");
+        console.error('Error deleting club:', error);
+        if (error.response.status === 400) {
+          this.adminPwError = '* 비밀번호를 다시 확인해주세요.';
+        }
       }
     },
+    // 현재 페이지 설정
     setPage(page) {
       this.currentPage = page;
     },
+    // 이전 페이지
     prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--;
       }
     },
+    // 다음 페이지
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
       }
     },
-    toggleContactInfo() {
-      this.showContactInfo = !this.showContactInfo;
+    // 동아리 상세 정보 팝업창 열기
+    async openPopupClubInfo(clubName) {
+      const club = this.clubs.find(club => club.clubName === clubName);
+      console.log(club.clubId);
+      console.log('Popup has been loaded!');
+      this.isClubInfoPopupVisible = true;
+
+      // 동아리 정보를 불러오기 전에 일단 mainPhoto를 기본 이미지로 초기화
+      this.mainPhoto = require('@/assets/profile.png');
+      this.images = []; //images도 일단 초기화
+      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
+
+      try {
+        const response = await axios.get(`https://api.donggurami.net/admin/clubs/${club.clubId}`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
+            'Content-Type': 'application/json'
+          }
+        });
+
+        this.data = response.data.data;  // 동아리 기본 정보 설정
+        console.log(this.data);
+        // 사진 URL이 들어오면 mainPhoto에 사진 URL 저장
+        if (this.data.mainPhoto) {
+          this.mainPhoto = this.data.mainPhoto;
+        }
+
+        // 활동 사진들을 비동기로 가져오며, 오류가 있는 경우 해당 URL은 제외
+        const introPhotosPromises = this.data.introPhotos.map(async (url) => {
+          try {
+            const response = await axios.get(url, { responseType: 'blob' });
+            if (response.status === 200 && response.data.type.startsWith('image')) {
+              return URL.createObjectURL(response.data); // Blob을 URL로 변환
+            }
+          } catch (error) {
+            console.error(`Failed to load image from URL: ${url}`, error);
+            return null;  // 실패한 경우 null을 반환
+          }
+        });
+
+        // null이 아닌 값들만 필터링하여 images에 저장
+        this.images = (await Promise.all(introPhotosPromises)).filter(image => image !== null);
+
+      } catch (error) {
+        console.error('Fetch error:', error);
+        this.error = error.message;
+      }
     },
-  },
-  mounted() {
-    this.fetchClubs();
+    // 줄바꿈 변환
+    convertNewlinesToBr(text) {
+      return text ? text.replace(/\n/g, '') : '';
+    },
   },
 };
 </script>
@@ -328,7 +314,8 @@ body {
   left: 0;
   bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
   width: 22%;
-  
+  height: 19px; /* 형광펜 두께 */
+  background-color: #FFB052;
 ; /* 노란색 배경 */
   z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
   transform: skew(-12deg); /* 기울기 효과 추가 */
@@ -336,10 +323,11 @@ body {
 
 /* Header Section */
 .header {
-  margin-bottom: 10px;
-  background-color: white;
-  border-radius: 5px;
-  margin-top: 20px; /* 헤더를 아래로 20px 내림 */
+  width: 820px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  margin: 20px 0 30px 0;
+  padding: 0 20px 0 20px;
 }
 
 .header-row {
@@ -347,33 +335,85 @@ body {
   text-align: center;
   background-color: white;
   font-weight: bold;
-  width: 800px;
+  border-radius: 8px;
 }
 
-.header-item {
+.header-item-department{
   flex: 1;
-  text-align: end; /* 왼쪽 정렬 */
   padding: 10px 0; /* 헤더의 상하 여백을 조정 */
   line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
 }
 
-.header-item-row .header-item:nth-child(3), /* 동아리장 컬럼 */
-.header-item-row .header-item:nth-child(4)  /* 인원 컬럼 */ {
-  padding-left: 20px; /* 왼쪽으로 20px 옮기기 */
+.header-item-clubname{
+  flex: 1;
+  padding: 10px 0; /* 헤더의 상하 여백을 조정 */
+  line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
+}
+
+.header-item-clubleader{
+  flex: 1;
+  padding: 10px 0; /* 헤더의 상하 여백을 조정 */
+  line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
+}
+
+.header-item-numberOfClubMembers{
+  flex: 1;
+  padding: 10px 0; /* 헤더의 상하 여백을 조정 */
+  line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
+}
+
+.header-item-delete{
+  flex: 0.4;
+  padding: 10px 0; /* 헤더의 상하 여백을 조정 */
+  line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
 }
 
 /* List Items Section */
 .list {
-  margin-bottom: 20px;
-  margin-top: 20px; /* 리스트를 아래로 20px 내림 */
+  margin-bottom: 10px;
+  background-color: white;
+  border-radius: 5px;
+  margin-top: 10px; /* 리스트를 아래로 20px 내림 */
+  width: 800px;
 }
 
-.list-item {
+.list-item-department {
   flex: 1;
   display: flex;
   align-items: center; /* 세로 중앙 정렬 */
-  padding-left: 60px; /* 데이터 항목의 좌측 여백 조정 */
-  font-size: 18px; /* 리스트 아이템의 글자 크기 키움 */
+  justify-content: center; /* 가로 가운데 정렬 */
+  font-size: 15px; /* 리스트 아이템의 글자 크기 키움 */
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.list-item-clubname {
+  flex: 1;
+  display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: center; /* 가로 가운데 정렬 */
+  font-size: 15px; /* 리스트 아이템의 글자 크기 키움 */
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.list-item-clubleader {
+  flex: 1;
+  display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: center; /* 가로 가운데 정렬 */
+  font-size: 15px; /* 리스트 아이템의 글자 크기 키움 */
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.list-item-numberOfClubMembers {
+  flex: 1;
+  display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: center; /* 가로 가운데 정렬 */
+  font-size: 15px; /* 리스트 아이템의 글자 크기 키움 */
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -381,28 +421,30 @@ body {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  width: 820px;
 }
 
 .list-item-row {
   display: flex;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #e0e0e0;
-  width: 730px; /* 줄여진 너비 */
+  padding: 10px 0 10px 0;
+  background-color: #F0F2F5;
+  width: 745.44px; /* 줄여진 너비 */
   border-radius: 5px;
   height: 26px;
 }
 
-.delete-container {
+.list-item-delete {
+  width: 74.55px;
   display: flex;
   align-items: center;
-  margin-left: 10px;
 }
 
 .delete-btn {
   background-color: #e57373;
   color: #ffffff;
-  padding: 8px 12px;
+  width: 70.55px;
+  height: 44px;
+  margin: 0 4px 0 4px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -411,7 +453,7 @@ body {
   transition: visibility 0s, opacity 0.2s ease-in-out;
 }
 
-.list-item-container:hover .delete-btn {
+.list-item-delete:hover .delete-btn {
   visibility: visible;
   opacity: 1;
 }
@@ -436,6 +478,102 @@ body {
 }
 /* Popup Overlay and Popup Window */
 .popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  flex-direction: column;
+}
+
+.popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 452px;
+  height: 184px;
+  text-align: left;
+  position: relative;
+}
+
+.popup h3 {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  margin: 0;
+}
+
+.line2{
+  border-bottom: 1px solid #d3d3d3;
+  margin: 10px 0;
+}
+
+.popup-message {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 12px;
+  color: #2F2F2F;
+  margin-top: 20px;
+}
+
+.popup input {
+  width: 430px;
+  padding: 10px;
+  font-size: 14px; /* 입력 칸의 글씨 크기를 더 크게 */
+  border: 1px solid #C6C6C6;
+  border-radius: 8px;
+}
+
+.popup-warning {
+  font-size: 12px;
+  font-weight: 300;
+  color: #FF4B4B;
+  margin-left: 10px;
+}
+
+.expel-button {
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.expel-button:hover {
+  background-color: #e6953e;
+}
+
+.cancel-button {
+  background-color: #cccccc;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 120px;
+}
+
+.cancel-button:hover {
+  background-color: #999999;
+}
+
+.ClubInfoPopup-overlay {
   position: fixed; /* 화면 전체를 덮음 */
   top: 0;
   left: 0;
@@ -446,258 +584,153 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000; /* 화면 상단에 표시 */
-}
-
-.popup {
-  background-color: #fff;
-  padding: 30px; /* 팝업 패딩을 조금 더 여유롭게 */
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 450px; /* 1.5배 키움 */
-  z-index: 1001; /* 팝업창을 오버레이보다 위에 배치 */
-}
-
-.popup h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.5em; /* 글씨 크기를 더 크게 */
-}
-
-.popup p {
-  margin-bottom: 20px;
-  font-size: 1.2em; /* 글씨 크기를 더 크게 */
-}
-
-.popup input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px; /* 입력 칸과 버튼 사이 간격 추가 */
-  font-size: 1.2em; /* 입력 칸의 글씨 크기를 더 크게 */
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.popup-buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
-.popup-buttons button {
-  background-color: #ffc107; /* 확인 버튼 색상 변경 */
-  color: #fff;
-  border: none;
-  padding: 10px 30px; /* 버튼 크기를 더 크게 */
-  border-radius: 5px;
-  font-size: 1.2em; /* 버튼 글씨 크기를 더 크게 */
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.popup-buttons button:hover {
-  background-color: #e0a800;
-}
-
-.popup-buttons button:last-child {
-  background-color: #b0bec5;
-}
-
-.popup-buttons button:last-child:hover {
-  background-color: #90a4ae;
-}
-
-.club-profile {
-  max-width: 630px;
-  margin: auto;
-  padding: 20px;
-}
-
-.ClubInfo {
-  display: flex;
-  align-items: center;
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  width: 100%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-.club-details .clubname {
-  font-size: 24px; /* 폰트 크기 */
-  font-weight: 600; /* 폰트 두께 */
-  margin: 0;
-  color: #333; /* 텍스트 색상 */
-}
-
-.logo {
-  width: 104px;
-  height: 112px;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
-  margin-left: 60px; /* Add spacing between the logo and the text */
-}
-
-.Info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Ensure proper text alignment */
-  gap: 10px; /* Space between the club name and leader name */
-  margin-left: 35px;
-}
-
-.hashtags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.hashtag {
-  background-color: #f1f1f1;
-  color: #555;
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 15px;
-}
-
-.more-options {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-}
-
-.dots-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.dots-button span {
-  width: 5px;
-  height: 5px;
-  background: #767676;
-  border-radius: 50%;
-}
-
-/* Contact Info Popup */
-.contact-info-popup {
-  position: absolute;
-  top: 30px;
-  right: 0;
-  background: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 10px;
-  width: 280px;
-  z-index: 100;
-}
-
-.popup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.popup-header p {
-  font-size: 16px;
-  font-weight: bold;
-  margin: 0;
-}
-
-.contact-info-popup hr {
-  margin: 10px 0;
-  border: none;
-  border-top: 1px solid #ddd;
-}
-
-.contact-info-popup .location,
-.contact-info-popup .phoneNum,
-.contact-info-popup .instaName {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.contact-info-popup .icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-  background-size: contain;
-}
-
-.icon.location {
-  background: url('@/assets/location.svg') no-repeat center center;
-}
-
-.icon.phone {
-  background: url('@/assets/phone.svg') no-repeat center center;
-}
-
-.icon.insta {
-  background: url('@/assets/insta.svg') no-repeat center center;
-}
-
-.contact-info-popup .close-btn {
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-/* Styles for Tabs */
-.tabs-container {
-  margin-top: 20px;
-}
-
-.tabs-and-content {
-  /* background: #fff; */
-}
-
-.tabs {
-  display: flex;
-  justify-content: flex-start;
-  width: 330px; /* 탭 너비 고정 */
-  height: 44px; 
-  
-}
-
-.tabs button {
-  flex: 1;
-  padding: 10px 20px;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  background-color: #EEEEEE;
-  color: #C3C3C3;
-  border-radius: 3px;
-}
-
-.tabs button.active {
-  background-color: #FFB052;
-  color: #FFFFFF;
-  
-}
-
-.tab-content {
-  padding: 25px;
-  background-color: #fff;
-  border-radius: 0 0 8px 8px;
-  width: 640px; /* 원하는 넓이 */
-  height: 510px; /* 원하는 높이 */
-  margin: 0 auto; /* 가운데 정렬 */
   overflow-y: auto;
 }
 
-.description {
-
-  font-size: 14px;
-  color: #333;
-  line-height: 1.5;
+.club-profile {
+  max-width: 600px;
+  height: 825px;
+  margin: auto;
+  background: #F0F2F5;
+  border-radius: 8px;
 }
+
+.socials a {
+  margin: 0 10px;
+}
+
+.ClubInfo {
+  width: 584px;
+  height: 150px;
+  display: flex;
+  margin-bottom: 30px;
+  border-radius: 8px;
+}
+
+.ClubInfo img{
+  height: 150px;
+}
+
+.logo{
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  background-size: contain;
+  object-fit: fill;
+  border-radius: 8px;
+  margin: 0 40px 0 40px;
+}
+
+.Info{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.info{
+  display: flex;
+  align-items: center;
+}
+
+.clubname{
+  color: #000;
+  font-family: Pretendard;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 24px; /* 100% */
+  letter-spacing: -0.6px;
+  margin-right: 15px;
+}
+
+.clubleader{
+  color: #767676;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; /* 100% */
+  letter-spacing: -0.4px;
+  margin-left: 15px;
+  margin-right: 5px;
+}
+
+.name{
+  color: #353549;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: -0.4px;
+}
+
+.phone{
+  width: 16px;
+  margin-right: 7px;
+  background: url('@/assets/phone.svg') no-repeat center center;
+}
+
+.insta{
+  width: 16px;
+  margin-right: 7px;
+  background: url('@/assets/insta.svg') no-repeat center center;
+}
+
+.line1{
+  width: 1px;
+  height: 12px;
+  background: #DBDBDB;
+  margin-bottom: 4px;
+}
+
+.phoneNum{
+  display: flex;
+  height: 30px;
+}
+
+.phoneNum p{
+  font-size: 16px;
+  text-align: center;
+  line-height: 30px;
+  margin: 0;
+}
+
+.instaName{
+  display: flex;
+  height: 30px;
+}
+
+.instaName p{
+  font-size: 16px;
+  text-align: center;
+  line-height: 30px;
+  margin: 0;
+}
+
+.description {
+  text-align: left;
+  margin-left: 40px;
+}
+
+.description div{
+  width: 500px;
+  height: 287px;
+  border-radius: 8px;
+  align-items: center;
+  align-content: center;
+  background-color: #fff;
+  overflow-y: auto;
+}
+
+.description p{
+  width: 460px;
+  height: 247px;
+  margin-left: 20px;
+}
+
 .popup-button{
   margin-left: 445px;
   margin-top: 20px;
@@ -711,29 +744,6 @@ body {
   cursor: pointer;
   transition: background-color 0.3s;
 }
-.ClubInfoPopup-overlay {
-  position: fixed; /* 화면 전체를 덮음 */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* 화면 상단에 표시 */
-}
-
-.club-profile {
-  max-width: 630px;
-  margin: auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
-  overflow-y: auto;
-  max-height: 90%; /* 화면 높이에 맞게 제한 */
-  z-index: 1001;
-}
 
 </style>
+
