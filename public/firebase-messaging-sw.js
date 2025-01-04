@@ -1,45 +1,34 @@
-// Import the Firebase scripts
-importScripts('https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js');
+// /public/firebase-messaging-sw.js
+importScripts(
+  "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"
+);
+importScripts(
+  "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"
+);
 
-// Firebase configuration
+
+
 const firebaseConfig = {
-  apiKey: "AIzaSyC6WwOF-ZEOvfLd4TbL_YF4T6iGi5x6XL4",
-  authDomain: "qweqwr-d96fc.firebaseapp.com",
-  projectId: "qweqwr-d96fc",
-  storageBucket: "qweqwr-d96fc.appspot.com",
-  messagingSenderId: "681489530902",
-  appId: "1:681489530902:web:f25db09b0c0fd9bb84b537",
-  measurementId: "G-M8TVVVQ6XX"
-
+  apiKey: "AIzaSyCc1ZStuGuAAUYnosBu9hEs7I-mAy2Ej4Y",
+  authDomain: "project-1449470303390130162.firebaseapp.com",
+  projectId: "project-1449470303390130162",
+  storageBucket: "project-1449470303390130162.firebasestorage.app",
+  messagingSenderId: "311789790774",
+  appId: "1:311789790774:web:3341bee7cc5b9167b41a97",
+  measurementId: "G-3DJ4Y71M0N"
 };
 
-// Initialize Firebase
+
+// 파이어베이스 초기화
 firebase.initializeApp(firebaseConfig);
 
-// Initialize Firebase Messaging
 const messaging = firebase.messaging();
 
-// Background message handler
-messaging.onBackgroundMessage(function(payload) {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  
-  // Customize notification here
-  const notificationTitle = payload.notification.title || 'Notification Title';
+messaging.onBackgroundMessage((payload) => {
+  const notificationTitle = payload.title;
   const notificationOptions = {
-    body: payload.notification.body || 'Notification Body',
-    icon: payload.notification.icon || '/firebase-logo.png'
+      body: payload.body
   };
-
   self.registration.showNotification(notificationTitle, notificationOptions);
-
-  // Send data to the client
-  self.clients.matchAll().then(clients => {
-    clients.forEach(client => {
-      client.postMessage({
-        msg: "Message received",
-        data: payload.notification.body // 메시지 내용만 전송
-      });
-    });
-  });
+  
 });
