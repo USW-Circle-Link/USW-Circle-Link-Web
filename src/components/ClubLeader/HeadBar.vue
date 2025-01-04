@@ -1,31 +1,25 @@
+
 <template>
-    <div class="header">
-        <img @click="navigateTo('dashboard')" src="../../assets/dongurami_logo.png" alt="Dongurami Logo" class="logo" />
-        <h1 @click="navigateTo('dashboard')" class="title">동구라미</h1>
-    </div>
+  <div class="header">
+    <img src="../../assets/dongurami_logo.png" alt="Dongurami Logo" class="logo" />
+    <h1 class="title">동구라미</h1>
+    <NotificationButton/>
+  </div>
 </template>
 
 <script>
+import NotificationButton from "@/components/ClubLeader/NotificationButton.vue";
 
 export default {
-    name: 'Headbar',  // 구성요소 이름
-    methods : {
-      // 함수 실행 시 routeName의 컴포넌트로 이동
-      navigateTo(routeName) {
-        this.$router.push({ name: routeName }).catch(err => {
-          if (err.name !== 'NavigationDuplicated') {
-            throw err;
-          }
-        });
-      },
-  }
+  name: 'Headbar',
+  components: {NotificationButton}
 };
 
 
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jua&diszzplay=swap');
 
 
 .header {
@@ -34,13 +28,12 @@ export default {
   align-items: center;
   height: 86px;
   background: #fff;
-  box-shadow: 0 2.5px 0 0 rgba(0, 0, 0, 0.13);
+  box-shadow: 0px 2.5px 0px 0px rgba(0, 0, 0, 0.13);
   margin-bottom: 40px;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
 }
 
 .logo {
@@ -49,7 +42,6 @@ export default {
   padding: 5px;
   transform: scaleX(-1);
   margin-left: 260px;
-  cursor: pointer; /* Add this line */
 }
 
 .title {
@@ -59,6 +51,5 @@ export default {
   font-style: normal;
   font-weight: 405;
   line-height: 14px; /* 100% */
-  cursor: pointer; /* Add this line */
 }
 </style>
