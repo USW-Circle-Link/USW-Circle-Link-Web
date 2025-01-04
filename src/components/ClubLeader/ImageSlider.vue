@@ -1,45 +1,31 @@
+
 <template>
-  <!-- 이미지 슬라이더 구성요소 -->
   <div class="image-slider">
-    <!-- 슬라이더 컨테이너 -->
     <div class="slider">
       <div class="slides">
-        <!-- 이미지를 동적으로 생성 -->
-        <img
-            v-for="(image, index) in images"
-            :src="image"
-            :key="index"
-            :class="{ active: index === activeIndex }"
-            alt="사진"
-        />
+        <img v-for="(image, index) in images" :src="image" :key="index" :class="{ active: index === activeIndex }"  alt="사진"/>
       </div>
     </div>
     <div class="dots">
-      <span
-          v-for="(image, index) in images"
-          :key="index"
-          :class="{ active: index === activeIndex }"
-          @click="activeIndex = index"
-      ></span>
+      <span v-for="(image, index) in images" :key="index" :class="{ active: index === activeIndex }" @click="activeIndex = index"></span>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'ImageSlider', // 구성요소 이름
-  props: ['images'], // 이미지 URL 배열
+  name: 'ImageSlider',
+  props: ['images'],
   data() {
     return {
-      activeIndex: 0, // 현재 활성화된 슬라이드 인덱스 (사진 값이 들어오기 전 사진 0개 기본값)
+      activeIndex: 0
     };
   },
   mounted() {
-    // 3초마다 자동으로 이미지 순환
     setInterval(() => {
       this.activeIndex = (this.activeIndex + 1) % this.images.length;
     }, 3000);
-  },
+  }
 };
 </script>
 
@@ -49,11 +35,13 @@ export default {
   max-width: 584px;
   align-items: center;
   align-content: center;
-  margin-top: 20px;
+  margin-top: 30px;
+  margin-bottom: 20px; /* 슬라이더와 아래 콘텐츠 간격 추가 */
+ 
 }
 
 .slides{
-  width: 584px;
+  width: 612px;
   margin-left: 185px;
   align-items: center;
   align-content: center;
@@ -61,22 +49,23 @@ export default {
 }
 
 .slider{
-  margin-left: 20px;
+  margin-left: 4px;
   margin-right: 30px;
-  width: 540px;
-  height: 200px;
+  width: 665px;
+  height: 260px;
   background: #303030;
   border-radius: 8px;
   vertical-align: middle;
   display: flex;
   justify-content: center;
+  align-items: center;
   align-content: center;
-  position: relative;
+  position: relative; /* dots를 슬라이더 내부에 배치할 수 있도록 기준 설정 */
 }
 
 .slides img {
   max-width: 200px;
-  max-height: 200px;
+  max-height: 510px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -89,21 +78,26 @@ export default {
 }
 
 .dots {
-  margin-top: 15px;
-  text-align: center;
+  position: absolute; /* dots를 슬라이더 내부에 배치 */
+  bottom: 10px; /* 슬라이더의 맨 아래에 위치 */
+  left: 50%; /* 가로 중앙 정렬 */
+  transform: translateX(-50%); /* 가로 중앙 정렬 보정 */
+  display: flex; /* dots들을 가로로 배치 */
+  gap: 5px; /* dots 간의 간격 */
 }
 
 .dots span {
   height: 9px;
   width: 9px;
-  margin: 0 3px;
   background-color: #bbb;
   border-radius: 50%;
   display: inline-block;
   cursor: pointer;
+  /* transition: background-color 0.3s ease; 색상 변경 애니메이션 */
 }
 
 .dots span.active {
   background-color: #FFC700;
 }
 </style>
+
