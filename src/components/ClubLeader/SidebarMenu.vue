@@ -19,8 +19,9 @@
           </div>
           <div class="bottom">
             <a @click.prevent="navigateTo('profileedit')">- 동아리 정보 수정</a>
+            <a @click.prevent="navigateTo('duplicate-member')">- 중복 회원 추가</a>
             <a @click.prevent="navigateTo('Accept')">- 동아리 회원가입 요청 관리</a>
-           
+
           </div>
         </li>
         <li class="list2">
@@ -224,7 +225,7 @@ nav li {
 }
 
 .list1:hover {
-  height: 100px;
+  height: 150px;
   box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
