@@ -448,14 +448,9 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  visibility: hidden;
+  visibility: visible;
   opacity: 0;
   transition: visibility 0s, opacity 0.2s ease-in-out;
-}
-
-.list-item-delete:hover .delete-btn {
-  visibility: visible;
-  opacity: 1;
 }
 
 /* Pagination */
