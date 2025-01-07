@@ -7,35 +7,35 @@
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="id">아이디</label>
-          <input type="text" id="id" v-model="id" placeholder="아이디" required @input="validateId" />
-          <button @click="idDuplicateCheck">중복 확인</button>
+          <input class="from-input" type="text" id="id" v-model="id" placeholder="아이디" required @input="validateId" />
+          <button class="DuplicateCheckbtn" @click="idDuplicateCheck">중복 확인</button>
         </div>
-        <span v-if="idError" class="error">{{ idError }}</span>
+        <span v-if="idError" class="warning">{{ idError }}</span>
       </div>
       <!-- 비밀번호 -->
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="password">비밀번호</label>
-          <input type="password" id="password" v-model="password" placeholder="비밀번호" required @input="validatePassword" />
+          <input class="from-input" type="password" id="password" v-model="password" placeholder="비밀번호" required @input="validatePassword" />
         </div>
-        <span v-if="passwordError" class="error">{{ passwordError }}</span>
+        <span v-if="passwordError" class="warning">{{ passwordError }}</span>
       </div>
       <!-- 비밀번호 확인 -->
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="confirmPassword">비밀번호 확인</label>
-          <input type="password" id="confirmPassword" v-model="confirmPassword" placeholder="비밀번호 확인" required />
+          <input class="from-input" type="password" id="confirmPassword" v-model="confirmPassword" placeholder="비밀번호 확인" required @input="validateConfirmPassword"/>
         </div>
-        <span v-if="clubNameError" class="error"></span>
+        <span v-if="confirmPasswordError" class="warning">{{confirmPasswordError}}</span>
       </div>
-      <!-- 동아리명 -->
+      <!-- 동아리 이름 -->
       <div class="form-group-col">
         <div class="form-group-row">
-          <label for="clubName">동아리명</label>
-          <input type="text" id="clubName" v-model="clubName" placeholder="동아리명" required @input="validateClubName" />
-          <button @click="clubNameDuplicateCheck">중복 확인</button>
+          <label for="clubName">동아리 이름</label>
+          <input class="from-input" type="text" id="clubName" v-model="clubName" placeholder="동아리명" required @input="validateClubName" />
+          <button class="DuplicateCheckbtn" @click="clubNameDuplicateCheck">중복 확인</button>
         </div>
-        <span v-if="clubNameError" class="error">{{ clubNameError }}</span>
+        <span v-if="clubNameError" class="warning">{{ clubNameError }}</span>
       </div>
       <!-- 분과 -->
       <div class="form-group">
@@ -57,21 +57,101 @@
           </ul>
         </div>
       </div>
+      <!-- 동아리방 -->
+      <div class="form-group-col">
+        <div class="form-group-row">
+          <label for="clubName">동아리방</label>
+          <button class="club-room-btn" @click="selectClubRoom">
+            <i class="icon mappin"></i>
+            동아리방 선택
+          </button>
+          <input class="club-room" v-model="selectedRoom" readonly>
+        </div>
+        <span v-if="clubRoomError" class="warning">{{ clubRoomError }}</span>
+      </div>
       <div class="popupbtn" @click="openPopup()">추가하기</div>
     </form>
-    <!-- 동아리 삭제 팝업창  -->
+
+    <div v-if="isIdPopupVisible" class="popup-overlay">
+      <div class="popup">
+        <p class="confirm-message">사용 가능한 아이디입니다.</p>
+        <button class="confirm-button" @click="ConfirmedId">확인</button>
+      </div>
+    </div>
+
+    <div v-if="isClubNamePopupVisible" class="popup-overlay">
+      <div class="popup">
+        <p class="confirm-message">사용 가능한 동아리 이름입니다.</p>
+        <button class="confirm-button" @click="ConfirmedClubName">확인</button>
+      </div>
+    </div>
+
+    <!-- 동아리 추가 팝업창  -->
     <div v-if="isPopupVisible" class="popup-overlay">
       <div class="popup">
         <h3>동아리 추가</h3>
-        <p>"{{ clubName }}" (을)를 추가하시겠습니까?</p>
+        <div class="line2"></div>
+        <p class="popup-message">'{{clubName}}'을(를) 추가하시겠습니까?</p>
         <input v-model="adminPw" type="password" placeholder="관리자 비밀번호" />
-        <span v-if="adminPwError" class="error">{{ adminPwError }}</span>
-        <div class="popup-buttons">
-          <button @click="submitForm">추가</button>
-          <button @click="cancelDelete">취소</button>
+        <p class="popup-warning">{{adminPwError}}</p>
+        <button class="expel-button" @click="submitForm">확인</button>
+        <button class="cancel-button" @click="cancelDelete">취소</button>
+      </div>
+    </div>
+
+    <div v-if="isClubRoomPopupVisible" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>동아리방 선택하기</h3>
+          <button class="close-button" @click="closeSelectRoom">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <g clip-path="url(#clip0_4722_18717)">
+                <path d="M17.3588 0.643066L0.644531 17.3574M0.644531 0.643066L17.3588 17.3574" stroke="#969696" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_4722_18717">
+                  <rect width="18" height="18" fill="white"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
+        </div>
+
+
+        <div class="modal-body">
+          <div class="floor-selector-container">
+            <div class="floor-selector">
+              <button
+                  v-for="floor in floors"
+                  :key="floor"
+                  :class="['floor-button', { active: selectedFloor === floor }]"
+                  @click="selectedFloor = floor"
+              >
+                {{ floor }}
+              </button>
+            </div>
+          </div>
+          <div class="room-container">
+            <div class="rooms-wrapper">
+              <div class="room-grid">
+                <button
+                    v-for="room in roomsByFloor"
+                    :key="room"
+                    :class="['room-button', { active: selectedRoom === room }]"
+                    @click="selectedRoom = room"
+                >
+                  {{ room }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="select-button" @click="selectRoom">선택하기</button>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -91,7 +171,9 @@ export default {
       // 정보 입력 값 에러 메세지 변수
       idError: '',
       passwordError: '',
+      confirmPasswordError:'',
       clubNameError: '',
+      clubRoomError: '',
 
       // 동아리 분과 선택을 위한 드롭 다운 리스트 옵션 문자열이 저장된 배열
       options: ['학술', '종교', '예술', '체육', '공연', '봉사'],
@@ -105,10 +187,33 @@ export default {
       // 동아리 "추가하기" 버튼을 누르면 나오는 팝업창 가시성 플래그
       isPopupVisible: false,
 
+      // 동아리 아이디 "중복확인" 버튼을 누르면 나오는 팝업창 가시성 플래그
+      isIdPopupVisible: false,
+
+      // 동아리 이름 "중복확인" 버튼을 누르면 나오는 팝업창 가시성 플래그
+      isClubNamePopupVisible: false,
+
+      isClubRoomPopupVisible: false,
+
       // 동연회/개발팀 비밀번호
       adminPw: '',
       adminPwError: '', // 정보 입력 값 에러 메세지 변수
+
+      // 동아리 방 정보
+      floors: ['지하', '1층', '2층'],
+      selectedFloor: '1층',
+      selectedRoom: '미선택',
+      roomMap: {
+        '지하': ['B101호', 'B102호', 'B103호', 'B104호', 'B105호', 'B106호', 'B107호', 'B108호', 'B109호', 'B110호', 'B111호', 'B112호', 'B113호','B114호', 'B115호', 'B116호', 'B117호', 'B118호', 'B119호', 'B120호', 'B121호', 'B122호', 'B123호'],
+        '1층': ['102호', '103호', '104호', '105호', '106호', '107호', '108호', '109호', '110호', '112호'],
+        '2층': ['203호', '205호', '206호','207호', '208호', '209호', '210호',]
+      }
     };
+  },
+  computed: {
+    roomsByFloor() {
+      return this.roomMap[this.selectedFloor] || []
+    }
   },
   methods: {
     // 함수 실행 시 routeName의 컴포넌트로 이동
@@ -139,28 +244,34 @@ export default {
     },
     validateClubName() {
       if (this.clubName.length > 10) {
-        this.clubNameError = '* 동아리명은 10자 이내로 입력해야 합니다.';
+        this.clubNameError = '* 동아리 이름은 공백 포함 10자 이내로 작성해주세요.';
       } else {
         this.clubNameError = '';
       }
     },
+    validateConfirmPassword() {
+      if(this.password !== this.confirmPassword){
+        this.confirmPasswordError = '* 비밀번호가 일치하지 않습니다.';
+      } else {
+        this.confirmPasswordError = '';
+      }
+    },
     idDuplicateCheck() { //아이디 중복 확인
-      alert('아이디 중복 확인');
+      this.isIdPopupVisible = true;
     },
     clubNameDuplicateCheck() { //동아리 이름 중복 확인
-      alert('동아리 이름 중복 확인');
+      this.isClubNamePopupVisible = true;
+    },
+    ConfirmedId(){
+      this.isIdPopupVisible = false;
+    },
+    ConfirmedClubName(){
+      this.isClubNamePopupVisible = false;
     },
     // "추가하기" 버튼을 눌러 팝업창 나타내기
     openPopup() {
-      // 입력 조건에 맞는지 검사후 팝업창 나타내기
-      if (this.password !== this.confirmPassword) {
-        alert('비밀번호가 일치하지 않습니다.');
-      }
-      else if (this.idError || this.passwordError || this.clubNameError) {
-        alert('입력값을 확인해 주세요.');
-      } else {
-        this.isPopupVisible = true;
-      }
+      this.isPopupVisible = true;
+
     },
 
     // 팝업창 "취소" 버튼을 눌러 팝업창을 지우고 입력폼 값 초기화
@@ -209,7 +320,7 @@ export default {
       };
 
       try {
-        await axios.post('http://15.164.246.244:8080/admin/clubs', formData, {
+        await axios.post('https://api.donggurami.net/admin/clubs', formData, {
           headers: {
             'Authorization': `Bearer ${store.state.accessToken}`
           }
@@ -224,13 +335,7 @@ export default {
         }
         // 서버에서 보낸 에러 코드에 따라 사용자에게 에러 정보 제공
         if (error.response.status === 400) {
-          this.adminPwError = '* 동아리 추가에 실패했습니다. 관리자 비밀번호가 틀렸습니다.';
-        }
-        if (error.response.status === 409) {
-          this.adminPwError = '* 동아리 추가에 실패했습니다. 이미 존재하는 동아리 입니다.';
-        }
-        if (error.response.status === 422) {
-          this.adminPwError = '* 동아리 추가에 실패했습니다. 이미 존재하는 동아리 회장 아이디 입니다.';
+          this.adminPwError = '* 비밀번호를 다시 확인해주세요.';
         }
       }
     },
@@ -243,6 +348,19 @@ export default {
       this.clubName = '';
       this.department = '';
       this.adminPw = '';
+    },
+
+    // 동아리 방 선택
+    selectRoom() {
+      if (this.selectedRoom) {
+        this.closeSelectRoom()
+      }
+    },
+    selectClubRoom(){
+      this.isClubRoomPopupVisible = true;
+    },
+    closeSelectRoom(){
+      this.isClubRoomPopupVisible = false;
     }
   }
 };
@@ -278,7 +396,7 @@ export default {
   padding: 20px;
   background-color: #ffffff;
   border-radius: 8px;
-  height: 530px;
+  height: 650px;
 }
 
 h2 {
@@ -292,6 +410,7 @@ h2 {
   height: 70px;
   display: flex;
   align-items: center;
+  margin-bottom: 21.5px;
 }
 
 .form-group-col {
@@ -316,7 +435,7 @@ h2 {
   position: relative; /* 부모 요소를 기준으로 자식 요소 위치 지정 */
 }
 
-.form-group-row button{
+.DuplicateCheckbtn{
   width: 80px;
   height: 45px;
   position: absolute;
@@ -328,11 +447,31 @@ h2 {
   color: white;
 }
 
-.form-group-row button:hover{
+.DuplicateCheckbtn:hover{
   background-color: #e6b800;
 }
 
-input {
+.club-room-btn{
+  width: 20%;
+  right: 40px;
+  border: 0.5px solid #C5C5C5;
+  padding: 20px 25px 20px 25px;
+  background-color: #FFFFFF;
+  border-radius: 5px;
+}
+
+.club-room{
+  width: 30%;
+  align-items: center;
+  margin-left: 10px;
+  border: 1.5px solid #C5C5C5;
+  border-radius: 5px;
+  padding: 20px 25px 20px 25px;
+  background-color: #efefef;
+  color: #828282;
+}
+
+.from-input {
   width: 70%;
   align-items: center;
   margin-bottom: 10px;
@@ -342,7 +481,7 @@ input {
   background-color: #fff;
 }
 
-input::placeholder{
+.from-input::placeholder{
   color: #9D9D9D;
   font-size: 16px;
 }
@@ -352,6 +491,13 @@ label {
   display: block;
   margin-bottom: 5px;
   color: #555;
+}
+
+.warning{
+  font-size: 12px;
+  font-weight: 300;
+  color: #FF4B4B;
+  margin: 0 0 0 10px;
 }
 
 .popupbtn {
@@ -371,82 +517,131 @@ label {
   background-color: #e6b800;
 }
 
+.mappin{
+  background: url('@/assets/mappin.svg') no-repeat center center;
+}
+
 /* Popup Overlay and Popup Window */
 .popup-overlay {
-  position: fixed; /* 화면 전체를 덮음 */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* 화면 상단에 표시 */
+  z-index: 999;
+  flex-direction: column;
 }
 
 .popup {
-  background-color: #fff;
-  padding: 30px; /* 팝업 패딩을 조금 더 여유롭게 */
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 450px; /* 1.5배 키움 */
-  z-index: 1001; /* 팝업창을 오버레이보다 위에 배치 */
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 452px;
+  height: 184px;
+  text-align: left;
+  position: relative;
+}
+
+.confirm-message{
+  text-align: center;
+  margin-top: 80px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 12px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+
+}
+
+.confirm-button{
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
 }
 
 .popup h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.5em; /* 글씨 크기를 더 크게 */
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  margin: 0;
 }
 
-.popup p {
-  margin-bottom: 20px;
-  font-size: 1.2em; /* 글씨 크기를 더 크게 */
+.line2{
+  border-bottom: 1px solid #d3d3d3;
+  margin: 10px 0;
+}
+
+.popup-message {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 12px;
+  color: #2F2F2F;
+  margin-top: 20px;
 }
 
 .popup input {
-  width: 95%;
+  width: 430px;
   padding: 10px;
-  margin-bottom: 10px; /* 입력 칸과 버튼 사이 간격 추가 */
-  font-size: 1.2em; /* 입력 칸의 글씨 크기를 더 크게 */
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  font-size: 14px; /* 입력 칸의 글씨 크기를 더 크게 */
+  border: 1px solid #C6C6C6;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
-.popup span{
-  margin-left: 10px;
-  color: red;
+.popup-warning {
   font-size: 12px;
+  font-weight: 300;
+  color: #FF4B4B;
+  margin: 0 0 0 10px;
 }
 
-.popup-buttons {
-  margin-top: 10px; /* 입력 칸과 버튼 사이 간격 추가 */
-  display: flex;
-  justify-content: space-between;
-}
-
-.popup-buttons button {
-  background-color: #ffc107; /* 확인 버튼 색상 변경 */
-  color: #fff;
+.expel-button {
+  background-color: #FFB052;
+  color: white;
   border: none;
-  padding: 10px 30px; /* 버튼 크기를 더 크게 */
-  border-radius: 5px;
-  font-size: 1.2em; /* 버튼 글씨 크기를 더 크게 */
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
   cursor: pointer;
-  transition: background-color 0.3s;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
 }
 
-.popup-buttons button:hover {
-  background-color: #e0a800;
+.expel-button:hover {
+  background-color: #e6953e;
 }
 
-.popup-buttons button:last-child {
-  background-color: #b0bec5;
+.cancel-button {
+  background-color: #cccccc;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 120px;
 }
 
-.popup-buttons button:last-child:hover {
-  background-color: #90a4ae;
+.cancel-button:hover {
+  background-color: #999999;
 }
 
 .custom-dropdown {
@@ -528,27 +723,164 @@ label {
   border-radius: 0 0 8px 8px;
 }
 
-.buttons {
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  background: #F3F3F3;
+  border-radius: 32px;
+  width: 645px;
+  height: 399px;
+  max-width: 90vw;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  margin-bottom: -25px;
 }
 
-.popup-overlay button {
-  margin-top: 20px;
-  width: 100px;
-  padding: 10px 20px;
+.modal-header h3 {
+  color: #575757;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 12px; /* 75% */
+  letter-spacing: -0.4px;
+}
+
+.close-button {
+  background: none;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
-.popup-overlay button {
-  background-color: #ffc107;
+.close-button:hover {
+  stroke: #000; /* Change the stroke color to a darker shade */
+}
+
+
+.modal-body {
+  flex: 1;
+  padding: 10px 40px;
+  overflow: hidden;
+}
+
+.floor-selector-container {
+  margin-bottom: 10px;
+}
+
+.floor-selector {
+  background: #E8E8E8;
+  border-radius: 10px;
+  padding: 4px;
+  display: flex;
+  position: relative;
+  width: fit-content;
+}
+
+.floor-button {
+  padding: 8px 32px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  position: relative;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+
+.floor-button.active {
+  background: white;
+  color: #000;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.room-container {
+  min-height: 160px;
+  margin-bottom: 24px;
+}
+
+.rooms-wrapper {
+  border-radius: 8px;
+  border: 1px solid #C3C3C3;
+  background: #FFF;
+  padding: 16px;
+}
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.room-button {
+  padding: 10px 8px;
+  border: 1px solid #E0E0E0;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  color: #5A5A5A;
+  font-family: Pretendard;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 12px; /* 85.714% */
+  transition: all 0.2s ease;
+  width: 68px;
+}
+
+.room-button.active {
+  border-color: #FFA000;
+  color: #000;
+}
+
+.modal-footer {
+  padding: 10px 40px;
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.select-button {
+  width: 124px; /* Set the width to 124px */
+  height: 40px;
+  padding: 8px 10px;
+  justify-content: center;
+  align-items: center;
+  background: #FFB74D;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
   color: white;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
 
-.error {
-  color: red;
-  font-size: 12px;
+.select-button:hover {
+  background: #FFA726;
 }
+
 </style>
