@@ -138,6 +138,12 @@ const routes = [
                 component: () => import('../components/Admin/ClubList.vue'),
                 props: true,
             },
+            {
+                path: 'clubroom',
+                name: 'clubroom',
+                component: () => import('../components/Admin/ClubroomMapUpload.vue'),
+                props: true,
+            },
         ]
     },
 
