@@ -21,8 +21,22 @@
           <div class="icon map"></div>
           <p class="room">동아리방</p>
           <div class="line2"></div>
-          <p class="detail">학생회관 {{formattedPhoneNumber}}</p>
+          <p class="detail">
+            <template v-if="data.selectedRoom">
+              학생회관 {{ data.selectedRoom }}
+            </template>
+            <template v-else>
+              정보 없음
+            </template>
+          </p>
         </div>
+
+        <div class="hashTag" v-if="data.hashTags && data.hashTags.length > 0">
+          <p v-for="(tag, index) in data.hashTags" :key="index" class="tag1">
+            #{{ tag }}
+          </p>
+        </div>
+
       </div>
     </div>
     <div class="Dashboardhead">
@@ -164,6 +178,13 @@ export default {
           // mainPhotoUrl이 없을 경우 기본 프로필 이미지 설정
           this.imageSrc = require('@/assets/profile.png');
         }
+
+        // 동아리방 위치와 해시태그 처리
+        this.data.selectedRoom = response.data.data.selectedRoom || "정보 없음";
+        this.data.hashTags = response.data.data.hashTag
+          ? response.data.data.hashTag.split(',').map(tag => tag.trim())
+          : [];
+
       } catch (error) {
         console.error('Fetch error:', error);
         this.error = error.message;
@@ -440,6 +461,18 @@ export default {
   letter-spacing: -0.4px;
 }
 
+.tag1 {
+  color: #444444;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; 
+  letter-spacing: -0.4px;
+  
+  align-self: center;
+}
+
 .name {
   color: #353549;
   font-family: Pretendard;
@@ -506,6 +539,18 @@ export default {
   text-align: center;
   line-height: 33px;
   margin: 0;
+}
+
+.hashTag {
+  display: flex;
+  height: 30px;
+
+  width: 60px;
+  border-radius: 10px;
+  background-color: #dedede;
+  color: #464646;
+  margin-top: 5px;
+  justify-content: center;
 }
 
 .instaName {
