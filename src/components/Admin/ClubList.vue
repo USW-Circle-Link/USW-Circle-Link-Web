@@ -235,7 +235,7 @@ export default {
       const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
 
       try {
-        const response = await axios.get(`https://api.donggurami.net/admin/clubs/${club.clubId}`, {
+        const response = await axios.get(`http://15.164.246.244:8080/admin/clubs/${club.clubId}`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
             'Content-Type': 'application/json'
