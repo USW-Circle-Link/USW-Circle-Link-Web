@@ -169,7 +169,7 @@ export default {
         adminPw: this.adminPw
       };
       try {
-        await axios.post('https://api.donggurami.net/admin/clubs', formData, {
+        await axios.post('http://15.164.246.244:8080/admin/clubs', formData, {
           headers: {
             'Authorization': `Bearer ${store.state.accessToken}`
           }
