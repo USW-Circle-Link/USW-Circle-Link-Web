@@ -134,17 +134,8 @@
 export default {
   data() {
     return {
-      requestedMembers: [
-        { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-        { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-        { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-        { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-      ],
-      addedMembers: [
-        { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-        { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-        { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-      ],
+      requestedMembers: [],
+      addedMembers: [],
       selectedRequestedMembers: [],
       selectedAddedMembers: [],
       showAcceptPopup: false,
@@ -154,7 +145,48 @@ export default {
       membersToReject: [],
     };
   },
+  mounted() {
+    // 새로고침 시 데이터 로드
+    this.loadData();
+    this.checkAndReload();
+  },
   methods: {
+    loadData() {
+      // 로컬 스토리지에서 데이터 불러오기
+      const requested = localStorage.getItem("requestedMembers");
+      const added = localStorage.getItem("addedMembers");
+
+      // 데이터가 있을 경우 파싱하여 상태에 반영
+      this.requestedMembers = requested
+        ? JSON.parse(requested)
+        : [
+            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
+            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
+            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
+            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
+          ];
+      this.addedMembers = added
+        ? JSON.parse(added)
+        : [
+            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
+            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
+            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
+          ];
+    },
+    saveData() {
+      // 로컬 스토리지에 현재 상태 저장
+      localStorage.setItem("requestedMembers", JSON.stringify(this.requestedMembers));
+      localStorage.setItem("addedMembers", JSON.stringify(this.addedMembers));
+    },
+    checkAndReload() {
+      // sessionStorage에 새로고침 여부 확인
+      const reloaded = sessionStorage.getItem("reloaded");
+      if (!reloaded) {
+        // 새로고침 플래그가 없을 경우 새로고침 수행
+        sessionStorage.setItem("reloaded", "true");
+        location.reload(); // 새로고침
+      }
+    },
     toggleRequestedMember(index) {
       const selectedIndex = this.selectedRequestedMembers.indexOf(index);
       if (selectedIndex > -1) {
@@ -170,30 +202,29 @@ export default {
       } else {
         this.selectedAddedMembers.push(index);
       }
-      console.log(this.selectedAddedMembers); // 선택된 멤버 확인
     },
-      rejectMember(index) {
-    this.requestedMembers[index].rejected = true; // 거절 상태를 true로 설정
-    this.membersToReject = [index]; // 팝업을 위한 선택된 멤버 설정
-    this.showRejectionPopup = true; // 팝업 표시
-  },
-  cancelRejection() {
-    // 거절 상태 복원
-    this.membersToReject.forEach((index) => {
-      this.requestedMembers[index].rejected = false;
-    });
-    this.membersToReject = []; // 선택된 멤버 초기화
-    this.showRejectionPopup = false; // 팝업 닫기
-  },
+    rejectMember(index) {
+      this.requestedMembers[index].rejected = true; // 거절 상태
+      this.membersToReject = [index];
+      this.showRejectionPopup = true;
+      this.saveData(); // 상태 저장
+    },
+    cancelRejection() {
+      this.membersToReject.forEach((index) => {
+        this.requestedMembers[index].rejected = false;
+      });
+      this.membersToReject = [];
+      this.showRejectionPopup = false;
+      this.saveData(); // 상태 저장
+    },
     confirmRejection() {
-    // requestedMembers에서 멤버 삭제
-    this.membersToReject.forEach((index) => {
-      this.requestedMembers.splice(index, 1);
-    });
-    this.membersToReject = [];
-    this.showRejectionPopup = false;
-  },
-
+      this.membersToReject.forEach((index) => {
+        this.requestedMembers.splice(index, 1);
+      });
+      this.membersToReject = [];
+      this.showRejectionPopup = false;
+      this.saveData(); // 상태 저장
+    },
     cancelAccept() {
       this.showAcceptPopup = false;
     },
@@ -201,10 +232,12 @@ export default {
       if (this.validateMemberInfo()) {
         this.showAcceptPopup = false;
         this.showConfirmationPopup = true;
+        this.performReload(); // 새로고침 수행
       } else {
         this.showAcceptPopup = false;
         this.showErrorPopup = true;
       }
+      this.saveData(); // 상태 저장
     },
     validateMemberInfo() {
       const selectedRequested = this.selectedRequestedMembers.map(
@@ -224,6 +257,11 @@ export default {
         )
       );
     },
+    performReload() {
+      // 새로고침 플래그를 설정 후 새로고침
+      sessionStorage.setItem("reloaded", "true");
+      location.reload();
+    },
     closeConfirmationPopup() {
       this.showConfirmationPopup = false;
     },
@@ -233,7 +271,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 /* 선택된 요청 멤버 (request-item) */
