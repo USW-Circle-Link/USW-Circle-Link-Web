@@ -10,11 +10,15 @@
     </div>
     <nav>
       <ul>
-        <li class="list3">
+        <li class="list2">
           <div class="top" @click="navigateTo('clublist')">
             <i class="icon home"></i>
             <p class="menu">동아리</p>
             <div class="yellowLine"></div>
+          </div>
+          <div class="bottom">
+            <a @click="navigateTo('clubroom')">- 동아리 위치 정보 수정</a>
+            <a @click="navigateTo('clubroom')">- 동아리 카테고리 설정</a>
           </div>
         </li>
         <li class="list3" @click="navigateTo('AddClub')">
@@ -169,7 +173,7 @@ nav li {
 }
 
 .list2:hover {
-  height: 170px;
+  height: 130px;
 }
 
 .list2:hover a {
