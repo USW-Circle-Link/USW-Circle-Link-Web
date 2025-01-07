@@ -449,7 +449,6 @@ body {
   border-radius: 5px;
   cursor: pointer;
   visibility: visible;
-  opacity: 0;
   transition: visibility 0s, opacity 0.2s ease-in-out;
 }
 
