@@ -49,8 +49,11 @@
     <div class="empty"></div>
     <div class="line1"></div>
     <div class="footer">
-      <a @click.prevent="navigateTo('TermsOfUse')">이용약관</a>
-      <div class="line2"></div>
+      <div class="links">
+        <a @click.prevent="navigateTo('TermsOfUse')" :class="{ selected: selectedLink === 'TermsOfUse' }">이용약관</a>
+        <div class="line2"></div>
+        <a @click.prevent="navigateTo('privacy_policy_')" :class="{ selected: selectedLink === 'privacy_policy_', 'bold-text': true }">개인정보 처리방침</a>
+      </div>
       <a @click.prevent="logout">로그아웃</a>
     </div>
   </div>
@@ -67,7 +70,8 @@ export default {
     return {
       imageSrc: require('@/assets/profile.png'),
       data: '',
-      department: ''
+      department: '',
+      selectedLink: '', //선택 중이라면 노란색으로 (footer)
     }
   },
   mounted() {
@@ -75,6 +79,7 @@ export default {
   },
   methods: {
     navigateTo(routeName) {
+      this.selectedLink = routeName; // Add this line
       this.$router.push({ name: routeName }).catch(err => {
         if (err.name !== 'NavigationDuplicated') {
           throw err;
@@ -137,6 +142,9 @@ export default {
 </script>
 
 <style scoped>
+.bold-text {
+  font-weight: 800;
+}
 
 .sidebar {
   width: 240px;
@@ -370,24 +378,36 @@ nav .icon {
   background-color: #999999;
 }
 
+
 .footer {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start; /* Change from center to flex-start */
   font-size: 12px;
-  align-items: center;
+  padding-left: 30px; /* Add padding to align with other elements */
+}
+
+.footer .links {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .footer a {
-  color: #999999;
+  color: #686868;
   text-decoration: none;
   cursor: pointer;
+}
+
+.footer a.selected {
+  color: #FFB052; /* Yellow color for selected link */
 }
 
 .line2 {
   width: 1px;
   height: 13px;
   background-color: #bbbbbb;
-  margin: 0px 20px 0px 20px;
+  margin: 0px 30px;
 }
 
 .footer a:hover {
