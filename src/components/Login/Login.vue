@@ -223,13 +223,13 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 90vh;
   background-color: #f0f0f0;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 80px;
+  margin-bottom: 70px;
 }
 
 .subtitle {
@@ -237,7 +237,7 @@ export default {
   font-size: 33px;
   font-weight: 310;
   margin-bottom: 20px;
-  margin-left: 30px;
+  margin-left: 20px;
   text-align: center; /* 문구 가운데 정렬 */
 }
 
