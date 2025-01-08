@@ -169,7 +169,7 @@ export default {
   height: 130px;
   text-align: left; /* Align text to the left */
   position: relative;
-  margin-top: 185px; /* 팝업창을 아래로 내리기 */
+  margin-top: 50px; /* 팝업창을 아래로 내리기 */
 }
 
 .popup-header {
