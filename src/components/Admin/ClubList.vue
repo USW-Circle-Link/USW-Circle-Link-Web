@@ -154,7 +154,7 @@ export default {
     // 서버로부터 동아리 정보 불러오기
     async fetchClubs() {
       try {
-        const response = await axios.get('https://api.donggurami.net/admin/clubs', {
+        const response = await axios.get('http://15.164.246.244:8080/admin/clubs', {
           headers: {
             'Authorization': `Bearer ${store.state.accessToken}`
           }
