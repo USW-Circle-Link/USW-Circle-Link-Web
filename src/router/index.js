@@ -32,13 +32,7 @@ const routes = [
             {
                 path: '/TermsOfUse',
                 name: 'TermsOfUse',
-                component: () => import('../components/ClubLeader/policy/TermsOfUse.vue'),
-                meta: { layout: 'no-layout' } // 특수한 레이아웃을 사용하지 않도록 설정
-            },
-            {
-                path: '/privacy_policy_',
-                name: 'privacy_policy_',
-                component: () => import('../components/ClubLeader/policy/PrivacyPolicy.vue'),
+                component: () => import('../components/ClubLeader/TermsOfUse.vue'),
                 meta: { layout: 'no-layout' } // 특수한 레이아웃을 사용하지 않도록 설정
             },
             {
@@ -100,14 +94,8 @@ const routes = [
             {
                 path: '/AdminTermsOfUse',
                 name: 'AdminTermsOfUse',
-                component: () => import('../components/Admin/policy/AdminTermsOfUse.vue'),
+                component: () => import('../components/Admin/AdminTermsOfUse.vue'),
                 meta: { requiresAuth: true, requiresLeader: true },
-            },
-            {
-                path: '/privacy_policy',
-                name: 'privacy_policy',
-                component: () => import('../components/Admin/policy/PrivacyPolicy.vue'),
-                meta: { layout: 'no-layout' } // 특수한 레이아웃을 사용하지 않도록 설정
             },
             {
                 path: '',
@@ -154,6 +142,12 @@ const routes = [
                 path: 'clubroom',
                 name: 'clubroom',
                 component: () => import('../components/Admin/ClubroomMapUpload.vue'),
+                props: true,
+            },
+            {
+                path: 'category',
+                name: 'category',
+                component: () => import('../components/Admin/AddCategory.vue'),
                 props: true,
             },
         ]
