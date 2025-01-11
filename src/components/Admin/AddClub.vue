@@ -7,7 +7,7 @@
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="id">아이디</label>
-          <input class="from-input" type="text" id="id" v-model="id" placeholder="아이디" required @input="validateId" />
+          <input class="from-input" type="text" id="id" v-model="id" placeholder="아이디" @input="validateId" />
           <button class="DuplicateCheckbtn" @click="idDuplicateCheck">중복 확인</button>
         </div>
         <span v-if="idError" class="warning">{{ idError }}</span>
@@ -16,7 +16,7 @@
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="password">비밀번호</label>
-          <input class="from-input" type="password" id="password" v-model="password" placeholder="비밀번호" required @input="validatePassword" />
+          <input class="from-input" type="password" id="password" v-model="password" placeholder="비밀번호" @input="validatePassword" />
         </div>
         <span v-if="passwordError" class="warning">{{ passwordError }}</span>
       </div>
@@ -24,7 +24,7 @@
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="confirmPassword">비밀번호 확인</label>
-          <input class="from-input" type="password" id="confirmPassword" v-model="confirmPassword" placeholder="비밀번호 확인" required @input="validateConfirmPassword"/>
+          <input class="from-input" type="password" id="confirmPassword" v-model="confirmPassword" placeholder="비밀번호 확인" @input="validateConfirmPassword"/>
         </div>
         <span v-if="confirmPasswordError" class="warning">{{confirmPasswordError}}</span>
       </div>
@@ -32,7 +32,7 @@
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="clubName">동아리 이름</label>
-          <input class="from-input" type="text" id="clubName" v-model="clubName" placeholder="동아리명" required @input="validateClubName" />
+          <input class="from-input" type="text" id="clubName" v-model="clubName" placeholder="동아리명" @input="validateClubName" />
           <button class="DuplicateCheckbtn" @click="clubNameDuplicateCheck">중복 확인</button>
         </div>
         <span v-if="clubNameError" class="warning">{{ clubNameError }}</span>
@@ -62,7 +62,10 @@
         <div class="form-group-row">
           <label for="clubName">동아리방</label>
           <button class="club-room-btn" @click="selectClubRoom">
-            <i class="icon mappin"></i>
+            <svg width="15" height="18" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9.5 5C9.5 8.5 5 11.5 5 11.5C5 11.5 0.5 8.5 0.5 5C0.5 3.80653 0.974106 2.66193 1.81802 1.81802C2.66193 0.974106 3.80653 0.5 5 0.5C6.19347 0.5 7.33807 0.974106 8.18198 1.81802C9.02589 2.66193 9.5 3.80653 9.5 5Z" stroke="#5A5A5A" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 6.5C5.82843 6.5 6.5 5.82843 6.5 5C6.5 4.17157 5.82843 3.5 5 3.5C4.17157 3.5 3.5 4.17157 3.5 5C3.5 5.82843 4.17157 6.5 5 6.5Z" stroke="#5A5A5A" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
             동아리방 선택
           </button>
           <input class="club-room" v-model="selectedRoom" readonly>
@@ -378,19 +381,6 @@ export default {
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
 }
 
-.title::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
-  width: 13%;
-  height: 19px; /* 형광펜 두께 */
-  background-color: #FFB052;
-; /* 노란색 배경 */
-  z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
-  transform: skew(-12deg); /* 기울기 효과 추가 */
-}
-
 .form-container {
   width: 860px;
   padding: 20px;
@@ -423,7 +413,7 @@ h2 {
 
 .form-group-col span{
   width: 100%;
-  margin-left: 45%;
+  margin-left: 40%;
   padding: 0;
 }
 
@@ -452,12 +442,19 @@ h2 {
 }
 
 .club-room-btn{
+  display: flex;
   width: 20%;
   right: 40px;
   border: 0.5px solid #C5C5C5;
   padding: 20px 25px 20px 25px;
   background-color: #FFFFFF;
   border-radius: 5px;
+  font-size: 14px;
+  align-items: center;
+}
+
+.club-room-btn svg{
+  margin-right: 17px;
 }
 
 .club-room{
@@ -497,7 +494,7 @@ label {
   font-size: 12px;
   font-weight: 300;
   color: #FF4B4B;
-  margin: 0 0 0 10px;
+  margin: 0;
 }
 
 .popupbtn {
