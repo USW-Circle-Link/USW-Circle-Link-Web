@@ -23,7 +23,14 @@
           @keydown.enter="addCategory"
           class="input-field"
       />
-      <button class="save-btn" @click="addCategory">저장하기</button>
+      <button class="save-btn" @click="saveCategory">저장하기</button>
+    </div>
+  </div>
+
+  <div v-if="addCategoryPopupVisible" class="popup-overlay">
+    <div class="popup">
+      <p class="confirm-message">카테고리가 정상적으로 저장되었습니다.</p>
+      <button class="confirm-button" @click="ConfirmeCategory">확인</button>
     </div>
   </div>
 </template>
@@ -35,6 +42,8 @@ export default {
     return {
       categories: ["공부", "공부", "공부", "공부"], // 초기 카테고리 데이터
       newCategory: "", // 새로 추가할 카테고리
+
+      addCategoryPopupVisible: false
     };
   },
   methods: {
@@ -47,6 +56,12 @@ export default {
     removeCategory(index) {
       this.categories.splice(index, 1); // 카테고리 삭제
     },
+    saveCategory(){
+      this.addCategoryPopupVisible = true;
+    },
+    ConfirmeCategory(){
+      this.addCategoryPopupVisible = false;
+    }
   },
 };
 </script>
@@ -157,5 +172,54 @@ h2 {
 
 .save-btn:hover {
   background-color: #e0891a;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  flex-direction: column;
+}
+
+.popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 452px;
+  height: 184px;
+  text-align: left;
+  position: relative;
+}
+
+.confirm-message{
+  text-align: center;
+  margin-top: 80px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 12px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+}
+
+.confirm-button{
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
 }
 </style>
