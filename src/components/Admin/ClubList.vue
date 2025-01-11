@@ -189,7 +189,7 @@ export default {
       }
 
       try {
-        const response = await axios.delete(`https://api.donggurami.net/admin/clubs/${this.clubToDelete}`, {
+        const response = await axios.delete(`http://15.164.246.244:8080/admin/clubs/${this.clubToDelete}`, {
           headers: {
             'Authorization': `Bearer ${store.state.accessToken}` // Correct usage of the store
           },
@@ -526,7 +526,7 @@ body {
 
 .popup-warning {
   font-size: 12px;
-  font-weight: 300;
+  font-weight: 400;
   color: #FF4B4B;
   margin-left: 10px;
 }
