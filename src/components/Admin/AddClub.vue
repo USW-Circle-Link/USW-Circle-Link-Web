@@ -7,7 +7,7 @@
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="id">아이디</label>
-          <input class="from-input" type="text" id="id" v-model="id" placeholder="아이디" @input="validateId" />
+          <input class="from-input" type="text" id="id" v-model="id" placeholder="아이디 (5~20자 이내 영어, 숫자)" @input="validateId" />
           <button class="DuplicateCheckbtn" @click="idDuplicateCheck">중복 확인</button>
         </div>
         <span v-if="idError" class="warning">{{ idError }}</span>
@@ -16,7 +16,7 @@
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="password">비밀번호</label>
-          <input class="from-input" type="password" id="password" v-model="password" placeholder="비밀번호" @input="validatePassword" />
+          <input class="from-input" type="password" id="password" v-model="password" placeholder="비밀번호 (영어, 숫자, 특수문자 포함 8~20자)" @input="validatePassword" />
         </div>
         <span v-if="passwordError" class="warning">{{ passwordError }}</span>
       </div>
@@ -24,7 +24,7 @@
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="confirmPassword">비밀번호 확인</label>
-          <input class="from-input" type="password" id="confirmPassword" v-model="confirmPassword" placeholder="비밀번호 확인" @input="validateConfirmPassword"/>
+          <input class="from-input" type="password" id="confirmPassword" v-model="confirmPassword" placeholder="비밀번호 (영어, 숫자, 특수문자 포함 8~20자)" @input="validateConfirmPassword"/>
         </div>
         <span v-if="confirmPasswordError" class="warning">{{confirmPasswordError}}</span>
       </div>
@@ -32,7 +32,7 @@
       <div class="form-group-col">
         <div class="form-group-row">
           <label for="clubName">동아리 이름</label>
-          <input class="from-input" type="text" id="clubName" v-model="clubName" placeholder="동아리명" @input="validateClubName" />
+          <input class="from-input" type="text" id="clubName" v-model="clubName" placeholder="동아리 이름 (10자 이내)" @input="validateClubName" />
           <button class="DuplicateCheckbtn" @click="clubNameDuplicateCheck">중복 확인</button>
         </div>
         <span v-if="clubNameError" class="warning">{{ clubNameError }}</span>
@@ -427,13 +427,13 @@ h2 {
 
 .DuplicateCheckbtn{
   width: 80px;
-  height: 45px;
+  height: 35px;
   position: absolute;
-  right: 40px;
+  right: 50px;
   top: 6px;
   border-radius: 5px;
   border: none;
-  background-color: #FFC700;
+  background-color: #FFB052;
   color: white;
 }
 
@@ -446,7 +446,7 @@ h2 {
   width: 20%;
   right: 40px;
   border: 0.5px solid #C5C5C5;
-  padding: 20px 25px 20px 25px;
+  padding: 15px 20px 15px 20px;
   background-color: #FFFFFF;
   border-radius: 5px;
   font-size: 14px;
@@ -463,9 +463,13 @@ h2 {
   margin-left: 10px;
   border: 1.5px solid #C5C5C5;
   border-radius: 5px;
-  padding: 20px 25px 20px 25px;
+  padding: 15px 20px 15px 20px;
   background-color: #efefef;
   color: #828282;
+}
+
+.club-room:focus{
+  border-color: #C5C5C5;
 }
 
 .from-input {
@@ -474,13 +478,13 @@ h2 {
   margin-bottom: 10px;
   border: 1.5px solid #e7e7e7;
   border-radius: 5px;
-  padding: 20px 25px 20px 25px;
+  padding: 15px 20px 15px 20px;
   background-color: #fff;
 }
 
 .from-input::placeholder{
   color: #9D9D9D;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 label {
@@ -491,31 +495,35 @@ label {
 }
 
 .warning{
-  font-size: 12px;
-  font-weight: 300;
+  font-weight: 400;
   color: #FF4B4B;
-  margin: 0;
+  margin-top: 0;
+  font-size: 13px;
+  line-height: 16px;
+  letter-spacing: -0.025em;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+
 }
 
 .popupbtn {
-  margin-left: 88%;
+  display: flex;
+  margin-left: 83%;
   margin-top: 60px;
-  width: 60px;
-  padding: 10px 20px;
+  width: 80px;
+  padding: 8px 15px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  background-color: #FFC700;
+  background-color: #FFB052;
   color: #ffffff;
   font-size: 15px;
+  justify-content: center;
 }
 
 .popupbtn:hover {
   background-color: #e6b800;
-}
-
-.mappin{
-  background: url('@/assets/mappin.svg') no-repeat center center;
 }
 
 /* Popup Overlay and Popup Window */
@@ -659,7 +667,6 @@ label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
   border-radius: 5px;
   background-color: #fff;
   cursor: pointer;
@@ -687,7 +694,7 @@ label {
 }
 
 .dropdown-options li {
-  padding: 18px 25px 18px 25px;
+  padding: 15px 20px 15px 20px;
   cursor: pointer;
   font-size: 16px;
   transition: background-color 0.2s;
