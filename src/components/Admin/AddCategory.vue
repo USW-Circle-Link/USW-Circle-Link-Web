@@ -20,6 +20,7 @@
           v-model="newCategory"
           type="text"
           placeholder="추가할 카테고리를 작성해주세요."
+          @keydown.enter="addCategory"
           class="input-field"
       />
       <button class="save-btn" @click="addCategory">저장하기</button>
