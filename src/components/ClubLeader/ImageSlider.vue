@@ -32,7 +32,7 @@ export default {
 <style scoped>
 .image-slider {
   position: relative;
-  max-width: 584px;
+  max-width: 3000px;
   align-items: center;
   align-content: center;
   margin-top: 30px;
@@ -41,7 +41,7 @@ export default {
 }
 
 .slides{
-  width: 612px;
+  width: 600px;
   margin-left: 185px;
   align-items: center;
   align-content: center;

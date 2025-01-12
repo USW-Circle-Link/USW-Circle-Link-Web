@@ -21,6 +21,7 @@
             <span class="student-id">{{ member.studentId }}</span>
             <span class="department">{{ member.department }}</span>
             <span class="phone">{{ member.phone }}</span>
+            <i v-if="isEditMode" class="fa fa-pencil"></i> <!-- 모든 회원에 펜 아이콘 표시 -->
           </div>
         </div>
         <button class="reject-button" @click.stop="rejectMember(index)">거절</button>
@@ -39,26 +40,29 @@
       <p class="member-count">비회원: {{ addedMembers.length }} 명</p>
       <div class="member-list">
         <div
-          class="member-item"
-          v-for="(member, index) in addedMembers"
-          :key="index"
-          :class="{ selected: selectedAddedMembers.includes(index) }"
-          @click="toggleAddedMember(index)"
-        >
-          <div class="member-info">
-            <span class="name">{{ member.name }}</span>
-            <span class="student-id">{{ member.studentId }}</span>
-            <span class="department">{{ member.department }}</span>
-            <span class="phone">{{ member.phone }}</span>
-          </div>
-          <!-- Penbrush Icon: Outside Member -->
-          <img
-            v-if="selectedAddedMembers.includes(index)"
-            class="penbrush-icon"
-            src="../../assets/penbrush.png"
-            alt="Edit Icon"
-          />
-        </div>
+  class="member-item"
+  v-for="(member, index) in addedMembers"
+  :key="index"
+  :class="{ selected: selectedAddedMembers.includes(index) }"
+  @click="toggleAddedMember(index)"
+>
+  <div class="member-info">
+    <span class="name">{{ member.name }}</span>
+    <span class="student-id">{{ member.studentId }}</span>
+    <span class="department">{{ member.department }}</span>
+    <span class="phone">{{ member.phone }}</span>
+  </div>
+  <!-- 팬브러쉬 아이콘 -->
+  <img
+    v-if="isEditMode || selectedAddedMembers.includes(index)"
+    class="penbrush-icon"
+    src="../../assets/penbrush.png"
+    alt="Edit Icon"
+  />
+</div>
+
+
+
       </div>
      
       <button 
@@ -143,71 +147,74 @@ export default {
       showErrorPopup: false,
       showRejectionPopup: false,
       membersToReject: [],
+      isEditMode: false, // 편집 모드 활성화 여부
+
     };
   },
   mounted() {
-    // 새로고침 시 데이터 로드
-    this.loadData();
-    this.checkAndReload();
+    this.initializePage();
   },
   methods: {
+    initializePage() {
+      this.loadData();
+      const isFirstVisit = localStorage.getItem("firstVisit") === null;
+      const reloaded = sessionStorage.getItem("reloaded");
+
+      if (isFirstVisit) {
+        localStorage.setItem("firstVisit", "true");
+        sessionStorage.setItem("reloaded", "true");
+        location.reload(); // 첫 방문 시 새로고침
+      } else if (!reloaded) {
+        sessionStorage.setItem("reloaded", "true");
+        location.reload(); // 새로고침 여부 확인
+      } else {
+        sessionStorage.removeItem("reloaded");
+      }
+    },
     loadData() {
-      // 로컬 스토리지에서 데이터 불러오기
       const requested = localStorage.getItem("requestedMembers");
       const added = localStorage.getItem("addedMembers");
 
-      // 데이터가 있을 경우 파싱하여 상태에 반영
       this.requestedMembers = requested
         ? JSON.parse(requested)
         : [
-            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
             { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
           ];
       this.addedMembers = added
         ? JSON.parse(added)
         : [
             { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
-            { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
           ];
     },
     saveData() {
-      // 로컬 스토리지에 현재 상태 저장
       localStorage.setItem("requestedMembers", JSON.stringify(this.requestedMembers));
       localStorage.setItem("addedMembers", JSON.stringify(this.addedMembers));
     },
-    checkAndReload() {
-      // sessionStorage에 새로고침 여부 확인
-      const reloaded = sessionStorage.getItem("reloaded");
-      if (!reloaded) {
-        // 새로고침 플래그가 없을 경우 새로고침 수행
-        sessionStorage.setItem("reloaded", "true");
-        location.reload(); // 새로고침
-      }
-    },
     toggleRequestedMember(index) {
-      const selectedIndex = this.selectedRequestedMembers.indexOf(index);
-      if (selectedIndex > -1) {
-        this.selectedRequestedMembers.splice(selectedIndex, 1);
-      } else {
-        this.selectedRequestedMembers.push(index);
-      }
-    },
-    toggleAddedMember(index) {
-      const selectedIndex = this.selectedAddedMembers.indexOf(index);
-      if (selectedIndex > -1) {
-        this.selectedAddedMembers.splice(selectedIndex, 1);
-      } else {
-        this.selectedAddedMembers.push(index);
-      }
-    },
+    if (this.selectedRequestedMembers.includes(index)) {
+      this.selectedRequestedMembers = []; // 선택 해제
+    } else {
+      this.selectedRequestedMembers = [index]; // 하나만 선택
+    }
+  },
+    toggleEditMode() {
+  this.isEditMode = !this.isEditMode; // 편집 모드 활성화/비활성화 전환
+},
+
+toggleAddedMember(index) {
+  const selectedIndex = this.selectedAddedMembers.indexOf(index);
+  if (selectedIndex > -1) {
+    this.selectedAddedMembers.splice(selectedIndex, 1); // 선택 해제
+  } else {
+    this.selectedAddedMembers = [index]; // 하나만 선택되도록 설정
+    this.isEditMode = true; // 편집 모드 활성화
+  }
+},
     rejectMember(index) {
-      this.requestedMembers[index].rejected = true; // 거절 상태
+      this.requestedMembers[index].rejected = true;
       this.membersToReject = [index];
       this.showRejectionPopup = true;
-      this.saveData(); // 상태 저장
+      this.saveData();
     },
     cancelRejection() {
       this.membersToReject.forEach((index) => {
@@ -215,7 +222,7 @@ export default {
       });
       this.membersToReject = [];
       this.showRejectionPopup = false;
-      this.saveData(); // 상태 저장
+      this.saveData();
     },
     confirmRejection() {
       this.membersToReject.forEach((index) => {
@@ -223,7 +230,7 @@ export default {
       });
       this.membersToReject = [];
       this.showRejectionPopup = false;
-      this.saveData(); // 상태 저장
+      this.saveData();
     },
     cancelAccept() {
       this.showAcceptPopup = false;
@@ -232,12 +239,12 @@ export default {
       if (this.validateMemberInfo()) {
         this.showAcceptPopup = false;
         this.showConfirmationPopup = true;
-        this.performReload(); // 새로고침 수행
+        this.performReload();
       } else {
         this.showAcceptPopup = false;
         this.showErrorPopup = true;
       }
-      this.saveData(); // 상태 저장
+      this.saveData();
     },
     validateMemberInfo() {
       const selectedRequested = this.selectedRequestedMembers.map(
@@ -258,7 +265,6 @@ export default {
       );
     },
     performReload() {
-      // 새로고침 플래그를 설정 후 새로고침
       sessionStorage.setItem("reloaded", "true");
       location.reload();
     },
@@ -272,7 +278,12 @@ export default {
 };
 </script>
 
+
 <style scoped>
+.member-item {
+  cursor: pointer; /* 클릭 가능한 상태로 설정 */
+}
+
 /* 선택된 요청 멤버 (request-item) */
 .request-item.selected {
   background-color: #FFB05266; /* 엑셀파일과 동일한 배경색 */
@@ -303,10 +314,18 @@ export default {
   pointer-events: none; /* 거절된 항목은 클릭 불가 */
 }
 
+
+
 .instruction {
-  color: #FF3535; /* 텍스트 색상을 변경 */
+  color: #FF3535; /* 텍스트 색상 */
+  margin-bottom: 30px; 
+  /* 목록과의 간격 추가 */
 }
 
+.member-count{
+  margin-bottom: 69px; 
+ 
+}
 /* 추가된 팝업 스타일 */
 .popup-overlay {
   position: fixed;
@@ -360,11 +379,18 @@ export default {
   display: flex;
   justify-content: space-between; /* 좌우로 공간 분배 */
   align-items: flex-start; /* 세로 방향에서 시작 정렬 */
-  padding: 40px;
+  padding: 20px;
+  margin-top: 0px;
   background-color: #F0F2F5;
   font-family: Arial, sans-serif;
   width: 100%; /* 부모 너비를 100%로 설정 */
   gap: 20px; /* 세로선과 두 섹션 사이 간격 */
+  padding-top: 10px;
+  padding-top: 0; /* 상단 패딩 제거 */
+  position: relative; /* 컨테이너 위치 조정 가능 */
+  top: -20px; /* 위로 이동 */
+
+
 }
 
 
@@ -409,6 +435,8 @@ export default {
   position: relative; /* 자식 요소 위치 설정 */
   transition: all 0.3s;
   cursor: pointer;
+  width: 400px;
+  
 }
 
 .request-item-wrapper.selected,
@@ -425,7 +453,7 @@ export default {
   padding: 12px;
   background: #FFFFFF;
   border-radius: 8px;
-  width: 400px;
+  width: 370px;
 }
 
 
@@ -482,7 +510,7 @@ export default {
   height: 40px;
   transition: background-color 0.3s ease;
     /* 새 위치 설정 */
-    margin-top: 600px; /* 위쪽 간격 */
+    margin-top: 500px; /* 위쪽 간격 */
   margin-left: 295px; /* 왼쪽 여백 자동 */
   margin-right: auto; /* 오른쪽 여백 자동 */
   /* display: block; 가운데 정렬을 위해 block 요소로 설정 */
@@ -534,11 +562,12 @@ export default {
 
 .popup p {
   font-size: 14px;
-  color: #666;
+  color: black;
+  font-weight: 500px;
 }
 
 .popup-highlight {
-  font-weight: bold;
+  font-weight: 500px;
   color: black;
 }
 
@@ -588,4 +617,24 @@ export default {
   align-items: center;
   z-index: 1000;
 }
+/* 회원 가입 요청 목록 타이틀 스타일 */
+.member-requests h2,
+.added-members h2 {
+  font-family: Pretendard, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: left;
+  margin-bottom: 20px; /* Add space below the heading */
+}
+
+.request-count,
+.member-count {
+  font-size: 16px;
+  color: #333;
+  margin-top: 40px; /* Optional: Adds space above the count text */
+}
+
+
+
 </style>

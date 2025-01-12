@@ -3,7 +3,7 @@
     <div class="header">
       <button class="nav-button" @click="prevNotice">
         <img src="@/assets/left.png" alt="Previous" class="nav-icon" />
-        이전 공지
+        <span class="nav-text">이전 공지</span>
       </button>
       <button class="nav-button" @click="nextNotice">
         다음 공지
@@ -14,7 +14,11 @@
       <div class="meta-info">
   <p>
     <span class="notice-title">{{ notice.noticeTitle }}</span>
-    <span class="notice-meta">{{ notice.adminName }} | {{ formattedDate(notice.noticeCreatedAt) }}</span>
+    <span class="notice-meta">
+  <span class="author-name">{{ notice.adminName }}</span>
+    |   {{ formattedDate(notice.noticeCreatedAt) }}
+</span>
+
   </p>
 </div>
 
@@ -49,10 +53,19 @@
         </tbody>
       </table>
       <div class="pagination">
-        <span @click="changePage(page)" v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }">
-          {{ page }}
-        </span>
-      </div>
+  <button @click="previousPage" class="pagination-button">
+    <img src="@/assets/left.png" alt="Previous" class="pagination-icon" />
+    
+  </button>
+  <span v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }" @click="changePage(page)">
+    {{ page }}
+  </span>
+  <button @click="nextPage" class="pagination-button">
+    
+    <img src="@/assets/rigth.png" alt="Next" class="pagination-icon" />
+  </button>
+</div>
+
     </div>
   </div>
 </template>
@@ -216,19 +229,25 @@ export default {
 }
 
 .nav-button {
+  display: flex; /* 아이콘과 텍스트를 정렬 */
+  align-items: center; /* 수직 가운데 정렬 */
   background: none;
   border: none;
   color: black;
   cursor: pointer;
   font-size: 14px;
-  display: flex;
-  align-items: center;
 }
 
 .nav-icon {
-  width: 12px;
+  width: 12px; /* 아이콘 크기 */
   height: 12px;
-  margin: 0 5px;
+  margin: 0 5px; /* 아이콘과 텍스트 사이 간격 */
+}
+
+.nav-text {
+  display: inline-block; /* 글씨만 별도로 이동 가능 */
+margin-top: 0.8px;/* 글씨를 아래로 내림 */
+  font-size: 14px;
 }
 
 .notice-details {
@@ -371,4 +390,78 @@ button {
   font-weight: bold;
   color: #000;
 }
+
+.author-name {
+ 
+  font-family: Pretendard; /* 폰트 */
+  font-size: 14px; /* 글씨 크기 */
+  font-weight: 400; /* 글씨 굵기 */
+  line-height: 14px; /* 줄 간격 */
+  letter-spacing: -0.025em; /* 글자 간격 조정 */
+  text-align: left; /* 왼쪽 정렬 */
+  text-underline-position: from-font; /* 밑줄 위치 */
+  text-decoration-skip-ink: none; /* 밑줄 효과 설정 */
+  color:  #000000; /* 텍스트 색상 (추가) */
+  padding: 2px 4px; /* 배경색과 텍스트 사이 여백 추가 (선택사항) */
+}
+
+
+.notice-divider {
+  width: 764px; /* 구분선의 너비 */
+  height: 0px; /* 구분선의 높이 */
+  position: absolute; /* 위치 지정 */
+  top: 241px; /* 상단에서 241px 아래로 */
+  left: 490px; /* 왼쪽에서 490px 오른쪽으로 */
+  gap: 0px; /* 요소 간 간격 */
+  border: 0.5px solid #868686; /* 구분선 스타일: 얇은 회색 선 */
+  opacity: 0; /* 구분선 투명도 */
+  transform: rotate(0deg); /* 회전각도 */
+}
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* 수직 정렬 */
+  gap: 10px; /* 버튼 사이 간격 */
+}
+
+.pagination span {
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  letter-spacing: -0.025em;
+  color: #000000;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.pagination span.active {
+  font-weight: 700;
+  color: #FFB052; /* 활성화된 페이지 색상 */
+}
+
+.pagination-button {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  color: #000000;
+  cursor: pointer;
+}
+
+.pagination-button:hover {
+  text-decoration: underline; /* 호버 효과 */
+}
+
+.pagination-icon {
+  width: 12px; /* 아이콘 크기 */
+  height: 12px;
+  margin: 0 5px; /* 텍스트와 아이콘 간격 */
+}
+
 </style>

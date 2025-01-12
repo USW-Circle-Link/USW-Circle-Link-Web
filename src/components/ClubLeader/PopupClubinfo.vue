@@ -4,11 +4,11 @@
 
     <!-- Club Information Section -->
     <div class="ClubInfo">
-      <img :src="mainPhoto" alt="Flag Logo" class="logo" oncontextmenu="return false;" />
+      <img :src="mainPhoto" alt="Flag Logo" class="logo with-border" oncontextmenu="return false;" />
       <div class="Info">
         <div class="club-details">
           <p class="clubname"><strong>{{ data.clubName }}</strong></p>
-          <p class="clubleader">동아리장 <span class="name"><strong>{{ data.leaderName }}</strong></span></p>
+          <p class="clubleader">동아리장 <span class="name" style="color: #353549;"><strong>{{ data.leaderName }}</strong></span></p>
           <div class="hashtags">
             <span v-for="tag in data.tags" :key="tag" class="hashtag">#{{ tag }}</span>
           </div>
@@ -45,7 +45,7 @@
         </div>
       </div>
     </div>
-
+  </div>
     <!-- Tabs Section -->
     <div class="tabs-container">
       <div class="tabs-and-content">
@@ -65,7 +65,7 @@
         </div>
       </div>
     </div>
-  </div>
+  
 </template>
 
 <script>
@@ -172,16 +172,16 @@ export default {
   background-color: #fff;
   border-radius: 8px;
   padding: 20px;
-  width: 100%;
+  width: 626px; /* ClubInfo와 탭의 너비 통일 */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 
 .club-details .clubname {
-  font-size: 24px; /* 폰트 크기 */
-  font-weight: 600; /* 폰트 두께 */
+  font-size: 24px;
+  font-weight: 600;
   margin: 0;
-  color: #333; /* 텍스트 색상 */
+  color: #333;
 }
 
 .logo {
@@ -190,14 +190,14 @@ export default {
   object-fit: cover;
   border-radius: 8px;
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
-  margin-left: 60px; /* Add spacing between the logo and the text */
+  margin-left: 60px;
 }
 
 .Info {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Ensure proper text alignment */
-  gap: 10px; /* Space between the club name and leader name */
+  align-items: flex-start;
+  gap: 10px;
   margin-left: 35px;
 }
 
@@ -208,11 +208,14 @@ export default {
 }
 
 .hashtag {
-  background-color: #f1f1f1;
-  color: #555;
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 15px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #555555;
+  background-color: #FFFFFF;
+  border: 1px solid #C3C3C3;
+  border-radius: 12px;
+  cursor: default;
+  text-align: center;
 }
 
 .more-options {
@@ -237,7 +240,6 @@ export default {
   border-radius: 50%;
 }
 
-/* Contact Info Popup */
 .contact-info-popup {
   position: absolute;
   top: 30px;
@@ -303,48 +305,69 @@ export default {
   cursor: pointer;
 }
 
-/* Styles for Tabs */
+/* 탭 컨테이너 */
 .tabs-container {
-  margin-top: 20px;
+  width: 626px; /* ClubInfo와 동일한 너비 */
+  margin: 0 auto; /* 중앙 정렬 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 탭을 왼쪽 정렬로 변경 */
 }
 
-.tabs-and-content {
-  /* background: #fff; */
-}
-
+/* 탭 */
 .tabs {
   display: flex;
-  justify-content: flex-start;
-  width: 330px; /* 탭 너비 고정 */
-  height: 44px; 
+  justify-content: flex-start; /* 탭 버튼 왼쪽 정렬 */
+  border-bottom: 1px solid #C3C3C3; /* 하단 테두리 */
+  width: 100%; /* 부모 컨테이너에 맞춤 */
+  margin: 0; /* 불필요한 여백 제거 */
+  align-items: flex-start; /* 탭을 왼쪽 정렬로 변경 */
+}
+
+/* 탭 버튼 */
+.tabs button {
+  width: 174px; /* 각 탭의 너비를 동일하게 설정 (컨테이너 너비의 절반) */
+  padding: 10px 0; /* 상하 여백 */
+  text-align: center;
+  background-color: #EEEEEE;
+  color: #C3C3C3;
+  border: 1px solid #C3C3C3;
+  border-radius: 0 8px 0 0; /* 둥근 모서리 */
+  cursor: pointer;
+  align-items: flex-start; /* 전체를 왼쪽 정렬 */
   
 }
 
-.tabs button {
-  flex: 1;
-  padding: 10px 20px;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  background-color: #EEEEEE;
-  color: #C3C3C3;
-  border-radius: 3px;
-}
-
+/* 활성화된 탭 */
 .tabs button.active {
   background-color: #FFB052;
   color: #FFFFFF;
-  
+  border: 1px solid #C3C3C3;
+  border-bottom: none; /* 하단 테두리를 제거하여 탭 내용과 연결 */
 }
 
+/* 비활성화된 탭 */
+.tabs button.inactive {
+  background-color: #EEEEEE;
+  color: #C3C3C3;
+  border: 1px solid #C3C3C3;
+}
+
+.tabs button:first-child {
+  border-radius: 0 0 0 0; /* 왼쪽 상단과 하단 둥글게 안 함 */
+}
+
+/* 탭 내용 */
 .tab-content {
+  width: 665px; /* ClubInfo와 동일한 너비 */
+  margin: 0 auto;
   padding: 25px;
   background-color: #fff;
+  border: 1px solid #C3C3C3;
   border-radius: 0 0 8px 8px;
-  width: 640px; /* 원하는 넓이 */
-  height: 510px; /* 원하는 높이 */
-  margin: 0 auto; /* 가운데 정렬 */
+  box-sizing: border-box;
   overflow-y: auto;
+  max-height: 500px;
 }
 
 .description {
@@ -352,4 +375,9 @@ export default {
   color: #333;
   line-height: 1.5;
 }
+
+.location {
+  color: #9A9A9A; /* 텍스트 색상을 배경에 맞게 흰색으로 변경 */
+}
+
 </style>
