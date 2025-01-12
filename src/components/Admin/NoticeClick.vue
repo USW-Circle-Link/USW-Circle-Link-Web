@@ -13,8 +13,12 @@
     <div v-if="notice" class="notice-details">
       <div class="meta-info">
         <p>
-          <span class="notice-title">{{ notice.noticeTitle }}</span>
-          <span class="notice-meta">{{ notice.adminName }} | {{ formattedDate(notice.noticeCreatedAt) }}</span>
+          <span class="notice-meta">
+  <span class="author-name">{{ notice?.adminName || '관리자 없음' }}</span>
+  | 
+  <span class="date-background">{{ formattedDate(notice.noticeCreatedAt) || '날짜 없음' }}</span>
+</span>
+
         </p>
       </div>
       <!-- noticeContent를 HTML로 렌더링하고 줄바꿈을 처리 -->
@@ -88,10 +92,23 @@
         </tbody>
       </table>
       <div class="pagination">
-        <span @click="changePage(page)" v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }">
-          {{ page }}
-        </span>
-      </div>
+  <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="pagination-button">
+    <img src="@/assets/left.png" alt="Previous" class="pagination-icon" />
+  </button>
+  <span
+    v-for="page in totalPages"
+    :key="page"
+    @click="changePage(page)"
+    :class="{ active: page === currentPage }"
+    class="pagination-number"
+  >
+    {{ page }}
+  </span>
+  <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="pagination-button">
+    <img src="@/assets/rigth.png" alt="Next" class="pagination-icon" />
+  </button>
+</div>
+
     </div>
   </div>
 </template>
@@ -493,16 +510,61 @@ button {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+  align-items: center; /* 수직 정렬 */
+  gap: 10px; /* 버튼 사이 간격 */
 }
 
 .pagination span {
-  margin: 0 5px;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  letter-spacing: -0.025em;
+  color: #000000;
   cursor: pointer;
+  padding: 5px 10px;
 }
 
 .pagination span.active {
-  font-weight: bold;
-  color: #000;
+  font-weight: 700;
+  color: #FFB052; /* 활성화된 페이지 색상 */
 }
-</style> 
 
+.pagination-button {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  color: #000000;
+  cursor: pointer;
+}
+
+.pagination-button:hover {
+  text-decoration: underline; /* 호버 효과 */
+}
+
+.pagination-icon {
+  width: 12px; /* 아이콘 크기 */
+  height: 12px;
+  margin: 0 5px; /* 텍스트와 아이콘 간격 */
+}
+
+.author-name {
+ 
+ font-family: Pretendard; /* 폰트 */
+ font-size: 14px; /* 글씨 크기 */
+ font-weight: 400; /* 글씨 굵기 */
+ line-height: 14px; /* 줄 간격 */
+ letter-spacing: -0.025em; /* 글자 간격 조정 */
+ text-align: left; /* 왼쪽 정렬 */
+ text-underline-position: from-font; /* 밑줄 위치 */
+ text-decoration-skip-ink: none; /* 밑줄 효과 설정 */
+ color:  #000000; /* 텍스트 색상 (추가) */
+ padding: 2px 4px; /* 배경색과 텍스트 사이 여백 추가 (선택사항) */
+}
+
+</style> 

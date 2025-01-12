@@ -138,6 +138,9 @@ export default {
 };
 </script>
 
+
+
+
 <style scoped>
 .title {
   color: black;
@@ -149,30 +152,24 @@ export default {
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
 }
 
-.title::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
-  width: 100%;
-  height: 19px; /* 형광펜 두께 */
-  background-color: #FFB052;
-; /* 노란색 배경 */
-  z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
-  transform: skew(-12deg); /* 기울기 효과 추가 */
-}
+
+
+/* 모든 요소에 박스 사이징 설정 */
 * {
   box-sizing: border-box;
 }
 
+/* 전체 컨테이너 설정 */
 .container {
   display: flex;
 }
 
+/* 콘텐츠 영역 설정 */
 .contents {
   flex: 1;
 }
 
+/* 타이틀 스타일 */
 .title {
   font-size: 24px;
   font-weight: bold;
@@ -180,6 +177,7 @@ export default {
   color: #333;
 }
 
+/* 공지사항 박스 설정 */
 .notices {
   width: 820px;
   height: auto;
@@ -189,18 +187,29 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* 테이블 스타일 */
 table {
   width: 100%;
   border-collapse: collapse;
 }
 
-th, td {
+/* 테이블 헤더 스타일 */
+th {
   padding: 10px;
   border-bottom: 1px solid #ddd;
   text-align: center;
   background-color: white;
 }
 
+/* 테이블 데이터 셀 스타일 */
+td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+  background-color: white;
+}
+
+/* 버튼 스타일 */
 button {
   background: none;
   border: none;
@@ -208,30 +217,52 @@ button {
   font-size: 16px;
 }
 
+/* 버튼 호버 스타일 */
 button:hover {
   text-decoration: underline;
 }
 
+/* 페이지네이션 영역 스타일 */
 .pagination {
   margin-top: 20px;
   display: flex;
   justify-content: center;
 }
 
+/* 페이지네이션 버튼 스타일 */
 .pagination button {
+  width: 30px;
+  height: 30px;
+  /* 테두리 회색 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: none;
-  margin: 0 5px;
-  padding: 5px 10px;
   cursor: pointer;
-  border: none;
+  margin: 0 5px;
+  padding: 5px;
 }
 
+/* 활성화된 페이지 버튼 스타일 */
 .pagination button.active {
   color: #FFC700;
 }
 
+/* 페이지네이션 이미지 스타일 */
 .pagination img {
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
+}
+
+th {
+  font-family: Pretendard; /* 글씨체 설정 */
+  font-size: 20px; /* 글씨 크기 */
+  font-weight: 700; /* 글씨 두께 */
+  line-height: 23.87px; /* 줄 간격 */
+  text-align: center; /* 텍스트 정렬 */
+  color: #393939; /* 글씨 색상 */
+ 
+  padding: 10px; /* 내부 여백 */
+  border-bottom: 2px solid #ddd; /* 아래쪽 테두리 */
 }
 </style>
