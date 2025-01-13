@@ -21,22 +21,8 @@
           <div class="icon map"></div>
           <p class="room">동아리방</p>
           <div class="line2"></div>
-          <p class="detail">
-            <template v-if="data.selectedRoom">
-              학생회관 {{ data.selectedRoom }}
-            </template>
-            <template v-else>
-              정보 없음
-            </template>
-          </p>
+          <p class="detail">학생회관 {{formattedPhoneNumber}}</p>
         </div>
-
-        <div class="hashTag" v-if="data.hashTags && data.hashTags.length > 0">
-          <p v-for="(tag, index) in data.hashTags" :key="index" class="tag1">
-            #{{ tag }}
-          </p>
-        </div>
-
       </div>
     </div>
     <div class="Dashboardhead">
@@ -50,51 +36,137 @@
         <p>{{ isLoading ? "다운로드 중" : "회원 명단 다운로드" }}</p>
       </button>
     </div>
+    <div class="tab-menu">
+      <button
+          :class="['tab-button', { active: currentTab === 'alphabetical' }]"
+          @click="changeTab('alphabetical')">
+        가나다순
+      </button>
+      <button
+          :class="['tab-button', { active: currentTab === 'nonMember' }]"
+          @click="changeTab('nonMember')">
+        비회원
+      </button>
+      <button
+          :class="['tab-button', { active: currentTab === 'member' }]"
+          @click="changeTab('member')">
+        회원
+      </button>
+    </div>
     <div id="Dashboard" class="Dashboard">
       <!-- 탭 메뉴 추가 -->
-      <div class="tab-menu">
-        <button
-            :class="['tab-button', { active: currentTab === 'alphabetical' }]"
-            @click="changeTab('alphabetical')">
-          가나다순
-        </button>
-        <button
-            :class="['tab-button', { active: currentTab === 'nonMember' }]"
-            @click="changeTab('nonMember')">
-          비회원
-        </button>
-        <button
-            :class="['tab-button', { active: currentTab === 'member' }]"
-            @click="changeTab('member')">
-          회원
-        </button>
-      </div>
       <div class="member-list">
         <ul>
-          <li v-for="(member, index) in formattedClubMembers" :key="member.clubMemberId" class="member-item">
-            <span>{{ member.userName }}</span>
-            <span>{{ member.studentNumber }}</span>
-            <span>{{ member.major }}</span>
-            <span>{{ member.userHp }}</span>
-            <button @click="removeMember(index)" class="remove-btn">퇴출</button>
+          <li v-for="(member, index) in formattedClubMembers"
+              :key="member.clubMemberId"
+              class="member-item"
+              :class="{
+          'editing': editingIndex === index,
+          'has-error': editingIndex === index &&
+            (validationErrors.userName || validationErrors.studentNumber ||
+             validationErrors.major || validationErrors.userHp)
+        }">
+
+            <!-- 이름 입력 -->
+            <div class="input-wrapper">
+              <span v-if="editingIndex !== index">{{ member.userName }}</span>
+              <input v-else
+                     v-model="editingMember.userName"
+                     :class="['edit-input', { error: validationErrors.userName }]"
+                     type="text"
+                     placeholder="이름">
+              <div v-if="editingIndex === index && validationErrors.userName"
+                   class="validation-error">
+                {{ errorMessages.userName }}
+              </div>
+            </div>
+
+            <!-- 학번 입력 -->
+            <div class="input-wrapper">
+              <span v-if="editingIndex !== index">{{ member.studentNumber }}</span>
+              <input v-else
+                     v-model="editingMember.studentNumber"
+                     :class="['edit-input', 'narrow-input', { error: validationErrors.studentNumber }]"
+                     type="text"
+                     placeholder="학번">
+              <div v-if="editingIndex === index && validationErrors.studentNumber"
+                   class="validation-error">
+                {{ errorMessages.studentNumber }}
+              </div>
+            </div>
+
+            <!-- 학과 선택 -->
+            <div class="input-wrapper">
+              <span v-if="editingIndex !== index">{{ member.major }}</span>
+              <div v-else class="major-selection">
+                <select v-model="selectedCollege"
+                        :class="['edit-select', { error: validationErrors.major }]"
+                        @change="onCollegeChange">
+                  <option value="">단과대학 선택</option>
+                  <option v-for="college in colleges"
+                          :key="college.id"
+                          :value="college.id">
+                    {{ college.name }}
+                  </option>
+                </select>
+                <select v-model="editingMember.major"
+                        :class="['edit-select', { error: validationErrors.major }]">
+                  <option value="">학과 선택</option>
+                  <option v-for="dept in departments"
+                          :key="dept"
+                          :value="dept">
+                    {{ dept }}
+                  </option>
+                </select>
+              </div>
+              <div v-if="editingIndex === index && validationErrors.major"
+                   class="validation-error">
+                {{ errorMessages.major }}
+              </div>
+            </div>
+
+            <!-- 전화번호 입력 -->
+            <div class="input-wrapper">
+              <span v-if="editingIndex !== index">{{ member.userHp }}</span>
+              <input v-else
+                     v-model="editingMember.userHp"
+                     :class="['edit-input', 'narrow-input', { error: validationErrors.userHp }]"
+                     type="tel"
+                     placeholder="전화번호">
+              <div v-if="editingIndex === index && validationErrors.userHp"
+                   class="validation-error">
+                {{ errorMessages.userHp }}
+              </div>
+            </div>
+
+            <!-- 수정/저장 버튼 -->
+            <button v-if="editingIndex !== index"
+                    @click="startEdit(index)"
+                    class="edit-btn">
+              수정
+            </button>
+            <button v-else
+                    @click="confirmEdit"
+                    class="save-btn">
+              수정
+            </button>
           </li>
         </ul>
       </div>
     </div>
   </div>
 
-  <div class="custom-popup" v-if="showExpulsionPopup">
+  <div class="custom-popup" v-if="showEditConfirmPopup">
     <div class="popup-content">
       <div class="popup-header">
-        <p class="popup-title">동아리 회원 퇴출</p>
+        <p class="popup-title">동아리 회원 수정</p>
       </div>
       <div class="popup-separator"></div>
       <div class="popup-body">
-        <p class="popup-message">해당 동아리 회원을 퇴출 하시겠습니까?</p>
-        <p class="popup-warning">퇴출 후 되돌릴 수 없으니 신중하게 선택해 주세요.</p>
+        <p class="popup-message">해당 동아리 회원 정보를 수정하시겠습니까?</p>
       </div>
-      <button @click="showExpulsionPopup = false" class="cancel-button">취소</button>
-      <button @click="expelMember" class="expel-button">퇴출</button>
+      <button @click="cancelEdit" class="cancel-button">취소</button>
+      <button @click="saveEdit" class="expel-button">확인</button>
     </div>
   </div>
 </template>
@@ -103,11 +175,24 @@
 <script>
 import axios from 'axios';
 import store from '../../store/store'; // 일단 store.js에서 Vuex 상태를 가져옴
+import { colleges, departmentsByCollege } from './departments'; // 학과 정보 가져오기
 
 export default {
   name: 'Dashboard',
   data() {
     return {
+      validationErrors: {
+        userName: false,
+        studentNumber: false,
+        major: false,
+        userHp: false
+      },
+      errorMessages: {
+        userName: '* 이름(특수 기호 제외 문자)을 입력해주세요.',
+        studentNumber: '* 학번(8자리 숫자)을 입력해주세요.',
+        major: '* 학과를 선택해주세요.',
+        userHp: '* -제외 11자리 숫자를 입력해주세요.'
+      },
       data: {},
       imageSrc: '', // 이미지를 저장할 변수 추가
       ExelFileName: '',
@@ -120,6 +205,13 @@ export default {
       showExpulsionPopup: false,
       memberToExpel: null,
       currentTab: 'alphabetical', // 현재 선택된 탭
+      editingIndex: -1,
+      editingMember: null,
+      showEditConfirmPopup: false,
+      selectedCollege: '',
+      colleges, // 가져온 단과대학 정보 사용
+      departmentsByCollege, // 가져온 학과 정보 사용
+      departments: [],
     }
   },
   computed: {
@@ -141,6 +233,65 @@ export default {
     this.getCurrentTime();
   },
   methods: {
+    async saveEdit() {
+      const accessToken = this.$store.state.accessToken;
+      const clubId = this.$store.state.clubId;
+      const memberId = this.clubMembers[this.editingIndex].clubMemberId;
+
+      try {
+        await axios.put(
+            `http://15.164.246.244:8080/club-leader/${clubId}/members/${memberId}`,
+            this.editingMember,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+              }
+            }
+        );
+
+        // 성공적으로 수정되면 로컬 데이터 업데이트
+        this.clubMembers[this.editingIndex] = { ...this.editingMember };
+        this.showEditConfirmPopup = false;
+        this.editingIndex = -1;
+        this.editingMember = null;
+      } catch (error) {
+        console.error('Error updating member:', error);
+      }
+    },
+    onCollegeChange() {
+      this.departments = this.departmentsByCollege[this.selectedCollege] || [];
+      this.editingMember.major = ''; // 단과대학이 변경되면 학과 선택 초기화
+    },
+
+    confirmEdit() {
+      if (this.validateInput()) {
+        this.showEditConfirmPopup = true;
+      }
+    },
+
+    cancelEdit() {
+      this.showEditConfirmPopup = false;
+      this.editingIndex = -1;
+      this.editingMember = null;
+    },
+    startEdit(index) {
+      this.editingIndex = index;
+      this.editingMember = { ...this.clubMembers[index] };
+      // 유효성 검사 초기화
+      Object.keys(this.validationErrors).forEach(key => {
+        this.validationErrors[key] = false;
+      });
+
+      // 현재 학과에 해당하는 단과대학 찾기
+      for (const [collegeId, depts] of Object.entries(this.departmentsByCollege)) {
+        if (depts.includes(this.editingMember.major)) {
+          this.selectedCollege = collegeId;
+          this.departments = depts;
+          break;
+        }
+      }
+    },
     getCurrentTime() {
       const now = new Date();
 
@@ -178,13 +329,6 @@ export default {
           // mainPhotoUrl이 없을 경우 기본 프로필 이미지 설정
           this.imageSrc = require('@/assets/profile.png');
         }
-
-        // 동아리방 위치와 해시태그 처리
-        this.data.selectedRoom = response.data.data.selectedRoom || "정보 없음";
-        this.data.hashTags = response.data.data.hashTag
-          ? response.data.data.hashTag.split(',').map(tag => tag.trim())
-          : [];
-
       } catch (error) {
         console.error('Fetch error:', error);
         this.error = error.message;
@@ -216,6 +360,40 @@ export default {
         const responseData = response.data;
         this.message = responseData.message;
         this.clubMembers = responseData.data.content;
+
+
+
+
+
+
+
+
+
+
+        // Add the default member if the list is empty
+        if (this.clubMembers.length === 0) {
+          this.clubMembers.push({
+                clubMemberId: 1,
+                userName: '김철수',
+                studentNumber: '20518068',
+                major: '정보보호학과',
+                userHp: '010-2285-6733'
+              },
+              {
+                clubMemberId: 2,
+                userName: '김철수',
+                studentNumber: '20518068',
+                major: '컴퓨터공학과',
+                userHp: '010-2285-6733'
+              });
+        }
+
+
+
+
+
+
+
         this.memberCount = this.clubMembers.length;
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -281,7 +459,25 @@ export default {
       } finally {
         this.isLoading = false; // 로딩 종료
       }
-    }
+    },
+    validateInput() {
+      // 이름 검증 - 특수문자 제외
+      this.validationErrors.userName = !/^[가-힣a-zA-Z\s]+$/.test(this.editingMember.userName);
+
+      // 학번 검증 - 8자리 숫자
+      this.validationErrors.studentNumber = !/^\d{8}$/.test(this.editingMember.studentNumber);
+
+      // 학과 검증
+      this.validationErrors.major = !this.editingMember.major;
+
+      // 전화번호 검증 - 숫자만 11자리
+      const phoneNumber = this.editingMember.userHp.replace(/-/g, '');
+      this.validationErrors.userHp = !/^\d{11}$/.test(phoneNumber);
+
+      // 하나라도 에러가 있으면 false 반환
+      return !Object.values(this.validationErrors).some(error => error);
+    },
+
   }
 };
 </script>
@@ -461,18 +657,6 @@ export default {
   letter-spacing: -0.4px;
 }
 
-.tag1 {
-  color: #444444;
-  font-family: Pretendard;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 16px; 
-  letter-spacing: -0.4px;
-  
-  align-self: center;
-}
-
 .name {
   color: #353549;
   font-family: Pretendard;
@@ -541,18 +725,6 @@ export default {
   margin: 0;
 }
 
-.hashTag {
-  display: flex;
-  height: 30px;
-
-  width: 60px;
-  border-radius: 10px;
-  background-color: #dedede;
-  color: #464646;
-  margin-top: 5px;
-  justify-content: center;
-}
-
 .instaName {
   display: flex;
   height: 30px;
@@ -567,7 +739,7 @@ export default {
 .Dashboard{
   width: 886px;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 0 8px 8px 8px;
   align-items: center;
   align-content: center;
   text-align: center;
@@ -729,13 +901,120 @@ td:last-child{
   margin-bottom: 10px;
 }
 
-.member-item span {
+.member-item.editing {
+  background-color: white;
+  border: 1.5px solid #FFB052;
+}
+
+.member-item.editing.has-error {
+  border: 1.5px solid #ff0000;
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.edit-input.error {
+  border-color: #ff0000;
+  background-color: rgba(255, 0, 0, 0.1);
+  margin-top: 18px;
+}
+
+.edit-select.error {
+  border-color: #ff0000;
+  background-color: rgba(255, 0, 0, 0.1);
+  margin-top: 18px;
+}
+
+.validation-error {
+  color: #ff0000;
+  font-size: 10px;
+  margin-top: 6px;
+  width: 100%;
+  text-align: left;
+  top: 100%;
+  padding-left: 10px;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
   flex: 1;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 8px;
+  margin: 0 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
   text-align: center;
 }
 
+/* 학번과 전화번호 입력칸을 위한 새로운 클래스 */
+.narrow-input {
+  max-width: 100px; /* 더 좁은 너비 설정 */
+  width: 100px;
+}
+
+.major-selection {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.edit-select {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+  max-width: 150px; /* 적절한 최대 너비 설정 */
+  width: 150px;
+  text-overflow: ellipsis; /* 말줄임표 처리 */
+  overflow: hidden; /* 오버플로우 숨김 */
+  white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.edit-select option {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.edit-btn {
+  background-color: #FFB052;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  padding: 8px 13px;
+  cursor: pointer;
+}
+
+.save-btn {
+  background-color: #f49421;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  padding: 8px 13px;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background-color: #f49421;
+}
+
+.save-btn:hover {
+  background-color: #c66f04;
+}
+
+.member-item span {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+}
+
 .remove-btn {
-  background-color: #e57373;
+  background-color: #FFB052;
   border: none;
   border-radius: 5px;
   color: white;
@@ -744,14 +1023,13 @@ td:last-child{
 }
 
 .remove-btn:hover {
-  background-color: #d32f2f;
+  background-color: #f49421;
 }
 .tab-menu {
-  display: flex;
+  display: inline-flex;
   padding: 0;
   background: #fff;
   border-bottom: 1px solid #eee;
-  margin-bottom: 20px;
   border-radius: 8px 8px 0 0;
 }
 
@@ -767,7 +1045,7 @@ td:last-child{
 }
 
 .tab-button.active {
-  color: #7FB08C;
+  color: #000000;
   font-weight: 600;
 }
 
@@ -778,11 +1056,11 @@ td:last-child{
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #7FB08C;
+  background-color: #000000;
 }
 
 .tab-button:hover {
-  color: #7FB08C;
+  color: #232323;
 }
 
 </style>
