@@ -113,6 +113,11 @@ const routes = [
                 name: 'morepass',
                 component: () => import('../components/ClubLeader/MorePass.vue'),
             },
+            {
+                path: 'removemember',
+                name: 'removemember',
+                component: () => import('../components/ClubLeader/RemoveMember.vue'),
+            },
         ]
     },
     {
