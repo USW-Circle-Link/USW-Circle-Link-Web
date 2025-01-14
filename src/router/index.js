@@ -32,7 +32,7 @@ const routes = [
             {
                 path: '/TermsOfUse',
                 name: 'TermsOfUse',
-                component: () => import('../components/ClubLeader/TermsOfUse.vue'),
+                component: () => import('../components/ClubLeader/policy/TermsOfUse.vue'),
                 meta: { layout: 'no-layout' } // 특수한 레이아웃을 사용하지 않도록 설정
             },
             {
@@ -99,7 +99,7 @@ const routes = [
             {
                 path: '/AdminTermsOfUse',
                 name: 'AdminTermsOfUse',
-                component: () => import('../components/Admin/AdminTermsOfUse.vue'),
+                component: () => import('../components/Admin/policy/AdminTermsOfUse.vue'),
                 meta: { requiresAuth: true, requiresLeader: true },
             },
             {
