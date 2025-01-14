@@ -49,16 +49,16 @@
     </div>
 
 
-    <div class="custom-popup" v-if="showExpulsionPopup">
-      <div class="popup-content">
-        <div class="popup-header">
-          <p class="popup-title">동아리 회원 퇴출</p>
+    <div class="custom-popup1" v-if="showExpulsionPopup">
+      <div class="popup-content1">
+        <div class="popup-header1">
+          <p class="popup-title1">동아리 회원 퇴출</p>
         </div>
-        <div class="popup-separator"></div>
-        <div class="popup-body">
-          <p class="popup-message"> <span class="red-text">총 {{ selectedMembers.length }}명</span>입니다.</p>
-          <p class="popup-message">해당 동아리원들을 퇴출하시겠습니까?</p>
-          <p class="popup-warning">퇴출 후 되돌릴 수 없으니 신중하게 선택해 주세요.</p>
+        <div class="popup-separator1"></div>
+        <div class="popup-body1">
+          <p class="popup-message1"> <span class="red-text1">총 {{ selectedMembers.length }}명</span>입니다.</p>
+          <p class="popup-message1">해당 동아리원들을 퇴출하시겠습니까?</p>
+          <p class="popup-warning1">퇴출 후 되돌릴 수 없으니 신중하게 선택해 주세요.</p>
         </div>
         <button @click="showExpulsionPopup = false" class="cancel-button">취소</button>
         <button @click="expelMember" class="expel-button">확인</button>
@@ -273,12 +273,6 @@ export default {
   text-align: center;
 }
 
-.member-checkbox {
-  margin-right: 15px;
-  width: 20px;
-  height: 20px;
-}
-
 .custom-checkbox {
   position: relative;
   display: inline-flex; /* flex로 변경하여 정렬 개선 */
@@ -335,8 +329,6 @@ export default {
 .hidden-checkbox:checked + .checkbox-mark:after {
   display: block;
 }
-
-
 
 .expulsion-header {
   display: flex;
@@ -400,7 +392,7 @@ export default {
   cursor: not-allowed;
 }
 
-.custom-popup {
+.custom-popup1 {
   position: fixed;
   top: 0;
   left: 0;
@@ -413,7 +405,7 @@ export default {
   z-index: 999;
 }
 
-.popup-content {
+.popup-content1 {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
@@ -424,42 +416,42 @@ export default {
   position: relative;
 }
 
-.popup-header {
+.popup-header1 {
   margin-bottom: 10px;
 }
 
-.popup-title {
+.popup-title1 {
   font-size: 18px;
   font-weight: bold;
   color: black;
   margin: 0;
 }
 
-.popup-separator {
+.popup-separator1 {
   border-bottom: 1px solid #d3d3d3;
   margin: 10px 0;
 }
 
-.popup-body {
+.popup-body1 {
   margin-bottom: 0px;
   margin-top: 22px;
 }
 
-.popup-message {
+.popup-message1 {
   font-size: 15px;
   color: #333333;
-  margin-bottom: 2px;
+  margin: 2px 0;
 }
 
-.red-text {
+.red-text1 {
   color: #FF5C5C;
   font-weight: 600;
 }
 
-.popup-warning {
+.popup-warning1 {
   font-size: 12px;
-  margin-top: 1px;
   color: #FF5C5C;
+  margin: 4px 0;
 }
 
 .expel-button {
