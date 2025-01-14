@@ -18,11 +18,14 @@
             </tr>
             <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
               <td>
-                <button @click="goToNotice(notice.noticeId, notice.adminName)">{{ notice.noticeTitle }}</button>
+                <button @click="goToNotice(notice.noticeId, notice.adminName)">
+                  {{ notice.noticeTitle }}
+                </button>
               </td>
               <td>{{ notice.adminName }}</td>
-              <td>{{ new Date(notice.noticeCreatedAt).toLocaleDateString() }}</td>
+              <td>{{ new Date(notice.noticeCreatedAt).toLocaleDateString('ko-KR') }}</td>
             </tr>
+
           </tbody>
         </table>
         <div class="pagination">
@@ -71,44 +74,47 @@ export default {
       this.$router.push({ name: 'AdminNoticeClick', params: { id, adminName } });
     },
     async fetchNotices() {
-      try {
-        const accessToken = store.state.accessToken;
+  try {
+    const accessToken = store.state.accessToken;
 
-        const response = await fetch(`http://15.164.246.244:8080/notices/paged?page=${this.currentPage - 1}&size=${this.itemsPerPage}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`
-          }
-        });
-
-        // If the response is not OK, handle different error cases
-        if (!response.ok) {
-          // Check for 401 Unauthorized error
-          if (response.status === 401) {
-            alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-            this.$router.push({ name: 'Login' }); // Redirect to login page
-            return;
-          }
-          throw new Error('Failed to fetch notices');
-        }
-
-        const data = await response.json();
-        console.log('Fetched data:', data); // 응답 데이터 확인
-
-        if (data && data._embedded && Array.isArray(data._embedded.noticeListResponseList)) {
-          this.notices = data._embedded.noticeListResponseList.reverse();
-          this.totalPages = data.page.totalPages;
-          this.currentPage = data.page.number + 1; // 페이지 번호는 0부터 시작하므로 1을 더함
-        } else {
-          this.notices = []; // 데이터를 가져오지 못한 경우 빈 배열 설정
-          console.warn('Unexpected response format:', data);
-        }
-      } catch (error) {
-        console.error('Error fetching notices:', error);
-        this.notices = [];
+    const response = await fetch(
+      `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
       }
-    },
+    );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
+        this.$router.push({ name: 'Login' });
+        return;
+      }
+      throw new Error(`Failed to fetch notices: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('Fetched data:', data);
+
+    // 최신순으로 정렬
+    if (data && data.data && Array.isArray(data.data.content)) {
+      this.notices = data.data.content.sort((a, b) => new Date(b.noticeCreatedAt) - new Date(a.noticeCreatedAt));
+      this.totalPages = data.data.totalPages;
+      this.currentPage = data.data.pageable.pageNumber + 1;
+    } else {
+      console.warn('Unexpected response format:', data);
+      this.notices = [];
+    }
+  } catch (error) {
+    console.error('Error fetching notices:', error);
+    alert('공지사항 목록을 불러오는 중 오류가 발생했습니다.');
+    this.notices = []; // 오류 발생 시 목록 초기화
+  }
+},
     goToNotice(noticeId) {
       const currentPath = this.$route.path;
       if (currentPath.startsWith('/adminmain')) {
@@ -118,19 +124,22 @@ export default {
       }
     },
     changePage(page) {
-      this.currentPage = page;
-      this.fetchNotices(); // 페이지 변경 시 데이터를 다시 가져옴
-    },
-    previousPage() {
-      if (this.currentPage > 1) {
-        this.changePage(this.currentPage - 1);
-      }
-    },
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.changePage(this.currentPage + 1);
-      }
-    }
+  if (page >= 1 && page <= this.totalPages) {
+    this.currentPage = page;
+    this.fetchNotices(); // 페이지 변경 후 데이터 다시 로드
+  }
+},
+previousPage() {
+  if (this.currentPage > 1) {
+    this.changePage(this.currentPage - 1);
+  }
+},
+nextPage() {
+  if (this.currentPage < this.totalPages) {
+    this.changePage(this.currentPage + 1);
+  }
+}
+
   },
   created() {
     this.fetchNotices(); // 컴포넌트가 생성될 때 공지사항 목록을 가져옴

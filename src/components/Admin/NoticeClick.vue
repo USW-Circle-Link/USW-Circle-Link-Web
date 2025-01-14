@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <!-- 이전 공지 / 다음 공지 -->
     <div class="header">
       <button class="nav-button" @click="prevNotice">
         <img src="@/assets/left.png" alt="Previous" class="nav-icon" />
@@ -10,31 +11,7 @@
         <img src="@/assets/rigth.png" alt="Next" class="nav-icon" />
       </button>
     </div>
-    <div v-if="notice" class="notice-details">
-      <div class="meta-info">
-        <p>
-          <span class="notice-meta">
-  <span class="author-name">{{ notice?.adminName || '관리자 없음' }}</span>
-  | 
-  <span class="date-background">{{ formattedDate(notice.noticeCreatedAt) || '날짜 없음' }}</span>
-</span>
 
-        </p>
-      </div>
-      <!-- noticeContent를 HTML로 렌더링하고 줄바꿈을 처리 -->
-      <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
-
-      <div class="notice-images" v-if="images.length > 0">
-        <div v-for="(image, index) in images" :key="index" class="image-container">
-          <img
-            :src="image.src"
-            alt="Notice Image"
-            class="notice-image"
-            @error="handleImageError(index)"
-          />
-        </div>
-      </div>
-    </div>
 
     <!-- 삭제 팝업창 -->
     <div v-if="showDeletePopup" class="delete-popup-overlay">
@@ -52,6 +29,33 @@
         </div>
       </div>
     </div>
+
+    
+
+    <!-- 공지사항 상세보기 -->
+    <div v-if="notice" class="notice-details">
+      <div class="meta-info">
+        <p>
+          <span class="notice-title">{{ notice.noticeTitle }}</span>
+          <span class="notice-meta">{{ notice.adminName }} | </span>
+          <span class="notice-date"> {{ formattedDate(notice.noticeCreatedAt) }} </span> 
+        </p>
+      </div>
+      <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
+
+      <div class="notice-images" v-if="images.length > 0">
+        <div v-for="(image, index) in images" :key="index" class="image-container">
+          <img
+            :src="image.src"
+            alt="Notice Image"
+            class="notice-image"
+            @error="handleImageError(index)"
+          />
+        </div>
+      </div>
+    </div>
+
+
 
     <div class="actions">
       <button class="edit-button" @click="editNotice">
@@ -79,10 +83,12 @@
       </button>
     </div>
 
+
+    <!-- 공지사항 목록 -->
     <div class="notice-list">
       <table>
         <tbody>
-          <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
+          <tr v-for="notice in notices" :key="notice.noticeId">
             <td>
               <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
             </td>
@@ -91,24 +97,25 @@
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-  <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="pagination-button">
-    <img src="@/assets/left.png" alt="Previous" class="pagination-icon" />
-  </button>
-  <span
-    v-for="page in totalPages"
-    :key="page"
-    @click="changePage(page)"
-    :class="{ active: page === currentPage }"
-    class="pagination-number"
-  >
-    {{ page }}
-  </span>
-  <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="pagination-button">
-    <img src="@/assets/rigth.png" alt="Next" class="pagination-icon" />
-  </button>
-</div>
 
+      <!-- 페이지네이션 -->
+      <div class="pagination">
+        <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="pagination-button">
+          <img src="@/assets/left.png" alt="Previous" class="pagination-icon" />
+        </button>
+        <span
+          v-for="page in totalPages"
+          :key="page"
+          @click="changePage(page)"
+          :class="{ active: page === currentPage }"
+          class="pagination-number"
+        >
+          {{ page }}
+        </span>
+        <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="pagination-button">
+          <img src="@/assets/rigth.png" alt="Next" class="pagination-icon" />
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -120,57 +127,47 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      notices: [],
-      notice: null,
-      currentPage: 1,
-      itemsPerPage: 5,
+      notices: [], // 공지사항 목록
+      notice: null, // 현재 선택된 공지사항
+      currentPage: 1, // 현재 페이지 번호
+      totalPages: 1, // 전체 페이지 수
+      itemsPerPage: 5, // 페이지당 항목 수
       images: [], // 이미지 배열
-      showDeletePopup: false, // 삭제 팝업 상태
     };
   },
-  computed: {
-    totalPages() {
-      return Math.ceil(this.notices.length / this.itemsPerPage);
-    },
-    paginatedNotices() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      return this.notices.slice(start, start + this.itemsPerPage);
-    },
-  },
   created() {
-    this.fetchNotices();
+    this.fetchNotices(); // 공지사항 목록 가져오기
+    this.fetchNotice(this.$route.params.id); // 현재 공지사항 정보 가져오기
   },
   methods: {
     convertNewlinesToBr(text) {
-  return text ? text.replace(/\n/g, '<br>') : ''; 
-},
-
+      return text ? text.replace(/\n/g, '<br>') : ''; // 줄바꿈을 <br> 태그로 변환
+    },
     async fetchNotices() {
       try {
         const accessToken = store.state.accessToken;
-        const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        this.notices = response.data._embedded?.noticeListResponseList || [];
-        this.fetchNotice(this.$route.params.id);
+        const response = await axios.get(
+          `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+        this.notices = response.data.data.content || []; // 공지사항 목록 설정
+        this.totalPages = response.data.data.totalPages || 1; // 전체 페이지 수 설정
       } catch (error) {
-        this.handleError(error, '공지사항 목록을 가져오는 중 오류');
+        console.error('공지사항 목록을 가져오는 중 오류:', error);
       }
     },
     async fetchNotice(id) {
       try {
         const accessToken = store.state.accessToken;
         const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
-        this.notice = response.data.data;
-        this.loadImages(response.data.data.noticePhotos);
+        this.notice = response.data.data; // 공지사항 정보 설정
+        this.loadImages(response.data.data.noticePhotos); // 이미지 설정
       } catch (error) {
-        this.handleError(error, '공지사항을 가져오는 중 오류');
+        console.error('공지사항을 가져오는 중 오류:', error);
       }
     },
     loadImages(photoUrls) {
@@ -204,20 +201,23 @@ export default {
       alert(`${message}: ${error.message}`);
     },
     prevNotice() {
-      const currentIndex = this.notices.findIndex((n) => n.noticeId === this.$route.params.id);
+      const currentIndex = this.notices.findIndex((n) => n.noticeId === this.notice.noticeId);
       const prevIndex = (currentIndex - 1 + this.notices.length) % this.notices.length;
-      this.$router.push({ name: 'AdminNoticeClick', params: { id: this.notices[prevIndex].noticeId } });
+      this.goToNotice(this.notices[prevIndex].noticeId); // 이전 공지 이동
     },
     nextNotice() {
-      const currentIndex = this.notices.findIndex((n) => n.noticeId === this.$route.params.id);
+      const currentIndex = this.notices.findIndex((n) => n.noticeId === this.notice.noticeId);
       const nextIndex = (currentIndex + 1) % this.notices.length;
-      this.$router.push({ name: 'AdminNoticeClick', params: { id: this.notices[nextIndex].noticeId } });
+      this.goToNotice(this.notices[nextIndex].noticeId); // 다음 공지 이동
     },
     changePage(page) {
-      this.currentPage = page;
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        this.fetchNotices(); // 페이지 변경 시 공지사항 목록 다시 로드
+      }
     },
     goToNotice(id) {
-      this.$router.push({ name: 'AdminNoticeClick', params: { id } });
+      this.$router.push({ name: 'AdminNoticeClick', params: { id } }); // 공지사항 상세보기로 이동
     },
     editNotice() {
       if (this.notice && this.notice.noticeId) {
@@ -237,8 +237,6 @@ export default {
   },
 };
 </script>
-
-
 
 <style scoped>
 
@@ -289,6 +287,7 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
   /* height: 626px; 고정 높이를 제거하여 자동으로 늘어나게 합니다. */
+  top: -50px; /* 위로 올리기 */
 }
 
 
@@ -302,8 +301,16 @@ export default {
 
 .notice-meta {
   font-size: 14px;
-  color: #999;
+  color: black;
   margin-left: 10px;
+}
+
+.notice-date {
+  font-size: 14px;
+  color: #868686; /* 날짜 배경색 */
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .notice-content {
@@ -342,8 +349,8 @@ export default {
 .actions {
   display: flex;
   justify-content: flex-start; /* 왼쪽으로 정렬 */
-  margin-bottom: 20px;
-  margin-left: 600px; /* 방법 1: 왼쪽으로 70px 이동 */
+  margin-top: 5px; /* 위에서 여백 추가 */
+  margin-left: 550px; /* 왼쪽 정렬 */
 }
 
 .edit-button, .delete-button {
@@ -511,7 +518,7 @@ button {
   display: flex;
   justify-content: center;
   align-items: center; /* 수직 정렬 */
-  gap: 10px; /* 버튼 사이 간격 */
+  gap: 5px; /* 버튼 사이 간격 */
 }
 
 .pagination span {
@@ -522,7 +529,7 @@ button {
   letter-spacing: -0.025em;
   color: #000000;
   cursor: pointer;
-  padding: 5px 10px;
+  padding: 5px 5px;
 }
 
 .pagination span.active {

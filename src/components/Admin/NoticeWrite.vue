@@ -6,16 +6,16 @@
     <div v-if="notice">
       <div class="title-container">
         <label for="title-input" class="label">제목</label>
-        <input id="title-input" v-model="notice.noticeTitle" class="title-input" placeholder="제목을 입력해주세요.(100자이내)" />
+        <input id="title-input" v-model="notice.noticeTitle" class="title-input" placeholder="제목을 입력해 주세요. (100자 이내)" />
       </div>
       <div class="content-container">
-        <label for="content-input" class="label">내용</label>
+        <!-- <label for="content-input" class="label">내용</label> -->
         <div class="textarea-wrapper">
           <textarea 
           id="content-input" 
           v-model="notice.noticeContent" 
           class="content-input" 
-          placeholder="내용을 입력해 주세요.사진은 5장까지 첨부 가능합니다."
+          placeholder="내용을 입력해 주세요. 사진은 5장까지 첨부 가능합니다."
           @input="limitContentLength" 
         ></textarea>
 
@@ -46,49 +46,17 @@ import store from '@/store/store';
 
 export default {
   name: 'NoticeWrite',
-  props: ['id'],
   data() {
     return {
-      notice: { noticeTitle: '', noticeContent: '' },
-      notices: [],
-      images: [], // 이미지 파일과 미리보기를 저장할 배열
+      notice: { noticeTitle: '', noticeContent: '' }, // 초기값
+      images: [], // 첨부 이미지 초기값
     };
   },
   methods: {
     limitContentLength() {
-    const maxContentLength = 3000;
-    if (this.notice.noticeContent.length > maxContentLength) {
-      this.notice.noticeContent = this.notice.noticeContent.slice(0, maxContentLength);
-    }
-  },
-    async fetchNotices() {
-      try {
-        const response = await axios.get('http://15.164.246.244:8080/notices/paged', {
-          headers: {
-            'Authorization': `Bearer ${store.state.accessToken}`,
-          },
-        });
-        if (response.data && response.data._embedded && Array.isArray(response.data._embedded.noticeListResponseList)) {
-          this.notices = response.data._embedded.noticeListResponseList;
-        } else {
-          this.notices = [];
-          console.warn('Unexpected response format:', response.data);
-        }
-        this.fetchNotice(this.id);
-      } catch (error) {
-        console.error('Error fetching notices:', error);
-        this.notices = [];
-        alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
-      }
-    },
-    fetchNotice(id) {
-      const notice = this.notices.find(notice => notice.noticeId == id);
-      if (notice) {
-        this.notice = notice;
-        this.images = notice.noticePhotos ? notice.noticePhotos.map(src => ({ src })) : [];
-      } else {
-        this.notice = { noticeTitle: '', noticeContent: '' };
-        this.images = [];
+      const maxContentLength = 3000;
+      if (this.notice.noticeContent.length > maxContentLength) {
+        this.notice.noticeContent = this.notice.noticeContent.slice(0, maxContentLength);
       }
     },
     onImageUpload(event) {
@@ -107,28 +75,6 @@ export default {
         }
       }
     },
-    onImageChange(index) {
-      const fileInput = this.$refs[`fileInput${index}`][0];
-      if (fileInput && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-        const maxFileSize = 10 * 1024 * 1024; // 10MB
-        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            this.images.splice(index, 1, { src: e.target.result, file }); // Vue 3에서 splice로 대체
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert("파일 형식이 맞지 않거나 파일 크기가 10MB를 초과합니다. \n10MB 이하의 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 선택하세요.");
-        }
-      }
-    },
-    editImage(index) {
-      this.$refs[`fileInput${index}`][0].click();
-    },
-
     async submitNotice() {
       const maxTitleLength = 100;
       const maxContentLength = 3000;
@@ -149,8 +95,8 @@ export default {
         const noticeData = {
           noticeTitle: this.notice.noticeTitle,
           noticeContent: this.notice.noticeContent
-              .replace(/ /g, '&nbsp;')
-              .replace(/\n/g, '<br>'),
+            .replace(/ /g, '&nbsp;')
+            .replace(/\n/g, '<br>'),
           photoOrders: this.images.map((_, index) => index + 1)
         };
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
@@ -165,20 +111,9 @@ export default {
             'Content-Type': 'multipart/form-data',
           },
         });
-
-        if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
-          await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
-            const photoResponse = await axios.put(photoUrl, this.images[index].file, {
-              headers: {
-                'Content-Type': this.images[index].file.type,
-              }
-            });
-           // console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
-          }));
-        }
-
+        console.log('Response from server:', response.data);
         alert('공지사항이 성공적으로 등록되었습니다!');
-        this.$router.push({ name: 'Notice' });
+        this.$router.push({ name: 'Notice' }); // 등록 후 페이지 이동
       } catch (error) {
         if (error.response && error.response.status === 401) {
           alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
@@ -193,22 +128,33 @@ export default {
     },
   },
   created() {
-    this.fetchNotices();
-  }
+    // 작성 모드 초기화
+    this.notice = { noticeTitle: '', noticeContent: '' };
+    this.images = [];
+  },
 };
 </script>
 
 
 <style scoped>
 .title {
-  color: black;
-  font-size: 25px;
+  color: #000000;
+
+  font-size: 30px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
+  margin-top: 10px;
   position: relative; /* 상대 위치 설정 */
   display: inline-block;
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
 }
+.label {
+  font-size: 18px; /* 글씨 크기를 20px로 변경 */
+  /*  필요 시 굵게 표시 */
+  color: #000000; /* 필요 시 색상 변경 */
+}
+
+
 
 .title::after {
   content: '';
@@ -233,8 +179,18 @@ export default {
   box-sizing: border-box;
 }
 
-.title-container, .content-container, .image-upload-container {
-  margin-bottom: 20px;
+.title-container{
+  margin-top:30px ;
+}
+
+.content-container 
+{
+  margin-top: 35px; /* 내용 입력 필드 위 여백 추가 */
+}
+
+.image-upload-container {
+  
+  margin-top: 30px; 
 }
 
 .label {
@@ -244,12 +200,14 @@ export default {
 }
 
 .title-input {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  margin-top: 10px; /* 위 요소와 간격 */
+  width: 100%; /* 입력창 크기 */
+  padding: 10px; /* 내부 여백 */
+  font-size: 16px; /* 입력창 글씨 크기 */
+  border: 1px solid #ddd; /* 테두리 */
+  border-radius: 5px; /* 모서리 둥글기 */
 }
+
 
 /* 텍스트 영역 wrapper 스타일 */
 .textarea-wrapper {
@@ -296,8 +254,8 @@ export default {
   border: 1px solid #ddd;
   border-radius: 5px;
   overflow: hidden;
-  width: 153.96px;
-  height: 153.96px;
+  width: 142px; /* 이미지 업로드 후에도 너비를 142px로 고정 */
+  height: 95.88px; /* 이미지 업로드 후에도 높이를 95.88px로 고정 */
   flex: 0 0 auto;
 }
 
@@ -326,8 +284,8 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 153.96px;
-  height: 153.96px;
+  width: 142px;
+  height: 95.88px;
   border: 2px dashed #ddd;
   border-radius: 5px;
   cursor: pointer;
@@ -364,5 +322,17 @@ export default {
   text-align: center;
 }
 
+.title-input::placeholder, 
+.content-input::placeholder, 
+.image-upload input::placeholder {
+  font-family: Pretendard;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  letter-spacing: -0.025em;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+}
 
 </style>

@@ -14,37 +14,37 @@
   <div class="container">
     <!-- 동아리 리스트 -->
     <div class="list">
-      <div class="list-item-container" v-for="(club, index) in displayedClubs" :key="index">
-        <div class="list-item-row" @click="openPopupClubInfo(club.clubName)">
-          <div class="list-item-department">{{ club.department }}</div>
-          <div class="list-item-clubname">{{ club.clubName }}</div>
-          <div class="list-item-clubleader">{{ club.leaderName }}</div>
-          <div class="list-item-numberOfClubMembers">{{ club.numberOfClubMembers }}</div>
-        </div>
-        <div class="list-item-delete">
-          <button class="delete-btn" @click="openPopup(club.clubId, index, club.clubName)">삭제</button>
-        </div>
+      <div class="list-item-container" v-for="(club, index) in clubs" :key="index">
+      <div class="list-item-row" @click="openPopupClubInfo(club.clubName)">
+        <div class="list-item-department">{{ club.department }}</div>
+        <div class="list-item-clubname">{{ club.clubName }}</div>
+        <div class="list-item-clubleader">{{ club.leaderName }}</div>
+        <div class="list-item-numberOfClubMembers">{{ club.numberOfClubMembers }}</div>
+      </div>
+      <div class="list-item-delete">
+        <button class="delete-btn" @click="openPopup(club.clubId, index, club.clubName)">삭제</button>
       </div>
     </div>
-
-    <!-- 페이지네이션 -->
-    <div class="pagination">
-      <button @click="prevPage">
-        <img src="@/assets/left.png" alt="Previous" />
-      </button>
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        @click="setPage(page)"
-        :class="{ active: page === currentPage }"
-      >
-        {{ page }}
-      </button>
-      <button @click="nextPage">
-        <img src="@/assets/rigth.png" alt="Next" />
-      </button>
     </div>
+    <div class="pagination">
+  <button @click="prevPage" :disabled="currentPage === 1">
+    <img src="@/assets/left.png" alt="Previous" />
+  </button>
+  <button
+    v-for="page in totalPages"
+    :key="page"
+    @click="setPage(page)"
+    :class="{ active: page === currentPage }"
+  >
+    {{ page }}
+  </button>
+  <button @click="nextPage" :disabled="currentPage === totalPages">
+    <img src="@/assets/rigth.png" alt="Next" />
+  </button>
+</div>
   </div>
+    
+
 
   <!-- 동아리 삭제 팝업 -->
   <div v-if="isPopupVisible" class="popup-overlay">
@@ -62,7 +62,7 @@
   <!-- 동아리 상세 정보 팝업 -->
   <div v-if="isClubInfoPopupVisible" ref="popup" class="ClubInfoPopup-overlay">
     
-    <button class="close-btn" @click="closePopup">✖</button>
+    <button class="close1-btn" @click="closePopup">✖</button>
   
     <div class="club-profile">
       <ImageSlider :images="images" />
@@ -190,17 +190,43 @@ export default {
     // 서버에서 클럽 데이터 가져오기
     async fetchClubs() {
       try {
-        const response = await axios.get("http://15.164.246.244:8080/admin/clubs", {
+        const response = await axios.get("http://15.164.246.244:8080/admin/clubs?page=0&size=5", {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
+          params: {
+          page: this.currentPage - 1, // 백엔드 페이지는 0부터 시작
+          size: this.clubsPerPage,  // 한 페이지에 표시할 클럽 수
+          },
         });
-        this.clubs = response.data.data || []; // 데이터 저장
-      } catch (error) {
-        console.error("Error fetching clubs:", error);
-        alert("동아리 리스트를 불러오는데 실패했습니다.");
-      }
-    },
+        // API 응답 데이터 처리
+      const { content, totalPages } = response.data.data;
+      this.clubs = content || []; // 현재 페이지의 클럽 리스트 저장
+      this.totalPages = totalPages || 1; // 전체 페이지 수 저장
+    } catch (error) {
+      console.error("Error fetching clubs:", error);
+      alert("동아리 리스트를 불러오는데 실패했습니다.");
+    }
+  },
+  async setPage(page) {
+    if (page > 0 && page <= this.totalPages) {
+      this.currentPage = page; // 현재 페이지 업데이트
+      await this.fetchClubs(); // 새로운 데이터 가져오기
+    }
+  },
+  async prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      await this.fetchClubs(); // 이전 페이지 데이터 가져오기
+    }
+  },
+  async nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      await this.fetchClubs(); // 다음 페이지 데이터 가져오기
+    }
+  },
+
     // 삭제 팝업 열기
     openPopup(clubId, index, clubName) {
       this.PopupClubName = clubName;
@@ -314,6 +340,7 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   height: 620px;
    /* 페이지네이션을 하단에 고정 */
+   justify-content: space-between; 
 }
 
 .title {
@@ -412,8 +439,6 @@ body {
   line-height: 10.2; /* 줄 높이를 줄여서 위로 이동 */
 }
 
-
-
 .list-item-clubleader {
   flex: 1;
   display: flex;
@@ -469,24 +494,49 @@ body {
   transition: visibility 0s, opacity 0.2s ease-in-out;
 }
 
-/* Pagination */
 .pagination {
-  margin-top: 20px;
   display: flex;
   justify-content: center;
+  align-items: center;
+  margin-top: 20px; /* 위 리스트와의 간격 */
 }
 
-.pagination button {
+.pagination button{
   background: none;
-  margin: 0 5px;
-  padding: 5px 10px;
-  cursor: pointer;
   border: none;
+  cursor: pointer;
+  margin: 0 8px; /* 좌우 간격 */
+  font-size: 14px; /* 텍스트 크기 */
+  color: #aaa; /* 기본 색상 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; /* 버튼 크기 */
+  height: 24px; /* 버튼 크기 */
+}
+.pagination span {
+  border: none;
+  background: none;
+  cursor: pointer;
+  margin: 0 8px; /* 각 버튼 간 간격 */
+  font-size: 14px;
+  font-weight: 400;
+  color: #555; /* 기본 색상 */
+
 }
 
-.pagination button.active {
-  color: #ffc700;
+
+
+.pagination button:disabled {
+  opacity: 0.5; /* 비활성화된 버튼의 투명도 */
+  cursor: not-allowed; /* 클릭 불가 */
 }
+
+.pagination .active {
+  font-weight: bold;
+  color: #ffc700; /* 활성화된 페이지의 색상 */
+}
+
 /* Popup Overlay and Popup Window */
 .popup-overlay {
   position: fixed;
@@ -854,8 +904,34 @@ body {
   color: black; /* 닫기 버튼 흰색 */
   font-size: 15px; /* 버튼 크기 */
   cursor: pointer; /* 클릭 가능한 포인터 */
-  top: 25px;
-  left: 852px;
+  top: -5px;
+  left: 262px;
+}
+
+
+/* 닫기 버튼 위치 조정 */
+.close1-btn {
+  position: absolute; /* 부모 요소를 기준으로 배치 */
+  top: 35px;         /* 상단에서 20px 내려옴 */
+  right: 740px;       /* 오른쪽에서 20px 떨어짐 */
+  background: none;  /* 배경 없음 */
+  border: none;      /* 테두리 없음 */
+  color: black;      /* 닫기 버튼 색상 */
+  font-size: 18px;   /* 버튼 크기 */
+  cursor: pointer;   /* 클릭 가능 표시 */
+}
+
+
+/* 오른쪽 상단에 추가된 닫기 버튼 */
+.close-btn1-top-right {
+  position: absolute;
+  top: 15px; /* 팝업 상단에서 15px 내려옴 */
+  right: 105px; /* 팝업 오른쪽에서 15px 떨어짐 */
+  background: none;
+  border: none;
+  color: black;
+  font-size: 18px; /* 닫기 버튼 크기 */
+  cursor: pointer;
 }
 
 
