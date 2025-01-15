@@ -19,10 +19,10 @@
           </div>
           <div class="bottom">
             <a @click.prevent="navigateTo('profileedit')">- 동아리 정보 수정</a>
-            <a @click.prevent="navigateTo('profileedit')">- 동아리 회원 추가</a>
+            <a @click.prevent="navigateTo('addMember')">- 동아리 회원 추가</a>
             <a @click.prevent="navigateTo('duplicate-member')">- 중복 회원 추가</a>
-            <a @click.prevent="navigateTo('removemember')">- 회원 퇴출</a>
-            <a @click.prevent="navigateTo('Accept')">- 동아리 회원가입 요청 관리</a>
+            <a @click.prevent="navigateTo('')">- 회원 퇴출</a>
+            <a @click.prevent="navigateTo('Accept')">- 동아리 회원 가입 요청 관리</a>
 
           </div>
         </li>
@@ -235,7 +235,7 @@ nav li {
 }
 
 .list1:hover {
-  height: 195px;
+  height: 200px;
   box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
