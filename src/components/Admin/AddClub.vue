@@ -2,7 +2,6 @@
   <div class="title">동아리 추가</div>
   <!--  동아리 추가 정보 입력 폼  -->
   <div class="form-container">
-    <form @submit.prevent="submitForm">
       <!-- 아이디 -->
       <div class="form-group-col">
         <div class="form-group-row">
@@ -10,7 +9,7 @@
           <input class="from-input" type="text" id="id" v-model="id" placeholder="아이디 (5~20자 이내 영어, 숫자)" @input="validateId" />
           <button class="DuplicateCheckbtn" @click="idDuplicateCheck">중복 확인</button>
         </div>
-        <span v-if="idError" class="warning">{{ idError }}</span>
+        <span v-if="idError" :style="getStyleId" class="warning">{{ idError }}</span>
       </div>
       <!-- 비밀번호 -->
       <div class="form-group-col">
@@ -35,7 +34,7 @@
           <input class="from-input" type="text" id="clubName" v-model="clubName" placeholder="동아리 이름 (10자 이내)" @input="validateClubName" />
           <button class="DuplicateCheckbtn" @click="clubNameDuplicateCheck">중복 확인</button>
         </div>
-        <span v-if="clubNameError" class="warning">{{ clubNameError }}</span>
+        <span v-if="clubNameError" :style="getStyleClubName" class="warning">{{ clubNameError }}</span>
       </div>
       <!-- 분과 -->
       <div class="form-group">
@@ -73,7 +72,6 @@
         <span v-if="clubRoomError" class="warning">{{ clubRoomError }}</span>
       </div>
       <div class="popupbtn" @click="openPopup()">추가하기</div>
-    </form>
 
     <div v-if="isIdPopupVisible" class="popup-overlay">
       <div class="popup">
@@ -170,6 +168,7 @@ export default {
       confirmPassword: '', // 비밀번호 확인
       clubName: '', // 동아리 이름
       department: '', // 분과
+      selectedRoom: '미선택', //동아리 방
 
       // 정보 입력 값 에러 메세지 변수
       idError: '',
@@ -177,6 +176,10 @@ export default {
       confirmPasswordError:'',
       clubNameError: '',
       clubRoomError: '',
+
+      // 중복확인 체크
+      DuplicateCheckId: false,
+      DuplicateCheckClubName: false,
 
       // 동아리 분과 선택을 위한 드롭 다운 리스트 옵션 문자열이 저장된 배열
       options: ['학술', '종교', '예술', '체육', '공연', '봉사'],
@@ -200,23 +203,35 @@ export default {
 
       // 동연회/개발팀 비밀번호
       adminPw: '',
-      adminPwError: '', // 정보 입력 값 에러 메세지 변수
+      adminPwError: ' ', // 정보 입력 값 에러 메세지 변수
 
       // 동아리 방 정보
       floors: ['지하', '1층', '2층'],
       selectedFloor: '1층',
-      selectedRoom: '미선택',
       roomMap: {
         '지하': ['B101호', 'B102호', 'B103호', 'B104호', 'B105호', 'B106호', 'B107호', 'B108호', 'B109호', 'B110호', 'B111호', 'B112호', 'B113호','B114호', 'B115호', 'B116호', 'B117호', 'B118호', 'B119호', 'B120호', 'B121호', 'B122호', 'B123호'],
         '1층': ['102호', '103호', '104호', '105호', '106호', '107호', '108호', '109호', '110호', '112호'],
         '2층': ['203호', '205호', '206호','207호', '208호', '209호', '210호',]
-      }
+      },
+
+      isActiveId : true,
+      isActiveClubName : true,
     };
   },
   computed: {
     roomsByFloor() {
       return this.roomMap[this.selectedFloor] || []
-    }
+    },
+    getStyleId(){
+      return this.isActiveId
+          ? { color : '#FF4B4B' }
+          : { color : '#42FF00' };
+    },
+    getStyleClubName(){
+      return this.isActiveClubName
+          ? { color : '#FF4B4B' }
+          : { color : '#42FF00' };
+    },
   },
   methods: {
     // 함수 실행 시 routeName의 컴포넌트로 이동
@@ -232,6 +247,7 @@ export default {
     validateId() {
       const idPattern = /^[a-zA-Z0-9]{5,20}$/;
       if (!idPattern.test(this.id)) {
+        this.isActiveId = true;
         this.idError = '* 아이디는 5~20자 이내의 숫자와 문자만 입력 가능합니다.';
       } else {
         this.idError = '';
@@ -247,6 +263,7 @@ export default {
     },
     validateClubName() {
       if (this.clubName.length > 10) {
+        this.isActiveClubName = true;
         this.clubNameError = '* 동아리 이름은 공백 포함 10자 이내로 작성해주세요.';
       } else {
         this.clubNameError = '';
@@ -259,22 +276,78 @@ export default {
         this.confirmPasswordError = '';
       }
     },
-    idDuplicateCheck() { //아이디 중복 확인
-      this.isIdPopupVisible = true;
+    async idDuplicateCheck() { //아이디 중복 확인
+      if(this.id !== ''){
+        const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
+        try {
+          await axios.get(`http://15.164.246.244:8080/admin/clubs/leader/check?leaderAccount=${this.id}`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
+            }
+          });
+          this.isIdPopupVisible = true;
+          this.DuplicateCheckId = true;
+        } catch (error) {
+          if (error.response.status === 422) {
+            this.isActiveId = true;
+            this.idError = '* 이미 존재하는 아이디입니다.';
+            this.DuplicateCheckId = false;
+          }
+        }
+      } else {
+        this.isActiveId = true;
+        this.idError = '* 아이디를 입력해 주세요.';
+      }
     },
-    clubNameDuplicateCheck() { //동아리 이름 중복 확인
-      this.isClubNamePopupVisible = true;
+    async clubNameDuplicateCheck() { //동아리 이름 중복 확인
+      if(this.clubName !== '') {
+        const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
+        try {
+          await axios.get(`http://15.164.246.244:8080/admin/clubs/name/check?clubName=${this.clubName}`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
+            }
+          });
+          this.isClubNamePopupVisible = true;
+          this.DuplicateCheckClubName = true;
+        } catch (error) {
+          if (error.response.status === 409) {
+            this.isActiveClubName = true;
+            this.clubNameError = '* 이미 존재하는 동아리 이름입니다.';
+            this.DuplicateCheckClubName = false;
+          }
+        }
+      } else {
+        this.isActiveClubName = true;
+        this.clubNameError = '* 동아리 이름을 입력해 주세요.';
+      }
     },
     ConfirmedId(){
       this.isIdPopupVisible = false;
+      this.isActiveId = false;
+      this.idError = "* 중복확인 완료"
     },
     ConfirmedClubName(){
       this.isClubNamePopupVisible = false;
+      this.isActiveClubName = false;
+      this.clubNameError = "* 중복확인 완료"
     },
     // "추가하기" 버튼을 눌러 팝업창 나타내기
     openPopup() {
-      this.isPopupVisible = true;
-
+      if(this.DuplicateCheckClubName === true &&
+          this.DuplicateCheckId === true &&
+          this.id !== '' &&
+          this.password !== '' &&
+          this.confirmPassword !== '' &&
+          this.clubName !== '' &&
+          this.selectedOption !== '' &&
+          this.selectedRoom !== '')
+      {
+        this.isPopupVisible = true;
+      }  else {
+        alert("중복확인 및 빈칸을 모두 채워주세요.");
+        console.log(this.DuplicateCheckClubName, this.DuplicateCheckId, this.id, this.password, this.confirmPassword, this.clubName, this.selectedOption, this.selectedRoom);
+      }
     },
 
     // 팝업창 "취소" 버튼을 눌러 팝업창을 지우고 입력폼 값 초기화
@@ -285,6 +358,7 @@ export default {
       this.confirmPassword = '';
       this.clubName = '';
       this.department = '';
+      this.selectedRoom =- '';
     },
 
     // 분과 선택을 위해 클릭 시 드롭다운 리스트를 나타내고 지우기
@@ -319,7 +393,8 @@ export default {
         leaderPwConfirm: this.password,
         clubName: this.clubName,
         department: this.department,
-        adminPw: this.adminPw
+        adminPw: this.adminPw,
+        clubRoomNumber: this.selectedRoom
       };
 
       try {
@@ -604,6 +679,7 @@ label {
   border: 1px solid #C6C6C6;
   border-radius: 8px;
   margin-bottom: 10px;
+  margin-top: 1px;
 }
 
 .popup-warning {
@@ -761,7 +837,6 @@ label {
 
 .modal-header h3 {
   color: #575757;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
@@ -819,7 +894,7 @@ label {
 .floor-button.active {
   background: white;
   color: #000;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .room-container {
@@ -848,7 +923,6 @@ label {
   cursor: pointer;
   font-size: 14px;
   color: #5A5A5A;
-  font-family: Pretendard;
   font-style: normal;
   font-weight: 400;
   line-height: 12px; /* 85.714% */
