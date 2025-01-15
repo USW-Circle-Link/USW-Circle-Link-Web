@@ -6,7 +6,6 @@
     <div class="status-actions">
       <button class="send-result-btn" @click="showPopup">지원 결과 전송</button>
       <div class="status-boxes">
-        <p class="whole">일괄 선택</p>
         <button class="status-box approve-box" @click="setAllApplicantsStatus('PASS')">전체<br>합격</button>
         <button class="status-box reject-box" @click="setAllApplicantsStatus('FAIL')">전체<br>불합격</button>
       </div>
@@ -215,18 +214,6 @@ export default {
   line-height: 24px;
   letter-spacing: -0.6px;
 }
-.whole {
-  color: #000;
-  font-family: Pretendard;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 700;
-  letter-spacing: -0.6px;
-  display: flex;
-  align-items: flex-end;
-  height: 30px;
-  margin-inline-end: 1px;
-}
 .status-actions {
   display: flex;
   justify-content: space-between;
@@ -360,18 +347,19 @@ hr {
   margin-top: 20px;
 }
 .popup-buttons button {
-  padding: 8px 26px;
+  width: 80px;
+  height: 32px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   margin-left: 10px;
 }
 .popup-buttons button:first-child {
-  background: #ccc;
+  background: #cecece;
   color: white;
 }
 .popup-buttons button:last-child {
-  background: #f0b700;
+  background: #ffb052;
   color: white;
 }
 /*
