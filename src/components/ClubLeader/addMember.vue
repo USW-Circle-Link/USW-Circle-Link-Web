@@ -85,8 +85,8 @@ export default {
     return {
       members: [], // 업로드된 회원 정보를 저장
 
-      isOverlappingMemberListsPopupVisible : true,
-      isSelectDepartmentPopupVisible : true,
+      isOverlappingMemberListsPopupVisible : true,  //임시로 보이게 설정
+      isSelectDepartmentPopupVisible : true,  //임시로 보이게 설정
     };
   },
   methods: {
