@@ -28,7 +28,11 @@
           <div class="edit-icon" @click="editImage(index)">
             <img src="@/assets/penbrush.png" alt="Edit Icon" />
           </div>
-          <input type="file" :ref="'fileInput' + index" @change="onImageChange(index)" style="display: none;" />
+          <div class="delete-icon" @click="deleteImage(index)">
+            &times;
+          </div>
+          <input type="file" :ref="'fileInput' + index" @change="onImageChange(index, $event)" style="display: none;" />
+
         </div>
         <div v-if="images.length < 5" class="image-upload">
           <input type="file" @change="onImageUpload" />
@@ -46,17 +50,44 @@ import store from '@/store/store';
 
 export default {
   name: 'NoticeWrite',
+  props: ['id'],
   data() {
     return {
-      notice: { noticeTitle: '', noticeContent: '' }, // 초기값
-      images: [], // 첨부 이미지 초기값
+      notice: { noticeTitle: '', noticeContent: '' },
+      notices: [],
+      images: [], // 이미지 파일과 미리보기를 저장할 배열
     };
   },
   methods: {
     limitContentLength() {
-      const maxContentLength = 3000;
-      if (this.notice.noticeContent.length > maxContentLength) {
-        this.notice.noticeContent = this.notice.noticeContent.slice(0, maxContentLength);
+    const maxContentLength = 3000;
+    if (this.notice.noticeContent.length > maxContentLength) {
+      this.notice.noticeContent = this.notice.noticeContent.slice(0, maxContentLength);
+    }
+  },
+  async fetchNotices() {
+      try {
+        const accessToken = store.state.accessToken;
+        const response = await axios.get(
+          `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+        this.notices = response.data.data.content || []; // 공지사항 목록 설정
+        this.totalPages = response.data.data.totalPages || 1; // 전체 페이지 수 설정
+      } catch (error) {
+        console.error('공지사항 목록을 가져오는 중 오류:', error);
+      }
+    },
+    fetchNotice(id) {
+      const notice = this.notices.find(notice => notice.noticeId == id);
+      if (notice) {
+        this.notice = notice;
+        this.images = notice.noticePhotos ? notice.noticePhotos.map(src => ({ src })) : [];
+      } else {
+        this.notice = { noticeTitle: '', noticeContent: '' };
+        this.images = [];
       }
     },
     onImageUpload(event) {
@@ -75,6 +106,28 @@ export default {
         }
       }
     },
+    onImageChange(index) {
+      const fileInput = this.$refs[`fileInput${index}`][0];
+      if (fileInput && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const maxFileSize = 10 * 1024 * 1024; // 10MB
+        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.images.splice(index, 1, { src: e.target.result, file }); // Vue 3에서 splice로 대체
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("파일 형식이 맞지 않거나 파일 크기가 10MB를 초과합니다. \n10MB 이하의 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 선택하세요.");
+        }
+      }
+    },
+    editImage(index) {
+      this.$refs[`fileInput${index}`][0].click();
+    },
+
     async submitNotice() {
       const maxTitleLength = 100;
       const maxContentLength = 3000;
@@ -95,8 +148,8 @@ export default {
         const noticeData = {
           noticeTitle: this.notice.noticeTitle,
           noticeContent: this.notice.noticeContent
-            .replace(/ /g, '&nbsp;')
-            .replace(/\n/g, '<br>'),
+              .replace(/ /g, '&nbsp;')
+              .replace(/\n/g, '<br>'),
           photoOrders: this.images.map((_, index) => index + 1)
         };
         form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
@@ -111,9 +164,20 @@ export default {
             'Content-Type': 'multipart/form-data',
           },
         });
-        console.log('Response from server:', response.data);
+
+        if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
+          await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
+            const photoResponse = await axios.put(photoUrl, this.images[index].file, {
+              headers: {
+                'Content-Type': this.images[index].file.type,
+              }
+            });
+           // console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
+          }));
+        }
+
         alert('공지사항이 성공적으로 등록되었습니다!');
-        this.$router.push({ name: 'Notice' }); // 등록 후 페이지 이동
+        this.$router.push({ name: 'Notice' });
       } catch (error) {
         if (error.response && error.response.status === 401) {
           alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
@@ -128,12 +192,11 @@ export default {
     },
   },
   created() {
-    // 작성 모드 초기화
-    this.notice = { noticeTitle: '', noticeContent: '' };
-    this.images = [];
-  },
+    this.fetchNotices();
+  }
 };
 </script>
+
 
 
 <style scoped>
@@ -257,12 +320,16 @@ export default {
   width: 142px; /* 이미지 업로드 후에도 너비를 142px로 고정 */
   height: 95.88px; /* 이미지 업로드 후에도 높이를 95.88px로 고정 */
   flex: 0 0 auto;
+  background-color: #ECECEC
+;
 }
 
 .uploaded-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background: #ECECEC;
+
 }
 
 .edit-icon {
@@ -286,11 +353,13 @@ export default {
   align-items: center;
   width: 142px;
   height: 95.88px;
-  border: 2px dashed #ddd;
+  border: 2px  #ddd;
   border-radius: 5px;
   cursor: pointer;
   position: relative;
   flex: 0 0 auto;
+  background: #ECECEC;
+
 }
 
 .image-upload input {
@@ -302,9 +371,20 @@ export default {
 }
 
 .image-upload span {
-  font-size: 24px;
-  color: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px; /* 플러스 기호 크기 */
+  color: #515151; /* 플러스 기호 색상 */
+  font-weight: bold;
+  width: 22px; /* 동그라미 크기 */
+  height: 22px;
+  background-color: white; /* 흰색 배경 */
+  border-radius: 50%; /* 원형 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
 }
+
+
 
 .submit-button {
   display: block;
@@ -333,6 +413,22 @@ export default {
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
+}
+
+.delete-icon {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 30px;
 }
 
 </style>

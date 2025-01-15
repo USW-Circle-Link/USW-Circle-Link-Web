@@ -37,8 +37,8 @@
               </div>
 
               <div class="delete-icon" @click="deleteImage(index)">
-                <span>X</span>
-              </div>
+            &times;
+          </div>
 
               <input type="file" :ref="'fileInput' + index" @change="onImageChange(index)" style="display: none;" />
             </div>
@@ -381,9 +381,11 @@ export default {
   border: 1px solid #ddd;
   border-radius: 5px;
   overflow: hidden;
-  width: 153.96px;
-  height: 153.96px;
+  width: 142px; /* 이미지 업로드 후에도 너비를 142px로 고정 */
+  height: 95.88px; /* 이미지 업로드 후에도 높이를 95.88px로 고정 */
   flex: 0 0 auto;
+  background-color: #ECECEC
+;
 }
 
 .uploaded-image {
@@ -407,28 +409,21 @@ export default {
   height: 100%;
 }
 
-.delete-icon {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  padding: 5px;
-  border-radius: 50%;
-  cursor: pointer;
-}
+
 
 .image-upload {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 153.96px;
-  height: 153.96px;
-  border: 2px dashed #ddd;
+  width: 142px;
+  height: 95.88px;
+  border: 2px  #ddd;
   border-radius: 5px;
   cursor: pointer;
   position: relative;
   flex: 0 0 auto;
+  background: #ECECEC;
+
 }
 
 .image-upload input {
@@ -440,8 +435,32 @@ export default {
 }
 
 .image-upload span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px; /* 플러스 기호 크기 */
+  color: #515151; /* 플러스 기호 색상 */
+  font-weight: bold;
+  width: 22px; /* 동그라미 크기 */
+  height: 22px;
+  background-color: white; /* 흰색 배경 */
+  border-radius: 50%; /* 원형 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+}
+.delete-icon {
+  position: absolute;
+  top: 0px;
+  right: 0px;
   font-size: 24px;
-  color: #ddd;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 30px;
 }
 
 .submit-button {
