@@ -20,8 +20,8 @@
           </div>
           <div class="upload-placeholder">
             <button @click="triggerFileInput(0)" class="upload-button">
-                <img src="../../assets/upload-img.png" alt="Upload" class="upload-icon" />
-                이미지 수정
+              <i class="upload-icon"></i>
+              이미지 수정
             </button>
           </div>
           <input 
@@ -54,7 +54,7 @@
             </div>
             <div class="upload-placeholder">
               <button @click="triggerFileInput(1)" class="upload-button">
-                <img src="../../assets/upload-img.png" alt="Upload" class="upload-icon" />
+                <i class="upload-icon"></i>
                 이미지 수정
               </button>
             </div>
@@ -86,7 +86,7 @@
             </div>
             <div class="upload-placeholder">
               <button @click="triggerFileInput(2)" class="upload-button">
-                <img src="../../assets/upload-img.png" alt="Upload" class="upload-icon" />
+                <i class="upload-icon"></i>
                 이미지 수정
               </button>
             </div>
@@ -104,8 +104,20 @@
     <button @click="saveImages" class="save-button">저장하기</button>
 
     <!-- 확대된 이미지 모달 -->
-    <div v-if="enlargedImage" class="image-modal" @click="closeModal">
-      <img :src="enlargedImage" alt="Enlarged Image" class="enlarged-image" />
+    <div v-if="enlargedImage" class="image-modal">
+      <div class="image-wrapper">
+        <img 
+          src="../../assets/remove.png" 
+          class="remove-icon-modal" 
+          @click="closeModal" 
+          alt="Close Modal"
+        />
+        <img 
+          :src="enlargedImage" 
+          alt="Enlarged Image" 
+          class="enlarged-image" 
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -367,13 +379,14 @@ export default {
     cursor: pointer;
 
     color: #868686;
-    font-weight: 600;
+    line-height: 18px;
+    font-weight: 500;
 }
 
 .save-button {
   width: 112px;
   height: 48px;
-  background: #FFC700;
+  background: #FFb052;
   border: none;
   border-radius: 4px;
   color: #ffffff;
@@ -399,12 +412,32 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
+  /*cursor: pointer;*/
 }
 
+.image-wrapper {
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
 .enlarged-image {
-  max-width: 90%;
-  max-height: 90%;
+  /*
+  max-width: 55%;
+  max-height: 55%;*/
+  max-width: 700px;
+  max-height: 400px;
+  margin-top: 55px;
+  object-fit: contain;
+}
+
+.remove-icon-modal {
+  position: absolute;
+  width: 30px; 
+  height: 30px;
+  top: 10px;
+  right: 0px;
+  cursor: pointer;
+  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
 }
 h2{
   align-self: start;
@@ -432,6 +465,7 @@ h3 {
   height: 16px;
   object-fit: contain;
   padding: 7px;
+  background: url('../../assets/hugeicons_image-upload.svg') no-repeat center center;
   filter: invert(54%) sepia(1%) saturate(0%) hue-rotate(179deg) brightness(97%) contrast(89%);
 }
 </style>
