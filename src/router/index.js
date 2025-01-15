@@ -72,6 +72,11 @@ const routes = [
                 component: () => import('../components/ClubLeader/DuplicateMember/DuplicateMember.vue'),
             },
             {
+                path: 'addMember',
+                name: 'addMember',
+                component: () => import('../components/ClubLeader/addMember.vue'),
+            },
+            {
                 path: 'Accept',
                 name: 'Accept',
                 component: () => import('../components/ClubLeader/Accept.vue'),
@@ -80,11 +85,6 @@ const routes = [
                 path: 'morepass',
                 name: 'morepass',
                 component: () => import('../components/ClubLeader/MorePass.vue'),
-            },
-            {
-                path: 'removemember',
-                name: 'removemember',
-                component: () => import('../components/ClubLeader/RemoveMember.vue'),
             },
         ]
     },
