@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="whole-container">
     <h2>동아리 활동 사진</h2>
     <div class="image-upload-container">
       <div v-for="(image, index) in images" :key="index" class="image-preview">
@@ -15,7 +15,7 @@
         </div>
         <div v-else class="image-upload">
           <input type="file" @change="onImageUpload(index, $event)" />
-          <span>+</span>
+          <div class="plus" @click="$event.target.previousElementSibling.click()">+</div>
         </div>
       </div>
     </div>
@@ -26,16 +26,18 @@
         </div>
     </div>
     <div class="ClubTextInput">
-      <textarea 
-      v-model="textareaContent" 
-      rows="4" 
-      cols="50"
-      class="preserve-whitespace"
-      @input="updateTextSize">
-    </textarea>
+      <div class="textarea-container">
+        <textarea
+          placeholder="동아리에 대해 자유롭게 설명해주세요. 사진은 5장까지 첨부 가능합니다. 동아리와 관련 없는 사진 업로드 시, 권한이 제한될 수 있습니다."
+          v-model="textareaContent"
+          rows="4"
+          cols="50"
+          class="preserve-whitespace"
+          @input="updateTextSize"
+        ></textarea>
+        <p class="textSize">{{ textSize }} / 3000</p>
+      </div>
     </div>
-
-    <p class="textSize">{{ textSize }} / 3000</p>
 
     <div class="ClubRecruitHeader">
       <div class="head">
@@ -45,22 +47,21 @@
         <input type="checkbox" v-model="isChecked" id="chk1" /><label for="switch" @click="toggleCheckbox"></label>
       </div>
     </div>
-    <div class="ClubTextInput" id="RecruitInputSpace"
-      :disabled="!isChecked" 
-      :class="{ 'RecruitToggleOff': !isChecked }" >
-      
-      <textarea 
-      v-model="textareaRecruitContent" 
-      :disabled="!isChecked" 
-      :class="{ 'RecruitToggleOff': !isChecked }" 
-      rows="4" 
-      cols="50"
-      class="preserve-whitespace"
-      @input="updateRecruitTextSize">
-      </textarea>
+    <div class="ClubTextInput" id="RecruitInputSpace" :disabled="!isChecked" :class="{ 'RecruitToggleOff': !isChecked }">
+      <div class="textarea-container">
+        <textarea
+          placeholder="동아리 모집에 대해 자유롭게 설명해주세요."
+          v-model="textareaRecruitContent"
+          :disabled="!isChecked"
+          :class="{ 'RecruitToggleOff': !isChecked }"
+          rows="4"
+          cols="50"
+          class="preserve-whitespace"
+          @input="updateRecruitTextSize"
+        ></textarea>
+        <p class="textSize">{{ RecruittextSize }} / 3000</p>
+      </div>
     </div>
-
-    <p class="textSize">{{ RecruittextSize }} / 3000</p>
 
     <h2>지원서 링크</h2>
     <div class="GoogleFormLinkInput"
@@ -71,7 +72,19 @@
       :disabled="!isChecked"
       :class="{ 'RecruitToggleOff': !isChecked }"></textarea>
     </div>
-    <button @click="saveInfo">작성 완료</button>
+    <button @click="saveInfo" >작성 완료</button>
+
+    <div v-if="showConfirmPopup" class="popup-overlay">
+      <div class="popup">
+        <h2>동아리 소개/모집</h2>
+        <hr>
+        <p class="confirm-message">동아리 소개/모집 글 작성이 완료되었습니다.</p>
+        <div class="popup-buttons">
+          <button @click="hidePopup">확인</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -83,7 +96,12 @@ export default {
   name: 'ClubInfoTextInput',
   data() {
     return {
-      images: [], //업로드 된 이미지 정보
+      images: [
+      { src: '' }, // 업로드되지 않은 상태의 기본 이미지 슬롯
+      { src: '' },
+      { src: '' },
+      { src: '' },
+      { src: '' },], //업로드 된 이미지 정보
       textareaContent: '',  // 소개글
       textareaRecruitContent: '',  // 모집글
       isChecked: null,
@@ -98,6 +116,7 @@ export default {
       clubData: {}, //클럽 정보
       textSize: 0,
       RecruittextSize: 0,
+      showConfirmPopup: false,
     };
   },
   mounted() {
@@ -159,6 +178,7 @@ export default {
         console.error("Error while deleting image:", error);
       }
     },
+    
     // 모집중 토글(on/off)
     async toggleCheckbox() {
       const accessToken = store.state.accessToken;
@@ -173,12 +193,13 @@ export default {
           'Authorization': `Bearer ${accessToken}`
         }
       })
+          
           .then(response => {
             //모집 상태 변경 완료 후 알림
             if (this.isChecked === true) {
-              setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 ON]'), 800);
+              //setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 ON]'), 800);
             } else {
-              setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 OFF]'), 800);
+              //setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 OFF]'), 800);
             }
           })
           .catch(error => console.error('Error:', error));
@@ -250,6 +271,14 @@ export default {
         }
       }
     },
+    //전송 확인 팝업 표시
+    showPopup() {
+      this.showConfirmPopup = true;
+    },
+    //전송 확인 팝업 숨김
+    hidePopup() {
+      this.showConfirmPopup = false;
+    },
     // 정보 저장
     async saveInfo() {
       const clubId = store.state.clubId;
@@ -308,11 +337,13 @@ export default {
           await this.uploadFiles();//파일 업로드
         }
 
-        alert("저장되었습니다!");
+        //alert("저장되었습니다!");          //이 창 말고 팝업 뜨게 하믄 되는 겅가 (나중에 주석 지워서 업로드 할 것)                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@
+        this.showPopup();
         this.navigateTo('dashboard');//완료 되면 홈 화면으로 이동
         this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
 
       } catch (error) {
+        this.showPopup(); //테스트용 @@!!!!!!
         console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
       }
     },
@@ -357,6 +388,13 @@ export default {
 
 
 <style scoped>
+.whole-container {
+  display: flex;
+  flex-direction: column; /* 세로 정렬 */
+  align-items: flex-start; /* 모든 요소를 왼쪽으로 정렬 */
+  max-width: 900px; /* 최대 너비 설정 */
+}
+
 .preserve-whitespace {
   white-space: pre-wrap;
 }
@@ -364,11 +402,10 @@ export default {
 .image-upload-container {
   display: flex;
   align-items: center;
-  gap: 10px;
   width: 866px;
   height: 153.96px;
   background-color: white;
-  padding: 10px;
+  padding: 5px;
   margin: auto;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
@@ -383,8 +420,8 @@ h2{
   position: relative;
   border-radius: 5px;
   overflow: hidden;
-  width: 153.96px;
-  height: 153.96px;
+  width: 141px;
+  height: 95px;
   flex: 0 0 auto;
 }
 
@@ -396,12 +433,11 @@ h2{
 
 .delete-icon {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 0px;
+  right: 0px;
   font-size: 24px;
-  color: red;
+  color: #fff;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.7);
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -416,8 +452,9 @@ h2{
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
+  filter: invert(100%);
   cursor: pointer;
 }
 
@@ -430,9 +467,10 @@ h2{
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 150px;
-  height: 150px;
-  border: 2px dashed #ddd;
+  width: 138px;
+  height: 92px;
+  border: 2px solid #ddd;
+  background: #ececec;
   border-radius: 5px;
   cursor: pointer;
   position: relative;
@@ -465,8 +503,13 @@ h2{
 }
 
 .ClubTextInput textarea{
+  
   width: 820px;
   height: 330px;
+  /*padding:5px;
+  margin-top: 30px;*/
+  margin-left: 20px;
+
   text-align: left;
   border: none;
   font-size: 16px;
@@ -492,16 +535,20 @@ textarea:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  white-space: nowrap; /* 줄바꿈 방지 */
 }
 
 .head p{
   font-size: 18px;
   font-weight: 500;
   margin-top: 21px;
+
+  white-space: nowrap; /* 줄바꿈 방지 */
 }
 
 .empty{
-  width: 630px;
+  width: 550px;
 }
 
 label {
@@ -530,7 +577,7 @@ label::after {
 }
 
 #chk1:checked + label {
-  background-color: #FFC700;
+  background-color: #FFB052;
 }
 
 #chk1:checked + label::after {
@@ -564,9 +611,10 @@ label::after {
   resize: none;
 }
 
+/*
 .GoogleFormLinkInput textarea::placeholder{
   text-align: center;
-}
+}*/
 
 textarea:focus {
   outline: none; /* 포커스 상태일 때 테두리 제거 */
@@ -575,7 +623,7 @@ textarea:focus {
 button {
   width: 112px;
   height: 48px;
-  background: #FFC700;
+  background: #FFB052;
   border: none;
   border-radius: 4px;
   color: #ffffff;
@@ -592,9 +640,95 @@ button {
 }
 
 .textSize{
-  text-align: right;
-  margin-right: 10px;
+  position:absolute;
+  bottom: -20px; 
+  right: 20px; 
+
+  /*text-align: right;
+  margin-right: 10px;*/
   font-size: 14px;
 }
 
+.textarea-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+.plus {
+  position: absolute;
+  display: flex;
+  background: hsla(0,0%,100%,.7);
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  color: #696969;
+  border: 2px solid #ddd;
+  box-shadow: 0 0 1px rgba(0,0,0,.1);
+  /* line-height: 60px; */
+  /* justify-items: center; */
+  /* justify-self: center; */
+  align-items: center;
+  /* align-content: center; */
+  /* align-self: center; */
+  /* top: 30px; */
+  /* box-sizing: border-box; */
+}
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  height: 180px;
+  position: relative;
+}
+.popup h2 {
+  margin-top: 0;
+  text-align: left;
+}
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
+.confirm-message {
+  text-align: left;
+}
+.notice-message {
+  text-align: left;
+  font-size: 12px;
+  color: gray;
+}
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+.popup-buttons button {
+  width: 80px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+.popup-buttons button:first-child {
+  background: #ffb052;
+  color: white;
+}
 </style>
