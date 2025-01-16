@@ -150,7 +150,7 @@ export default {
 
 .sidebar {
   width: 240px;
-  height: 700px;
+  height: 600px;
   color: #000;
   display: flex;
   flex-direction: column;
@@ -378,6 +378,7 @@ nav .icon {
   width: 100%;
   height: 1px;
   background-color: #999999;
+  margin-bottom: 20px;
 }
 
 
