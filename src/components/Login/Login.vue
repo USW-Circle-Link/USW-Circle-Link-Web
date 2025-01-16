@@ -9,30 +9,32 @@
     </div>
     <div class="login-box">
       <form @submit.prevent="login">
-        <div class="input-container" :class="{ 'focused': focusedInput === 'id' }">
+        <div class="input-container" :class="{ 'focused': focusedElement === 'id' }">
           <span class="icon vector"></span>
           <input
               type="text"
               placeholder="아이디"
               v-model="id"
               required
-              @focus="focusedInput = 'id'"
-              @blur="focusedInput = null"
+              @focus="focusedElement = 'id'"
+              @blur="focusedElement = null"
           />
         </div>
-        <div class="input-container" :class="{ 'focused': focusedInput === 'password' }">
+        <div class="input-container" :class="{ 'focused': focusedElement === 'password' }">
           <span class="icon password"></span>
           <input
               type="password"
               placeholder="비밀번호"
               v-model="password"
               required
-              @focus="focusedInput = 'password'"
-              @blur="focusedInput = null"
+              @focus="focusedElement = 'password'"
+              @blur="focusedElement = null"
           />
         </div>
 
-        <div class="custom-dropdown" @click="toggleDropdown" :class="{ 'focused': isOpen }">
+        <div class="custom-dropdown"
+             @click="toggleDropdown"
+             :class="{ 'focused': focusedElement === 'dropdown' }">
           <div class="dropdown-selected">
             {{ selectedOption || '동아리 관리자' }}
           </div>
@@ -82,14 +84,19 @@ export default {
       isOpen: false, // 드롭다운 열림 여부
       showFailurePopup: false, // 로그인 실패 팝업 표시 여부
       failureMessage: "", // 로그인 실패 메시지 종류
+      focusedElement: null,
     };
   },
   methods: {
     toggleDropdown() { // 드롭다운 열기/닫기
       this.isOpen = !this.isOpen;
+      this.focusedElement = this.isOpen ? 'dropdown' : null;
     },
     selectOption(option) { // 드롭다운 옵션 선택
       this.selectedOption = option;
+      this.isOpen = false;
+      this.focusedElement = null;
+
     },
     // 입력 값 검증: SQL 키워드 및 공백 검사
     validateInput(value) {
@@ -154,6 +161,20 @@ export default {
         this.showFailurePopup = true;
       }
     }
+  },
+  mounted() {
+    // 드롭다운 외부 클릭 감지를 위한 이벤트 리스너
+    document.addEventListener('click', (e) => {
+      const dropdown = e.target.closest('.custom-dropdown');
+      if (!dropdown && this.isOpen) {
+        this.isOpen = false;
+        this.focusedElement = null;
+      }
+    });
+  },
+  beforeUnmount() {
+    // 컴포넌트 제거 시 이벤트 리스너 제거
+    document.removeEventListener('click', this.handleClickOutside);
   }
 };
 </script>
@@ -448,8 +469,7 @@ option {
 }
 
 .input-container.focused,
-.custom-dropdown.focused,
-.input-container:focus-within {  /* focus-within 추가 */
+.custom-dropdown.focused {
   border-color: #FFB052;
   box-shadow: 0 0 0 2px rgba(255, 192, 29, 0.2);
 }
