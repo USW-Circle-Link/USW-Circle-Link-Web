@@ -1,29 +1,43 @@
 <template>
   <div class="login-container">
     <div class="header">
-      <p class="subtitle">우리 학교 동아리 다 모임</p>
+      <p class="subtitle">수원대학교 동아리 통합 관리 서비스</p>
       <div class="logo-container">
         <img src="@/assets/dongurami_logo.png" alt="Dongurami Logo" class="logo" />
         <span class="logo-text">동구라미</span>
-      </div> 
+      </div>
     </div>
     <div class="login-box">
       <form @submit.prevent="login">
-        <div class="input-container">
+        <div class="input-container" :class="{ 'focused': focusedInput === 'id' }">
           <span class="icon vector"></span>
-          <input type="text" placeholder="ID" v-model="id" required />        <!-- ID 입력 필드 -->
+          <input
+              type="text"
+              placeholder="아이디"
+              v-model="id"
+              required
+              @focus="focusedInput = 'id'"
+              @blur="focusedInput = null"
+          />
         </div>
-        <div class="input-container">
+        <div class="input-container" :class="{ 'focused': focusedInput === 'password' }">
           <span class="icon password"></span>
-          <input type="password" placeholder="PASSWORD" v-model="password" required />        <!-- 비밀번호 입력 필드 -->
+          <input
+              type="password"
+              placeholder="비밀번호"
+              v-model="password"
+              required
+              @focus="focusedInput = 'password'"
+              @blur="focusedInput = null"
+          />
         </div>
 
-        <div class="custom-dropdown" @click="toggleDropdown">
+        <div class="custom-dropdown" @click="toggleDropdown" :class="{ 'focused': isOpen }">
           <div class="dropdown-selected">
-            {{ selectedOption || '동아리 관리자' }}             <!-- 선택된 옵션 표시 (기본값: 동아리 관리자) -->
+            {{ selectedOption || '동아리 관리자' }}
           </div>
           <span class="dropdown-icon">&#9662;</span>
-          <ul v-if="isOpen" class="dropdown-options" >
+          <ul v-if="isOpen" class="dropdown-options">
             <li
                 v-for="option in options"
                 :key="option"
@@ -38,7 +52,6 @@
       </form>
     </div>
   </div>
-
   <div class="custom-popup" v-if="showFailurePopup">
     <div class="popup-content">
       <div class="popup-header">
@@ -51,7 +64,6 @@
       <button @click="showFailurePopup = false" class="close-button">확인</button>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -223,75 +235,105 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 90vh;
+  min-height: 100vh;
   background-color: #f0f0f0;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 70px;
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 676px;
 }
 
 .subtitle {
+  margin-bottom: 40px;
+  text-align: center;
   color: #9D9D9D;
-  font-size: 33px;
-  font-weight: 310;
-  margin-bottom: 20px;
-  margin-left: 20px;
-  text-align: center; /* 문구 가운데 정렬 */
+  font-family: Pretendard;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 14px; /* 43.75% */
 }
 
 .logo-container {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
 }
 
 .logo {
-  height: 64px;
-  margin-right: 5px;
+  height: 70px; /* 로고 높이 조정 */
+  object-fit: contain; /* 이미지 비율 유지 */
+  margin-top: -10px; /* 로고를 살짝 아래로 조정 */
 }
 
 .logo-text {
   color: #FFC01D;
-  text-align: center;
-  font-family: "Jua", sans-serif; /* Ensure fallback font is provided */
+  font-family: "Jua", sans-serif;
   font-size: 72px;
-  font-style: normal;
   font-weight: 400;
-  line-height: 71px; /* 98.611% */
+  line-height: 70px;
   letter-spacing: -1.775px;
-}
-.login-box {
-  margin-top: 0px;
-  background: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  width: 600px;
-}
-
-.input-container {
+  height: 70px; /* logo와 동일한 높이 설정 */
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-  border: 1.5px solid #e7e7e7;
-  border-radius: 5px;
-  padding: 10px;
-  background-color: #fff;
-  flex-direction: row;
 }
 
-.input-container input::placeholder{
+.login-box {
+  padding: 40px;
+  width: 100%;
+  max-width: 676px;
+  height: 400px; /* 높이 고정 */
+  border-radius: 16px;
+  background: #FFF;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between; /* 요소들 사이의 간격을 균일하게 배분 */
+}
+
+.input-container, .custom-dropdown {
+  height: 74px;
+  padding: 0 15px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid #D7D7D7;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  font-size: 20px;
+  padding-left: 25px;
+}
+
+.input-container input {
+  height: 100%;
+  padding: 0 10px;
+  font-size: 20px;
+  border: none;
+  outline: none;
+  width: 100%;
+}
+
+.input-container input::placeholder {
   color: #9D9D9D;
-  font-size: 16px;
+  font-size: 20px;
 }
 
 .icon {
   width: 26px;
   height: 26px;
   color: #9D9D9D;
-  margin-left: 10px;
 }
 
 .vector {
@@ -316,28 +358,17 @@ option {
 }
 
 .custom-dropdown {
-  position: relative;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  border: 1.5px solid #e7e7e7;
-  border-radius: 5px;
-  padding: 10px 15px 10px 15px;
-  background-color: #fff;
-  justify-content: space-between;
   cursor: pointer;
+  position: relative;
+  justify-content: space-between;
 }
 
 .dropdown-selected {
+  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #fff;
-  cursor: pointer;
   color: #9D9D9D;
+  font-size: 20px;
 }
 
 .dropdown-icon {
@@ -363,18 +394,18 @@ option {
 .dropdown-options li {
   padding: 20px 25px 20px 25px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 20px;
   transition: background-color 0.2s;
   list-style: none; /* 점 없애기 */
 }
 
 .dropdown-options li:first-child:hover {
-  background-color: #FFB052;
+  background-color: #ffe6c6;
   border-radius: 8px 8px 0px 0px;
 }
 
 .dropdown-options li:last-child:hover {
-  background-color: #FFB052;
+  background-color: #ffe6c6;
   border-radius: 0px 0px 8px 8px;
 }
 
@@ -390,20 +421,36 @@ option {
   border-radius: 0px 0px 8px 8px;
 }
 
-.login-button {
-  width: 100%;
-  padding: 15px;
-  margin-left: 1px;
-  background-color: #FFB052;
-  border: none;
-  border-radius: 5px;
-  font-size: 18px;
-  font-weight: bold;
+.dropdown-option-selected {
+  background-color: #ffa726;
   color: white;
-  cursor: pointer;
+  pointer-events: none; /* 선택된 옵션에 커서 이벤트 비활성화 */
 }
 
+.login-button {
+  height: 74px;
+  color: white;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid #D7D7D7;
+  background: #FFB052;
+}
+
+
 .login-button:hover {
-  background-color: #FFB052;
+  background-color: #e6953e;
+}
+
+.input-container.focused,
+.custom-dropdown.focused,
+.input-container:focus-within {  /* focus-within 추가 */
+  border-color: #FFB052;
+  box-shadow: 0 0 0 2px rgba(255, 192, 29, 0.2);
 }
 </style>
