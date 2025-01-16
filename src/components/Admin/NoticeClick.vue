@@ -129,6 +129,7 @@ export default {
     return {
       notices: [], // 공지사항 목록
       notice: null, // 현재 선택된 공지사항
+      showDeletePopup: false, // 삭제 팝업 상태
       currentPage: 1, // 현재 페이지 번호
       totalPages: 1, // 전체 페이지 수
       itemsPerPage: 5, // 페이지당 항목 수
@@ -182,20 +183,38 @@ export default {
       this.showDeletePopup = false;
     },
     async confirmDelete() {
-      try {
-        const accessToken = store.state.accessToken;
-        await axios.delete(`http://15.164.246.244:8080/notices/${this.notice.noticeId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        alert('공지사항이 삭제되었습니다.');
-        this.notices = this.notices.filter((n) => n.noticeId !== this.notice.noticeId);
-        this.showDeletePopup = false;
-        this.$router.push({ name: 'Notice' });
-      } catch (error) {
-        alert('삭제 중 오류가 발생했습니다.');
-        this.showDeletePopup = false;
-      }
-    },
+  try {
+    if (!this.notice || !this.notice.noticeId) {
+      alert('삭제할 공지사항 정보가 없습니다.');
+      return;
+    }
+
+    const accessToken = store.state.accessToken;
+    const deleteUrl = `http://15.164.246.244:8080/notices/${this.notice.noticeId}`;
+    console.log('Delete Request URL:', deleteUrl);
+
+    const response = await axios.delete(deleteUrl, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    console.log('Delete Response:', response);
+
+    if (response.status === 200) {
+      alert('공지사항이 성공적으로 삭제되었습니다.');
+      this.notices = this.notices.filter((n) => n.noticeId !== this.notice.noticeId);
+      this.showDeletePopup = false;
+      this.$router.push({ name: 'Notice' });
+    } else {
+      alert(`삭제 실패: 상태 코드 ${response.status}`);
+    }
+  } catch (error) {
+    console.error('삭제 중 오류:', error.response || error.message);
+    alert(error.response?.data?.message || '삭제 요청 처리 중 문제가 발생했습니다.');
+    this.showDeletePopup = false;
+  }
+},
+
+
     handleError(error, message) {
       console.error(message, error);
       alert(`${message}: ${error.message}`);
@@ -361,6 +380,7 @@ export default {
   margin: 0 5px;
   cursor: pointer;
   font-size: 16px;
+  pointer-events: auto; /* 클릭 이벤트 허용 */
 }
 
 .edit-button {
