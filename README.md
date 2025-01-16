@@ -7,6 +7,7 @@ npm install
 
 ```
 npm install firebase
+npm install xlsx
 ```
 
 ### Compiles and hot-reloads for development
