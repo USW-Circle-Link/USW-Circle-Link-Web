@@ -41,11 +41,13 @@
         </li>
       </ul>
     </nav>
-    <div class="empty"></div>
     <div class="line1"></div>
     <div class="footer">
-      <a @click.prevent="navigateTo('AdminTermsOfUse')">이용약관</a>
+      <div class="links">
+      <a @click.prevent="navigateTo('AdminTermsOfUse')" :class="{ selected: selectedLink === 'AdminTermsOfUse'}">이용약관</a>
       <div class="line2"></div>
+      <a @click.prevent="navigateTo('privacy_policy_')" :class="{ selected: selectedLink === 'privacy_policy_', 'bold-text': true }">개인정보 처리방침</a>
+      </div>
       <a @click.prevent="logout">로그아웃</a>
     </div>
   </div>
@@ -57,11 +59,14 @@ export default {
   data(){
     return{
       clubname: '운영팀', // 동연회/개발팀 프로필 이름
+      selectedLink: '', //선택 중이라면 노란색으로 (footer)
     }
   },
+
   methods: {
     // 함수 실행 시 routeName의 컴포넌트로 이동
     navigateTo(routeName) {
+      this.selectedLink = routeName;
       this.$router.push({ name: routeName }).catch(err => {
         if (err.name !== 'NavigationDuplicated') {
           throw err;
@@ -275,6 +280,7 @@ nav .icon {
 }
 
 .line1 {
+  margin-bottom: -20px;
   width: 100%;
   height: 1px;
   background-color: #999999;
@@ -282,15 +288,31 @@ nav .icon {
 
 .footer {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start; /* Change from center to flex-start */
   font-size: 12px;
-  align-items: center;
+  padding-left: 30px; /* Add padding to align with other elements */
+}
+
+.footer .links {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .footer a {
-  color: #999999;
+  color: #686868;
   text-decoration: none;
   cursor: pointer;
+}
+
+.footer a.selected {
+  color: #FFB052; /* Yellow color for selected link */
+}
+
+
+.bold-text {
+  font-weight: 800;
 }
 
 .line2 {

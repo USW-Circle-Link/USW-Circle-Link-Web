@@ -151,6 +151,7 @@ export default {
       } catch (error) {
         const { code } = error.response?.data || {};
 
+
         if (code === 'USR-211') {
           this.failureMessage = "아이디 또는 비밀번호가 일치하지 않습니다.";
         } else if (code === 'ATTEMPT-503') {
