@@ -55,10 +55,31 @@ export default {
     return {
       notice: { noticeTitle: '', noticeContent: '' },
       notices: [],
-      images: [], // 이미지 파일과 미리보기를 저장할 배열
+      images: [],
+      dragIndex: null, // 드래그한 이미지의 인덱스 // 이미지 파일과 미리보기를 저장할 배열
     };
   },
   methods: {
+
+
+    onDragStart(index) {
+    this.dragIndex = index;
+  },
+  // 드롭 시 이미지 순서 변경
+  onDrop(index) {
+    if (this.dragIndex === null || this.dragIndex === index) return;
+
+    // 배열에서 드래그한 이미지 이동
+    const draggedItem = this.images[this.dragIndex];
+    this.images.splice(this.dragIndex, 1); // 드래그한 이미지를 배열에서 제거
+    this.images.splice(index, 0, draggedItem); // 드롭한 위치에 삽입
+
+    this.dragIndex = null; // 드래그 상태 초기화
+  },
+    deleteImage(index) {
+        // 지정된 인덱스의 이미지를 삭제합니다.
+        this.images.splice(index, 1);
+    },
     limitContentLength() {
     const maxContentLength = 3000;
     if (this.notice.noticeContent.length > maxContentLength) {
