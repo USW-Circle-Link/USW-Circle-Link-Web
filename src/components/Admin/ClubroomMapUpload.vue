@@ -283,7 +283,7 @@ export default {
 }
 
 .floor-section {
-  margin: 20px 0;
+  margin: 10px 0;
   align-self: start;
   text-align: left;
 }
@@ -305,8 +305,8 @@ export default {
 }
 
 .image-box {
-  width: 330px; /* 고정 너비 */
-  height: 220px; /* 고정 높이 */
+  width: 280px; /* 고정 너비 */
+  height: 160px; /* 고정 높이 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -365,7 +365,7 @@ export default {
 }
 
 .upload-button {
-    width: 330px;
+    width: 280px;
     height: 30px;
     display: flex;
     flex-shrink: 0;
@@ -397,7 +397,7 @@ export default {
   letter-spacing: -0.025em;
   text-align: center;
   margin-top: 30px;
-  margin-left: 774px;
+  margin-left: 630px; /* 774 -> 630 */
   margin-bottom: 30px;
   cursor: pointer;
 }
@@ -441,15 +441,18 @@ export default {
 }
 h2{
   align-self: start;
+  margin-top: -15px;
+  margin-bottom: -5px;
 }
 h3 {
   font-size: 18px;
 }
 .line {
   border: 1px solid;
-  width: 100%;
+  width: 735px;
   color: #d3d3d3;
-  margin-top: 25px;
+  margin-top: 20px;
+  align-self: flex-start;
 }
 .remove-icon {
   position: absolute;

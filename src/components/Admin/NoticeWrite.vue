@@ -36,7 +36,7 @@
         </div>
         <div v-if="images.length < 5" class="image-upload">
           <input type="file" @change="onImageUpload" />
-          <span>+</span>
+          <div class="plus" @click="$event.target.previousElementSibling.click()">+</div>
         </div>
       </div>
       <button class="submit-button" @click="submitNotice">작성 완료</button>
@@ -203,10 +203,10 @@ export default {
 .title {
   color: #000000;
 
-  font-size: 30px;
+  font-size: 25px;
   font-weight: bold;
-  margin-bottom: 30px;
-  margin-top: 10px;
+  margin-bottom: 0px;
+  margin-top: -20px;
   position: relative; /* 상대 위치 설정 */
   display: inline-block;
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
@@ -248,12 +248,20 @@ export default {
 
 .content-container 
 {
-  margin-top: 35px; /* 내용 입력 필드 위 여백 추가 */
+  margin-top: 25px; /* 내용 입력 필드 위 여백 추가 */
 }
 
 .image-upload-container {
-  
-  margin-top: 30px; 
+  display: flex;
+  align-items: center;
+  width: 866px;
+  height: 153.96px;
+  background-color: white;
+  padding: 15px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+
+  margin-top: 25px; 
 }
 
 .label {
@@ -320,8 +328,8 @@ export default {
   width: 142px; /* 이미지 업로드 후에도 너비를 142px로 고정 */
   height: 95.88px; /* 이미지 업로드 후에도 높이를 95.88px로 고정 */
   flex: 0 0 auto;
-  background-color: #ECECEC
-;
+  background-color: #ECECEC;
+  margin-left: 7px;
 }
 
 .uploaded-image {
@@ -339,6 +347,7 @@ export default {
   transform: translate(-50%, -50%);
   width: 30px;
   height: 30px;
+  filter: invert(100%);
   cursor: pointer;
 }
 
@@ -351,15 +360,15 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 142px;
-  height: 95.88px;
-  border: 2px  #ddd;
+  width: 138px;
+  height: 92px;
+  border: 2px solid #ddd;
+  background: #ececec;
   border-radius: 5px;
   cursor: pointer;
   position: relative;
   flex: 0 0 auto;
-  background: #ECECEC;
-
+  margin-left: 7px;
 }
 
 .image-upload input {
@@ -370,7 +379,7 @@ export default {
   cursor: pointer;
 }
 
-.image-upload span {
+.image-upload span { /* X */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -385,6 +394,21 @@ export default {
 }
 
 
+.plus {
+  position: absolute;
+  display: flex;
+  background: hsla(0,0%,100%,.7);
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  color: #696969;
+  border: 2px solid #ddd;
+  box-shadow: 0 0 1px rgba(0,0,0,.1);
+  align-items: center;
+}
 
 .submit-button {
   display: block;

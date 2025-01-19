@@ -155,7 +155,7 @@ h2 {
 .save-btn {
   width: 112px;
   height: 48px;
-  background: #FFC700;
+  background: #FFb052;
   border: none;
   border-radius: 4px;
   color: #ffffff;
