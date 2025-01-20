@@ -190,7 +190,7 @@ export default {
     // 서버에서 클럽 데이터 가져오기
     async fetchClubs() {
       try {
-        const response = await axios.get("http://15.164.246.244:8080/admin/clubs?page=0&size=5", {
+        const response = await axios.get("http://15.164.246.244:8080/admin/clubs", {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
