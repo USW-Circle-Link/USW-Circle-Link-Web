@@ -2,6 +2,7 @@ import store from '@/store/store';
 import { createRouter, createWebHistory } from 'vue-router';
 import AdminNoticeClick from '../components/Admin/NoticeClick.vue';
 import ProfileEdit from '../components/ClubLeader/ClubInfoRewrite/ProfileEdit.vue';
+import ClubPopupWindow from '../components/Admin/ClubInfoPopup.vue';
 
 const routes = [
     {
@@ -20,8 +21,11 @@ const routes = [
         component: () => import('../components/ClubLeader/PopupClubinfo.vue'),
         meta: { requiresAuth: true, requiresLeader: true },
     },
-
-
+    {
+        path: '/club-popup',
+        name: 'ClubPopupWindow',
+        component: ClubPopupWindow
+    },
     {
         path: '/main',
         name: 'main',
@@ -105,7 +109,6 @@ const routes = [
         component: () => import('../components/Admin/Main.vue'),
         redirect: { name: 'admindashboard' },
         meta: { requiresAuth: true, requiresAdmin: true },
-
         children: [
             {
                 path: '/AdminTermsOfUse',

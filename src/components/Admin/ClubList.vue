@@ -15,7 +15,7 @@
     <!-- 동아리 리스트 -->
     <div class="list">
       <div class="list-item-container" v-for="(club, index) in clubs" :key="index">
-      <div class="list-item-row" @click="openPopupClubInfo(club.clubName)">
+        <div class="list-item-row" @click="openPopupClubInfo(club)">
         <div class="list-item-department">{{ club.department }}</div>
         <div class="list-item-clubname">{{ club.clubName }}</div>
         <div class="list-item-clubleader">{{ club.leaderName }}</div>
@@ -43,7 +43,7 @@
   </button>
 </div>
   </div>
-    
+
 
 
   <!-- 동아리 삭제 팝업 -->
@@ -59,89 +59,16 @@
     </div>
   </div>
 
-  <!-- 동아리 상세 정보 팝업 -->
-  <div v-if="isClubInfoPopupVisible" ref="popup" class="ClubInfoPopup-overlay">
-    
-    <button class="close1-btn" @click="closePopup">✖</button>
-  
-    <div class="club-profile">
-      <ImageSlider :images="images" />
-      <div class="ClubInfo">
-        <img :src="mainPhoto" alt="Flag Logo" class="logo" />
-        <div class="Info">
-          <div class="club-details">
-            <p class="clubname"><strong>{{ data.clubName }}</strong></p>
-            <p class="clubleader">
-              동아리장 <span class="name"><strong>{{ data.leaderName }}</strong></span>
-            </p>
-            <div class="hashtags">
-            <span v-for="tag in data.tags" :key="tag" class="hashtag">#{{ tag }}</span>
-          </div>
-          </div>
-        </div>
-        <!-- More Options Button -->
-      <div class="more-options">
-        <button @click="toggleContactInfo" class="dots-button">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-        <!-- Contact Information -->
-        <div v-if="showContactInfo" class="contact-info-popup">
-          <div class="popup-header">
-            <p><strong>동아리 정보</strong></p>
-            <button class="close-btn" @click="toggleContactInfo">✖</button>
-          </div>
-          <hr />
-          <div class="location">
-            <div class="icon location"></div>
-            <span>동아리방|  {{ data.clubRoom }}</span>
-          </div>
-          <hr />
-          <div class="phoneNum">
-            <div class="icon phone"></div>
-            <span>{{ formattedPhoneNumber }}</span>
-          </div>
-          <hr />
-          <div class="instaName">
-            <div class="icon insta"></div>
-            <a :href="instagramLink" target="_blank">@{{ data.clubInsta }}</a>
-          </div>
-        </div>
-      </div>
-      </div>
-      <div class="tabs-container">
-        <div class="tabs">
-          <button :class="{ active: activeTab === 'intro' }" @click="activeTab = 'intro'">
-            동아리 소개 글
-          </button>
-          <button :class="{ active: activeTab === 'recruit' }" @click="activeTab = 'recruit'">
-            동아리 모집 글
-          </button>
-        </div>
-        <div class="tab-content">
-          <div v-if="activeTab === 'intro'" class="description">
-            <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
-          </div>
-          <div v-if="activeTab === 'recruit'" class="description">
-            <p v-html="convertNewlinesToBr(data.clubRecruit)"></p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+
 </template>
 
 <script>
-import ImageSlider from "@/components/Admin/ImageSlider.vue";
 import axios from "axios";
 import store from "@/store/store"; // Vuex store
 
 export default {
   name: "ClubProfile",
-  components: {
-    ImageSlider,
-  },
+
   data() {
     return {
       currentPage: 1, // 페이지네이션 현재 페이지
@@ -239,10 +166,7 @@ export default {
       this.isPopupVisible = false;
       this.adminPw = ""; // 비밀번호 초기화
     },
-    // 상세 정보 팝업 닫기
-    closePopup() {
-      this.isClubInfoPopupVisible = false;
-    },
+
     // 클럽 삭제 확인
     async confirmDelete() {
       if (!this.adminPw) {
@@ -265,50 +189,22 @@ export default {
       }
     },
     // 상세 정보 팝업 열기
-    async openPopupClubInfo(clubName) {
-      const club = this.clubs.find((club) => club.clubName === clubName);
-      if (!club) return;
-      this.isClubInfoPopupVisible = true;
-      this.mainPhoto = require("@/assets/profile.png"); // 기본 이미지 초기화
-      this.images = [];
-      try {
-        const response = await axios.get(`http://15.164.246.244:8080/adminmain/clubs/${club.clubId}`, {
-          headers: {
-            Authorization: `Bearer ${store.state.accessToken}`,
-          },
-        });
-        this.data = response.data.data || {};
-        if (this.data.mainPhoto) this.mainPhoto = this.data.mainPhoto;
+    async openPopupClubInfo(club) {
+      // 토큰을 localStorage에 저장
+      localStorage.setItem('accessToken', store.state.accessToken);
 
-        const introPhotosPromises = this.data.introPhotos.map(async (url) => {
-          try {
-            const response = await axios.get(url, { responseType: "blob" });
-            if (response.status === 200) {
-              return URL.createObjectURL(response.data);
-            }
-          } catch (error) {
-            console.error(`Failed to load image: ${url}`, error);
-            return null;
-          }
-        });
+      // 새 창의 크기와 위치 설정
+      const width = 680;
+      const height = 1074;
+      const left = (window.screen.width - width) / 3;
+      const top = (window.screen.height - height) / 2;
 
-        const results = await Promise.all(introPhotosPromises);
-        this.images = results.filter(Boolean);
-      } catch (error) {
-        console.error("Fetch error:", error);
-      }
-    },
-    // 페이지네이션 설정
-    setPage(page) {
-      this.currentPage = page;
-    },
-    // 이전 페이지
-    prevPage() {
-      if (this.currentPage > 1) this.currentPage--;
-    },
-    // 다음 페이지
-    nextPage() {
-      if (this.currentPage < this.totalPages) this.currentPage++;
+      // clubId만 URL 파라미터로 전달
+      const popup = window.open(
+          `/club-popup?clubId=${club.clubId}`,
+          'ClubInfo',
+          `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+      );
     },
     // 텍스트 줄바꿈 변환
     convertNewlinesToBr(text) {
@@ -340,7 +236,7 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   height: 620px;
    /* 페이지네이션을 하단에 고정 */
-   justify-content: space-between; 
+   justify-content: space-between;
 }
 
 .title {
@@ -634,27 +530,6 @@ body {
   background-color: #999999;
 }
 
-.ClubInfoPopup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.club-profile {
-  width: 700px;
-  height: 1085px;
-  margin: auto;
-  background: #F0F2F5;
-  border-radius: 8px;
-}
-
 .socials a {
   margin: 0 10px;
 }
@@ -833,7 +708,7 @@ body {
   border-radius: 0 8px 0 0; /* 둥근 모서리 */
   cursor: pointer;
   align-items: flex-start; /* 전체를 왼쪽 정렬 */
-  
+
 }
 
 /* 활성화된 탭 */
@@ -866,7 +741,7 @@ body {
   box-sizing: border-box;
   overflow-y: auto;
   max-height: 500px;
-  
+
   margin-right: 30px;
   width: 630px;
 }
@@ -881,7 +756,7 @@ body {
   color: #9A9A9A; /* 텍스트 색상을 배경에 맞게 흰색으로 변경 */
 }
 .popup-header {
-  
+
   width: 100%;
   height: 40px; /* 헤더 높이 */
   display: flex;
@@ -895,45 +770,5 @@ body {
   border-top-right-radius: 8px;
 
 }
-
-.close-btn {
-  position: absolute; /* 절대 위치 설정 */
-  
-  background: none; /* 배경 없음 */
-  border: none; /* 테두리 없음 */
-  color: black; /* 닫기 버튼 흰색 */
-  font-size: 15px; /* 버튼 크기 */
-  cursor: pointer; /* 클릭 가능한 포인터 */
-  top: -5px;
-  left: 262px;
-}
-
-
-/* 닫기 버튼 위치 조정 */
-.close1-btn {
-  position: absolute; /* 부모 요소를 기준으로 배치 */
-  top: 35px;         /* 상단에서 20px 내려옴 */
-  right: 740px;       /* 오른쪽에서 20px 떨어짐 */
-  background: none;  /* 배경 없음 */
-  border: none;      /* 테두리 없음 */
-  color: black;      /* 닫기 버튼 색상 */
-  font-size: 18px;   /* 버튼 크기 */
-  cursor: pointer;   /* 클릭 가능 표시 */
-}
-
-
-/* 오른쪽 상단에 추가된 닫기 버튼 */
-.close-btn1-top-right {
-  position: absolute;
-  top: 15px; /* 팝업 상단에서 15px 내려옴 */
-  right: 105px; /* 팝업 오른쪽에서 15px 떨어짐 */
-  background: none;
-  border: none;
-  color: black;
-  font-size: 18px; /* 닫기 버튼 크기 */
-  cursor: pointer;
-}
-
-
 
 </style>
