@@ -1,6 +1,7 @@
 <template>
+  <div class="title">카테고리 작성하기</div>
+
   <div class="floor-images-container">
-    <h2>동아리 위치 정보 수정</h2>
     <!-- 지하 1층 -->
     <div class="floor-section">
       <h3>지하 1층</h3>
@@ -276,6 +277,16 @@ export default {
 </script>
 
 <style scoped>
+.title {
+  color: black;
+  font-size: 25px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  position: relative; /* 상대 위치 설정 */
+  display: inline-block;
+  z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
+}
+
 .floor-images-container {
   display: flex;
   flex-direction: column;
