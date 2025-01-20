@@ -274,4 +274,8 @@ th {
   padding: 10px; /* 내부 여백 */
   border-bottom: 2px solid #ddd; /* 아래쪽 테두리 */
 }
+
+h2 {
+  margin-top:-15px;
+}
 </style>
