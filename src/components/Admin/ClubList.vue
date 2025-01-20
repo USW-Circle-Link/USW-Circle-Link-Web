@@ -371,6 +371,10 @@ body {
   height: 26px;
 }
 
+.list-item-row:hover {
+  background-color: #e3e3e3; /* Change to gray on hover */
+}
+
 .list-item-delete {
   width: 74.55px;
   display: flex;
@@ -388,6 +392,10 @@ body {
   cursor: pointer;
   visibility: visible;
   transition: visibility 0s, opacity 0.2s ease-in-out;
+}
+
+.delete-btn:hover {
+  background-color: #e34141; /* Change to a darker red on hover */
 }
 
 .pagination {
@@ -489,7 +497,7 @@ body {
 
 .popup-warning {
   font-size: 12px;
-  font-weight: 300;
+  font-weight: 400;
   color: #FF4B4B;
   margin-left: 10px;
 }
@@ -534,78 +542,6 @@ body {
   margin: 0 10px;
 }
 
-.ClubInfo {
-  display: flex;
-  align-items: flex-start; /* 상단 정렬 */
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  width: 626px; /* 전체 너비 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
-  margin-bottom: 30px; /* 소개/모집글 탭과의 간격 추가 */
-  margin-left: 30px;
-  margin-right: 30px;
-  width: 595px;
-}
-
-
-.clubname {
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  color: #333;
-}
-
-.logo {
-  width: 104px;
-  height: 112px;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
-  margin-left: 60px;
-}
-
-.Info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  margin-left: 35px;
-}
-
-.hashtags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.hashtag {
-  padding: 6px 12px;
-  font-size: 14px;
-  color: #555555;
-  background-color: #FFFFFF;
-  border: 1px solid #C3C3C3;
-  border-radius: 12px;
-  cursor: default;
-  text-align: center;
-}
-
-.more-options {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-}
-
-.dots-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .dots-button span {
   width: 5px;
   height: 5px;
@@ -613,162 +549,5 @@ body {
   border-radius: 50%;
 }
 
-.contact-info-popup {
-  position: absolute;
-  top: 30px;
-  right: 0;
-  background: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 10px;
-  width: 280px;
-  z-index: 100;
-}
-
-.popup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.popup-header p {
-  font-size: 16px;
-  font-weight: bold;
-  margin: 0;
-}
-
-.contact-info-popup hr {
-  margin: 10px 0;
-  border: none;
-  border-top: 1px solid #ddd;
-}
-
-.contact-info-popup .location,
-.contact-info-popup .phoneNum,
-.contact-info-popup .instaName {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.contact-info-popup .icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-  background-size: contain;
-}
-
-.icon.location {
-  background: url('@/assets/location.svg') no-repeat center center;
-}
-
-.icon.phone {
-  background: url('@/assets/phone.svg') no-repeat center center;
-}
-
-.icon.insta {
-  background: url('@/assets/insta.svg') no-repeat center center;
-}
-
-.contact-info-popup .close-btn {
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-/* 탭 컨테이너 */
-.tabs-container {
-  width: 626px; /* ClubInfo와 동일한 너비 */
-  margin: 0 auto; /* 중앙 정렬 */
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* 탭을 왼쪽 정렬로 변경 */
-}
-
-/* 탭 */
-.tabs {
-  display: flex;
-  justify-content: flex-start; /* 탭 버튼 왼쪽 정렬 */
-  border-bottom: 1px solid #C3C3C3; /* 하단 테두리 */
-  width: 100%; /* 부모 컨테이너에 맞춤 */
-  margin: 0; /* 불필요한 여백 제거 */
-  align-items: flex-start; /* 탭을 왼쪽 정렬로 변경 */
-}
-
-/* 탭 버튼 */
-.tabs button {
-  width: 174px; /* 각 탭의 너비를 동일하게 설정 (컨테이너 너비의 절반) */
-  padding: 10px 0; /* 상하 여백 */
-  text-align: center;
-  background-color: #EEEEEE;
-  color: #C3C3C3;
-  border: 1px solid #C3C3C3;
-  border-radius: 0 8px 0 0; /* 둥근 모서리 */
-  cursor: pointer;
-  align-items: flex-start; /* 전체를 왼쪽 정렬 */
-
-}
-
-/* 활성화된 탭 */
-.tabs button.active {
-  background-color: #FFB052;
-  color: #FFFFFF;
-  border: 1px solid #C3C3C3;
-  border-bottom: none; /* 하단 테두리를 제거하여 탭 내용과 연결 */
-}
-
-/* 비활성화된 탭 */
-.tabs button.inactive {
-  background-color: #EEEEEE;
-  color: #C3C3C3;
-  border: 1px solid #C3C3C3;
-}
-
-.tabs button:first-child {
-  border-radius: 0 0 0 0; /* 왼쪽 상단과 하단 둥글게 안 함 */
-}
-
-/* 탭 내용 */
-.tab-content {
-  width: 665px; /* ClubInfo와 동일한 너비 */
-  margin: 0 auto;
-  padding: 25px;
-  background-color: #fff;
-  border: 1px solid #C3C3C3;
-  border-radius: 0 0 8px 8px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  max-height: 500px;
-
-  margin-right: 30px;
-  width: 630px;
-}
-
-.description {
-  font-size: 14px;
-  color: #333;
-  line-height: 1.5;
-}
-
-.location {
-  color: #9A9A9A; /* 텍스트 색상을 배경에 맞게 흰색으로 변경 */
-}
-.popup-header {
-
-  width: 100%;
-  height: 40px; /* 헤더 높이 */
-  display: flex;
-  justify-content: flex-end; /* 닫기 버튼 오른쪽 정렬 */
-  align-items: center; /* 세로 중앙 정렬 */
-  padding: 0 15px; /* 좌우 여백 */
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-top-left-radius: 8px; /* 상단 좌우 모서리 둥글게 */
-  border-top-right-radius: 8px;
-
-}
 
 </style>

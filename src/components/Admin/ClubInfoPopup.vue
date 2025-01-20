@@ -32,7 +32,11 @@
           <div v-if="showContactInfo" class="contact-info-popup">
             <div class="popup-header">
               <p><strong>동아리 정보</strong></p>
-              <button class="close-btn" @click="toggleContactInfo">✖</button>
+              <button class="close-btn" @click="toggleContactInfo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M19.1491 18.3524C19.2044 18.4039 19.2487 18.466 19.2794 18.535C19.3102 18.604 19.3267 18.6785 19.328 18.754C19.3294 18.8295 19.3155 18.9045 19.2872 18.9746C19.2589 19.0446 19.2168 19.1082 19.1634 19.1617C19.11 19.2151 19.0463 19.2572 18.9763 19.2855C18.9063 19.3138 18.8312 19.3277 18.7557 19.3263C18.6802 19.325 18.6057 19.3085 18.5367 19.2777C18.4677 19.247 18.4056 19.2027 18.3541 19.1474L12.0016 12.7958L5.64909 19.1474C5.54246 19.2467 5.40143 19.3008 5.2557 19.2983C5.10998 19.2957 4.97094 19.2367 4.86788 19.1336C4.76482 19.0305 4.70578 18.8915 4.70321 18.7458C4.70064 18.6001 4.75473 18.459 4.85409 18.3524L11.2057 11.9999L4.85409 5.64739C4.75473 5.54075 4.70064 5.39972 4.70321 5.25399C4.70578 5.10827 4.76482 4.96923 4.86788 4.86617C4.97094 4.76311 5.10998 4.70407 5.2557 4.7015C5.40143 4.69893 5.54246 4.75302 5.64909 4.85238L12.0016 11.2039L18.3541 4.85238C18.4607 4.75302 18.6018 4.69893 18.7475 4.7015C18.8932 4.70407 19.0323 4.76311 19.1353 4.86617C19.2384 4.96923 19.2974 5.10827 19.3 5.25399C19.3025 5.39972 19.2485 5.54075 19.1491 5.64739L12.7975 11.9999L19.1491 18.3524Z" fill="black"/>
+                </svg>
+              </button>
             </div>
             <hr />
             <div class="location">
@@ -51,9 +55,8 @@
             </div>
           </div>
         </div>
-
-
       </div>
+
       <div class="tabs-container">
         <div class="tabs">
           <button :class="{ active: activeTab === 'intro' }" @click="activeTab = 'intro'">
@@ -193,11 +196,11 @@ export default {
 .ClubInfo {
   display: flex;
   align-items: center;
-  background-color: #fff;
   border-radius: 8px;
+  border: 1px solid #C3C3C3;
+  background: #FFF;
   padding: 20px;
   width: 597px; /* 고정된 너비 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
   margin: 24px auto 0;
   flex-shrink: 0; /* 크기 고정 */
@@ -216,6 +219,7 @@ export default {
   height: 112px;
   object-fit: cover;
   border-radius: 8px;
+  border: 0.5px solid #CCC;
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
   margin-left: 60px;
 }
@@ -335,6 +339,9 @@ export default {
   font-size: 16px;
   cursor: pointer;
   padding: 4px;
+  width: 20px; /* Adjusted width */
+  height: 20px; /* Adjusted height */
+  margin-bottom: 11px;
 }
 
 .tabs-container {
@@ -343,6 +350,7 @@ export default {
   display: flex;
   flex-direction: column;
   margin-top: 30px;
+
 }
 
 .tabs {
@@ -381,12 +389,13 @@ export default {
   width: 635px;
   margin: 0 auto;
   padding: 25px;
-  background-color: #fff;
+  border-radius: 0px 8px 8px 8px;
   border: 1px solid #C3C3C3;
-  border-radius: 0 0 8px 8px;
+  background: #FFF;
   box-sizing: border-box;
   overflow-y: auto;
   max-height: 500px;
+
 }
 
 .tabs button:first-child {
