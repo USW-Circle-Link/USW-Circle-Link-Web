@@ -1,71 +1,60 @@
 <template>
   <div class="club-profile">
-    <div class="centered-container">
-      <div class="image-slider-container">
-        <button class="close1-btn" @click="closeWindow">
-          <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none">
-            <path d="M19.1491 18.3524C19.2044 18.4039 19.2487 18.466 19.2794 18.535C19.3102 18.604 19.3267 18.6785 19.328 18.754C19.3294 18.8295 19.3155 18.9045 19.2872 18.9746C19.2589 19.0446 19.2168 19.1082 19.1634 19.1617C19.11 19.2151 19.0463 19.2572 18.9763 19.2855C18.9063 19.3138 18.8312 19.3277 18.7557 19.3263C18.6802 19.325 18.6057 19.3085 18.5367 19.2777C18.4677 19.247 18.4056 19.2027 18.3541 19.1474L12.0016 12.7958L5.64909 19.1474C5.54246 19.2467 5.40143 19.3008 5.2557 19.2983C5.10998 19.2957 4.97094 19.2367 4.86788 19.1336C4.76482 19.0305 4.70578 18.8915 4.70321 18.7458C4.70064 18.6001 4.75473 18.459 4.85409 18.3524L11.2057 11.9999L4.85409 5.64739C4.75473 5.54075 4.70064 5.39972 4.70321 5.25399C4.70578 5.10827 4.76482 4.96923 4.86788 4.86617C4.97094 4.76311 5.10998 4.70407 5.2557 4.7015C5.40143 4.69893 5.54246 4.75302 5.64909 4.85238L12.0016 11.2039L18.3541 4.85238C18.4607 4.75302 18.6018 4.69893 18.7475 4.7015C18.8932 4.70407 19.0323 4.76311 19.1353 4.86617C19.2384 4.96923 19.2974 5.10827 19.3 5.25399C19.3025 5.39972 19.2485 5.54075 19.1491 5.64739L12.7975 11.9999L19.1491 18.3524Z" fill="black"/>
-          </svg>
+    <ImageSlider :images="images" oncontextmenu="return false;" />
+
+    <!-- Club Information Section -->
+    <div class="ClubInfo">
+      <img :src="mainPhoto" alt="Flag Logo" class="logo with-border" oncontextmenu="return false;" />
+      <div class="Info">
+        <div class="club-details">
+          <p class="clubname"><strong>{{ data.clubName }}</strong></p>
+          <p class="clubleader">동아리장 <span class="name" style="color: #353549;"><strong>{{ data.leaderName }}</strong></span></p>
+          <div class="hashtags">
+            <span v-for="tag in data.clubHashtag" :key="tag" class="hashtag">#{{ tag }}</span>
+          </div>
+        </div>
+      </div>
+      <!-- More Options Button -->
+      <div class="more-options">
+        <button @click="toggleContactInfo" class="dots-button">
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
-        <ImageSlider :images="images" />
-      </div>
-
-      <div class="ClubInfo">
-        <img :src="mainPhoto" alt="Flag Logo" class="logo" />
-        <div class="Info">
-          <div class="club-details">
-            <p class="clubname"><strong>{{ data.clubName }}</strong></p>
-            <p class="clubleader">
-              동아리장 <span class="name"><strong>{{ data.leaderName }}</strong></span>
-            </p>
-            <div class="hashtags">
-              <span v-for="tag in data.tags" :key="tag" class="hashtag">#{{ tag }}</span>
-            </div>
+        <!-- Contact Information -->
+        <div v-if="showContactInfo" class="contact-info-popup">
+          <div class="popup-header">
+            <p><strong>동아리 정보</strong></p>
+            <button class="close-btn" @click="toggleContactInfo">✖</button>
           </div>
-        </div>
-        <div class="more-options">
-          <button @click="toggleContactInfo" class="dots-button">
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-          <div v-if="showContactInfo" class="contact-info-popup">
-            <div class="popup-header">
-              <p><strong>동아리 정보</strong></p>
-              <button class="close-btn" @click="toggleContactInfo">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M19.1491 18.3524C19.2044 18.4039 19.2487 18.466 19.2794 18.535C19.3102 18.604 19.3267 18.6785 19.328 18.754C19.3294 18.8295 19.3155 18.9045 19.2872 18.9746C19.2589 19.0446 19.2168 19.1082 19.1634 19.1617C19.11 19.2151 19.0463 19.2572 18.9763 19.2855C18.9063 19.3138 18.8312 19.3277 18.7557 19.3263C18.6802 19.325 18.6057 19.3085 18.5367 19.2777C18.4677 19.247 18.4056 19.2027 18.3541 19.1474L12.0016 12.7958L5.64909 19.1474C5.54246 19.2467 5.40143 19.3008 5.2557 19.2983C5.10998 19.2957 4.97094 19.2367 4.86788 19.1336C4.76482 19.0305 4.70578 18.8915 4.70321 18.7458C4.70064 18.6001 4.75473 18.459 4.85409 18.3524L11.2057 11.9999L4.85409 5.64739C4.75473 5.54075 4.70064 5.39972 4.70321 5.25399C4.70578 5.10827 4.76482 4.96923 4.86788 4.86617C4.97094 4.76311 5.10998 4.70407 5.2557 4.7015C5.40143 4.69893 5.54246 4.75302 5.64909 4.85238L12.0016 11.2039L18.3541 4.85238C18.4607 4.75302 18.6018 4.69893 18.7475 4.7015C18.8932 4.70407 19.0323 4.76311 19.1353 4.86617C19.2384 4.96923 19.2974 5.10827 19.3 5.25399C19.3025 5.39972 19.2485 5.54075 19.1491 5.64739L12.7975 11.9999L19.1491 18.3524Z" fill="black"/>
-                </svg>
-              </button>
-            </div>
-            <hr />
-            <div class="location">
-              <div class="icon location"></div>
-              <span>동아리방| {{ data.clubRoom }}</span>
-            </div>
-            <hr />
-            <div class="phoneNum">
-              <div class="icon phone"></div>
-              <span>{{ formattedPhoneNumber }}</span>
-            </div>
-            <hr />
-            <div class="instaName">
-              <div class="icon insta"></div>
-              <a :href="instagramLink" target="_blank">@{{ data.clubInsta }}</a>
-            </div>
+          <hr />
+          <div class="location">
+            <div class="icon location"></div>
+            <span>동아리방|  {{ data.clubRoom }}</span>
+          </div>
+          <hr />
+          <div class="phoneNum">
+            <div class="icon phone"></div>
+            <span>{{ formattedPhoneNumber }}</span>
+          </div>
+          <hr />
+          <div class="instaName">
+            <div class="icon insta"></div>
+            <a :href="instagramLink" target="_blank">@{{ data.clubInsta }}</a>
           </div>
         </div>
       </div>
-
-      <div class="tabs-container">
+    </div>
+  </div>
+    <!-- Tabs Section -->
+    <div class="tabs-container">
+      <div class="tabs-and-content">
         <div class="tabs">
-          <button :class="{ active: activeTab === 'intro' }" @click="activeTab = 'intro'">
-            동아리 소개 글
-          </button>
-          <button :class="{ active: activeTab === 'recruit' }" @click="activeTab = 'recruit'">
-            동아리 모집 글
-          </button>
+          <button :class="{ active: activeTab === 'intro' }" @click="activeTab = 'intro'">동아리 소개 글</button>
+          <button :class="{ active: activeTab === 'recruit' }" @click="activeTab = 'recruit'">동아리 모집 글</button>
         </div>
+
+        <!-- Dynamic Content Section -->
         <div class="tab-content">
           <div v-if="activeTab === 'intro'" class="description">
             <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
@@ -76,23 +65,28 @@
         </div>
       </div>
     </div>
-  </div>
+  
 </template>
 
 <script>
-import ImageSlider from "@/components/Admin/ImageSlider.vue";
+import ImageSlider from "@/components/ClubLeader/ImageSlider.vue";
 import axios from "axios";
+import store from "@/store/store";
+import defaultProfileImage from "@/assets/profile.png";
 
 export default {
-  name: "ClubPopupWindow",
+  name: "ClubProfile",
   components: {
     ImageSlider,
   },
   data() {
     return {
       images: [],
-      data: {},
-      mainPhoto: require("@/assets/profile.png"),
+      data: {
+        clubHashtag: [], // 해시태그 기본값 추가
+        tags: [], // 필요 없는 경우 제거 가능
+      },
+      mainPhoto: defaultProfileImage,
       activeTab: "intro",
       showContactInfo: false,
     };
@@ -100,111 +94,102 @@ export default {
   computed: {
     formattedPhoneNumber() {
       return this.data.leaderHp
-          ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")
-          : "";
+        ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")
+        : "";
     },
     instagramLink() {
-      return this.data.clubInsta ? `https://instagram.com/${this.data.clubInsta}` : "#";
+      return this.data.clubInsta || "#";
     },
   },
-  async created() {
-    // URL에서 clubId만 가져오기
-    const params = new URLSearchParams(window.location.search);
-    const clubId = params.get('clubId');
+  mounted() {
+    console.log("API 응답 데이터:", this.data);
+    console.log("해시태그 데이터:", this.data.clubHashtag);
 
-    if (clubId) {
-      await this.fetchClubData(clubId);
+    const urlParams = new URLSearchParams(window.location.search);
+    const clubId = urlParams.get("clubId");
+
+    if (!clubId) {
+      console.error("URL에서 clubId를 가져오지 못했습니다.");
+      return;
     }
+
+    store.commit("SET_CLUB_ID", clubId); // 상태 업데이트
+    this.pageLoadFunction(clubId);
   },
   methods: {
-    async fetchClubData(clubId) {
-      try {
-        // store에서 토큰 가져오기
-        const token = localStorage.getItem('accessToken');
-        const response = await axios.get(`http://15.164.246.244:8080/adminmain/clubs/${clubId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        this.data = response.data.data || {};
-        if (this.data.mainPhoto) this.mainPhoto = this.data.mainPhoto;
+    async pageLoadFunction(clubId) {
+      const accessToken = store.state.accessToken;
 
-        const introPhotosPromises = this.data.introPhotos.map(async (url) => {
+      try {
+        const response = await axios.get(
+          `http://15.164.246.244:8080/admin/clubs/${clubId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          console.log("API 응답 데이터:", response.data);
+          this.data = response?.data?.data || {};
+        } else {
+          console.error(`API 오류: ${response.status} - ${response.statusText}`);
+        }
+
+        if (this.data.mainPhoto) {
+          this.mainPhoto = this.data.mainPhoto;
+        }
+
+        const introPhotosPromises = (this.data.introPhotos || []).map(async (url) => {
           try {
             const response = await axios.get(url, { responseType: "blob" });
             if (response.status === 200) {
               return URL.createObjectURL(response.data);
             }
           } catch (error) {
-            console.error(`Failed to load image: ${url}`, error);
+            console.error("Image fetch error:", url, error);
             return null;
           }
         });
 
-        const results = await Promise.all(introPhotosPromises);
-        this.images = results.filter(Boolean);
+        const introPhotosResults = await Promise.allSettled(introPhotosPromises);
+        this.images = introPhotosResults
+          .filter((result) => result.status === "fulfilled" && result.value)
+          .map((result) => result.value);
       } catch (error) {
-        console.error("Fetch error:", error);
+        console.error("API 호출 오류:", error.response || error.message);
+        alert("데이터를 불러오는 데 실패했습니다. 다시 시도하세요.");
       }
-    },
-    toggleContactInfo() {
-      this.showContactInfo = !this.showContactInfo;
     },
     convertNewlinesToBr(text) {
       return text ? text.replace(/\n/g, "<br>") : "";
     },
-    closeWindow() {
-      window.close();
-    }
+    toggleContactInfo() {
+      this.showContactInfo = !this.showContactInfo;
+    },
   },
 };
 </script>
 
+
 <style scoped>
 .club-profile {
-  width: 720px;
-  height: 1074px;
-  margin: 0;
-  padding: 32px;
-  background: #F0F2F5;
-  position: relative;
-  box-sizing: border-box;
-  align-items: center;
-  min-width: 720px;
-}
-
-.image-slider-container {
-  position: relative;
-  width: 100%;
-}
-
-.close1-btn {
-  position: absolute;
-  top: -47px;
-  right: 22px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 1000;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  max-width: 630px;
+  margin: auto;
+  padding: 20px;
 }
 
 .ClubInfo {
   display: flex;
   align-items: center;
+  background-color: #fff;
   border-radius: 8px;
-  border: 1px solid #C3C3C3;
-  background: #FFF;
   padding: 20px;
-  width: 597px; /* 고정된 너비 */
+  width: 626px; /* ClubInfo와 탭의 너비 통일 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
-  margin: 24px auto 0;
-  flex-shrink: 0; /* 크기 고정 */
-  margin-top: 10px;
 }
 
 .club-details .clubname {
@@ -219,7 +204,6 @@ export default {
   height: 112px;
   object-fit: cover;
   border-radius: 8px;
-  border: 0.5px solid #CCC;
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
   margin-left: 60px;
 }
@@ -230,14 +214,12 @@ export default {
   align-items: flex-start;
   gap: 10px;
   margin-left: 35px;
-  flex-grow: 1;
 }
 
 .hashtags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
 }
 
 .hashtag {
@@ -264,7 +246,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 8px;
 }
 
 .dots-button span {
@@ -281,7 +262,7 @@ export default {
   background: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  padding: 16px;
+  padding: 10px;
   width: 280px;
   z-index: 100;
 }
@@ -299,7 +280,7 @@ export default {
 }
 
 .contact-info-popup hr {
-  margin: 12px 0;
+  margin: 10px 0;
   border: none;
   border-top: 1px solid #ddd;
 }
@@ -311,7 +292,6 @@ export default {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  padding: 4px 0;
 }
 
 .contact-info-popup .icon {
@@ -338,68 +318,71 @@ export default {
   border: none;
   font-size: 16px;
   cursor: pointer;
-  padding: 4px;
-  width: 20px; /* Adjusted width */
-  height: 20px; /* Adjusted height */
-  margin-bottom: 11px;
 }
 
+/* 탭 컨테이너 */
 .tabs-container {
-  width: 635px;
-  margin: 4px auto 0;
+  width: 626px; /* ClubInfo와 동일한 너비 */
+  margin: 0 auto; /* 중앙 정렬 */
   display: flex;
   flex-direction: column;
-  margin-top: 30px;
-
+  align-items: flex-start; /* 탭을 왼쪽 정렬로 변경 */
 }
 
+/* 탭 */
 .tabs {
   display: flex;
-  justify-content: flex-start;
-  width: 100%;
-  margin: 0;
-  align-items: flex-start;
+  justify-content: flex-start; /* 탭 버튼 왼쪽 정렬 */
+  border-bottom: 1px solid #C3C3C3; /* 하단 테두리 */
+  width: 100%; /* 부모 컨테이너에 맞춤 */
+  margin: 0; /* 불필요한 여백 제거 */
+  align-items: flex-start; /* 탭을 왼쪽 정렬로 변경 */
 }
 
+/* 탭 버튼 */
 .tabs button {
-  width: 174px;
-  padding: 10px 0;
+  width: 174px; /* 각 탭의 너비를 동일하게 설정 (컨테이너 너비의 절반) */
+  padding: 10px 0; /* 상하 여백 */
   text-align: center;
   background-color: #EEEEEE;
   color: #C3C3C3;
   border: 1px solid #C3C3C3;
-  border-radius: 0 8px 0 0;
+  border-radius: 0 8px 0 0; /* 둥근 모서리 */
   cursor: pointer;
-  align-items: flex-start;
-  margin-bottom: -0.6px;
+  align-items: flex-start; /* 전체를 왼쪽 정렬 */
+  
 }
 
+/* 활성화된 탭 */
 .tabs button.active {
   background-color: #FFB052;
   color: #FFFFFF;
   border: 1px solid #C3C3C3;
-  border-bottom: none;
+  border-bottom: none; /* 하단 테두리를 제거하여 탭 내용과 연결 */
+}
+
+/* 비활성화된 탭 */
+.tabs button.inactive {
+  background-color: #EEEEEE;
+  color: #C3C3C3;
+  border: 1px solid #C3C3C3;
 }
 
 .tabs button:first-child {
-  border-radius: 0 0 0 0;
+  border-radius: 0 0 0 0; /* 왼쪽 상단과 하단 둥글게 안 함 */
 }
 
+/* 탭 내용 */
 .tab-content {
-  width: 635px;
+  width: 665px; /* ClubInfo와 동일한 너비 */
   margin: 0 auto;
   padding: 25px;
-  border-radius: 0px 8px 8px 8px;
+  background-color: #fff;
   border: 1px solid #C3C3C3;
-  background: #FFF;
+  border-radius: 0 0 8px 8px;
   box-sizing: border-box;
   overflow-y: auto;
   max-height: 500px;
-
-}
-
-.tabs button:first-child {
-  border-radius: 8px 0 0 0; /* Top-left corner rounded */
 }
 
 .description {
@@ -409,15 +392,7 @@ export default {
 }
 
 .location {
-  color: #9A9A9A;
+  color: #9A9A9A; /* 텍스트 색상을 배경에 맞게 흰색으로 변경 */
 }
 
-@media screen and (min-width: 720px) {
-  .club-profile {
-    width: 100%; /* 창 크기에 맞춰 늘어남 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-}
 </style>
