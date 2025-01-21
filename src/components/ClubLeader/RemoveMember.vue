@@ -236,8 +236,7 @@ export default {
 <style>
 .title {
   font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 15px;
+  font-weight: 600;
 }
 
 .RemoveMemberDashboard {
@@ -249,7 +248,8 @@ export default {
   text-align: center;
   height: 450px;
   overflow-y: auto;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 20px auto 0 auto;
 }
 
 .member-list ul {
