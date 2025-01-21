@@ -625,14 +625,14 @@ export default {
 
 
 .profile-edit-container {
-  padding-top: 20px;
   text-align: center;
   position: relative;
 }
 
 .profile-title {
-  position: absolute;
-  top: 0px;
+  text-align: left;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .profile-edit {
@@ -642,11 +642,9 @@ export default {
   background: #fff;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 820px;
-  margin: 0 auto;
+  width: 846px;
   border-radius: 8px;
-  margin: 50px auto 0 auto;
-  position: relative;
+  margin: 20px auto 0 auto;
 }
 
 .image-container {
