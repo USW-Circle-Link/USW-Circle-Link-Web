@@ -186,10 +186,10 @@ export default {
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: 20px;
+  margin-bottom: 30px;
   color: #333;
+  font-weight: 600;
 }
 
 .notices {
