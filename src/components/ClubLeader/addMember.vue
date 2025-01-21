@@ -15,7 +15,7 @@
           </defs>
         </svg>
         엑셀 파일 업로드
-        <input type="file" ref="fileInput" @change="handleFileUpload" accept=".xlsx, .xls" hidden />
+        <input type="file" ref="fileInput" @change="handleFileUpload" hidden />
       </button>
     </div>
 
@@ -43,18 +43,24 @@
         <span class="member-name">{{ member.name }}</span>
         <span class="member-studentId">{{ member.studentId }}</span>
         <span class="member-phone">{{ member.phone }}</span>
-        <select>
-          <option disabled selected>단과대학 선택</option>
-          <option value="college1">단과대학1</option>
-          <option value="college2">단과대학2</option>
+        <!-- 첫 번째 select -->
+        <select
+            v-model="member.department"
+            @change="updateSecondOptions(member)"
+        >
+          <option v-for="(option, idx) in firstOptions" :key="idx" :value="option">
+            {{ option }}
+          </option>
         </select>
-        <select>
-          <option disabled selected>학부(학과) 선택</option>
-          <option value="department1">학부1</option>
-          <option value="department2">학부2</option>
+
+        <!-- 두 번째 select -->
+        <select v-model="member.major">
+          <option v-for="(option, idx) in member.secondOptions" :key="idx" :value="option">
+            {{ option }}
+          </option>
         </select>
       </div>
-      <button class="addClubMember">동아리 회원 추가 완료</button>
+      <button class="addClubMember" @click="OverlappingMemberLists">동아리 회원 추가 완료</button>
     </div>
 
 
@@ -79,15 +85,55 @@
 
 <script>
 import * as XLSX from "xlsx";
+import axios from "axios";
+import store from "@/store/store";
 
 export default {
   data() {
     return {
       members: [], // 업로드된 회원 정보를 저장
 
-      isOverlappingMemberListsPopupVisible : true,  //임시로 보이게 설정
-      isSelectDepartmentPopupVisible : true,  //임시로 보이게 설정
-    };
+      isOverlappingMemberListsPopupVisible : false,
+      isSelectDepartmentPopupVisible : false,
+
+      // 첫 번째 select의 옵션들
+      firstOptions: ['단과대학 선택', '인문사회융합대학', '경영공학대학', '혁신공과대학', '지능형SW융합대학', '라이프케어사이언스대학', '디자인앤아트대학', '음악테크놀로지대학', '문화예술융합대학', '글로벌인재대학'],
+
+      // 첫 번째 select의 선택된 값
+      department: '',
+
+      // 두 번째 select의 옵션들 (동적으로 변경됨)
+      major: [],
+
+      // 두 번째 select의 선택된 값
+      selectedSecondOption: '',
+
+      // 첫 번째 옵션 값에 따라 두 번째 옵션 목록을 정의
+      optionsMapping: {
+        인문사회융합대학: ['인문학부', '국어국문학과', '사학과',
+          '외국어학부', '영어영문학과', '프랑스어문학과', '러시아어문학과', '일어일문학과', '중어중문학과',
+          '법행정학부', '법학과', '행정학과', '미디어커뮤니케이션학과', '행정학과', '소방행정학과'],
+        경영공학대학: ['경영학부', '경영학과', '글로벌비즈니스학과', '회계학과',
+          '경제학부', '경제금융학과', '국제개발협력학과',
+          '호텔관광학부', '호텔경영학과', '외식경영학과', '관광경영학과'],
+        혁신공과대학 : ['바이오화학산업학부', '바이오공학및마케팅학과', '융합화학산업학과',
+          '건설환경에너지공학부', '건설환경공학과', '환경에너지공학과',
+          '건축도시부동산학부', '건축학과', '도시부동산학과',
+          '산업및기계공학부', '산업공학과', '기계공학과', '반도체공학과',
+          '전기전자공학부', '전기공학과', '전자공학과',
+          '화학공학신소재공학부', '신소재공학과', '화학공학과'],
+        지능형SW융합대학 : ['컴퓨터학부', '컴퓨터SW학과', '미디어SW학과',
+          '정보통신학부', '정보통신학과', '정보보호학과',
+          '데이터과학부'],
+        라이프케어사이언스대학 : ['간호학과', '아동가족복지학과', '의류학과', '식품영양학과',
+          '스포츠과학부', '체육학과', '레저스포츠학과', '운동건강관리학과'],
+        디자인앤아트대학 : ['조형예술학부', '회화과', '조소과',
+          '디자인학부', '커뮤니케이션디자인과', '패션디자인과', '공예디자인과'],
+        음악테크놀로지대학 : ['아트앤테크놀로지작곡과', '성악과', '피아노과', '관현악과', '국악과'],
+        문화예술융합대학 : ['아트앤엔터테인먼트학부', '영화술과', '연기예술과', '디지털콘텐츠과'],
+        글로벌인재대학 : ['자유전공학부'],
+      },
+    }
   },
   methods: {
     // 파일 입력 필드를 트리거
@@ -95,7 +141,10 @@ export default {
       this.$refs.fileInput.click();
     },
     // 파일 업로드 처리
-    handleFileUpload(event) {
+    async handleFileUpload(event) {
+      const clubId = store.state.clubId;
+      const accessToken = store.state.accessToken;
+
       console.log("엑셀 파일 업로드")
       const file = event.target.files[0];
       if (!file) return;
@@ -108,21 +157,53 @@ export default {
 
         // 첫 번째 시트의 데이터를 가져옵니다
         const sheetName = workbook.SheetNames[0];
-        console.log(sheetName);
+        //console.log(sheetName);
         const sheet = workbook.Sheets[sheetName];
-        console.log(sheet);
+        //console.log(sheet);
         const jsonData = XLSX.utils.sheet_to_json(sheet);
-        console.log(jsonData);
+        //console.log(jsonData);
+
+        this.Errormembers = jsonData.map((row) => ({
+          //이름: row["이름"] || "",
+          //major: row["학과"] || "",
+          학번: row["학번"] || "",
+          전화번호: row["전화번호"] || "",
+          이름: row["이름"] || "",
+        }));
 
         // JSON 데이터에서 필요한 항목만 추출
         this.members = jsonData.map((row) => ({
           name: row["이름"] || "",
           studentId: row["학번"] || "",
           phone: row["전화번호"] || "",
+          department: "단과대학 선택",
+          major: "학과(학) 선택"
         }));
 
-        console.log(this.members);
+        console.log("중복검사 전 동아리원 명단",this.Errormembers);
+        console.log("중복없는 동아리원 명단",this.members);
       };
+
+      const formData = new FormData(); // FormData 객체 생성
+      formData.append("clubMembersFile", file); // 파일 추가
+
+      try {
+        const response = await axios.post(
+            `http://15.164.246.244:8080/club-leader/${clubId}/members/import`,
+            formData,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data'
+              }
+            });
+        if(response.status !== 200){
+          console.log(response.status);
+          this.isOverlappingMemberListsPopupVisible = true;
+        }
+      } catch (error) {
+        console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
+      }
 
       reader.readAsArrayBuffer(file);
     },
@@ -135,8 +216,17 @@ export default {
     },
     SelectDepartment(){
       this.isSelectDepartmentPopupVisible = false;
+    },
+    // 첫 번째 select가 변경될 때 호출
+    updateSecondOptions(member) {
+      /// 첫 번째 select 값이 변경되었을 때 해당 멤버의 두 번째 옵션 목록 업데이트
+      const newOptions = this.optionsMapping[member.department] || [];
+      member.secondOptions = [...newOptions]; // 새로운 배열로 할당하여 반응성 유지
+      member.major = ''; // 두 번째 선택 초기화
+    },
+    OverlappingMemberLists(){
+      console.log(this.members);
     }
-
   },
 };
 </script>
