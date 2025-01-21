@@ -23,7 +23,7 @@
     <div class="ClubUpdateHeader">
       <div class="head">
         <h2>동아리 소개 글 수정</h2>
-        </div>
+      </div>
     </div>
     <div class="ClubTextInput">
       <div class="textarea-container">
@@ -395,6 +395,17 @@ export default {
   max-width: 900px; /* 최대 너비 설정 */
 }
 
+.whole-container h2{
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: -0.025em;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+
+}
+
 .preserve-whitespace {
   white-space: pre-wrap;
 }
@@ -492,24 +503,19 @@ h2{
 
 .ClubTextInput{
   width: 886px;
-  height: 382px;
+  height: 262px;
   border-radius: 8px;
   background-color: #ffffff;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .ClubTextInput textarea{
-  
-  width: 820px;
-  height: 330px;
-  /*padding:5px;
-  margin-top: 30px;*/
-  margin-left: 20px;
-
+  width: 846px;
+  height: 222px;
+  padding: 0 20px;
   text-align: left;
   border: none;
   font-size: 16px;
@@ -533,10 +539,14 @@ textarea:focus {
 
 .head{
   display: flex;
+  width: 886px;
   align-items: center;
   justify-content: space-between;
-
   white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.head h2{
+  margin-top: 30px;
 }
 
 .head p{
@@ -548,7 +558,7 @@ textarea:focus {
 }
 
 .empty{
-  width: 550px;
+  width: 641px;
 }
 
 label {
@@ -598,13 +608,12 @@ label::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .GoogleFormLinkInput textarea{
-  width: 820px;
-  height: 25px;
-  margin-top: 10px;
+  width: 846px;
+  height: 20px;
+  padding: 0 20px;
   text-align: left;
   border: none;
   font-size: 16px;
@@ -627,7 +636,6 @@ button {
   border: none;
   border-radius: 4px;
   color: #ffffff;
-  font-family: Pretendard;
   font-size: 16px;
   font-weight: 700;
   line-height: 16px;
@@ -654,6 +662,11 @@ button {
   width: 100%;
   height: auto;
 }
+
+textarea::placeholder{
+  font-size: 14px;
+}
+
 .plus {
   position: absolute;
   display: flex;
