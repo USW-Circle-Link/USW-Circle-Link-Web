@@ -150,7 +150,7 @@ export default {
 
 .sidebar {
   width: 240px;
-  height: 600px;
+  height: 800px;
   color: #000;
   display: flex;
   flex-direction: column;
@@ -181,18 +181,16 @@ export default {
 
 .profile-info h2 {
   color: #000;
-  font-family: Pretendard;
   font-size: 24px;
   font-style: normal;
   font-weight: 600;
   line-height: 16px;
-  text-alin: center;
-  margin: 20px 0px 15px 0px;
+  text-align: center;
+  margin: 20px 0 15px 0;
 }
 
 .profile-info p {
   color: #000;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -203,7 +201,7 @@ export default {
 }
 
 nav {
-  height: 370px;
+  height: 570px;
 }
 
 nav ul {
