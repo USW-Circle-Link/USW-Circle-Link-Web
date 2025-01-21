@@ -175,7 +175,7 @@
 <script>
 import axios from 'axios';
 import store from '../../store/store'; // 일단 store.js에서 Vuex 상태를 가져옴
-import { colleges, departmentsByCollege } from './departments'; // 학과 정보 가져오기
+import { colleges, departmentsByCollege } from '../departments'; // 학과 정보 가져오기
 
 export default {
   name: 'Dashboard',
