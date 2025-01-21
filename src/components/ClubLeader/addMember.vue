@@ -236,7 +236,6 @@ export default {
 .container {
   width: 860px;
   margin: 0 auto;
-  padding: 20px;
 }
 
 .title-row{
@@ -270,14 +269,15 @@ h2 {
 }
 
 p {
-  font-size: 14px;
+  font-size: 16px;
   margin: 10px 0;
-  font-weight: 300;
+  font-weight: 500;
 }
 
 .warning-text {
   color: #ff4d4f; /* 빨간색 경고 메시지 */
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .upload-btn {
