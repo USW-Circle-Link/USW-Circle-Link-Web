@@ -31,7 +31,7 @@
         <p class="p2">현재 회원 : {{memberCount}} 명</p>
       </div>
       <button @click="sheetDownload" class="spreadsheets">
-        <img v-if="!isLoading" src="../../assets/spreadsheets.png" oncontextmenu="return false;" />
+        <img v-if="!isLoading" alt="" src="../../assets/spreadsheets.png" oncontextmenu="return false;" />
         <span v-if="isLoading" class="loading-icon"></span>
         <p>{{ isLoading ? "다운로드 중" : "회원 명단 다운로드" }}</p>
       </button>
@@ -175,7 +175,7 @@
 <script>
 import axios from 'axios';
 import store from '../../store/store'; // 일단 store.js에서 Vuex 상태를 가져옴
-import { colleges, departmentsByCollege } from '../departments'; // 학과 정보 가져오기
+import { colleges, departmentsByCollege } from '../departments.js'; // 학과 정보 가져오기
 
 export default {
   name: 'Dashboard',
@@ -362,14 +362,6 @@ export default {
         this.clubMembers = responseData.data.content;
 
 
-
-
-
-
-
-
-
-
         // Add the default member if the list is empty
         if (this.clubMembers.length === 0) {
           this.clubMembers.push({
@@ -387,12 +379,6 @@ export default {
                 userHp: '010-2285-6733'
               });
         }
-
-
-
-
-
-
 
         this.memberCount = this.clubMembers.length;
       } catch (error) {
@@ -416,7 +402,7 @@ export default {
         const clubMemberId = this.clubMembers[index].clubMemberId;
 
         try {
-          const response = await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/${clubMemberId}`, {
+          await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/${clubMemberId}`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
@@ -524,7 +510,7 @@ export default {
 }
 
 .popup-body {
-  margin-bottom: 0px;
+  margin-bottom: 0;
   margin-top: 22px;
 }
 
@@ -532,12 +518,6 @@ export default {
   font-size: 16px;
   color: #333333;
   margin: 0;
-}
-
-.popup-warning {
-  font-size: 14px;
-  color: #888888;
-  margin-top: 5px;
 }
 
 .expel-button {
@@ -614,7 +594,6 @@ export default {
 
 .clubname {
   color: #000;
-  font-family: Pretendard;
   font-size: 24px;
   font-style: normal;
   font-weight: 600;
@@ -625,7 +604,6 @@ export default {
 
 .clubleader {
   color: #767676;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -637,7 +615,6 @@ export default {
 
 .detail {
   color: #666;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -649,7 +626,6 @@ export default {
 
 .room {
   color: #666;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -659,7 +635,6 @@ export default {
 
 .name {
   color: #353549;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
@@ -746,7 +721,6 @@ export default {
 }
 
 .Dashboard p {
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
@@ -759,14 +733,13 @@ export default {
   flex-shrink: 0;
   border-radius: 8px;
   background: #FFF;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .Dashboardhead .p1{
-  font-family: Pretendard;
   font-size: 18px;
   font-weight: 600;
   line-height: 18px;
@@ -777,7 +750,6 @@ export default {
 }
 
 .Dashboardhead .p2{
-  font-family: Pretendard;
   font-size: 12px;
   font-weight: 400;
   line-height: 18px;
@@ -798,12 +770,11 @@ export default {
   border: none;
   align-items: center;
   align-content: center;
-  margin-right: 60px;
+  margin-right: 10px;
   cursor: pointer;
 }
 
 .spreadsheets p{
-  font-family: Pretendard;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.05em;
@@ -841,7 +812,7 @@ export default {
 
 table {
   width: 860px;
-  border-spacing: 0px 8px;
+  border-spacing: 0 8px;
   margin: 0 auto;
 }
 
@@ -852,7 +823,7 @@ td {
 }
 
 td:first-child{
-  border-radius: 8px 0px 0px 8px;
+  border-radius: 8px 0 0 8px;
   background-color: #F0F2F5;
 }
 
@@ -865,7 +836,7 @@ td:nth-last-child(3){
 }
 
 td:nth-last-child(2){
-  border-radius: 0px 8px 8px 0px;
+  border-radius: 0 8px 8px 0;
   padding-right: 20px;
   background-color: #F0F2F5;
 }
@@ -1013,18 +984,6 @@ td:last-child{
   font-size: 14px;
 }
 
-.remove-btn {
-  background-color: #FFB052;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  padding: 8px 13px;
-  cursor: pointer;
-}
-
-.remove-btn:hover {
-  background-color: #f49421;
-}
 .tab-menu {
   display: inline-flex;
   padding: 0;
@@ -1038,7 +997,6 @@ td:last-child{
   border: none;
   background: none;
   cursor: pointer;
-  font-family: Pretendard;
   font-size: 14px;
   color: #666;
   position: relative;
