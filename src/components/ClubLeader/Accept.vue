@@ -1,43 +1,141 @@
+
+
+
 <template>
-  <div class="container">
-    <!-- Left Section: Member Requests -->
-    <div class="member-requests">
-      <h2>회원 가입 요청 목록</h2>
-      <p class="request-count">요청 인원: 04명</p>
-      <p class="instruction">각각의 목록에서 올바른 회원을 선택해주세요.</p>
-      <div class="request-list">
-        <div 
-          class="request-item-wrapper" 
-          v-for="(member, index) in requestedMembers" 
-          :key="member.studentId"
-        >
-        <div
-          class="request-item"
-          :class="{ selected: selectedRequestedMembers.includes(index), rejected: member.rejected }"
-          @click="toggleRequestedMember(index)"
-        >
-          <div class="member-info">
-            <span class="name">{{ member.name }}</span>
-            <span class="student-id">{{ member.studentId }}</span>
-            <span class="department">{{ member.department }}</span>
-            <span class="phone">{{ member.phone }}</span>
-            <i v-if="isEditMode" class="fa fa-pencil"></i> <!-- 모든 회원에 펜 아이콘 표시 -->
+  <div>
+    <!-- Main Content Section -->
+    <div class="sections-container">
+      <!-- Left Section: Member Requests -->
+      <div class="section member-requests">
+        <h2>회원 가입 요청 목록</h2>
+        <p class="request-count">요청 인원: {{ requestedMembers.length }}명</p>
+        <p class="instruction">각각의 목록에서 올바른 회원을 선택해주세요.</p>
+
+        <div class="request-list">
+          <div
+              class="request-item-container"
+              v-for="(member, index) in requestedMembers"
+              :key="member.studentId"
+          >
+            <div
+                class="request-item"
+                :class="{ selected: selectedRequestedMembers.includes(index), rejected: member.rejected }"
+                @click="toggleRequestedMember(index)"
+            >
+              <div class="member-info">
+                <span class="name">{{ member.name }}</span>
+                <span class="student-id">{{ member.studentId }}</span>
+                <span class="department">{{ member.department }}</span>
+                <span class="phone">{{ member.phone }}</span>
+              </div>
+            </div>
+            <button class="action-button reject-button" @click.stop="rejectMember(index)">
+              거절
+            </button>
           </div>
         </div>
-        <button class="reject-button" @click.stop="rejectMember(index)">거절</button>
       </div>
+
+      <!-- Vertical Line -->
+      <div class="vertical-line"></div>
+
+      <!-- Right Section: Added Members -->
+      <div class="section added-members">
+        <h2>엑셀파일로 추가한 동아리 회원 정보</h2>
+        <p class="member-count">비회원: {{ addedMembers.length }} 명</p>
+
+        <div class="added-member-list">
+          <div
+              class="added-member-container"
+              v-for="(member, index) in addedMembers"
+              :key="index"
+          >
+            <div
+                v-if="editingIndex !== index"
+                class="added-member-item"
+                :class="{ selected: selectedAddedMembers.includes(index) }"
+                @click="toggleAddedMember(index)"
+            >
+              <div class="member-info">
+                <span class="name">{{ member.name }}</span>
+                <span class="student-id">{{ member.studentId }}</span>
+                <span class="department">{{ member.department }}</span>
+                <span class="phone">{{ member.phone }}</span>
+              </div>
+            </div>
+
+            <div v-else class="edit-form">
+              <div class="edit-inputs">
+                <input
+                    v-model="editingMember.name"
+                    class="edit-input name-input"
+                    placeholder="이름"
+                />
+                <input
+                    v-model="editingMember.studentId"
+                    class="edit-input id-input"
+                    placeholder="학번"
+                />
+                <select
+                    v-model="editingMember.college"
+                    class="edit-input college-select"
+                    @change="onCollegeChange"
+                >
+                  <option value="">단과대학 선택</option>
+                  <option v-for="college in colleges" :key="college.id" :value="college.name">
+                    {{ college.name }}
+                  </option>
+                </select>
+                <select
+                    v-model="editingMember.department"
+                    class="edit-input department-select"
+                >
+                  <option value="">학과 선택</option>
+                  <option v-for="dept in availableDepartments" :key="dept" :value="dept">
+                    {{ dept }}
+                  </option>
+                </select>
+
+                <input
+                    v-model="editingMember.phone"
+                    class="edit-input phone-input"
+                    placeholder="전화번호"
+                />
+              </div>
+            </div>
+            <div class="action-buttons">
+              <template v-if="editingIndex === index">
+                <button class="action-button save-button" @click="saveEdit(index)">저장</button>
+              </template>
+              <button v-else class="action-button edit-button" @click.stop="editMember(index)">
+                수정
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Messages -->
+        <div v-if="errorMessages.length > 0" class="error-messages-container">
+          <p v-for="(error, index) in errorMessages" :key="index" class="error-message">
+            {{ error }}
+          </p>
+        </div>
       </div>
     </div>
 
-    
+    <!-- Accept Button Section -->
+    <div class="accept-section">
+      <button
+          class="accept-button"
+          :class="{ active: selectedRequestedMembers.length > 0 }"
+          :disabled="selectedRequestedMembers.length === 0"
+          @click="selectedRequestedMembers.length > 0 ? showAcceptPopup = true : null"
+      >
+        수락
+      </button>
+    </div>
 
-    <!-- Vertical Line -->
-    <div class="vertical-line"></div>
-
-
-    
-
-        <!-- Popup Section -->
+    <!-- Popup Section -->
     <div v-if="showEditPopup" class="popup-overlay">
       <div class="popup">
         <h3 class="popup-title">동아리 회원 수정</h3>
@@ -49,86 +147,8 @@
         </div>
       </div>
     </div>
-  
 
-
-
-    <!-- Right Section: Added Members -->
-    <div class="added-members">
-      <h2>엑셀파일로 추가한 동아리 회원 정보</h2>
-      <p class="member-count">비회원: {{ addedMembers.length }} 명</p>
-
-       <!-- 수정 섹션 (고정된 위치) -->
-<!-- 수정된 HTML 구조 -->
-<div v-if="currentEditingMember" class="edit-section-wrapper">
-  <div class="edit-section">
-    <input v-model="currentEditingMember.name" class="edit-input" placeholder="이름" />
-    <input v-model="currentEditingMember.studentId" class="edit-input" placeholder="학번" />
-    <select v-model="currentEditingMember.college" class="edit-select">
-      <option disabled value="">단과대학 선택</option>
-      <option v-for="college in colleges" :key="college" :value="college">
-        {{ college }}
-      </option>
-    </select>
-    <select v-model="currentEditingMember.department" class="edit-select">
-      <option disabled value="">학부 선택</option>
-      <option v-for="department in departments" :key="department" :value="department">
-        {{ department }}
-      </option>
-    </select>
-    <input v-model="currentEditingMember.phone" class="edit-input" placeholder="전화번호" />
-  
-  <!-- 수정 버튼: edit-section 외부 -->
-  <button @click="validateAndShowPopup" class="save-button">수정</button>
-  </div>
-
-</div>
-
-        <!-- 에러 메시지 -->
-        <div v-if="errorMessages.length > 0" class="error-messages">
-          <p v-for="(error, index) in errorMessages" :key="index" class="error-message">
-            {{ error }}
-          </p>
-        </div>
-
-    <!-- 회원 목록 섹션 -->
-    <div class="member-list">
-      <div
-        class="member-item-wrapper"
-        v-for="(member, index) in addedMembers"
-        :key="index"
-      >
-        <div class="member-item"
-        :class="{ selected: selectedAddedMembers.includes(index) }"
-        @click="toggleAddedMember(index)"
-        >
-          <div class="member-info">
-            <span class="name">{{ member.name }}</span>
-            <span class="student-id">{{ member.studentId }}</span>
-            <span class="department">{{ member.department }}</span>
-            <span class="phone">{{ member.phone }}</span>
-          </div>
-        </div>
-        <button class="edit-button" @click.stop="editMember(index)">수정</button>
-      </div>
-    </div>
-  
-  </div>
-
-     
-      <button 
-      class="accept-button"
-      :class="{ active: selectedRequestedMembers.length > 0 }" 
-      :disabled="selectedRequestedMembers.length === 0" 
-      @click="selectedRequestedMembers.length > 0 ? showAcceptPopup = true : null"
-    >
-      수락
-    </button>
-
-
-    </div>
-
-    <!-- 회원가입 확인인 -->
+    <!-- 회원가입 확인 -->
     <div v-if="showAcceptPopup" class="popup-overlay">
       <div class="popup">
         <h3 class="popup-title">동아리 회원 가입 요청</h3>
@@ -144,7 +164,7 @@
       </div>
     </div>
 
-    <!-- 일치치 -->
+    <!-- 일치 -->
     <div v-if="showConfirmationPopup" class="popup-overlay">
       <div class="popup">
         <h3 class="popup-title">처리 결과</h3>
@@ -156,7 +176,7 @@
       </div>
     </div>
 
-    <!-- 회원정보 불일치치 -->
+    <!-- 회원정보 불일치 -->
     <div v-if="showErrorPopup" class="popup-overlay">
       <div class="popup">
         <h3 class="popup-title">동아리 회원 가입 요청</h3>
@@ -182,10 +202,12 @@
         </div>
       </div>
     </div>
-  
+  </div>
 </template>
 
 <script>
+import { colleges, departmentsByCollege } from '../departments'; // 학과 정보 가져오기
+
 export default {
   data() {
     return {
@@ -197,27 +219,38 @@ export default {
         { name: "김길동", studentId: "12345678",phone: "010-1234-5678" },
         { name: "박철수", studentId: "87654321", phone: "010-9876-5432" },
       ],
-      currentEditingMember: null,
       showEditPopup: false, // 팝업 표시 상태
-      editingIndex: null, // 편집 중인 멤버의 인덱스
-      colleges: ["단과대학 A", "단과대학 B", "단과대학 C"],
-      departments: ["학부 A", "학부 B", "학부 C"],
-      requestedMembers: [],
+      editingIndex: -1,
+      editingMember: null,
+      tempEditingMember: null, // 임시 저장용 객체 추가함
+      colleges: colleges, // 전체 단과대학 정보
       selectedRequestedMembers: [],
       showAcceptPopup: false,
       showConfirmationPopup: false,
       showErrorPopup: false,
       showRejectionPopup: false,
       membersToReject: [],
-      isEditMode: false, // 편집 모드 활성화 여부
-            errorMessages: [], // 에러 메시지 배열
-            selectedAddedMembers: [], // 선택된 회원 관리
+      errorMessages: [], // 에러 메시지 배열
+      selectedAddedMembers: [], // 선택된 회원 관리
     };
+  },
+  computed: {
+    availableDepartments() {
+      if (!this.editingMember?.college) return [];
+      const collegeId = this.colleges.find(c => c.name === this.editingMember.college)?.id;
+      return collegeId ? departmentsByCollege[collegeId] : [];
+    }
   },
   mounted() {
     this.initializePage();
   },
   methods: {
+    onCollegeChange() {
+      // 단과대학이 변경되면 학과 선택을 초기화
+      if (this.editingMember) {
+        this.editingMember.department = '';
+      }
+    },
     initializePage() {
       this.loadData();
       const isFirstVisit = localStorage.getItem("firstVisit") === null;
@@ -239,13 +272,13 @@ export default {
       const added = localStorage.getItem("addedMembers");
 
       this.requestedMembers = requested
-        ? JSON.parse(requested)
-        : [
+          ? JSON.parse(requested)
+          : [
             { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
           ];
       this.addedMembers = added
-        ? JSON.parse(added)
-        : [
+          ? JSON.parse(added)
+          : [
             { name: "이보영", studentId: "20517055", department: "미디어SW", phone: "010-1234-5678" },
           ];
     },
@@ -254,22 +287,18 @@ export default {
       localStorage.setItem("addedMembers", JSON.stringify(this.addedMembers));
     },
     toggleRequestedMember(index) {
-    if (this.selectedRequestedMembers.includes(index)) {
-      this.selectedRequestedMembers = []; // 선택 해제
-    } else {
-      this.selectedRequestedMembers = [index]; // 하나만 선택
-    }
-  },
-    toggleEditMode() {
-  this.isEditMode = !this.isEditMode; // 편집 모드 활성화/비활성화 전환
-},
-
-toggleAddedMember(index) {
+      if (this.selectedRequestedMembers.includes(index)) {
+        this.selectedRequestedMembers = []; // 선택 해제
+      } else {
+        this.selectedRequestedMembers = [index]; // 하나만 선택
+      }
+    },
+    toggleAddedMember(index) {
       const selectedIndex = this.selectedAddedMembers.indexOf(index);
       if (selectedIndex > -1) {
-        this.selectedAddedMembers.splice(selectedIndex, 1); // 선택 해제
+        this.selectedAddedMembers.splice(selectedIndex, 1);
       } else {
-        this.selectedAddedMembers = [index]; // 하나만 선택되도록 설정
+        this.selectedAddedMembers.push(index);
       }
     },
     rejectMember(index) {
@@ -299,36 +328,25 @@ toggleAddedMember(index) {
     },
     confirmAccept() {
       if (this.validateMemberInfo()) {
-        this.showAcceptPopup = false;
-        this.showConfirmationPopup = true;
-        this.performReload();
-      } else {
-        this.showAcceptPopup = false;
-        this.showErrorPopup = true;
+        this.saveData();
       }
-      this.saveData();
     },
     validateMemberInfo() {
       const selectedRequested = this.selectedRequestedMembers.map(
-        (index) => this.requestedMembers[index]
+          (index) => this.requestedMembers[index]
       );
       const selectedAdded = this.selectedAddedMembers.map(
-        (index) => this.addedMembers[index]
+          (index) => this.addedMembers[index]
       );
 
       return selectedRequested.every((requested) =>
-        selectedAdded.some(
-          (added) =>
-            requested.name === added.name &&
-            requested.studentId === added.studentId &&
-            requested.department === added.department &&
-            requested.phone === added.phone
-        )
+          selectedAdded.some((added) =>
+              requested.name === added.name &&
+              requested.studentId === added.studentId &&
+              requested.department === added.department &&
+              requested.phone === added.phone
+          )
       );
-    },
-    performReload() {
-      sessionStorage.setItem("reloaded", "true");
-      location.reload();
     },
     closeConfirmationPopup() {
       this.showConfirmationPopup = false;
@@ -337,84 +355,89 @@ toggleAddedMember(index) {
       this.showErrorPopup = false;
     },
     editMember(index) {
-      // Load member's data into the editing section
-      this.currentEditingMember = { ...this.addedMembers[index] };
       this.editingIndex = index;
+      // 깊은 복사를 통해 원본 데이터 보존
+      this.editingMember = JSON.parse(JSON.stringify(this.addedMembers[index]));
+      this.tempEditingMember = JSON.parse(JSON.stringify(this.addedMembers[index]));
+      this.errorMessages = [];
     },
-    validateAndShowPopup() {
-  // 모든 에러 메시지 기본으로 포함
-  this.errorMessages = [
-    "* 이름(특수 기호 제외 문자)을 입력해주세요. * 학번(8자리 숫자)을 입력해주세요. * 학과를 선택해주세요.",
-    "* 전화번호(- 제외 11자리 숫자)를 입력해주세요."
-  ];
+    saveEdit(index) {
+      if (this.validateInput()) {
+        this.tempEditingMember = { ...this.editingMember }; // 임시 저장
+        this.showEditPopup = true;
+      }
+    },
+    validateInput() {
+      this.errorMessages = [];
+      let isValid = true;
 
-  // 유효성 검사
-  let isValid = true; // 기본 상태를 유효(true)로 설정
-  if (!this.currentEditingMember.name || !/^[가-힣a-zA-Z]+$/.test(this.currentEditingMember.name)) {
-    isValid = false;
-  }
-  if (!this.currentEditingMember.studentId || !/^\d{8}$/.test(this.currentEditingMember.studentId)) {
-    isValid = false;
-  }
-  if (!this.currentEditingMember.college) {
-    isValid = false;
-  }
-  if (!this.currentEditingMember.department) {
-    isValid = false;
-  }
-  if (!this.currentEditingMember.phone || !/^010-\d{4}-\d{4}$/.test(this.currentEditingMember.phone)) {
-    isValid = false;
-  }
+      if (!this.editingMember.name || !/^[가-힣a-zA-Z]+$/.test(this.editingMember.name)) {
+        this.errorMessages.push('* 이름(특수 기호 제외 문자)을 입력해주세요.');
+        isValid = false;
+      }
+      if (!this.editingMember.studentId || !/^\d{8}$/.test(this.editingMember.studentId)) {
+        this.errorMessages.push('* 학번(8자리 숫자)을 입력해주세요.');
+        isValid = false;
+      }
+      if (!this.editingMember.college) {
+        this.errorMessages.push('* 단과대를 선택해주세요.');
+        isValid = false;
+      }
+      if (!this.editingMember.department) {
+        this.errorMessages.push('* 학과를 선택해주세요.');
+        isValid = false;
+      }
+      if (!this.editingMember.phone || !/^010-\d{4}-\d{4}$/.test(this.editingMember.phone)) {
+        this.errorMessages.push('* 전화번호(-제외 11자리 숫자)를 입력해주세요.');
+        isValid = false;
+      }
 
-  // 유효성 검사가 실패하면 모든 에러 메시지 표시, 팝업 열지 않음
-  if (!isValid) {
-    return;
-  }
+      return isValid;
+    },
+    confirmEditPopup() {
+      if (!this.tempEditingMember) {
+        console.error('No editing member data available');
+        return;
+      }
 
-  // 유효성 검사 통과 시 팝업 표시
-  this.showEditPopup = true;
-},
-confirmEditPopup() {
-  // 유효성 검사 수행
-  this.errorMessages = [];
+      // 유효성 검사 수행
+      this.errorMessages = [];
 
-  if (!this.currentEditingMember.name || !/^[가-힣a-zA-Z]+$/.test(this.currentEditingMember.name)) {
-    this.errorMessages.push("* 이름(특수 기호 제외 문자)을 입력해주세요.");
-  }
-  if (!this.currentEditingMember.studentId || !/^\d{8}$/.test(this.currentEditingMember.studentId)) {
-    this.errorMessages.push("* 학번(8자리 숫자)을 입력해주세요.");
-  }
-  if (!this.currentEditingMember.college) {
-    this.errorMessages.push("* 단과대를 선택해주세요.");
-  }
-  if (!this.currentEditingMember.department) {
-    this.errorMessages.push("* 학부를 선택해주세요.");
-  }
-  if (!this.currentEditingMember.phone || !/^010-\d{4}-\d{4}$/.test(this.currentEditingMember.phone)) {
-    this.errorMessages.push("* 전화번호(- 제외 11자리 숫자)를 입력해주세요.");
-  }
+      if (!this.tempEditingMember.name || !/^[가-힣a-zA-Z]+$/.test(this.tempEditingMember.name)) {
+        this.errorMessages.push("* 이름(특수 기호 제외 문자)을 입력해주세요.");
+      }
+      if (!this.tempEditingMember.studentId || !/^\d{8}$/.test(this.tempEditingMember.studentId)) {
+        this.errorMessages.push("* 학번(8자리 숫자)을 입력해주세요.");
+      }
+      if (!this.tempEditingMember.college) {
+        this.errorMessages.push("* 단과대를 선택해주세요.");
+      }
+      if (!this.tempEditingMember.department) {
+        this.errorMessages.push("* 학부를 선택해주세요.");
+      }
+      if (!this.tempEditingMember.phone || !/^010-\d{4}-\d{4}$/.test(this.tempEditingMember.phone)) {
+        this.errorMessages.push("* 전화번호(- 제외 11자리 숫자)를 입력해주세요.");
+      }
 
-  // 에러가 있으면 팝업 유지
-  if (this.errorMessages.length > 0) {
-    return;
-  }
+      // 에러가 있으면 팝업 유지
+      if (this.errorMessages.length > 0) {
+        return;
+      }
 
-  // 유효성 검사 통과 시 데이터 저장 및 팝업 닫기
-  if (this.editingIndex !== null) {
-    this.addedMembers[this.editingIndex] = { ...this.currentEditingMember };
-  }
-  this.resetEditing();
-  this.showEditPopup = false;
-},
-
+      // 유효성 검사 통과 시 데이터 저장 및 팝업 닫기
+      this.addedMembers[this.editingIndex] = { ...this.tempEditingMember };
+      this.resetEditing();
+      this.showEditPopup = false;
+    },
     cancelEditPopup() {
-      // Cancel editing and close popup
       this.resetEditing();
       this.showEditPopup = false;
     },
     resetEditing() {
-      this.currentEditingMember = null;
-      this.editingIndex = null;
+      this.editingIndex = -1;
+      this.editingMember = null;
+      this.tempEditingMember = null;
+      this.errorMessages = [];
     },
   },
 
@@ -423,65 +446,37 @@ confirmEditPopup() {
 
 
 <style scoped>
-
-
-.edit-row {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* 각 필드 간의 간격 */
+.added-member-item.edit-mode {
+  background: #fff;
+  border: 1px solid #FFB052;
+  padding: 12px;
+  border-radius: 8px;
+  width: 100%;
 }
 
-.edit-input,
-.edit-select {
+.added-member-item.edit-mode .member-info {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.edit-input{
   padding: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  flex: 1; /* 동일한 너비로 설정 */
+  font-size: 14px;
+  flex: 1;
   width: 90px;
-  
 }
 
 .phone-input {
   flex: 0.8; /* 전화번호 입력창 크기 */
 }
 
-.save-button {
-  background-color: #ffc107;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #fff;
-  flex: 0.3; /* 버튼 크기 */
-}
-.edit-section {
-  position: absolute; /* 독립적으로 배치 */
-  top: 270px; /* 부모 기준으로 위쪽 간격 */
-  left: 76%; /* 부모 기준 중앙 정렬 */
-  transform: translateX(-50%); /* 정확한 중앙 정렬 */
-  margin-bottom: 20px; /* 아래 리스트와 간격 유지 */
-  width: 660px; /* 고정 너비 */
-  padding: 10px; /* 내부 여백 */
-  background-color: #fff; /* 흰색 배경 */
-  border: 1px solid #FFB052; /* 주황색 테두리 */
-  border-radius: 8px; /* 둥근 모서리 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-  display: flex; /* 필드가 한 줄로 정렬 */
-  gap: 20px; /* 입력 필드 간격 */
-  align-items: center; /* 필드 세로 정렬 */
-  z-index: 10; /* 리스트 위에 표시 */
-  height: 20px;
-}
-
-
-.member-item {
-  cursor: pointer; /* 클릭 가능한 상태로 설정 */
-}
-
 /* 선택된 요청 멤버 (request-item) */
 .request-item.selected {
   background-color: #FFB05266; /* 엑셀파일과 동일한 배경색 */
-  border: 1px solid #FFB052; 
+  border: 1px solid #FFB052;
   transition: background-color 0.3s ease, border-color 0.3s ease; /* 부드러운 전환 효과 */
 }
 
@@ -492,9 +487,9 @@ confirmEditPopup() {
   color: white; /* 텍스트 색상 */
   transition: background-color 0.3s ease; /* 부드러운 전환 */
 }
-.added-members .member-item.selected {
+.added-members .added-member-item.selected {
   background-color: #FFB05266; /* 엑셀파일과 동일한 배경색 */
-  border: 1px solid #FFB052; 
+  border: 1px solid #FFB052;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -508,56 +503,16 @@ confirmEditPopup() {
   pointer-events: none; /* 거절된 항목은 클릭 불가 */
 }
 
-
-
 .instruction {
   color: #FF3535; /* 텍스트 색상 */
-  margin-bottom: 30px; 
+  margin-bottom: 30px;
   /* 목록과의 간격 추가 */
 }
 
 .member-count{
-  margin-bottom: 69px; 
- 
-}
-/* 추가된 팝업 스타일 */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명 검정 배경 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
+  margin-bottom: 69px;
 
-.popup {
-  width: 452px;
-  background: #fff;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
-
-.popup-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.popup-divider {
-  border-top: 1px solid #ddd;
-  margin: 10px 0;
-}
-
-.popup p {
-  font-size: 14px;
-  color: #666;
-}
-
 .confirm-button {
   background-color: #FFB052;
   color: white;
@@ -568,37 +523,80 @@ confirmEditPopup() {
   font-size: 14px;
 }
 
-
-.container {
+.sections-container {
   display: flex;
-  flex-wrap: wrap; /* 화면 너비에 따라 줄바꿈 가능 */
-  justify-content: space-between; /* 섹션 간격 유지 */
-  gap: 20px; /* 각 섹션 간 간격 */
-  padding: 20px;
-  margin: 0 auto; /* 화면 가운데 정렬 */
-  max-width: 1200px; /* 최대 너비 제한 */
-  box-sizing: border-box; /* 패딩 포함 크기 계산 */
-  overflow-x: hidden; /* 가로 스크롤 제거 */
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1400px;
+  position: relative;
+  margin-left: -70px;
+  height: 100%;
+  padding-right: 20px;
 }
+
+.section {
+  flex: 0 0 calc(50% - 30px); /* 각 섹션이 동일한 너비를 가지도록 설정 */
+  position: relative;
+}
+
+.accept-section {
+  display: flex;
+  justify-content: flex-end;
+  padding: 20px;
+  max-width: 1400px;
+  margin-top: 20px;
+}
+
 
 .member-requests,
 .added-members {
-  width: calc(50% - 10px); /* 두 섹션이 화면을 반반 차지 */
-  min-width: 300px; /* 최소 너비 */
-  flex: 1; /* 가변 너비 */
+  width: 100%;
+  min-width: 300px;
 }
 
+
+.added-members {
+  margin-top: -4px; /* Adjust this value to align with the left section */
+}
+
+.request-item-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  width: 500px;
+}
+
+.added-member-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  width: 500px;
+}
+
+/* 회원 정보 아이템 공통 스타일 */
+.request-item,
+.added-member-item {
+  flex: 1;
+  background: #FFFFFF;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  width: 450px;
+}
 
 .vertical-line {
-  width: 2px; /* 세로선의 너비 */
-  background-color: #ddd; /* 선 색상 */
-  height: 100%; /* 부모 컨테이너의 높이 사용 */
-  align-self: stretch; /* 컨테이너의 전체 높이 맞추기 */
-  margin: 0 20px; /* 좌우 간격 추가 */
-  position: relative; /* 고정된 위치 설정 */
+  width: 2px;
+  background-color: #ddd;
+  margin: 0 10px; /* 양쪽에 20px의 여백 추가 */
+  flex-shrink: 0; /* 크기가 줄어들지 않도록 설정 */
+  height: auto; /* 높이를 자동으로 설정 */
+  align-self: stretch; /* 부모 컨테이너의 높이에 맞춤 */
+  z-index: 1; /* 다른 요소들 위에 표시 */
 }
 
-.added-members .edit-section + .member-list {
+.added-members .edit-section + .added-member-list {
   margin-top: 20px; /* 수정 섹션과 회원 목록 간 간격 */
 }
 
@@ -608,50 +606,30 @@ confirmEditPopup() {
     margin-bottom: 20px; /* 섹션 간 간격 */
   }
 
-  .accept-button {
-    bottom: 10px; /* 버튼 위치 재조정 */
-    right: 10px;
-  }
+
 }
 
 .request-list{}
-.member-list {
+.added-member-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
   width:auto;
   max-width: 100%; /* 내용이 초과하지 않도록 설정 */
-  
+
 }
 
-.request-item-wrapper{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  width: 471px;
-  margin-right:200px ;
-}
-.member-item {
+.request-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px;
   background: #FFFFFF;
   border-radius: 8px;
-  border: 1px solid transparent;
-  position: relative; /* 자식 요소 위치 설정 */
-  transition: all 0.3s;
-  cursor: pointer;
-  width: 250px;
-  
+  border: 1px solid #ddd;
+  width: 450px;
 }
 
-.request-item-wrapper.selected,
-.member-item.selected {
-  border: 1px solid var(--hover, #FFB052);
-  background-color: var(--hover, #FFB052);
-}
 
 .request-item {
   display: flex;
@@ -667,6 +645,7 @@ confirmEditPopup() {
 
 .member-info {
   display: flex;
+  padding: 0px 9px;
   justify-content: space-between;
   align-items: center;
   gap: 15px;
@@ -675,34 +654,92 @@ confirmEditPopup() {
   text-align: center;
 }
 
+/* 수정 폼 스타일 */
+.edit-form {
+  flex: 1;
+  background: #FFFFFF;
+  border: 1px solid #FFB052;
+  border-radius: 8px;
+  padding: 12px;
+  width: 450px;
+}
+
+.edit-inputs {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.edit-input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* 각 입력 필드별 너비 조정 */
+.name-input {
+  width: 80px !important;
+  min-width: 80px;
+  flex: 0 0 80px;
+}
+
+.id-input {
+  width: 100px !important;
+  min-width: 100px;
+  flex: 0 0 100px;
+}
+
+.college-select {
+  width: 150px !important;
+  min-width: 150px;
+  flex: 0 0 150px;
+}
+
+.department-select {
+  width: 150px !important;
+  min-width: 150px;
+  flex: 0 0 150px;
+}
+
+.phone-input {
+  width: 130px !important;
+  min-width: 130px;
+  flex: 0 0 130px;
+}
+
+/* 액션 버튼 스타일 */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.action-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  height: 39px;
+}
+
 .reject-button {
   margin-left: 10px;
-  background: #D88181;
+  background: #e57373;
   color: white;
   border: none;
-  padding: 5px 15px;
+  padding: 2px 5px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 12px;
   align-self: center;
-  Width:60px;
-  Height:44px;
+  Width: 50px;
+  Height: 39px;
 }
-
 
 .reject-button:hover {
-  background: #C76C6C;
-}
-
-/* Penbrush Icon */
-.penbrush-icon {
-  width: 24px;
-  height: 24px;
-  position: absolute;
-  right: -30px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
+  background: #e34141;
 }
 
 /* 기본 상태 (회색 버튼) */
@@ -717,53 +754,33 @@ confirmEditPopup() {
   width: 175px;
   height: 45px;
   transition: background-color 0.3s ease;
-    /* 새 위치 설정 */
-    margin-top: 900px; /* 위쪽 간격 */
-    position: fixed; /* 화면에 고정 */
-  bottom: 20px;
-  right: 250px; /* 버튼이 화면 안에 있도록 조정 */
-  max-width: calc(100% - 40px); /* 버튼이 부모 영역을 넘지 않도록 제한 */
-  /* display: block; 가운데 정렬을 위해 block 요소로 설정 */
-  
 }
 
-/* 활성화된 상태 (회원 선택 시) */
 .accept-button.active {
   background: #FFB052; /* 주황 배경 */
   cursor: pointer; /* 클릭 가능 */
 }
 
-/* 비활성화 상태 */
 .accept-button:disabled {
   cursor: not-allowed;
 }
 
-/* Popup Overlay */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명 검은 배경 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
 .popup {
-  width: 452px;
+  position: relative;
+  width: 451px;
+  height: 152px;
   background: #fff;
   border-radius: 8px;
-  padding: 24px;
+  padding: 10px 20px 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .popup-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
+  color: #2F2F2F;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 12px; /* 75% */
 }
 
 .popup-divider {
@@ -771,45 +788,34 @@ confirmEditPopup() {
   margin: 10px 0;
 }
 
-.popup p {
-  font-size: 14px;
-  color: black;
-  font-weight: 500px;
-}
-
 .popup-highlight {
-  font-weight: 500px;
-  color: black;
+  color: #2F2F2F;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
 }
 
 .popup-buttons {
+  position: absolute;
+  bottom: 20px; /* Adjust as needed */
+  right: 20px; /* Adjust as needed */
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 20px;
 }
 
 .cancel-button,
 .confirm-button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  display: flex;
+  width: 80px;
+  height: 32px;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
   font-size: 14px;
-}
-
-.cancel-button {
-  background-color: #e0e0e0;
-  color: #666;
-}
-
-.confirm-button {
-  background-color: #FFB052;
-  color: white;
-}
-
-.cancel-button:hover {
-  background-color: #d5d5d5;
 }
 
 .confirm-button:hover {
@@ -843,94 +849,91 @@ confirmEditPopup() {
 .member-count {
   font-size: 16px;
   color: #333;
-  margin-top: 40px; /* Optional: Adds space above the count text */
-}
-
-.member-item-wrapper {
-  display: flex; /* 버튼과 정보를 한 줄로 정렬 */
-  justify-content: space-between; /* 정보와 버튼 사이 간격 확보 */
-  align-items: center; /* 세로 중앙 정렬 */
-  gap: 20px; /* 정보와 버튼 간격 */
+  margin-top: 20px; /* Optional: Adds space above the count text */
 }
 
 /* 회원 정보 스타일 */
-.member-item {
+.added-member-item {
   flex: 1; /* 회원 정보가 버튼을 제외한 전체를 차지하도록 설정 */
   padding: 12px;
   background: #ffffff;
   border-radius: 8px;
   border: 1px solid #ddd;
   transition: all 0.3s ease;
+  cursor: pointer; /* 클릭 가능한 상태로 설정 */
 }
 
 .edit-button {
   background: #FFB052; /* 주황색 배경 */
   color: white;
   border: none;
-  padding: 5px 15px;
-  border-radius: 14px;
+  padding: 2px 5px; /* 동일한 패딩 */
+  border-radius: 8px; /* 동일한 테두리 반경 */
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 200;
-  width: 55px; /* 버튼 너비 */
-  height: 44px; /* 버튼 높이 */
-  margin-left: auto; /* 버튼을 오른쪽 끝으로 정렬 */
-  display: block; /* 블록 형태로 변경 */
+  font-size: 12px; /* 동일한 폰트 크기 */
+  align-self: center;
+  width: 50px; /* 동일한 너비 */
+  height: 39px; /* 동일한 높이 */
 }
 
+.edit-button:hover {
+  background: #e09b4d; /* 호버 시 색상 변경 */
+}
+
+.error-messages-container {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping if there are too many messages */
+  gap: 4px; /* Space between messages */
+}
 
 .error-message {
   color: #ff3535;
-  font-size: 10px;
+  font-size: 11px;
   margin-top: 5px;
+  line-height: 0.3;
 }
 
-.edit-input,
-.edit-select {
+.edit-input{
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 14px;
   flex: 1;
+  min-width: 0;
 }
+
 
 .save-button,
 .cancel-button {
-  padding: 8px 16px;
+  padding: 6px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-}
-
-.save-button {
-  background-color: #FFB052;
-  color: white;
+  font-size: 12px;
 }
 
 .cancel-button {
-  background-color: #e0e0e0;
-  color: black;
+  background-color: #B9B9B9;
+  color: white; /* Change text color to white */
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
 }
 
-.member-item.selected {
+.cancel-button:hover {
+  background-color: #8e8e8e; /* Change background color on hover */
+}
+
+.added-member-item.selected {
   background-color: #FFB05266; /* 엑셀파일과 동일한 배경색 */
   border: 1px solid #FFB052;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 
-.edit-section {
-  display: flex; /* 입력 필드와 버튼을 한 줄로 정렬 */
-  gap: 10px; /* 필드 간 간격 */
-  align-items: center; /* 버튼과 필드를 세로 정렬 */
-  border: 1px solid #FFB052; /* 주황 테두리 */
-  border-radius: 8px; /* 테두리 둥글게 */
-  padding: 10px; /* 내부 여백 */
-  background-color: white; /* 배경 흰색 */
-  width:540px;
-}
-
-.edit-input,
-.edit-select {
+.edit-input{
   flex: 1; /* 필드들이 동일한 너비로 확장 */
   padding: 8px;
   border: 1px solid #ccc; /* 테두리 설정 */
@@ -938,25 +941,19 @@ confirmEditPopup() {
 }
 
 .save-button {
-  background-color: #FFB052; /* 주황색 배경 */
-  color: white; /* 텍스트 색상 */
-  border: none; /* 테두리 제거 */
-  border-radius: 8px; /* 둥근 모서리 */
-  padding: 8px 16px; /* 내부 여백 */
-  cursor: pointer; /* 클릭 가능 */
-  font-size: 14px; /* 텍스트 크기 */
-  width: auto; /* 텍스트 길이에 맞게 너비 조정 */
-  height: auto; /* 높이 자동 조정 */
-  text-align: center; /* 텍스트 가운데 정렬 */
-  display: inline-block; /* 버튼을 가로로 정렬 */
-  line-height: normal; /* 텍스트 세로 정렬 해제 */
-  box-sizing: border-box; /* 패딩 포함 크기 계산 */
-  writing-mode: horizontal-tb; /* 텍스트 방향을 가로로 설정 */
-  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
-  vertical-align: middle; /* 버튼이 부모 안에서 가운데 정렬 */
+  background: #FFB052; /* 주황색 배경 */
+  color: white;
+  border: none;
+  padding: 2px 5px; /* 동일한 패딩 */
+  border-radius: 8px; /* 동일한 테두리 반경 */
+  cursor: pointer;
+  font-size: 14px; /* 동일한 폰트 크기 */
+  align-self: center;
+  width: 65px; /* 동일한 너비 */
+  height: 55px; /* 동일한 높이 */
 }
 
-
-
-
+.save-button:hover {
+  background: #e09b4d; /* 호버 시 색상 변경 */
+}
 </style>
