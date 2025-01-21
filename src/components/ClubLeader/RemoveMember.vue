@@ -266,6 +266,7 @@ export default {
   background-color: #F0F2F5;
   border-radius: 10px;
   margin-bottom: 10px;
+  height: 32px;
 }
 
 .member-item span {
