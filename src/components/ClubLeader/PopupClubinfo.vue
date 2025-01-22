@@ -1,60 +1,77 @@
 <template>
   <div class="club-profile">
-    <ImageSlider :images="images" oncontextmenu="return false;" />
+    <div class="content-container">
+      <div class="header-section">
 
-    <!-- Club Information Section -->
-    <div class="ClubInfo">
-      <img :src="mainPhoto" alt="Flag Logo" class="logo with-border" oncontextmenu="return false;" />
-      <div class="Info">
-        <div class="club-details">
-          <p class="clubname"><strong>{{ data.clubName }}</strong></p>
-          <p class="clubleader">동아리장 <span class="name" style="color: #353549;"><strong>{{ data.leaderName }}</strong></span></p>
-          <div class="hashtags">
-            <span v-for="tag in data.tags" :key="tag" class="hashtag">#{{ tag }}</span>
-          </div>
-        </div>
-      </div>
-      <!-- More Options Button -->
-      <div class="more-options">
-        <button @click="toggleContactInfo" class="dots-button">
-          <span></span>
-          <span></span>
-          <span></span>
+        <button @click="closeProfile" class="close-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M19.1491 18.3524C19.2044 18.4039 19.2487 18.466 19.2794 18.535C19.3102 18.604 19.3267 18.6785 19.328 18.754C19.3294 18.8295 19.3155 18.9045 19.2872 18.9746C19.2589 19.0446 19.2168 19.1082 19.1634 19.1617C19.11 19.2151 19.0463 19.2572 18.9763 19.2855C18.9063 19.3138 18.8312 19.3277 18.7557 19.3263C18.6802 19.325 18.6057 19.3085 18.5367 19.2777C18.4677 19.247 18.4056 19.2027 18.3541 19.1474L12.0016 12.7958L5.64909 19.1474C5.54246 19.2467 5.40143 19.3008 5.2557 19.2983C5.10998 19.2957 4.97094 19.2367 4.86788 19.1336C4.76482 19.0305 4.70578 18.8915 4.70321 18.7458C4.70064 18.6001 4.75473 18.459 4.85409 18.3524L11.2057 11.9999L4.85409 5.64739C4.75473 5.54075 4.70064 5.39972 4.70321 5.25399C4.70578 5.10827 4.76482 4.96923 4.86788 4.86617C4.97094 4.76311 5.10998 4.70407 5.2557 4.7015C5.40143 4.69893 5.54246 4.75302 5.64909 4.85238L12.0016 11.2039L18.3541 4.85238C18.4607 4.75302 18.6018 4.69893 18.7475 4.7015C18.8932 4.70407 19.0323 4.76311 19.1353 4.86617C19.2384 4.96923 19.2974 5.10827 19.3 5.25399C19.3025 5.39972 19.2485 5.54075 19.1491 5.64739L12.7975 11.9999L19.1491 18.3524Z" fill="black"/>
+          </svg>
         </button>
-        <!-- Contact Information -->
-        <div v-if="showContactInfo" class="contact-info-popup">
-          <div class="popup-header">
-            <p><strong>동아리 정보</strong></p>
-            <button class="close-btn" @click="toggleContactInfo">✖</button>
+
+        <!-- Image Slider Section -->
+        <div class="slider-wrapper">
+          <ImageSlider :images="images" class="rounded-slider" oncontextmenu="return false;" />
+        </div>
+      </div>
+      <!-- Club Information Section -->
+      <div class="ClubInfo">
+        <img :src="mainPhoto" alt="Flag Logo" class="logo with-border" oncontextmenu="return false;" />
+        <div class="Info">
+          <div class="club-details">
+            <p class="clubname"><strong>{{ data.clubName }}</strong></p>
+            <p class="clubleader">동아리장 <span class="name" style="color: #353549;"><strong>{{ data.leaderName }}</strong></span></p>
+            <div class="hashtags">
+              <span v-for="tag in data.clubHashtag" :key="tag" class="hashtag">#{{ tag }}</span>
+            </div>
           </div>
-          <hr />
-          <div class="location">
-            <div class="icon location"></div>
-            <span>동아리방|  {{ data.clubRoom }}</span>
-          </div>
-          <hr />
-          <div class="phoneNum">
-            <div class="icon phone"></div>
-            <span>{{ formattedPhoneNumber }}</span>
-          </div>
-          <hr />
-          <div class="instaName">
-            <div class="icon insta"></div>
-            <a :href="instagramLink" target="_blank">@{{ data.clubInsta }}</a>
+        </div>
+        <div class="more-options">
+          <button @click="toggleContactInfo" class="dots-button">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <div v-if="showContactInfo" class="contact-info-popup">
+            <div class="popup-header">
+              <p><strong>동아리 정보</strong></p>
+              <button class="popup-close-btn" @click="toggleContactInfo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M19.1491 18.3524C19.2044 18.4039 19.2487 18.466 19.2794 18.535C19.3102 18.604 19.3267 18.6785 19.328 18.754C19.3294 18.8295 19.3155 18.9045 19.2872 18.9746C19.2589 19.0446 19.2168 19.1082 19.1634 19.1617C19.11 19.2151 19.0463 19.2572 18.9763 19.2855C18.9063 19.3138 18.8312 19.3277 18.7557 19.3263C18.6802 19.325 18.6057 19.3085 18.5367 19.2777C18.4677 19.247 18.4056 19.2027 18.3541 19.1474L12.0016 12.7958L5.64909 19.1474C5.54246 19.2467 5.40143 19.3008 5.2557 19.2983C5.10998 19.2957 4.97094 19.2367 4.86788 19.1336C4.76482 19.0305 4.70578 18.8915 4.70321 18.7458C4.70064 18.6001 4.75473 18.459 4.85409 18.3524L11.2057 11.9999L4.85409 5.64739C4.75473 5.54075 4.70064 5.39972 4.70321 5.25399C4.70578 5.10827 4.76482 4.96923 4.86788 4.86617C4.97094 4.76311 5.10998 4.70407 5.2557 4.7015C5.40143 4.69893 5.54246 4.75302 5.64909 4.85238L12.0016 11.2039L18.3541 4.85238C18.4607 4.75302 18.6018 4.69893 18.7475 4.7015C18.8932 4.70407 19.0323 4.76311 19.1353 4.86617C19.2384 4.96923 19.2974 5.10827 19.3 5.25399C19.3025 5.39972 19.2485 5.54075 19.1491 5.64739L12.7975 11.9999L19.1491 18.3524Z" fill="black"/>
+                </svg>
+              </button>
+            </div>
+            <hr />
+            <div class="location">
+              <div class="icon location"></div>
+              <span>동아리방|  {{ data.clubRoom }}</span>
+            </div>
+            <hr />
+            <div class="phoneNum">
+              <div class="icon phone"></div>
+              <span>{{ formattedPhoneNumber }}</span>
+            </div>
+            <hr />
+            <div class="instaName">
+              <div class="icon insta"></div>
+              <a :href="instagramLink" target="_blank">@{{ data.clubInsta }}</a>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-    <!-- Tabs Section -->
-    <div class="tabs-container">
-      <div class="tabs-and-content">
-        <div class="tabs">
-          <button :class="{ active: activeTab === 'intro' }" @click="activeTab = 'intro'">동아리 소개 글</button>
-          <button :class="{ active: activeTab === 'recruit' }" @click="activeTab = 'recruit'">동아리 모집 글</button>
-        </div>
 
-        <!-- Dynamic Content Section -->
+      <!-- Tabs Section -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button
+              :class="{ active: activeTab === 'intro' }"
+              @click="activeTab = 'intro'"
+          >동아리 소개 글</button>
+          <button
+              :class="{ active: activeTab === 'recruit' }"
+              @click="activeTab = 'recruit'"
+          >동아리 모집 글</button>
+        </div>
         <div class="tab-content">
           <div v-if="activeTab === 'intro'" class="description">
             <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
@@ -65,7 +82,7 @@
         </div>
       </div>
     </div>
-
+  </div>
 </template>
 
 <script>
@@ -155,26 +172,56 @@ export default {
     toggleContactInfo() {
       this.showContactInfo = !this.showContactInfo;
     },
+    closeProfile() {
+      window.close();
+    }
   },
 };
 </script>
 
 <style scoped>
 .club-profile {
-  max-width: 630px;
-  margin: auto;
-  padding: 20px;
+  width: 100%;
+  min-height: 100vh;
+  background: #F0F2F5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.content-container {
+  width: 665px; /* 모든 섹션의 너비를 665px로 통일 */
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* 모든 섹션 사이의 간격을 일관되게 설정 */
+  align-items: center;
+}
+
+.slider-wrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.rounded-slider {
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .ClubInfo {
-  display: flex;
-  align-items: center;
+  width: 626px;
   background-color: #fff;
   border-radius: 8px;
   padding: 20px;
-  width: 626px; /* ClubInfo와 탭의 너비 통일 */
+  display: flex;
+  align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
+}
+
+.ClubInfo .logo {
+  margin-left: 20px; /* Adjust the value as needed */
 }
 
 .club-details .clubname {
@@ -189,16 +236,12 @@ export default {
   height: 112px;
   object-fit: cover;
   border-radius: 8px;
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
-  margin-left: 60px;
+  margin-right: 35px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .Info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  margin-left: 35px;
+  flex-grow: 1;
 }
 
 .hashtags {
@@ -214,8 +257,6 @@ export default {
   background-color: #FFFFFF;
   border: 1px solid #C3C3C3;
   border-radius: 12px;
-  cursor: default;
-  text-align: center;
 }
 
 .more-options {
@@ -305,37 +346,40 @@ export default {
   cursor: pointer;
 }
 
-/* 탭 컨테이너 */
 .tabs-container {
-  width: 626px; /* ClubInfo와 동일한 너비 */
-  margin: 0 auto; /* 중앙 정렬 */
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* 탭을 왼쪽 정렬로 변경 */
 }
 
 /* 탭 */
 .tabs {
   display: flex;
-  justify-content: flex-start; /* 탭 버튼 왼쪽 정렬 */
-  border-bottom: 1px solid #C3C3C3; /* 하단 테두리 */
-  width: 100%; /* 부모 컨테이너에 맞춤 */
-  margin: 0; /* 불필요한 여백 제거 */
-  align-items: flex-start; /* 탭을 왼쪽 정렬로 변경 */
+  width: 100%;
 }
 
 /* 탭 버튼 */
 .tabs button {
-  width: 174px; /* 각 탭의 너비를 동일하게 설정 (컨테이너 너비의 절반) */
-  padding: 10px 0; /* 상하 여백 */
+  width: 174px;
+  padding: 10px 0;
   text-align: center;
   background-color: #EEEEEE;
   color: #C3C3C3;
   border: 1px solid #C3C3C3;
-  border-radius: 0 8px 0 0; /* 둥근 모서리 */
+  border-bottom: none;
   cursor: pointer;
-  align-items: flex-start; /* 전체를 왼쪽 정렬 */
+  transition: all 0.3s ease;
+  font-size: 18px
+}
 
+/* 왼쪽 탭 버튼 스타일 */
+.tabs button:first-child {
+  border-top-left-radius: 8px !important; /* Top-left corner rounded */
+}
+
+/* 오른쪽 탭 버튼 스타일 */
+.tabs button:last-child {
+  border-radius: 0 8px 0 0;
 }
 
 /* 활성화된 탭 */
@@ -359,15 +403,15 @@ export default {
 
 /* 탭 내용 */
 .tab-content {
-  width: 665px; /* ClubInfo와 동일한 너비 */
-  margin: 0 auto;
-  padding: 25px;
+  width: 100%;
+  padding: 24px;
   background-color: #fff;
   border: 1px solid #C3C3C3;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 8px 8px 8px;
   box-sizing: border-box;
-  overflow-y: auto;
+  min-height: 200px;
   max-height: 500px;
+  overflow-y: auto;
 }
 
 .description {
@@ -380,4 +424,41 @@ export default {
   color: #9A9A9A; /* 텍스트 색상을 배경에 맞게 흰색으로 변경 */
 }
 
+.header-section {
+  width: 665px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: -30px;
+  right: 0;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.close-button:hover {
+  opacity: 0.8;
+}
+
+.popup-close-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
 </style>

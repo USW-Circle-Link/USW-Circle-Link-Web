@@ -235,6 +235,10 @@ export default {
   position: relative;
 }
 
+.ClubInfo .logo {
+  margin-left: 20px; /* Adjust the value as needed */
+}
+
 .club-details .clubname {
   font-size: 24px;
   font-weight: 600;
@@ -380,6 +384,7 @@ export default {
   border-bottom: none;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 18px
 }
 
 /* 왼쪽 탭 버튼 스타일 */
