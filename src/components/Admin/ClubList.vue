@@ -72,49 +72,24 @@ export default {
   data() {
     return {
       currentPage: 1, // 페이지네이션 현재 페이지
-      clubsPerPage: 10, // 화면에 나타내는 동아리 최대 개수
-      clubs: [], // 서버에서 가져온 클럽 리스트
-      isPopupVisible: false, // 동아리 삭제 확인 팝업창 가시성
-      isClubInfoPopupVisible: false, // 동아리 상세 정보 팝업창 가시성
+      clubsPerPage: 10, // 페이지당 표시할 동아리 수
+      clubs: [], // 현재 페이지에 표시할 클럽 리스트
+      totalPages: 1, // 전체 페이지 수
+      isPopupVisible: false, // 삭제 팝업 가시성
+      isClubInfoPopupVisible: false, // 상세 팝업 가시성
       adminPw: "", // 삭제를 위한 비밀번호
       clubToDelete: null, // 삭제할 클럽 ID
       deleteIndex: null, // 삭제할 클럽의 인덱스
-      images: [], // 동아리 활동 사진 배열
-      data: {}, // 동아리 기본 정보
-      mainPhoto: require("@/assets/profile.png"), // 메인 사진 URL, 기본값
-      adminPwError: "", // 비밀번호 에러 메시지
-      PopupClubName: null, // 삭제할 동아리 이름
-      activeTab: "intro", // 활성화된 탭
-      showContactInfo: false, // 연락처 팝업 가시성
-      tags: ["개발", "프로그래밍", "협업", "학습"],
+      PopupClubName: null, // 삭제할 클럽 이름
     };
   },
+
   created() {
-    this.fetchClubs(); // 페이지 로드 시 클럽 정보 가져오기
+    this.fetchClubs(); // 페이지 로드 시 동아리 리스트 가져오기
   },
-  computed: {
-    // 총 페이지 수 계산
-    totalPages() {
-      return Math.ceil(this.clubs.length / this.clubsPerPage);
-    },
-    // 현재 페이지 클럽 리스트 계산
-    displayedClubs() {
-      const start = (this.currentPage - 1) * this.clubsPerPage;
-      return this.clubs.slice(start, start + this.clubsPerPage);
-    },
-    // 전화번호 포맷팅
-    formattedPhoneNumber() {
-      return this.data.leaderHp
-        ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")
-        : "";
-    },
-    // Instagram 링크 생성
-    instagramLink() {
-      return this.data.clubInsta || "#";
-    },
-  },
+
   methods: {
-    // 서버에서 클럽 데이터 가져오기
+    // 클럽 리스트 가져오기
     async fetchClubs() {
       try {
         const response = await axios.get("http://15.164.246.244:8080/admin/clubs", {
@@ -122,37 +97,44 @@ export default {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
           params: {
-          page: this.currentPage - 1, // 백엔드 페이지는 0부터 시작
-          size: this.clubsPerPage,  // 한 페이지에 표시할 클럽 수
+            page: this.currentPage - 1, // 백엔드는 0부터 시작
+            size: this.clubsPerPage, // 페이지당 클럽 개수
           },
         });
-        // API 응답 데이터 처리
-      const { content, totalPages } = response.data.data;
-      this.clubs = content || []; // 현재 페이지의 클럽 리스트 저장
-      this.totalPages = totalPages || 1; // 전체 페이지 수 저장
-    } catch (error) {
-      console.error("Error fetching clubs:", error);
-      alert("동아리 리스트를 불러오는데 실패했습니다.");
-    }
-  },
-  async setPage(page) {
-    if (page > 0 && page <= this.totalPages) {
-      this.currentPage = page; // 현재 페이지 업데이트
-      await this.fetchClubs(); // 새로운 데이터 가져오기
-    }
-  },
-  async prevPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      await this.fetchClubs(); // 이전 페이지 데이터 가져오기
-    }
-  },
-  async nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      await this.fetchClubs(); // 다음 페이지 데이터 가져오기
-    }
-  },
+
+        // 응답 처리
+        const { content, totalPages } = response.data.data;
+        this.clubs = content || []; // 현재 페이지 클럽 리스트
+        this.totalPages = totalPages || 1; // 전체 페이지 수
+      } catch (error) {
+        console.error("Error fetching clubs:", error);
+        alert("동아리 리스트를 불러오는데 실패했습니다.");
+      }
+    },
+
+    // 페이지 설정
+    async setPage(page) {
+      if (page > 0 && page <= this.totalPages) {
+        this.currentPage = page; // 현재 페이지 업데이트
+        await this.fetchClubs(); // 새로운 데이터 가져오기
+      }
+    },
+
+    // 이전 페이지
+    async prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        await this.fetchClubs();
+      }
+    },
+
+    // 다음 페이지
+    async nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        await this.fetchClubs();
+      }
+    },
 
     // 삭제 팝업 열기
     openPopup(clubId, index, clubName) {
@@ -161,6 +143,7 @@ export default {
       this.deleteIndex = index;
       this.isPopupVisible = true;
     },
+
     // 삭제 팝업 닫기
     cancelDelete() {
       this.isPopupVisible = false;
@@ -185,11 +168,12 @@ export default {
         alert("동아리가 성공적으로 삭제되었습니다.");
       } catch (error) {
         console.error("Error deleting club:", error);
-        this.adminPwError = "* 비밀번호를 다시 확인해주세요.";
+        alert("비밀번호를 다시 확인해주세요.");
       }
     },
+
     // 상세 정보 팝업 열기
-    async openPopupClubInfo(club) {
+    openPopupClubInfo(club) {
       // 토큰을 localStorage에 저장
       localStorage.setItem('accessToken', store.state.accessToken);
 
@@ -200,23 +184,16 @@ export default {
       const top = (window.screen.height - height) / 2;
 
       // clubId만 URL 파라미터로 전달
-      const popup = window.open(
-          `/club-popup?clubId=${club.clubId}`,
-          'ClubInfo',
-          `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+      window.open(
+        `/club-popup?clubId=${club.clubId}`,
+        "ClubInfo",
+        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
       );
-    },
-    // 텍스트 줄바꿈 변환
-    convertNewlinesToBr(text) {
-      return text ? text.replace(/\n/g, "<br>") : "";
-    },
-    // 연락처 팝업 토글
-    toggleContactInfo() {
-      this.showContactInfo = !this.showContactInfo;
     },
   },
 };
 </script>
+
 
 
 <style scoped>
