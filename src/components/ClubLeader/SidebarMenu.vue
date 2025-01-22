@@ -48,6 +48,7 @@
         </li>
       </ul>
     </nav>
+
     <div class="empty"></div>
     <div class="line1"></div>
     <div class="footer">
@@ -150,7 +151,7 @@ export default {
 
 .sidebar {
   width: 240px;
-  height: 800px;
+  height: 600px;
   color: #000;
   display: flex;
   flex-direction: column;

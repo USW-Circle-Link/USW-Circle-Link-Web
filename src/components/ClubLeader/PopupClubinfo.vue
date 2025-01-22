@@ -65,7 +65,7 @@
         </div>
       </div>
     </div>
-  
+
 </template>
 
 <script>
@@ -335,7 +335,7 @@ export default {
   border-radius: 0 8px 0 0; /* 둥근 모서리 */
   cursor: pointer;
   align-items: flex-start; /* 전체를 왼쪽 정렬 */
-  
+
 }
 
 /* 활성화된 탭 */
