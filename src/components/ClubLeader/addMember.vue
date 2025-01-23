@@ -19,7 +19,6 @@
       </button>
     </div>
 
-
     <!-- 정보 및 버튼 섹션 -->
     <div class="info-section">
         <div class="info-section-col">
@@ -171,15 +170,10 @@ export default {
 
         // 첫 번째 시트의 데이터를 가져옵니다
         const sheetName = workbook.SheetNames[0];
-        //console.log(sheetName);
         const sheet = workbook.Sheets[sheetName];
-        //console.log(sheet);
         const jsonData = XLSX.utils.sheet_to_json(sheet);
-        //console.log(jsonData);
 
         this.Errormembers = jsonData.map((row) => ({
-          //이름: row["이름"] || "",
-          //major: row["학과"] || "",
           학번: row["학번"] || "",
           전화번호: row["전화번호"] || "",
           이름: row["이름"] || "",
