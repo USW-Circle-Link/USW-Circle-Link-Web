@@ -278,7 +278,6 @@ export default {
     //전송 확인 팝업 숨김
     hidePopup() {
       this.showConfirmPopup = false;
-      this.navigateTo('dashboard');//완료 되면 홈 화면으로 이동
     },
     // 정보 저장
     async saveInfo() {
@@ -340,7 +339,7 @@ export default {
 
         //alert("저장되었습니다!");          //이 창 말고 팝업 뜨게 하믄 되는 겅가 (나중에 주석 지워서 업로드 할 것)                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@
         this.showPopup();
-        //this.navigateTo('dashboard');//완료 되면 홈 화면으로 이동
+        this.navigateTo('dashboard');//완료 되면 홈 화면으로 이동
         this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
 
       } catch (error) {

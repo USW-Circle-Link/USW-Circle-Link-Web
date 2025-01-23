@@ -1,5 +1,4 @@
 
-
 <template>
   <div class="image-slider">
     <div class="slider">
@@ -101,3 +100,4 @@ export default {
   background-color: #FFC700;
 }
 </style>
+

@@ -111,8 +111,8 @@ export default {
   computed: {
     formattedPhoneNumber() {
       return this.data.leaderHp
-          ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")
-          : "";
+        ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")
+        : "";
     },
     instagramLink() {
       return this.data.clubInsta || "#";
@@ -139,13 +139,13 @@ export default {
 
       try {
         const response = await axios.get(
-            `http://15.164.246.244:8080/admin/clubs/${clubId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
-            }
+          `http://15.164.246.244:8080/admin/clubs/${clubId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         if (response.status === 200) {
@@ -173,8 +173,8 @@ export default {
 
         const introPhotosResults = await Promise.allSettled(introPhotosPromises);
         this.images = introPhotosResults
-            .filter((result) => result.status === "fulfilled" && result.value)
-            .map((result) => result.value);
+          .filter((result) => result.status === "fulfilled" && result.value)
+          .map((result) => result.value);
       } catch (error) {
         console.error("API 호출 오류:", error.response || error.message);
         alert("데이터를 불러오는 데 실패했습니다. 다시 시도하세요.");
