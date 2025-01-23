@@ -19,6 +19,7 @@
       </button>
     </div>
 
+
     <!-- 정보 및 버튼 섹션 -->
     <div class="info-section">
         <div class="info-section-col">
