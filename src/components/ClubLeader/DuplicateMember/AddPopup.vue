@@ -1,0 +1,118 @@
+<template>
+  <div class="popup-overlay">
+    <div class="popup-container">
+      <h2 class="popup-title">동아리 회원 추가</h2>
+
+      <div class="popup-separator"></div>
+
+      <div class="popup-content">
+        <div class="info-row">
+          <span>학번: {{ studentId }}</span>
+        </div>
+        <div class="info-row">
+          <span>전화번호: {{ phoneNumber }}</span>
+        </div>
+        <p class="confirmation-text">해당 회원을 동아리에 추가하시겠습니까?</p>
+      </div>
+
+      <div class="button-group">
+        <button @click="$emit('cancel')" class="cancel-button">취소</button>
+        <button @click="$emit('confirm')" class="confirm-button">확인</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'AddPopup',
+  props: {
+    studentId: {
+      type: String,
+      required: true
+    },
+    phoneNumber: {
+      type: String,
+      required: true
+    }
+  }
+}
+</script>
+<style scoped>
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-container {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.popup-separator {
+  border-bottom: 1px solid #d3d3d3;
+  margin: 0px 0;
+  margin-bottom: 20px;
+}
+
+.popup-title {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  margin-top: -2px;
+}
+
+.popup-content {
+  margin-bottom: 20px;
+}
+
+.info-row {
+  margin-bottom: 10px;
+}
+
+.confirmation-text {
+  margin-top: 10px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.cancel-button, .confirm-button {
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 80px;
+  height: 32px;
+}
+
+.cancel-button {
+  background-color: #B9B9B9;
+  color: #ffffff;
+}
+
+.cancel-button:hover {
+  background-color: #9a9a9a; /* Darker shade */
+}
+
+.confirm-button {
+  background-color: #FFB052;
+  color: white;
+}
+
+.confirm-button:hover {
+  background-color: #e6953e;
+}
+</style>
