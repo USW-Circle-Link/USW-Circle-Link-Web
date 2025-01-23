@@ -68,6 +68,13 @@
       <div class="popup">
         <h2>중복되는 회원 목록</h2>
         <p class="confirm-message">아래 목록은 타 동아리에도 소속되어 있는 회원입니다. 중복되는 회원을 파일에서 삭제하신 후 다시 업로드해주세요. <br>이후 ‘중복 회원 추가’를 통해 아래 회원을 추가하실 수 있습니다.</p>
+        <div class="list-item-container">
+          <div v-for="(item, index) in OverlappingMembers" :key="index" class="list-item">
+            <div class="name">{{ item.이름 }}</div>
+            <div class="id">{{ item.학번 }}</div>
+            <div class="Phone">{{ formatPhoneNumber(item.전화번호) }}</div>
+          </div>
+        </div>
         <button class="confirm-button" @click="Delete">확인</button>
       </div>
     </div>
@@ -92,6 +99,7 @@ export default {
   data() {
     return {
       members: [], // 업로드된 회원 정보를 저장
+      OverlappingMembers: [],
 
       isOverlappingMemberListsPopupVisible : false,
       isSelectDepartmentPopupVisible : false,
@@ -136,6 +144,11 @@ export default {
     }
   },
   methods: {
+    formatPhoneNumber(phoneNumber) {
+      // 전화번호를 '010-1234-5678' 형식으로 변환
+      if (!phoneNumber) return "";
+      return phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+    },
     // 파일 입력 필드를 트리거
     triggerFileInput() {
       this.$refs.fileInput.click();
@@ -157,15 +170,10 @@ export default {
 
         // 첫 번째 시트의 데이터를 가져옵니다
         const sheetName = workbook.SheetNames[0];
-        //console.log(sheetName);
         const sheet = workbook.Sheets[sheetName];
-        //console.log(sheet);
         const jsonData = XLSX.utils.sheet_to_json(sheet);
-        //console.log(jsonData);
 
         this.Errormembers = jsonData.map((row) => ({
-          //이름: row["이름"] || "",
-          //major: row["학과"] || "",
           학번: row["학번"] || "",
           전화번호: row["전화번호"] || "",
           이름: row["이름"] || "",
@@ -203,6 +211,11 @@ export default {
         }
       } catch (error) {
         console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
+        if(error.response.status === 400){
+          this.isOverlappingMemberListsPopupVisible = true;
+          this.OverlappingMembers = error.response.data.additionalData;
+          console.log("중복된 회원",error.response.data.additionalData);
+        }
       }
 
       reader.readAsArrayBuffer(file);
@@ -431,6 +444,28 @@ select {
   margin-left: 10px;
 }
 
+.list-item-container{
+  margin-top: 20px;
+  height: 220px;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid red;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px 0;
+  background-color: #fff;
+}
+
+.name, .id, .Phone {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+}
+
 .popup-overlay2 {
   position: fixed;
   top: 0;
@@ -519,5 +554,7 @@ select {
   text-decoration-skip-ink: none;
   text-align: center;
 }
+
+
 
 </style>
