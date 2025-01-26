@@ -54,170 +54,146 @@ export default {
   data() {
     return {
       notice: { noticeTitle: '', noticeContent: '' },
-      notices: [],
-      images: [],
-      dragIndex: null, // 드래그한 이미지의 인덱스 // 이미지 파일과 미리보기를 저장할 배열
+      images: [], // 이미지 파일 및 미리보기 저장
     };
   },
   methods: {
-
-
-    onDragStart(index) {
-    this.dragIndex = index;
-  },
-  // 드롭 시 이미지 순서 변경
-  onDrop(index) {
-    if (this.dragIndex === null || this.dragIndex === index) return;
-
-    // 배열에서 드래그한 이미지 이동
-    const draggedItem = this.images[this.dragIndex];
-    this.images.splice(this.dragIndex, 1); // 드래그한 이미지를 배열에서 제거
-    this.images.splice(index, 0, draggedItem); // 드롭한 위치에 삽입
-
-    this.dragIndex = null; // 드래그 상태 초기화
-  },
-    deleteImage(index) {
-        // 지정된 인덱스의 이미지를 삭제합니다.
-        this.images.splice(index, 1);
-    },
-    limitContentLength() {
-    const maxContentLength = 3000;
-    if (this.notice.noticeContent.length > maxContentLength) {
-      this.notice.noticeContent = this.notice.noticeContent.slice(0, maxContentLength);
-    }
-  },
-  async fetchNotices() {
-      try {
-        const accessToken = store.state.accessToken;
-        const response = await axios.get(
-          `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-        );
-        this.notices = response.data.data.content || []; // 공지사항 목록 설정
-        this.totalPages = response.data.data.totalPages || 1; // 전체 페이지 수 설정
-      } catch (error) {
-        console.error('공지사항 목록을 가져오는 중 오류:', error);
-      }
-    },
-    fetchNotice(id) {
-      const notice = this.notices.find(notice => notice.noticeId == id);
-      if (notice) {
-        this.notice = notice;
-        this.images = notice.noticePhotos ? notice.noticePhotos.map(src => ({ src })) : [];
-      } else {
-        this.notice = { noticeTitle: '', noticeContent: '' };
-        this.images = [];
-      }
-    },
+    // 이미지 업로드
     onImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
-        if (validExtensions.includes(fileExtension)) {
+        const maxFileSize = 10 * 1024 * 1024;
+
+        if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
           const reader = new FileReader();
           reader.onload = (e) => {
             this.images.push({ src: e.target.result, file });
           };
           reader.readAsDataURL(file);
         } else {
-          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
-        }
-      }
-    },
-    onImageChange(index) {
-      const fileInput = this.$refs[`fileInput${index}`][0];
-      if (fileInput && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-        const maxFileSize = 10 * 1024 * 1024; // 10MB
-        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            this.images.splice(index, 1, { src: e.target.result, file }); // Vue 3에서 splice로 대체
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert("파일 형식이 맞지 않거나 파일 크기가 10MB를 초과합니다. \n10MB 이하의 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 선택하세요.");
+          alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
         }
       }
     },
     editImage(index) {
+  const fileInputs = this.$refs.fileInputs; // 모든 파일 입력 요소 배열
+  if (fileInputs && fileInputs[index]) {
+    fileInputs[index].click(); // 선택한 입력 요소 클릭
+  } else {
+    console.error(`File input not found for index ${index}`);
+  }
+}
+,
+editImage(index) {
       this.$refs[`fileInput${index}`][0].click();
     },
 
+    // 이미지 수정
+    onImageChange(index, event) {
+  if (!event || !event.target || !event.target.files) {
+    console.error('Invalid event object:', event);
+    return;
+  }
+
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+  const fileExtension = file.name.split('.').pop().toLowerCase();
+  const maxFileSize = 10 * 1024 * 1024;
+
+  if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.images[index] = { ...this.images[index], src: e.target.result, file };
+    };
+    reader.readAsDataURL(file);
+  } else {
+    alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
+  }
+},
     async submitNotice() {
-      const maxTitleLength = 100;
-      const maxContentLength = 3000;
+  console.log('Submit button clicked');
+  const maxTitleLength = 100;
+  const maxContentLength = 3000;
 
-      if (this.notice.noticeTitle.length > maxTitleLength) {
-        alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
-        return;
-      }
+  if (this.notice.noticeTitle.length > maxTitleLength) {
+    alert(`공지사항 제목은 ${maxTitleLength}자 이내로 작성해야 합니다.`);
+    return;
+  }
 
-      if (this.notice.noticeContent.length > maxContentLength) {
-        alert(`공지사항 내용은 ${maxContentLength}자 이내로 작성해야 합니다.`);
-        return;
-      }
+  if (this.notice.noticeContent.length > maxContentLength) {
+    alert(`공지사항 내용은 ${maxContentLength}자 이내로 작성해야 합니다.`);
+    return;
+  }
 
-      try {
-        const form = new FormData();
+  try {
+    console.log('Preparing form data');
+    const form = new FormData();
+    const noticeData = {
+      noticeTitle: this.notice.noticeTitle,
+      noticeContent: this.notice.noticeContent
+        .replace(/ /g, '&nbsp;')
+        .replace(/\n/g, '<br>'),
+      photoOrders: this.images.map((_, index) => index + 1), // 이미지 순서 전달
+    };
+    form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
 
-        const noticeData = {
-          noticeTitle: this.notice.noticeTitle,
-          noticeContent: this.notice.noticeContent
-              .replace(/ /g, '&nbsp;')
-              .replace(/\n/g, '<br>'),
-          photoOrders: this.images.map((_, index) => index + 1)
-        };
-        form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
+    this.images.forEach((image) => {
+      form.append('photos', image.file);
+    });
 
-        this.images.forEach((image, index) => {
-          form.append('photos', image.file);
-        });
+    // POST 요청
+    const response = await axios.post('http://15.164.246.244:8080/notices', form, {
+      headers: {
+        Authorization: `Bearer ${store.state.accessToken}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
-        const response = await axios.post('http://15.164.246.244:8080/notices', form, {
-          headers: {
-            'Authorization': `Bearer ${store.state.accessToken}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+    // 응답 데이터 디버깅
+    console.log('Notice creation response:', response.data);
 
-        if (response.data && response.data.data && Array.isArray(response.data.data.noticePhotos)) {
-          await Promise.all(response.data.data.noticePhotos.map(async (photoUrl, index) => {
-            const photoResponse = await axios.put(photoUrl, this.images[index].file, {
-              headers: {
-                'Content-Type': this.images[index].file.type,
-              }
-            });
-           // console.log(`Image ${index + 1} uploaded successfully:`, photoResponse);
-          }));
+    // Presigned URLs 추출
+    const presignedUrls = response?.data?.data || [];
+    if (!Array.isArray(presignedUrls) || presignedUrls.length === 0) {
+      console.error('No Presigned URLs found in response');
+      return;
+    }
+
+    console.log('Presigned URLs:', presignedUrls);
+
+    // S3 업로드
+    await Promise.all(
+      presignedUrls.map(async (url, index) => {
+        const file = this.images[index].file;
+        try {
+          console.log(`Uploading to S3: ${url}`);
+          const s3Response = await axios.put(url, file, {
+            headers: {
+              'Content-Type': file.type,
+            },
+          });
+          console.log(`Image ${index + 1} uploaded successfully:`, s3Response.status);
+        } catch (uploadError) {
+          console.error(`Image ${index + 1} upload failed:`, uploadError.response || uploadError.message);
+          throw new Error(`S3 업로드 실패: ${uploadError.message}`);
         }
+      })
+    );
 
-        alert('공지사항이 성공적으로 등록되었습니다!');
-        this.$router.push({ name: 'Notice' });
-      } catch (error) {
-        if (error.response && error.response.status === 401) {
-          alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-        } else if (error.response && error.response.data.code === 'FILE-308') {
-          alert('업로드 가능한 사진 갯수를 초과했습니다.');
-        } else if (error.response && error.response.data.code === 'NOT-203') {
-          alert('제목과 내용을 모두 입력해주세요.');
-        } else {
-          alert('공지사항 제출에 실패했습니다.');
-        }
-      }
-    },
-  },
-  created() {
-    this.fetchNotices();
+    alert('공지사항이 성공적으로 등록되었습니다!');
+    this.$router.push({ name: 'Notice' });
+  } catch (error) {
+    console.error('공지사항 제출 실패:', error.response || error.message);
+    alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
+  }
+}
   }
 };
 </script>
-
 
 
 <style scoped>
