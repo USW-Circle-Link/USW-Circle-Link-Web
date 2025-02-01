@@ -26,6 +26,27 @@
       <button class="save-btn" @click="addCategory">저장하기</button>
     </div>
   </div>
+
+  <div v-if="isPopupVisible1" class="popup-overlay">
+    <div class="popup">
+      <p class="confirm-message">카테고리가 정상적으로 저장되었습니다.</p>
+      <button class="confirm-button" @click="closePopup1">확인</button>
+    </div>
+  </div>
+
+  <div v-if="isPopupVisible2" class="popup-overlay">
+    <div class="popup">
+      <p class="confirm-message">이미 존재하는 카테고리입니다.</p>
+      <button class="confirm-button" @click="closePopup2">확인</button>
+    </div>
+  </div>
+
+  <div v-if="isPopupVisible3" class="popup-overlay">
+    <div class="popup">
+      <p class="confirm-message">카테고리가 정상적으로 삭제되었습니다.</p>
+      <button class="confirm-button" @click="closePopup3">확인</button>
+    </div>
+  </div>
 </template>
 
 
@@ -39,6 +60,11 @@ export default {
       categories: [], // 초기 카테고리 데이터
       clubCategory: "", // 새로 추가할 카테고리
       categoryMap: new Map(),
+
+      isPopupVisible1: false,
+      isPopupVisible2: false,
+      isPopupVisible3: false,
+
     };
   },
   mounted() {
@@ -83,11 +109,12 @@ export default {
         } catch (error) {
           console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
         }
+        this.isPopupVisible1 = true;
         // 중복 확인 및 값 추가
         this.categories.push(trimmedCategory);
         this.clubCategory = ""; // 입력 필드 초기화
       } else if (this.categories.includes(trimmedCategory)) {
-        alert("이미 존재하는 카테고리입니다.");
+        this.isPopupVisible2 = true;
       }
     },
     async removeCategory(category,index) {
@@ -100,16 +127,19 @@ export default {
           },
         });
         this.categories.splice(index, 1); // 카테고리 삭제
-        alert("카테고리가 성공적으로 삭제되었습니다.");
+        this.isPopupVisible3 = true;
       } catch (error) {
         console.error("Error:", error);
       }
     },
-    saveCategory(){
-      this.addCategoryPopupVisible = true;
+    closePopup1(){
+      this.isPopupVisible1 = false;
     },
-    ConfirmeCategory(){
-      this.addCategoryPopupVisible = false;
+    closePopup2(){
+      this.isPopupVisible2 = false;
+    },
+    closePopup3(){
+      this.isPopupVisible3 = false;
     }
   },
 };
