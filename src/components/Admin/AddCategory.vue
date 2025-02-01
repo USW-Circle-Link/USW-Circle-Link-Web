@@ -7,7 +7,7 @@
     <div class="category-list">
       <span v-for="(category, index) in categories" :key="index" class="category-item">
         {{ category }}
-        <button class="remove-btn" @click="removeCategory(index)">×</button>
+        <button class="remove-btn" @click="removeCategory(category,index)">×</button>
       </span>
     </div>
 
@@ -17,44 +17,93 @@
     <h2>카테고리 추가</h2>
     <div class="category-add">
       <input
-          v-model="newCategory"
+          ref="inputField"
+          v-model="clubCategory"
           type="text"
           placeholder="추가할 카테고리를 작성해주세요."
-          @keydown.enter="addCategory"
           class="input-field"
       />
-      <button class="save-btn" @click="saveCategory">저장하기</button>
-    </div>
-  </div>
-
-  <div v-if="addCategoryPopupVisible" class="popup-overlay">
-    <div class="popup">
-      <p class="confirm-message">카테고리가 정상적으로 저장되었습니다.</p>
-      <button class="confirm-button" @click="ConfirmeCategory">확인</button>
+      <button class="save-btn" @click="addCategory">저장하기</button>
     </div>
   </div>
 </template>
 
 
 <script>
+import axios from "axios";
+import store from "@/store/store";
+
 export default {
   data() {
     return {
-      categories: ["공부", "공부", "공부", "공부"], // 초기 카테고리 데이터
-      newCategory: "", // 새로 추가할 카테고리
-
-      addCategoryPopupVisible: false
+      categories: [], // 초기 카테고리 데이터
+      clubCategory: "", // 새로 추가할 카테고리
+      categoryMap: new Map(),
     };
   },
+  mounted() {
+    this.fetchCategory();
+  },
   methods: {
-    addCategory() {
-      if (this.newCategory.trim() !== "") {
-        this.categories.push(this.newCategory.trim());
-        this.newCategory = ""; // 입력 필드 초기화
+    async fetchCategory(){
+      try {
+        const response = await axios.get("http://15.164.246.244:8080/admin/category", {
+          headers: {
+            Authorization: `Bearer ${store.state.accessToken}`,
+          },
+        });
+        const jsonData = response.data;
+        if (jsonData && Array.isArray(jsonData.data)) {
+          this.categories = jsonData.data.map(item => item.clubCategory);
+          console.log(this.categories); // ["운동", "학술", "봉사", "개발", "공부"]
+          jsonData.data.forEach(item => {
+            this.categoryMap.set(item.clubCategory, item.clubCategoryId);
+          });
+        }
+        console.log('카테고리 불러오기 성공',this.categoryMap);
+      } catch (error) {
+        console.error("Error fetching clubs:", error);
+        alert("카테고리를 불러오는데 실패했습니다.");
       }
     },
-    removeCategory(index) {
-      this.categories.splice(index, 1); // 카테고리 삭제
+    async addCategory() {
+      const trimmedCategory = this.clubCategory.trim(); // 입력값의 앞뒤 공백 제거
+      if (trimmedCategory !== "" && !this.categories.includes(trimmedCategory)) {
+        try {
+          await axios.post(
+              `http://15.164.246.244:8080/admin/category`,
+              this.clubCategory,
+              {
+                headers: {
+                  'Authorization': `Bearer ${store.state.accessToken}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+          //console.log(response);
+        } catch (error) {
+          console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
+        }
+        // 중복 확인 및 값 추가
+        this.categories.push(trimmedCategory);
+        this.clubCategory = ""; // 입력 필드 초기화
+      } else if (this.categories.includes(trimmedCategory)) {
+        alert("이미 존재하는 카테고리입니다.");
+      }
+    },
+    async removeCategory(category,index) {
+      console.log(category);
+      const categoryId = this.categoryMap.get(category);
+      try {
+        await axios.delete(`http://15.164.246.244:8080/admin/category/${categoryId}`, {
+          headers: {
+            Authorization: `Bearer ${store.state.accessToken}`,
+          },
+        });
+        this.categories.splice(index, 1); // 카테고리 삭제
+        alert("카테고리가 성공적으로 삭제되었습니다.");
+      } catch (error) {
+        console.error("Error:", error);
+      }
     },
     saveCategory(){
       this.addCategoryPopupVisible = true;
