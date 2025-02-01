@@ -1,5 +1,6 @@
 <template>
   <div class="title">카테고리 작성하기</div>
+
   <div class="container">
     <!-- 카테고리 리스트 -->
     <h2>카테고리 리스트</h2>
@@ -9,7 +10,9 @@
         <button class="remove-btn" @click="removeCategory(category,index)">×</button>
       </span>
     </div>
+
     <div class="line"></div>
+
     <!-- 카테고리 추가 -->
     <h2>카테고리 추가</h2>
     <div class="category-add">
@@ -24,6 +27,8 @@
     </div>
   </div>
 </template>
+
+
 <script>
 import axios from "axios";
 import store from "@/store/store";
@@ -65,7 +70,7 @@ export default {
       const trimmedCategory = this.clubCategory.trim(); // 입력값의 앞뒤 공백 제거
       if (trimmedCategory !== "" && !this.categories.includes(trimmedCategory)) {
         try {
-          const response = await axios.post(
+          await axios.post(
               `http://15.164.246.244:8080/admin/category`,
               this.clubCategory,
               {
@@ -100,9 +105,17 @@ export default {
         console.error("Error:", error);
       }
     },
+    saveCategory(){
+      this.addCategoryPopupVisible = true;
+    },
+    ConfirmeCategory(){
+      this.addCategoryPopupVisible = false;
+    }
   },
 };
 </script>
+
+
 <style scoped>
 .title {
   color: black;
@@ -113,22 +126,27 @@ export default {
   display: inline-block;
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
 }
+
 .container {
   width: 890px;
   margin: 0 auto;
   padding: 20px;
 }
+
 h2 {
   font-size: 18px;
   margin-bottom: 20px;
   color: #333;
 }
+
 .category-list {
   display: flex;
   flex-wrap: wrap;
   gap: 10px; /* 항목 간 간격 */
   margin-bottom: 150px;
+
 }
+
 .category-item {
   display: flex;
   align-items: center;
@@ -141,6 +159,7 @@ h2 {
   font-size: 14px;
   color: #868686;
 }
+
 .remove-btn {
   background: none;
   border: none;
@@ -149,16 +168,19 @@ h2 {
   cursor: pointer;
   font-weight: 100;
 }
+
 .line{
   border-bottom: 1px solid #d3d3d3;
   margin: 60px 0;
 }
+
 .category-add {
   display: flex;
   align-items: center;
   gap: 10px; /* 버튼과 입력 필드 간 간격 */
   flex-direction: column;
 }
+
 .input-field {
   width: 860px;
   margin-top: 10px;
@@ -168,18 +190,21 @@ h2 {
   border-radius: 8px;
   font-size: 14px;
 }
+
 .input-field:focus {
   border-color: #FFC700; /* Border color when focused */
   outline: none; /* Remove default outline */
 }
+
 .input-field::placeholder{
   font-size: 16px;
   color: #868686;
 }
+
 .save-btn {
   width: 112px;
   height: 48px;
-  background: #FFC700;
+  background: #FFb052;
   border: none;
   border-radius: 4px;
   color: #ffffff;
@@ -193,7 +218,57 @@ h2 {
   margin-bottom: 30px;
   cursor: pointer;
 }
+
 .save-btn:hover {
   background-color: #e0891a;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  flex-direction: column;
+}
+
+.popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 452px;
+  height: 184px;
+  text-align: left;
+  position: relative;
+}
+
+.confirm-message{
+  text-align: center;
+  margin-top: 80px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 12px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+}
+
+.confirm-button{
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
 }
 </style>

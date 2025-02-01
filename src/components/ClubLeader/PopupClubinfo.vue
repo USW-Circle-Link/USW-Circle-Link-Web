@@ -110,13 +110,13 @@ export default {
   computed: {
     formattedPhoneNumber() {
       return this.data.leaderHp
-          ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")
-          : "";
+        ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")
+        : "";
     },
     instagramLink() {
-      // 사용자가 입력한 값을 그대로 반환하여 일반 링크로 사용
-      return this.data.clubInsta || "#";
-    },
+    // 사용자가 입력한 값을 그대로 반환하여 일반 링크로 사용
+    return this.data.clubInsta || "#";
+  },
   },
   mounted() {
     this.pageLoadFunction();
@@ -128,13 +128,13 @@ export default {
 
       try {
         const response = await axios.get(
-            `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
-            }
+          `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         this.data = response?.data?.data || {};
@@ -156,12 +156,12 @@ export default {
         });
 
         const introPhotosResults = await Promise.allSettled(
-            introPhotosPromises
+          introPhotosPromises
         );
 
         this.images = introPhotosResults
-            .filter((result) => result.status === "fulfilled" && result.value)
-            .map((result) => result.value);
+          .filter((result) => result.status === "fulfilled" && result.value)
+          .map((result) => result.value);
       } catch (error) {
         console.error("Fetch error:", error);
       }
