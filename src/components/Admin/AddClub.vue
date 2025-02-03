@@ -898,12 +898,6 @@ label {
   transition: color 0.3s ease;
 }
 
-.floor-button.active {
-  background: white;
-  color: #000;
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
-}
-
 .room-container {
   min-height: 160px;
   margin-bottom: 24px;
@@ -937,10 +931,6 @@ label {
   width: 68px;
 }
 
-.room-button.active {
-  border-color: #FFA000;
-  color: #000;
-}
 
 .modal-footer {
   padding: 10px 40px;
