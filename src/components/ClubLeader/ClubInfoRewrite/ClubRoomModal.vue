@@ -41,7 +41,7 @@
                   :class="['room-button', { active: selectedRoom === room }]"
                   @click="selectedRoom = room"
               >
-                {{ room }}호
+                {{ room }}
               </button>
             </div>
           </div>
@@ -61,6 +61,11 @@ export default {
     isOpen: {
       type: Boolean,
       default: false
+    },
+    // 현재 선택된 방 번호를 prop으로 받도록 함
+    currentRoom: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -69,9 +74,9 @@ export default {
       selectedFloor: '1층',
       selectedRoom: null,
       roomMap: {
-        '지하': ['B101', 'B102', 'B103', 'B104', 'B105', 'B106', 'B107', 'B108', 'B109', 'B110', 'B111', 'B112', 'B113','B114', 'B115', 'B116', 'B117', 'B118', 'B119', 'B120', 'B121', 'B122', 'B123'],
-        '1층': ['102', '103', '104', '105', '106', '107', '108', '109', '110', '112'],
-        '2층': ['203', '205', '206','207', '208', '209', '210',]
+        '지하': ['B101호', 'B102호', 'B103호', 'B104호', 'B105호', 'B106호', 'B107호', 'B108호', 'B109호', 'B110호', 'B111호', 'B112호', 'B113호', 'B114호', 'B115호', 'B116호', 'B117호', 'B118호', 'B119호', 'B120호', 'B121호', 'B122호', 'B123호'],
+        '1층': ['102호', '103호', '104호', '105호', '106호', '107호', '108호', '109호', '110호', '112호'],
+        '2층': ['203호', '205호', '206호', '207호', '208호', '209호', '210호']
       }
     }
   },
@@ -81,13 +86,35 @@ export default {
     }
   },
   methods: {
+    initializeSelection() {
+      // currentRoom에서 호수 제거하고 방 번호만 추출
+      const roomNumber = this.currentRoom.replace('학생회관 ', '');
+
+      // 방 번호가 있으면 해당 방이 있는 층을 찾아 설정
+      if (roomNumber) {
+        for (const [floor, rooms] of Object.entries(this.roomMap)) {
+          if (rooms.includes(roomNumber)) {
+            this.selectedFloor = floor;
+            this.selectedRoom = roomNumber;
+            break;
+          }
+        }
+      }
+    },
     close() {
       this.$emit('close')
     },
     selectRoom() {
       if (this.selectedRoom) {
-        this.$emit('select', `${this.selectedRoom}호`)
+        this.$emit('select', `${this.selectedRoom}`)
         this.close()
+      }
+    }
+  },
+  watch: {
+    isOpen(newVal) {
+      if (newVal) {
+        this.initializeSelection();
       }
     }
   }
@@ -227,6 +254,7 @@ export default {
 .room-button.active {
   border-color: #FFA000;
   color: #000;
+  background-color: #FFF3E0;
 }
 
 .modal-footer {

@@ -5,9 +5,7 @@
 
       <div class="popup-separator"></div>
 
-      <div class="popup-content">
-        <p>{{ message }}</p>
-      </div>
+      <p class="message">{{ message }}</p>
 
       <div class="button-group">
         <button @click="$emit('close')" class="confirm-button">확인</button>
@@ -23,13 +21,15 @@ export default {
     isSuccess: {
       type: Boolean,
       required: true
+    },
+    serverMessage: {
+      type: String,
+      required: true
     }
   },
   computed: {
     message() {
-      return this.isSuccess
-          ? "해당 회원의 추가가 정상적으로 처리되었습니다."
-          : "해당 회원의 정보를 찾을 수 없습니다. ���시 확인해주세요."
+      return this.serverMessage;
     }
   }
 }
@@ -46,6 +46,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .popup-container {
@@ -98,5 +99,14 @@ export default {
 
 .confirm-button:hover {
   background-color: #e6953e;
+}
+
+.message {
+  color: #2F2F2F;
+  font-family: Pretendard;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 12px; /* 80% */
 }
 </style>

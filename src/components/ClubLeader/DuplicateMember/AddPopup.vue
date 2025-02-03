@@ -5,19 +5,24 @@
 
       <div class="popup-separator"></div>
 
-      <div class="popup-content">
-        <div class="info-row">
-          <span>학번: {{ studentId }}</span>
-        </div>
-        <div class="info-row">
-          <span>전화번호: {{ phoneNumber }}</span>
-        </div>
-        <p class="confirmation-text">해당 회원을 동아리에 추가하시겠습니까?</p>
-      </div>
 
-      <div class="button-group">
-        <button @click="$emit('cancel')" class="cancel-button">취소</button>
-        <button @click="$emit('confirm')" class="confirm-button">확인</button>
+      <div class="info-row">
+        <span>이름: {{ name }}</span>
+      </div>
+      <div class="info-row">
+        <span>학번: {{ studentId }}</span>
+      </div>
+      <div class="info-row">
+        <span>전화번호: {{ phoneNumber }}</span>
+      </div>
+      <p class="confirmation-text">해당 회원을 동아리에 추가하시겠습니까?</p>
+
+
+      <div class="popup-footer">
+        <div class="button-group">
+          <button @click="$emit('cancel')" class="cancel-button">취소</button>
+          <button @click="$emit('confirm')" class="confirm-button">확인</button>
+        </div>
       </div>
     </div>
   </div>
@@ -27,6 +32,10 @@
 export default {
   name: 'AddPopup',
   props: {
+    name: {
+      type: String,
+      required: true
+    },
     studentId: {
       type: String,
       required: true
@@ -38,6 +47,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 .popup-overlay {
   position: fixed;
@@ -49,6 +59,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .popup-container {
@@ -57,6 +68,9 @@ export default {
   padding: 20px;
   width: 90%;
   max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
 .popup-separator {
@@ -72,16 +86,19 @@ export default {
   margin-top: -2px;
 }
 
-.popup-content {
-  margin-bottom: 20px;
-}
-
 .info-row {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
+  font-size: 14px;
 }
 
 .confirmation-text {
-  margin-top: 10px;
+  margin-top: 16px;
+  font-size: 14px;
+  color: #333;
+}
+
+.popup-footer {
+  margin-top: auto;
 }
 
 .button-group {
@@ -94,8 +111,9 @@ export default {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  width: 80px;
+  width: 87px;
   height: 32px;
+  font-size: 14px;
 }
 
 .cancel-button {
@@ -104,7 +122,7 @@ export default {
 }
 
 .cancel-button:hover {
-  background-color: #9a9a9a; /* Darker shade */
+  background-color: #9a9a9a;
 }
 
 .confirm-button {

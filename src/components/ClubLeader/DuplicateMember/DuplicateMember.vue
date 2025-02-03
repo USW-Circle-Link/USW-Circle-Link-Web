@@ -7,12 +7,23 @@
       <div class="form-content-wrapper">
         <div class="form-content">
           <div class="input-group">
+            <label>이름</label>
+            <input
+                type="text"
+                v-model="name"
+                placeholder="이름 입력"
+                :class="{'error-input': nameError}"
+                @input="validateForm"
+            />
+          </div>
+
+          <div class="input-group">
             <label>학번</label>
             <input
                 type="text"
                 v-model="studentId"
                 placeholder="숫자 8자리"
-                :class="{'error-input': showError}"
+                :class="{'error-input': studentIdError}"
                 @input="validateForm"
             />
           </div>
@@ -23,7 +34,7 @@
                 type="text"
                 v-model="phoneNumber"
                 placeholder="- 제외 11자리 숫자"
-                :class="{'error-input': showError}"
+                :class="{'error-input': phoneNumberError}"
                 @input="validateForm"
             />
           </div>
@@ -41,7 +52,7 @@
         </div>
 
         <p v-if="showError" class="error-text">
-          * 학번, 전화번호를 다시 확인해주세요. (학번: 8자리 숫자, 전화번호 - 제외 11자리 숫자)
+          * 입력 정보를 다시 확인해주세요. (이름: 특수기호 제외, 학번: 8자리 숫자, 전화번호: - 제외 11자리 숫자)
         </p>
       </div>
     </div>
@@ -49,6 +60,7 @@
     <!-- Confirmation Popup -->
     <AddPopup
         v-if="showPopup"
+        :name="name"
         :studentId="studentId"
         :phoneNumber="phoneNumber"
         @confirm="confirmAdd"
@@ -59,14 +71,18 @@
     <SuccessFailPopup
         v-if="showResultPopup"
         :isSuccess="isSuccess"
+        :serverMessage="serverMessage"
         @close="closeResultPopup"
     />
   </div>
 </template>
 
+
 <script>
+import store from '@/store/store';
 import AddPopup from './AddPopup.vue'
 import SuccessFailPopup from './SuccessFailPopup.vue'
+import axios from 'axios'
 
 export default {
   name: 'DuplicateMember',
@@ -76,22 +92,32 @@ export default {
   },
   data() {
     return {
+      name: '',
       studentId: '',
       phoneNumber: '',
       showPopup: false,
       showError: false,
       isFormValid: false,
       showResultPopup: false,
-      isSuccess: false
+      isSuccess: false,
+      nameError: false,
+      studentIdError: false,
+      phoneNumberError: false,
+      serverMessage: '',
     }
   },
   methods: {
     validateForm() {
+      const nameValid = /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== ''
       const studentIdValid = /^\d{8}$/.test(this.studentId)
       const phoneNumberValid = /^\d{11}$/.test(this.phoneNumber)
 
-      this.showError = (this.studentId && !studentIdValid) || (this.phoneNumber && !phoneNumberValid)
-      this.isFormValid = studentIdValid && phoneNumberValid
+      this.nameError = (this.name && !nameValid)
+      this.studentIdError = (this.studentId && !studentIdValid)
+      this.phoneNumberError = (this.phoneNumber && !phoneNumberValid)
+
+      this.showError = this.nameError || this.studentIdError || this.phoneNumberError
+      this.isFormValid = nameValid && studentIdValid && phoneNumberValid
     },
     handleAddMember() {
       if (this.isFormValid) {
@@ -102,9 +128,16 @@ export default {
       try {
         await this.sendToServer()
         this.isSuccess = true
+        this.serverMessage = '해당 회원의 추가가 정상적으로 처리되었습니다.'
       } catch (error) {
         console.error('Error adding member:', error)
         this.isSuccess = false
+        // Extract error message from the server response
+        if (error.response && error.response.data && error.response.data.message) {
+          this.serverMessage = error.response.data.message
+        } else {
+          this.serverMessage = '서버 오류가 발생했습니다. 다시 시도해주세요.'
+        }
       }
       this.showPopup = false
       this.showResultPopup = true
@@ -113,13 +146,32 @@ export default {
       this.showPopup = false
     },
     async sendToServer() {
-      // Implement your API call here
       const data = {
-        studentId: this.studentId,
-        phoneNumber: this.phoneNumber
+        userName: this.name,
+        studentNumber: this.studentId,
+        userHp: this.phoneNumber
+      };
+
+      const accessToken = store.state.accessToken;
+      const clubId = store.state.clubId;
+
+      try {
+        const response = await axios.post(
+            `http://15.164.246.244:8080/club-leader/${clubId}/members/duplicate-profiles`,
+            data,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+              }
+            }
+        );
+        console.log('서버 응답:', response.data);
+        return response.data;
+      } catch (error) {
+        console.error('서버 에러 응답:', error);
+        throw error;
       }
-      // Example API call
-      // await axios.post('/api/members', data)
     },
     closeResultPopup() {
       this.showResultPopup = false
@@ -128,9 +180,13 @@ export default {
       }
     },
     resetForm() {
+      this.name = ''
       this.studentId = ''
       this.phoneNumber = ''
       this.showError = false
+      this.nameError = false
+      this.studentIdError = false
+      this.phoneNumberError = false
       this.isFormValid = false
     }
   }
@@ -154,7 +210,7 @@ export default {
 
 .form-container {
   display: flex;
-  justify-content: flex-start; /* Align items to the start horizontally */
+  justify-content: flex-start;
   align-items: flex-start;
   background: #fff;
   padding: 20px;
@@ -168,8 +224,8 @@ export default {
 .form-content {
   display: flex;
   align-items: flex-start;
-  gap: 50px;
-  padding-left: 50px;
+  gap: 15px;
+  padding-left: 5px;
 }
 
 .form-content-wrapper {
@@ -192,7 +248,7 @@ export default {
 
 .input-group input {
   display: flex;
-  width: 146px;
+  width: 126px;
   height: 42px;
   padding-left: 10px;
   align-items: center;
@@ -204,7 +260,7 @@ export default {
 }
 
 .input-group.phone-number input {
-  width: 200px; /* Adjust the width as needed */
+  width: 185px;
 }
 
 .error-input {

@@ -4,7 +4,7 @@
     <div id="RemoveMemberDashboard" class="RemoveMemberDashboard">
       <div class="member-list">
         <ul>
-          <li v-for="(member, index) in formattedClubMembers" :key="member.clubMemberId" class="member-item">
+          <li v-for="member in formattedClubMembers" :key="member.clubMemberId" class="member-item">
             <label class="custom-checkbox">
               <input
                   type="checkbox"
@@ -34,11 +34,12 @@
         퇴출하기
       </button>
     </div>
+
     <!-- 퇴출 선택 인원 -->
     <div class="expulsion-section">
       <div class="expulsion-list">
         <ul>
-          <li v-for="(member, index) in selectedMembers" :key="member.clubMemberId" class="member-item">
+          <li v-for="member in selectedMembers" :key="member.clubMemberId" class="member-item">
             <span>{{ member.userName }}</span>
             <span>{{ member.studentNumber }}</span>
             <span>{{ member.major }}</span>
@@ -48,7 +49,6 @@
       </div>
     </div>
 
-
     <div class="custom-popup1" v-if="showExpulsionPopup">
       <div class="popup-content1">
         <div class="popup-header1">
@@ -56,7 +56,7 @@
         </div>
         <div class="popup-separator1"></div>
         <div class="popup-body1">
-          <p class="popup-message1"> <span class="red-text1">총 {{ selectedMembers.length }}명</span>입니다.</p>
+          <p class="popup-message1"><span class="red-text1">총 {{ selectedMembers.length }}명</span>입니다.</p>
           <p class="popup-message1">해당 동아리원들을 퇴출하시겠습니까?</p>
           <p class="popup-warning1">퇴출 후 되돌릴 수 없으니 신중하게 선택해 주세요.</p>
         </div>
@@ -77,12 +77,12 @@ export default {
     return {
       clubMembers: [],
       showExpulsionPopup: false,
-      memberToExpel: null,
       selectedMembers: [],
     }
   },
   computed: {
     formattedClubMembers() {
+      if (!this.clubMembers) return [];
       return this.clubMembers.map(member => {
         return {
           ...member,
@@ -98,98 +98,21 @@ export default {
     async fetchData() {
       const accessToken = store.state.accessToken;
       const clubId = store.state.clubId;
-      console.log(clubId + '클럽 ID');
-      console.log('Page has been loaded!');
+
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?page=0&size=500`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?=null`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           }
         });
-        const responseData = response.data;
-        this.message = responseData.message;
-        this.clubMembers = response.data.data.content;
 
-        if (this.clubMembers.length === 0) {
-          this.clubMembers = [
-            {
-              clubMemberId: 1,
-              userName: 'John Doe',
-              studentNumber: '20210001',
-              major: 'Computer Science',
-              userHp: '010-1234-5678'
-            },
-            {
-              clubMemberId: 2,
-              userName: 'Jane Smith',
-              studentNumber: '20210002',
-              major: 'Mechanical Engineering',
-              userHp: '010-8765-4321'
-            },
-            {
-              clubMemberId: 3,
-              userName: 'John Doe',
-              studentNumber: '20210001',
-              major: 'Computer Science',
-              userHp: '010-1234-5678'
-            },
-            {
-              clubMemberId: 4,
-              userName: 'Jane Smith',
-              studentNumber: '20210002',
-              major: 'Mechanical Engineering',
-              userHp: '010-8765-4321'
-            },
-            {
-              clubMemberId: 5,
-              userName: 'John Doe',
-              studentNumber: '20210001',
-              major: 'Computer Science',
-              userHp: '010-1234-5678'
-            },
-            {
-              clubMemberId: 6,
-              userName: 'Jane Smith',
-              studentNumber: '20210002',
-              major: 'Mechanical Engineering',
-              userHp: '010-8765-4321'
-            },
-            {
-              clubMemberId: 7,
-              userName: 'John Doe',
-              studentNumber: '20210001',
-              major: 'Computer Science',
-              userHp: '010-1234-5678'
-            },
-            {
-              clubMemberId: 8,
-              userName: 'Jane Smith',
-              studentNumber: '20210002',
-              major: 'Mechanical Engineering',
-              userHp: '010-8765-4321'
-            },
-            {
-              clubMemberId: 9,
-              userName: 'John Doe',
-              studentNumber: '20210001',
-              major: 'Computer Science',
-              userHp: '010-1234-5678'
-            },
-            {
-              clubMemberId: 10,
-              userName: 'Jane Smith',
-              studentNumber: '20210002',
-              major: 'Mechanical Engineering',
-              userHp: '010-8765-4321'
-            },
-          ];
-        }
-
+        this.clubMembers = response.data.data;
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     },
+
     toggleMemberSelection(member) {
       const index = this.selectedMembers.findIndex(m => m.clubMemberId === member.clubMemberId);
       if (index === -1) {
@@ -198,31 +121,32 @@ export default {
         this.selectedMembers.splice(index, 1);
       }
     },
-    removeMember(index) {
-      this.memberToExpel = index;
-      this.showExpulsionPopup = true;
-    },
+
     async expelMember() {
       const accessToken = store.state.accessToken;
       const clubId = store.state.clubId;
 
       try {
-        // 선택된 모든 회원에 대해 퇴출 요청 보내기
-        await Promise.all(
-            this.selectedMembers.map(member =>
-                axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/${member.clubMemberId}`, {
-                  headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                  }
-                })
-            )
-        );
+        // 선택된 회원들의 clubMemberId만 추출하여 요청 데이터 생성
+        const expelData = this.selectedMembers.map(member => ({
+          clubMemberId: member.clubMemberId
+        }));
+
+        // DELETE 요청 보내기
+        await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          data: expelData  // DELETE 요청의 body에 데이터 포함
+        });
 
         // 퇴출된 회원들을 목록에서 제거
         this.clubMembers = this.clubMembers.filter(
             member => !this.selectedMembers.some(selected => selected.clubMemberId === member.clubMemberId)
         );
+
+        // 선택된 회원 목록 초기화 및 팝업 닫기
         this.selectedMembers = [];
         this.showExpulsionPopup = false;
       } catch (error) {

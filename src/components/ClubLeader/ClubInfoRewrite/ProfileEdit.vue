@@ -108,6 +108,7 @@
             />
           </div>
         </div>
+
         <!-- 해시태그 표시 영역 (새로 추가) -->
         <div class="hashtags-display" v-if="hashtags.length > 0">
           <div class="hashtags-wrapper">
@@ -127,14 +128,20 @@
               인스타그램
             </div>
           </label>
-          <input
-              type="text"
-              id="clubInsta"
-              v-model="clubInsta"
-              class="standard-input"
-              placeholder="인스타그램 링크를 입력해주세요."
-              maxlength="25"
-          />
+          <div class="input-container">
+            <input
+                type="text"
+                id="clubInsta"
+                v-model="clubInsta"
+                :class="['standard-input', { 'error': !isInstaValid && clubInsta }]"
+                placeholder="인스타그램 링크를 입력해주세요."
+                maxlength="70"
+                @input="validateInstagram"
+            />
+            <span v-if="!isInstaValid && clubInsta" class="error-message">
+      *인스타그램 입력 형식이 잘못되었습니다. (https://www.instagram.com으로 시작)
+    </span>
+          </div>
         </div>
 
         <div class="form-group">
@@ -154,7 +161,7 @@
         <div class="categories-display" v-if="selectedCategories.length > 0">
           <div class="categories-wrapper">
             <div v-for="(category, index) in selectedCategories" :key="index" class="category-item">
-              {{ category }}
+              {{ category.clubCategory }}
               <span class="remove-category" @click="removeCategory(index)">×</span>
             </div>
           </div>
@@ -164,8 +171,8 @@
           <button
               type="button"
               @click="updateProfile"
-              :disabled="isLoading || !isPhoneNumberValid || !leaderHp || !isHashTagValid || !isLeaderNameValid || !leaderName"
-              :class="{ 'disabled': !isPhoneNumberValid || !leaderHp || !isHashTagValid || !isLeaderNameValid || !leaderName, 'update-button': true }"
+              :disabled="isLoading || !isPhoneNumberValid || !leaderHp || !isHashTagValid || !isLeaderNameValid || !leaderName || (!isInstaValid && clubInsta)"
+              :class="{ 'disabled': !isPhoneNumberValid || !leaderHp || !isHashTagValid || !isLeaderNameValid || !leaderName || (!isInstaValid && clubInsta), 'update-button': true }"
           >
             수정하기
           </button>
@@ -177,6 +184,7 @@
 
   <ClubRoomModal
       :is-open="showRoomModal"
+      :current-room="selectedRoom"
       @close="closeRoomModal"
       @select="onRoomSelect"
   />
@@ -210,27 +218,42 @@ export default {
   },
   data() {
     return {
+      // Existing variables
       leaderName: '',
       clubInsta: '',
       leaderHp: '',
-      mainPhoto: '',  // 미리보기로 표시할 이미지 (수정된 경우)
+      mainPhoto: '',
       hashTagInput: '',
       hashtags: [],
-      defaultPhotoUrl: require('@/assets/profile.png'), // 기본 이미지 URL 설정
+      defaultPhotoUrl: require('@/assets/profile.png'),
+
+      // New variables added
+      clubRoomNumber: '',
+      clubHashtag: [],
+      clubCategory: [],
+
+      // Existing variables
       isLoading: false,
-      file: null,  // 업로드할 파일
-      clubName: '', // 동아리명
-      clubInfo: {}, // 클럽 정보를 저장할 객체
-      presignedUrl: '', // S3 업로드를 위한 사전 서명된 URL
-      imageHeight: 220, // 초기 높이 설정
+      file: null,
+      clubName: '',
+      clubInfo: {},
+      presignedUrl: '',
+      imageHeight: 220,
+
+      // Room selection variables
       selectedRoom: '',
       originalRoom: '',
       showRoomModal: false,
+
+      // Category selection variables
       showCategoryModal: false,
       selectedCategories: [],
+
+      // Validation flags
       isPhoneNumberValid: true,
       isHashTagValid: true,
       isLeaderNameValid: true,
+      isInstaValid: true,
       showSuccessPopup: false,
     };
   },
@@ -243,7 +266,7 @@ export default {
   methods: {
     validateLeaderName() {
       // 특수문자를 체크하는 정규식 (공백은 허용)
-      const specialCharPattern = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+/;
+      const specialCharPattern = /[!@#₩$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+/;
 
       // 입력값이 비어있지 않고 특수문자가 없으면 true
       this.isLeaderNameValid = !specialCharPattern.test(this.leaderName);
@@ -273,6 +296,13 @@ export default {
       const phoneNumberPattern = /^[0-9]{11}$/;
       this.isPhoneNumberValid = phoneNumberPattern.test(this.leaderHp);
     },
+    validateInstagram() {
+      if (!this.clubInsta) {
+        this.isInstaValid = true;
+        return;
+      }
+      this.isInstaValid = this.clubInsta.startsWith('https://www.instagram.com'); //인스타그램 url로 시작하는지 검사
+    },
     openRoomModal() {
       this.showRoomModal = true;
     },
@@ -298,36 +328,47 @@ export default {
 
     // 동아리 정보 로드
     async fetchClubInfo() {
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
-      const clubId = store.state.clubId; // 저장된 clubId 가져오기
+      const accessToken = store.state.accessToken;
+      const clubId = store.state.clubId;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, { // 서버에 동아리 정보 요청
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
         });
 
         if (response.data && response.data.data) {
           this.clubInfo = response.data.data;
+
+          // Existing fields
           this.leaderName = this.clubInfo.leaderName || '';
-          this.hashTag = this.clubInfo.hashTag || '';
           this.clubInsta = this.clubInfo.clubInsta || '';
-          this.selectedRoom = this.clubInfo.selectedRoom || '';
           this.leaderHp = this.clubInfo.leaderHp || '';
           this.defaultPhotoUrl = this.clubInfo.mainPhotoUrl || require('@/assets/profile.png');
           this.mainPhoto = this.defaultPhotoUrl;
           this.clubName = this.clubInfo.clubName || '';
 
-          if (this.hashTag) {
-            this.hashtags = this.hashTag.split(',').map(tag => tag.trim());
-          }
-          console.log(this.clubInfo); // 클럽 정보 출력
+          // New fields
+          this.clubRoomNumber = this.clubInfo.clubRoomNumber || '';
+          this.selectedRoom = this.clubRoomNumber ? `학생회관 ${this.clubRoomNumber}` : '';
+
+          // Handle clubHashtag
+          this.clubHashtag = this.clubInfo.clubHashtag || [];
+          this.hashtags = this.clubHashtag;
+
+
+          this.clubCategory = this.clubInfo.clubCategory || [];// 문자열 배열을 객체 배열로 변환
+          this.selectedCategories = this.clubCategory.map(category => ({
+            clubCategory: category.trim() // 혹시 모를 공백 제거
+          }));
+
+          console.log(this.clubInfo);
         }
       } catch (error) {
-        console.error('Error fetching club info:', error);
-        alert('Error fetching club info.');
+        console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+        alert('동아리 정보를 불러오는데 실패했습니다.');
       }
     },
     // URL -> 파일 객체 반환
@@ -345,6 +386,10 @@ export default {
         alert('전화번호 형식을 확인해주세요.');
         return;
       }
+      if (!this.isInstaValid && this.clubInsta) {
+        alert('인스타그램 입력 형식이 잘못되었습니다.');
+        return;
+      }
 
       this.isLoading = true;
       const accessToken = store.state.accessToken;
@@ -357,18 +402,21 @@ export default {
           clubName: this.clubName,
           leaderName: this.leaderName || this.clubInfo.leaderName,
           leaderHp: this.leaderHp || this.clubInfo.leaderHp,
-          selectedRoom: this.selectedRoom,
-          hashTag: this.hashtags.join(','), // 해시태그 배열을 문자열로 변환
-          clubInsta: this.clubInsta || this.clubInfo.clubInsta,
-          mainPhotoUrl: this.defaultPhotoUrl,
+          clubRoomNumber: this.selectedRoom ? this.selectedRoom.replace('학생회관 ', '') : '',
+          clubHashtag: this.hashtags,
+          clubCategory: this.selectedCategories.map(category => category.clubCategory),
+          clubInsta: this.clubInsta,  // 수정된 코드
+          mainPhotoUrl: this.mainPhoto !== this.defaultPhotoUrl ? this.mainPhoto : '',
         };
 
         formData.append("clubInfoRequest", new Blob([JSON.stringify(updatedData)], { type: 'application/json' }));
 
+        // 기본 이미지가 아닌 경우에만 파일을 전송
         if (this.file) {
           formData.append("mainPhoto", this.file);
-        } else if (this.defaultPhotoUrl) {
-          const existingFile = await this.urlToFile(this.defaultPhotoUrl, 'existingImage.jpg', 'image/jpeg');
+        } else if (this.mainPhoto && this.mainPhoto !== this.defaultPhotoUrl) {
+          // 기존 이미지 URL을 파일 객체로 변환하여 전송
+          const existingFile = await this.urlToFile(this.mainPhoto, 'existingImage.jpg', 'image/jpeg');
           formData.append("mainPhoto", existingFile);
         }
 
@@ -392,9 +440,11 @@ export default {
         }
       } catch (error) {
         console.error('Error updating profile:', error);
-        if (error.response) {
-          console.error('Server response:', error.response.data);
-          alert(`오류: ${error.response.data.message || '서버 오류가 발생했습니다.'}`);
+        if (error.response && error.response.data) {
+          const errorMessages = Object.values(error.response.data).join('\n');
+          alert(`${errorMessages}`);
+        } else {
+          alert('서버 오류가 발생했습니다.');
         }
       } finally {
         this.isLoading = false;
@@ -506,7 +556,13 @@ export default {
         this.validateLeaderName();
       },
       immediate: true
-    }
+    },
+    clubInsta: {
+      handler: function(newValue) {
+        this.validateInstagram();
+      },
+      immediate: true
+    },
   }
 };
 </script>
@@ -786,7 +842,7 @@ button.disabled {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 30px;
   height: 42px; /* 입력폼 높이 통일 */
 }
 
@@ -808,8 +864,8 @@ button.disabled {
 /* 해시태그 표시 영역 스타일 */
 .hashtags-display {
   margin-left: 110px; /* label 너비 + gap */
-  margin-top: -20px;
-  margin-bottom: 17px;
+  margin-top: -30px;
+  margin-bottom: 21px;
 }
 
 .hashtags-wrapper {
@@ -879,7 +935,7 @@ button.disabled {
 .categories-display {
   margin-left: 110px; /* label 너비 + gap */
   margin-bottom: 15px;
-  margin-top: -20px;
+  margin-top: -30px;
 }
 
 .input-container {
@@ -897,7 +953,7 @@ button.disabled {
   font-family: Pretendard;
   font-size: 10px;
   font-style: normal;
-  margin-top: 13px;
+  margin-top: 5px;
   text-align: left;
   padding-left: 4px;
 }
@@ -910,10 +966,9 @@ button.disabled {
   font-family: Pretendard;
   font-size: 10px;
   font-style: normal;
-  margin-top: 9px;
   text-align: left;
   padding-left: 4px;
-  margin-bottom: 10px;
+  margin-top: 2px;
 }
 
 .standard-input.error {

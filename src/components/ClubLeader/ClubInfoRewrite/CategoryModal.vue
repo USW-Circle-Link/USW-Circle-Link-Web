@@ -28,15 +28,23 @@
 
       <div class="modal-body">
         <div class="category-container">
-          <div class="category-grid">
+          <div v-if="loading" class="loading-message">
+            카테고리를 불러오는 중입니다...
+          </div>
+          <div v-else-if="error" class="error-message">
+            카테고리를 불러오는데 실패했습니다. 다시 시도해주세요.
+          </div>
+          <div v-else class="category-grid">
             <button
                 v-for="category in categories"
-                :key="category"
-                :class="['category-button', { active: selectedCategories.includes(category) }]"
+                :key="category.clubCategoryId"
+                :class="['category-button', {
+        active: isSelectedCategory(category)
+      }]"
                 @click="toggleCategory(category)"
-                :disabled="isMaxSelected && !selectedCategories.includes(category)"
+                :disabled="isMaxSelected && !isSelectedCategory(category)"
             >
-              {{ category }}
+              {{ category.clubCategory }}
             </button>
           </div>
           <div class="selected-info">
@@ -53,6 +61,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import store from '@/store/store';
+
 export default {
   name: 'CategoryModal',
   props: {
@@ -67,13 +78,11 @@ export default {
   },
   data() {
     return {
-      categories: [
-        '공부', '개발', '국어', '수학', '건축', '뭐시기', '예술',
-        '힙합', '수많은', '잡초들', '사이핀', '내뷰', '티플라워', '빨주',
-        '노초', '암어레', '전드', '타노스', '토르', '헐크', '아이언맨'
-      ],
-      selectedCategories: []
-    }
+      categories: [],
+      selectedCategories: [],
+      loading: false,
+      error: null
+    };
   },
   computed: {
     isMaxSelected() {
@@ -81,31 +90,78 @@ export default {
     }
   },
   methods: {
-    toggleCategory(category) {
-      const index = this.selectedCategories.indexOf(category);
-      if (index === -1 && !this.isMaxSelected) {
-        this.selectedCategories.push(category);
-      } else if (index !== -1) {
-        this.selectedCategories.splice(index, 1);
+    async fetchCategories() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const accessToken = store.state.accessToken;
+        const response = await axios.get('http://15.164.246.244:8080/club-leader/category', {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          }
+        });
+        this.categories = response.data.data;
+      } catch (error) {
+        console.error('카테고리 조회 실패:', error);
+        this.error = error;
+      } finally {
+        this.loading = false;
       }
     },
+    // 현재 카테고리가 선택된 상태인지 확인하는 메서드 추가
+    isSelectedCategory(category) {
+      return this.currentSelected.some(
+          selected => selected.clubCategory === category.clubCategory
+      );
+    },
+
+    toggleCategory(category) {
+      const index = this.currentSelected.findIndex(
+          selected => selected.clubCategory === category.clubCategory
+      );
+
+      const updatedCategories = [...this.currentSelected];
+
+      if (index === -1 && updatedCategories.length < 3) {
+        // 선택되지 않은 상태이고 3개 미만일 때 추가
+        updatedCategories.push({
+          clubCategory: category.clubCategory,
+          clubCategoryId: category.clubCategoryId
+        });
+      } else if (index !== -1) {
+        // 이미 선택된 상태면 제거
+        updatedCategories.splice(index, 1);
+      }
+
+      // 변경된 선택 상태를 부모 컴포넌트로 전달
+      this.$emit('select', updatedCategories);
+    },
+
     selectCategories() {
       this.$emit('select', this.selectedCategories);
       this.close();
     },
     close() {
-      this.selectedCategories = [];
       this.$emit('close');
     }
   },
   watch: {
     isOpen(newVal) {
       if (newVal) {
+        this.fetchCategories();
+        // 기존 선택값 유지
         this.selectedCategories = [...this.currentSelected];
+      }
+    },
+    currentSelected: {
+      immediate: true,
+      handler(newVal) {
+        this.selectedCategories = [...newVal];
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -278,5 +334,15 @@ export default {
 
 .select-button:hover {
   background: #FFA726;
+}
+
+.loading-message, .error-message {
+  text-align: center;
+  padding: 20px;
+  color: #5A5A5A;
+}
+
+.error-message {
+  color: #FF5252;
 }
 </style>

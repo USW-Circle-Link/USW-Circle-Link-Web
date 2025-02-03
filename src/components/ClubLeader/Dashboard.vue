@@ -21,14 +21,24 @@
           <div class="icon map"></div>
           <p class="room">동아리방</p>
           <div class="line2"></div>
-          <p class="detail">학생회관 {{formattedPhoneNumber}}</p>
+          <p class="detail">학생회관 {{data.clubRoomNumber}}</p>
+        </div>
+        <div class="clubroom">
+          <div class="icon category"></div>
+          <p class="room">카테고리</p>
+          <div class="line2"></div>
+          <p class="detail">{{formattedCategory}}</p>
+        </div>
+
+        <div class="hashtags">
+          <span v-for="(tag, index) in hashtagArray" :key="index" class="hashtag">#{{tag}}</span>
         </div>
       </div>
     </div>
     <div class="Dashboardhead">
       <div>
         <p class="p1">동아리 회원 정보</p>
-        <p class="p2">현재 회원 : {{memberCount}} 명</p>
+        <p class="p2">현재 회원 : {{totalMemberCount}} 명</p>
       </div>
       <button @click="sheetDownload" class="spreadsheets">
         <img v-if="!isLoading" alt="" src="../../assets/spreadsheets.png" oncontextmenu="return false;" />
@@ -54,18 +64,17 @@
       </button>
     </div>
     <div id="Dashboard" class="Dashboard">
-      <!-- 탭 메뉴 추가 -->
       <div class="member-list">
         <ul>
-          <li v-for="(member, index) in formattedClubMembers"
+          <li v-for="(member, index) in displayedMembers"
               :key="member.clubMemberId"
               class="member-item"
               :class="{
-          'editing': editingIndex === index,
-          'has-error': editingIndex === index &&
-            (validationErrors.userName || validationErrors.studentNumber ||
-             validationErrors.major || validationErrors.userHp)
-        }">
+                'editing': editingIndex === index,
+                'has-error': editingIndex === index &&
+                  (validationErrors.userName || validationErrors.studentNumber ||
+                   validationErrors.major || validationErrors.userHp)
+              }">
 
             <!-- 이름 입력 -->
             <div class="input-wrapper">
@@ -138,14 +147,17 @@
                 {{ errorMessages.userHp }}
               </div>
             </div>
-
-            <!-- 수정/저장 버튼 -->
-            <button v-if="editingIndex !== index"
+            <!-- 정회원이고 가나다순 탭일 때만 투명한 박스 표시 -->
+            <div v-if="currentTab === 'alphabetical' && member.isRegularMember"
+                 class="transparent-box">
+            </div>
+            <!-- 수정 버튼 - '회원' 탭이 아닐 때만 표시 -->
+            <button v-if="(currentTab === 'nonMember' || (currentTab === 'alphabetical' && !member.isRegularMember)) && editingIndex !== index"
                     @click="startEdit(index)"
                     class="edit-btn">
               수정
             </button>
-            <button v-else
+            <button v-if="(currentTab === 'nonMember' || (currentTab === 'alphabetical' && !member.isRegularMember)) && editingIndex === index"
                     @click="confirmEdit"
                     class="save-btn">
               수정
@@ -212,6 +224,10 @@ export default {
       colleges, // 가져온 단과대학 정보 사용
       departmentsByCollege, // 가져온 학과 정보 사용
       departments: [],
+      totalMemberCount: 0, // 전체 회원 수를 저장할 새로운 변수
+      regularMembers: [], // 정회원 목록
+      nonRegularMembers: [], // 비회원 목록
+
     }
   },
   computed: {
@@ -219,29 +235,86 @@ export default {
       return this.data.leaderHp ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : '';
     },
     formattedClubMembers() {
+      if (!this.clubMembers) return []; // clubMembers가 undefined일 경우 빈 배열 반환
       return this.clubMembers.map(member => {
         return {
           ...member,
-          userHp: member.userHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')  // 전화번호 형식 변경
+          userHp: member.userHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')
         };
       });
+    },
+    displayedMembers() {
+      switch(this.currentTab) {
+        case 'alphabetical':
+          // 정회원과 비회원 목록을 합치고 가나다순으로 정렬함
+          // eslint-disable-next-line no-case-declarations
+          const allMembers = [...this.regularMembers, ...this.nonRegularMembers];
+          return allMembers.sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
+        case 'nonMember':
+          return this.nonRegularMembers.sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
+        case 'member':
+          return this.regularMembers.sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
+        default:
+          return [];
+      }
+    },
+    hashtagArray() {
+      if (!this.data.clubHashtag) return [];
+      if (Array.isArray(this.data.clubHashtag)) return this.data.clubHashtag;
+      try {
+        return JSON.parse(this.data.clubHashtag);
+      } catch (e) {
+        return [this.data.clubHashtag];
+      }
+    },
+    formattedCategory() {
+      if (!this.data.clubCategory) return '없음';
+
+      try {
+        // 문자열로 온 경우 배열로 파싱
+        const categories = Array.isArray(this.data.clubCategory)
+            ? this.data.clubCategory
+            : JSON.parse(this.data.clubCategory);
+
+        // 배열이 비어있는 경우
+        if (categories.length === 0) return '없음';
+
+        // 배열 요소들을 쉼표로 구분하여 문자열로 변환
+        return categories.join(', ');
+      } catch (e) {
+        // JSON 파싱 실패 시 원본 반환
+        return this.data.clubCategory || '없음';
+      }
     }
   },
-  mounted() {
-    this.fetchData();
-    this.pageLoadFunction();
-    this.getCurrentTime();
+  // 페이지 첫 로드 시 가나다순 데이터 로드와 전체 회원 수 설정
+  async mounted() {
+    this.currentTab = 'alphabetical';
+    await this.fetchData();
+    await this.pageLoadFunction();
   },
   methods: {
     async saveEdit() {
+      if (!this.validateInput()) {
+        return;
+      }
+
       const accessToken = this.$store.state.accessToken;
       const clubId = this.$store.state.clubId;
-      const memberId = this.clubMembers[this.editingIndex].clubMemberId;
+      const memberId = this.displayedMembers[this.editingIndex].clubMemberId;
+
+      // 정상적으로 하면 이름제외하고 뒤죽박죽 꼬임
+      const updateData = {
+        userName: this.editingMember.userName,
+        userHp: this.editingMember.studentNumber.replace(/-/g, ''),//전화번호
+        major: this.editingMember.userHp, //학번
+        studentNumber: this.editingMember.major, //학과
+      };
 
       try {
-        await axios.put(
-            `http://15.164.246.244:8080/club-leader/${clubId}/members/${memberId}`,
-            this.editingMember,
+        await axios.patch(
+            `http://15.164.246.244:8080/club-leader/${clubId}/members/${memberId}/non-member`,
+            updateData,
             {
               headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -250,11 +323,13 @@ export default {
             }
         );
 
-        // 성공적으로 수정되면 로컬 데이터 업데이트
-        this.clubMembers[this.editingIndex] = { ...this.editingMember };
         this.showEditConfirmPopup = false;
         this.editingIndex = -1;
         this.editingMember = null;
+
+        // 데이터 새로고침
+        await this.fetchData();
+
       } catch (error) {
         console.error('Error updating member:', error);
       }
@@ -277,147 +352,119 @@ export default {
     },
     startEdit(index) {
       this.editingIndex = index;
-      this.editingMember = { ...this.clubMembers[index] };
-      // 유효성 검사 초기화
-      Object.keys(this.validationErrors).forEach(key => {
-        this.validationErrors[key] = false;
-      });
+      const currentMember = this.displayedMembers[index];
+
+      // 명시적으로 각 필드를 매핑하여 순서 보장
+      this.editingMember = {
+        clubMemberId: currentMember.clubMemberId,
+        userName: currentMember.userName,
+        studentNumber: currentMember.studentNumber,
+        major: currentMember.major,
+        userHp: currentMember.userHp.replace(/-/g, ''),
+        isRegularMember: currentMember.isRegularMember
+      };
 
       // 현재 학과에 해당하는 단과대학 찾기
       for (const [collegeId, depts] of Object.entries(this.departmentsByCollege)) {
-        if (depts.includes(this.editingMember.major)) {
+        if (depts.includes(currentMember.major)) {
           this.selectedCollege = collegeId;
           this.departments = depts;
           break;
         }
       }
+
+      // 유효성 검사 초기화
+      Object.keys(this.validationErrors).forEach(key => {
+        this.validationErrors[key] = false;
+      });
     },
     getCurrentTime() {
       const now = new Date();
-
       const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+      const month = String(now.getMonth() + 1).padStart(2, '0');
       const day = String(now.getDate()).padStart(2, '0');
-
-      return ` [${year}-${month}-${day}]`;
+      return `[${year}-${month}-${day}]`;
     },
+
     async pageLoadFunction() {
-      console.log('Page has been loaded!');
-      const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
-      const clubId = store.state.clubId; // 저장된 clubId 가져오기
-
-      try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
-            'Content-Type': 'application/json'
-          }
-        });
-
-        this.data = response.data.data;
-        this.ExelFileName = response.data.data.clubName + ' 동아리 명단' + this.getCurrentTime();
-
-        // mainPhotoUrl로부터 이미지 로드
-        if (this.data.mainPhotoUrl) {
-          const imageResponse = await axios.get(this.data.mainPhotoUrl, {
-            responseType: 'blob' // 이미지를 blob으로 받기 위해 responseType을 설정
-          });
-
-          // 이미지 URL을 생성하여 이미지 src에 할당
-          this.imageSrc = URL.createObjectURL(imageResponse.data);
-        } else {
-          // mainPhotoUrl이 없을 경우 기본 프로필 이미지 설정
-          this.imageSrc = require('@/assets/profile.png');
-        }
-      } catch (error) {
-        console.error('Fetch error:', error);
-        this.error = error.message;
-      }
-    },
-    async fetchData(memberType = 'alphabetical') {
       const accessToken = store.state.accessToken;
       const clubId = store.state.clubId;
 
       try {
-        let url = `http://15.164.246.244:8080/club-leader/${clubId}/members`;
-
-        // 탭에 따라 다른 엔드포인트 사용
-        if (memberType === 'nonMember') {
-          url += '/non-members';
-        } else if (memberType === 'member') {
-          url += '/members';
-        }
-
-        url += '?page=0&size=500';
-
-        const response = await axios.get(url, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           }
         });
 
-        const responseData = response.data;
-        this.message = responseData.message;
-        this.clubMembers = responseData.data.content;
+        this.data = response.data.data;
+        this.ExelFileName = `${response.data.data.clubName} 동아리 명단 ${this.getCurrentTime()}`;
 
-
-        // Add the default member if the list is empty
-        if (this.clubMembers.length === 0) {
-          this.clubMembers.push({
-                clubMemberId: 1,
-                userName: '김철수',
-                studentNumber: '20518068',
-                major: '정보보호학과',
-                userHp: '010-2285-6733'
-              },
-              {
-                clubMemberId: 2,
-                userName: '김철수',
-                studentNumber: '20518068',
-                major: '컴퓨터공학과',
-                userHp: '010-2285-6733'
-              });
+        if (this.data.mainPhotoUrl) {
+          const imageResponse = await axios.get(this.data.mainPhotoUrl, {
+            responseType: 'blob'
+          });
+          this.imageSrc = URL.createObjectURL(imageResponse.data);
+        } else {
+          this.imageSrc = require('@/assets/profile.png');
         }
-
-        this.memberCount = this.clubMembers.length;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Fetch error:', error);
       }
     },
-    async changeTab(tab) {
-      this.currentTab = tab;
-      await this.fetchData(tab);
-    },
 
-    removeMember(index) {
-      this.memberToExpel = index;
-      this.showExpulsionPopup = true;
-    },
-    async expelMember() {
-      if (this.memberToExpel !== null) {
-        const index = this.memberToExpel;
-        const accessToken = store.state.accessToken;
-        const clubId = store.state.clubId;
-        const clubMemberId = this.clubMembers[index].clubMemberId;
+    async fetchData() {
+      const accessToken = store.state.accessToken;
+      const clubId = store.state.clubId;
 
-        try {
-          await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/${clubMemberId}`, {
+      try {
+        // 회원과 비회원 데이터를 동시에 가져오기
+        const [regularResponse, nonRegularResponse] = await Promise.all([
+          axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?sort=regular-member`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
             }
-          });
-          this.clubMembers.splice(index, 1);
-          this.memberCount = this.clubMembers.length;
-        } catch (error) {
-          console.error('Error deleting member:', error);
-        } finally {
-          this.showExpulsionPopup = false;
-          this.memberToExpel = null;
-        }
+          }),
+          axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?sort=non-member`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          })
+        ]);
+
+        console.log('Regular Members:', regularResponse.data.data);
+        console.log('Non-Regular Members:', nonRegularResponse.data.data);
+
+        // 각 멤버에 isRegularMember 플래그 추가
+        this.regularMembers = regularResponse.data.data.map(member => ({
+          ...member,
+          isRegularMember: true,
+          userHp: member.userHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')
+        }));
+
+        this.nonRegularMembers = nonRegularResponse.data.data.map(member => ({
+          ...member,
+          isRegularMember: false,
+          userHp: member.userHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')
+        }));
+
+        // 전체 회원 수 업데이트
+        this.totalMemberCount = this.regularMembers.length + this.nonRegularMembers.length;
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     },
+
+    async changeTab(tab) {
+      this.currentTab = tab;
+      // 편집 모드 초기화
+      this.editingIndex = -1;
+      this.editingMember = null;
+    },
+
     async sheetDownload(){
       this.isLoading = true; // 로딩 시작
       try {
@@ -462,13 +509,18 @@ export default {
 
       // 하나라도 에러가 있으면 false 반환
       return !Object.values(this.validationErrors).some(error => error);
-    },
+    }
 
   }
 };
 </script>
 
 <style>
+.transparent-box {
+  width: 50px; /* 수정 버튼의 너비와 비슷하게 설정 */
+  height: 30px; /* 수정 버튼의 높이와 비슷하게 설정 */
+  opacity: 0; /* 투명도 설정 */
+}
 .custom-popup {
   position: fixed;
   top: 0;
@@ -577,7 +629,7 @@ export default {
   width: 302px;
   object-fit: fill;
   border-radius: 8px;
-  margin-right: 30px; /* 이미지와 텍스트 사이 간격 추가 */
+  margin-right: 30px;
 }
 
 .Info {
@@ -660,6 +712,12 @@ export default {
   background: url('../../assets/map.svg') no-repeat center center;
 }
 
+.category {
+  width: 16px;
+  margin-right: 7px;
+  background: url('../../assets/category-dash.svg') no-repeat center center;
+}
+
 .line1 {
   width: 1px;
   height: 12px;
@@ -668,10 +726,10 @@ export default {
 }
 
 .line2 {
-  width: 1px;
-  height: 12px;
-  background: #DBDBDB;
-  margin-top: 10px;
+  width: 1.5px;
+  height: 14px;
+  background: #666666;
+  margin-top: 9px;
   margin-left: 5px;
   margin-right: 5px;
 }
@@ -774,6 +832,10 @@ export default {
   cursor: pointer;
 }
 
+.spreadsheets:hover {
+  background-color: #6a9b7a; /* Change to your desired hover color */
+}
+
 .spreadsheets p{
   font-size: 16px;
   font-weight: 600;
@@ -790,8 +852,8 @@ export default {
 .loading-icon {
   width: 16px;
   height: 16px;
-  border: 2px solid #f3f3f3; /* 흰색 회색 */
-  border-top: 2px solid #7FB08C; /* 초록색 */
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #7FB08C;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-right: 14px;
@@ -846,17 +908,6 @@ td:last-child{
   width: 56px;
 }
 
-.Expulsion{
-  background-color: #e57373;
-  width: 56px;
-  height: 46px;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  margin-left: 8px;
-}
-
 .member-list ul{
   width: 858px;
   padding-left: 15px;
@@ -867,9 +918,10 @@ td:last-child{
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  background-color: #f8f8f8;
+  background-color: #f2f4f6;
   border-radius: 10px;
   margin-bottom: 10px;
+  height: 30px;
 }
 
 .member-item.editing {
@@ -1021,4 +1073,23 @@ td:last-child{
   color: #232323;
 }
 
+.hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 7.5px;
+}
+
+.hashtag {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: #EAEAEA;
+  font-weight: 400;
+  color: #353535;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 14px; /* 140% */
+  letter-spacing: -0.25px;
+}
 </style>
