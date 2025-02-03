@@ -67,7 +67,7 @@
             </svg>
             동아리방 선택
           </button>
-          <input class="club-room" v-model="selectedRoom" readonly>
+          <input class="club-room" v-model="displayRoomNumber" readonly>
         </div>
         <span v-if="clubRoomError" class="warning">{{ clubRoomError }}</span>
       </div>
@@ -141,7 +141,7 @@
                     :class="['room-button', { active: selectedRoom === room }]"
                     @click="selectedRoom = room"
                 >
-                  {{ room }}
+                  {{ room }}호
                 </button>
               </div>
             </div>
@@ -169,6 +169,7 @@ export default {
       clubName: '', // 동아리 이름
       department: '', // 분과
       selectedRoom: '미선택', //동아리 방
+      Room : '',
 
       // 정보 입력 값 에러 메세지 변수
       idError: '',
@@ -209,9 +210,9 @@ export default {
       floors: ['지하', '1층', '2층'],
       selectedFloor: '1층',
       roomMap: {
-        '지하': ['B101호', 'B102호', 'B103호', 'B104호', 'B105호', 'B106호', 'B107호', 'B108호', 'B109호', 'B110호', 'B111호', 'B112호', 'B113호','B114호', 'B115호', 'B116호', 'B117호', 'B118호', 'B119호', 'B120호', 'B121호', 'B122호', 'B123호'],
-        '1층': ['102호', '103호', '104호', '105호', '106호', '107호', '108호', '109호', '110호', '112호'],
-        '2층': ['203호', '205호', '206호','207호', '208호', '209호', '210호',]
+        '지하': ['B101', 'B102', 'B103', 'B104', 'B105', 'B106', 'B107', 'B108', 'B109', 'B110', 'B111', 'B112', 'B113','B114', 'B115', 'B116', 'B117', 'B118', 'B119', 'B120', 'B121', 'B122', 'B123'],
+        '1층': ['102', '103', '104', '105', '106', '107', '108', '109', '110', '112'],
+        '2층': ['203', '205', '206','207', '208', '209', '210',]
       },
 
       isActiveId : true,
@@ -232,6 +233,11 @@ export default {
           ? { color : '#FF4B4B' }
           : { color : '#42FF00' };
     },
+    displayRoomNumber() {
+      return !isNaN(this.selectedRoom)
+          ? `${this.selectedRoom}호`
+          : this.selectedRoom.toString();
+    }
   },
   methods: {
     // 함수 실행 시 routeName의 컴포넌트로 이동
@@ -431,6 +437,7 @@ export default {
     // 동아리 방 선택
     selectRoom() {
       if (this.selectedRoom) {
+        console.log(this.selectedRoom);
         this.closeSelectRoom()
       }
     },
