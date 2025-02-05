@@ -47,12 +47,12 @@
         <input type="checkbox" v-model="isChecked" id="chk1" /><label for="switch" @click="toggleCheckbox"></label>
       </div>
     </div>
-    <div class="ClubTextInput" id="RecruitInputSpace" :disabled="!isChecked" :class="{ 'RecruitToggleOff': !isChecked }">
+    <div class="ClubTextInput" id="RecruitInputSpace" :readonly="!isChecked" :class="{ 'RecruitToggleOff': !isChecked }">
       <div class="textarea-container">
         <textarea
           placeholder="동아리 모집에 대해 자유롭게 설명해주세요."
           v-model="textareaRecruitContent"
-          :disabled="!isChecked"
+          :readonly="!isChecked"
           :class="{ 'RecruitToggleOff': !isChecked }"
           rows="4"
           cols="50"
@@ -65,11 +65,11 @@
 
     <h2>지원서 링크</h2>
     <div class="GoogleFormLinkInput"
-      :disabled="!isChecked"
+      :readonly="!isChecked"
       :class="{ 'RecruitToggleOff': !isChecked }">
       <textarea placeholder="링크를 입력해 주세요" 
       v-model="googleFormLink" rows="4" cols="1"
-      :disabled="!isChecked"
+      :readonly="!isChecked"
       :class="{ 'RecruitToggleOff': !isChecked }"></textarea>
     </div>
     <button @click="saveInfo" >작성 완료</button>
@@ -135,6 +135,7 @@ export default {
             'Content-Type': 'application/json'
           }
         });
+        //console.log("서버에서 받은 GET 응답 데이터:", response.data); 
         
         //가져온 클럽 데이터를 저장
         this.clubData = response.data.data;
@@ -144,10 +145,9 @@ export default {
             .replace(/\n?<br>\n?/gi, '\n')
             .replace(/&nbsp;/g, ' ');
         // 줄바꿈 처리 수정
-        /*
-        this.textareaRecruitContent = (this.clubData.clubRecruit || '') // this.clubData.clubRucruit부분 백엔드에 맞추어 추후 수정 필요 @
+        this.textareaRecruitContent = (this.clubData.clubRecruitment || '' || this.textareaRecruitContent) 
             .replace(/\n?<br>\n?/gi, '\n')
-            .replace(/&nbsp;/g, ' ');*/
+            .replace(/&nbsp;/g, ' ');
         this.googleFormLink = this.clubData.googleFormUrl || '';
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
 
@@ -186,7 +186,7 @@ export default {
       this.isChecked = !this.isChecked;
       this.$emit('sendData', this.isChecked);
 
-      axios.patch(`http://15.164.246.244:8080/club-leader/${clubId}/toggle-recruitment`, {
+      axios.patch(`http://15.164.246.244:8080/club-leader/${clubId}/recruitment`, {
         key: this.isChecked
       }, {
         headers: {
@@ -267,7 +267,7 @@ export default {
           };
           reader.readAsDataURL(file);
         } else {
-          alert("파일 형식이 맞지 않습니다.");
+          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
         }
       }
     },
@@ -305,12 +305,11 @@ export default {
             .replace(/\n/g, '<br>'),
         //clubIntro: this.textareaContent,
 
-        // 줄바꿈을 <br>로 변환
-        /*
-        clubRecruit: this.textareaRecruitContent // 백엔드에 맞추어 추후 수정 필요 @
+        clubRecruitment: this.textareaRecruitContent 
             .replace(/ /g, '&nbsp;')
-            .replace(/\n/g, '<br>'),*/
-
+            .replace(/\n/g, '<br>'),
+        
+        recruitmentStatus: this.isChecked ? 'OPEN' : 'CLOSE',
         googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
         orders: this.orders || this.clubData.orders,
         deletedOrders: this.deletedOrders
@@ -332,18 +331,18 @@ export default {
               }
             }
         );
+        //console.log("PUT 요청 응답:", response.data); 
         if (response.data && response.data.data && response.data.data.presignedUrls) {
           this.presignedUrls = response.data.data.presignedUrls;
           await this.uploadFiles();//파일 업로드
         }
 
-        //alert("저장되었습니다!");          //이 창 말고 팝업 뜨게 하믄 되는 겅가 (나중에 주석 지워서 업로드 할 것)                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@
         this.showPopup();
+        await this.fetchClubInfo();  // 저장 후 클럽 정보 다시 가져오기
         this.navigateTo('dashboard');//완료 되면 홈 화면으로 이동
         this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
 
       } catch (error) {
-        this.showPopup(); //테스트용 @@!!!!!!
         console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
       }
     },
@@ -365,7 +364,7 @@ export default {
     updateTextSize() {
       // 문자 수가 3000자를 초과하는지 확인
       if (this.textareaContent.length > 3000) {
-        alert("문자 수가 3000자를 초과했습니다.");
+        alert("소개글 문자 수가 3000자를 초과했습니다.");
         this.textareaContent = this.textareaContent.slice(0, 3000); // 3000자로 잘라서 저장
       }
 
@@ -375,7 +374,7 @@ export default {
     updateRecruitTextSize(){
       // 문자 수가 3000자를 초과하는지 확인
       if (this.textareaRecruitContent.length > 3000) {
-        alert("문자 수가 3000자를 초과했습니다.");
+        alert("모집글 문자 수가 3000자를 초과했습니다.");
         this.textareaRecruitContent = this.textareaRecruitContent.slice(0, 3000); // 3000자로 잘라서 저장
       }
 
