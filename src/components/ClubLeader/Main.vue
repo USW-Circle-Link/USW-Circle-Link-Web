@@ -40,6 +40,7 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  min-width:1024px;
 }
 
 .sidebar{
