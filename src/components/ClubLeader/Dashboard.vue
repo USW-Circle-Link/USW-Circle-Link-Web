@@ -21,7 +21,7 @@
           <div class="icon map"></div>
           <p class="room">동아리방</p>
           <div class="line2"></div>
-          <p class="detail">학생회관 {{data.clubRoomNumber}}</p>
+          <p class="detail">학생회관 {{data.clubRoomNumber}}호</p>
         </div>
         <div class="clubroom">
           <div class="icon category"></div>
@@ -303,14 +303,13 @@ export default {
       const clubId = this.$store.state.clubId;
       const memberId = this.displayedMembers[this.editingIndex].clubMemberId;
 
-      // 정상적으로 하면 이름제외하고 뒤죽박죽 꼬임
+      // 정상적으로 하면 이름제외하고 뒤죽박죽 꼬임 -> 수정함
       const updateData = {
         userName: this.editingMember.userName,
-        userHp: this.editingMember.studentNumber.replace(/-/g, ''),//전화번호
-        major: this.editingMember.userHp, //학번
-        studentNumber: this.editingMember.major, //학과
+        studentNumber: this.editingMember.studentNumber,
+        userHp: this.editingMember.userHp.replace(/-/g, ''),
+        major: this.editingMember.major,
       };
-
       try {
         await axios.patch(
             `http://15.164.246.244:8080/club-leader/${clubId}/members/${memberId}/non-member`,

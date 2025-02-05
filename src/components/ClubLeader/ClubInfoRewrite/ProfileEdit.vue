@@ -311,7 +311,7 @@ export default {
     },
     onRoomSelect(room) {
       this.originalRoom = room;
-      this.selectedRoom = `학생회관 ${room}`;
+      this.selectedRoom = `학생회관 ${room}호`;
     },
     openCategoryModal() {
       this.showCategoryModal = true;
@@ -352,7 +352,7 @@ export default {
 
           // New fields
           this.clubRoomNumber = this.clubInfo.clubRoomNumber || '';
-          this.selectedRoom = this.clubRoomNumber ? `학생회관 ${this.clubRoomNumber}` : '';
+          this.selectedRoom = this.clubRoomNumber ? `학생회관 ${this.clubRoomNumber}호` : '';
 
           // Handle clubHashtag
           this.clubHashtag = this.clubInfo.clubHashtag || [];
@@ -402,22 +402,27 @@ export default {
           clubName: this.clubName,
           leaderName: this.leaderName || this.clubInfo.leaderName,
           leaderHp: this.leaderHp || this.clubInfo.leaderHp,
-          clubRoomNumber: this.selectedRoom ? this.selectedRoom.replace('학생회관 ', '') : '',
+          clubRoomNumber: this.selectedRoom ? this.selectedRoom.replace('학생회관 ', '').replace('호', '') : '',
           clubHashtag: this.hashtags,
           clubCategory: this.selectedCategories.map(category => category.clubCategory),
-          clubInsta: this.clubInsta,  // 수정된 코드
-          mainPhotoUrl: this.mainPhoto !== this.defaultPhotoUrl ? this.mainPhoto : '',
+          clubInsta: this.clubInsta,
         };
 
         formData.append("clubInfoRequest", new Blob([JSON.stringify(updatedData)], { type: 'application/json' }));
 
-        // 기본 이미지가 아닌 경우에만 파일을 전송
+        // 사용자가 새로운 이미지를 선택한 경우
         if (this.file) {
           formData.append("mainPhoto", this.file);
-        } else if (this.mainPhoto && this.mainPhoto !== this.defaultPhotoUrl) {
-          // 기존 이미지 URL을 파일 객체로 변환하여 전송
+        }
+        // 기존에 서버에 저장된 이미지가 있는 경우 (mainPhotoUrl이 빈 문자열이 아닌 경우)
+        else if (this.clubInfo.mainPhotoUrl) {
           const existingFile = await this.urlToFile(this.mainPhoto, 'existingImage.jpg', 'image/jpeg');
           formData.append("mainPhoto", existingFile);
+        }
+        // 초기 계정이고(mainPhotoUrl이 빈 문자열) 사용자가 새로운 이미지를 선택하지 않은 경우
+        else {
+          const defaultFile = await this.urlToFile(this.defaultPhotoUrl, 'profile.jpg', 'image/jpeg');
+          formData.append("mainPhoto", defaultFile);
         }
 
         const response = await axios.put(
@@ -932,6 +937,7 @@ button.disabled {
 .remove-category:hover {
   color: #5A5A5A;
 }
+
 .categories-display {
   margin-left: 110px; /* label 너비 + gap */
   margin-bottom: 15px;
@@ -957,8 +963,6 @@ button.disabled {
   text-align: left;
   padding-left: 4px;
 }
-
-
 
 
 .hashtag-error-message {
