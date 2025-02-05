@@ -61,7 +61,7 @@ export default {
         type: '' // 알림 메시지 타입
       },
       fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/applicants?page=0&size=500`, // 지원자 명단을 가져오는 서버 URL
-      submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/applicants/notifyMultiple`, // 합/불 결과를 보내는 서버 URL
+      submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/applicants/notifications`, // 합/불 결과를 보내는 서버 URL
     };
   },
   //지원자 명단 가져오기
@@ -144,7 +144,7 @@ export default {
 
       // 전송할 데이터 로그 출력
     //  console.log("전송할 데이터:", results);
-//합/불 결과 서버에 요청
+      //합/불 결과 서버에 요청
       try {
         const response = await axios.post(this.submitUrl, results, {
           headers: {
@@ -158,9 +158,22 @@ export default {
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
         window.location.reload();  // 페이지 새로고침
       } catch (error) {
-       // console.error('결과 전송 실패:', error.response ? error.response.data : error.message);
-        this.showNotification('결과 전송에 실패했습니다.', 'error');
-        window.location.reload();  // 페이지 새로고침
+        if (error.response) {
+          const errorData = error.response.data;
+
+          // ClubMemberException 예외 처리
+          if (errorData.code === "CMEM-202") {
+            console.error('ClubMemberException 발생:', errorData.message);
+            this.showNotification('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
+            window.location.reload();  // 페이지 새로고침
+          } 
+          // 기타 서버 응답 오류 처리
+          else {
+            console.error('결과 전송 실패:', errorData.message || '서버 오류 발생');
+            this.showNotification(errorData.message || '결과 전송에 실패했습니다.', 'error');
+            window.location.reload();  // 페이지 새로고침
+          }
+        } 
       }
     },
     // 지원자의 합/불 상태를 토글하는 메서드
