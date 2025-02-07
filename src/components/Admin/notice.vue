@@ -89,13 +89,18 @@ export default {
     );
 
     if (!response.ok) {
-      if (response.status === 401) {
-        alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-        this.$router.push({ name: 'Login' });
-        return;
-      }
-      throw new Error(`Failed to fetch notices: ${response.statusText}`);
-    }
+  if (response.status === 401 || response.status === 400) {
+    alert(response.status === 401 
+      ? '인증되지 않은 사용자입니다. 다시 로그인해주세요.' 
+      : '공지사항 조회 중 에러가 발생했습니다.');
+
+    this.$router.push({ name: 'Login' });
+    return;
+  }
+  
+  throw new Error(`Failed to fetch notices: ${response.status} - ${response.statusText}`);
+}
+
 
     const data = await response.json();
     console.log('Fetched data:', data);
@@ -141,6 +146,7 @@ nextPage() {
 }
 
   },
+  
   created() {
     this.fetchNotices(); // 컴포넌트가 생성될 때 공지사항 목록을 가져옴
   }

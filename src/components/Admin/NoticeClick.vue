@@ -176,6 +176,55 @@ export default {
         this.images = photoUrls.map((photoUrl) => ({ src: photoUrl }));
       }
     },
+    async saveImages() {
+      try {
+        const accessToken = store.state.accessToken;
+
+        // Presigned URL 요청 및 S3 업로드
+        for (let i = 0; i < this.images.length; i++) {
+          const image = this.images[i];
+          if (image.file) {
+            // Presigned URL 요청
+            const presignedResponse = await axios.post(
+              `http://15.164.246.244:8080/admin/photo/presigned`,
+              { fileName: image.file.name, contentType: image.file.type },
+              {
+                headers: { Authorization: `Bearer ${accessToken}` },
+              }
+            );
+              // 에러 상태 코드 처리
+    if (response.status === 401 || response.status === 400) {
+      alert(response.status === 401 
+        ? '인증되지 않은 사용자입니다. 다시 로그인해주세요.' 
+        : '공지사항 조회 중 에러가 발생했습니다.');
+
+      this.$router.push({ name: 'Login' });
+      return;
+    }
+
+
+            const presignedUrl = presignedResponse.data?.data?.presignedUrl;
+
+            if (presignedUrl) {
+              // S3에 파일 업로드
+              await axios.put(presignedUrl, image.file, {
+                headers: {
+                  'Content-Type': image.file.type, // 파일 MIME 타입
+                },
+              });
+              console.log(`이미지 ${i + 1} 업로드 성공`);
+            } else {
+              console.error(`Presigned URL이 없습니다. 이미지 ${i + 1} 업로드 실패`);
+            }
+          }
+        }
+
+        alert('모든 이미지가 성공적으로 저장되었습니다.');
+      } catch (error) {
+        console.error('이미지 저장 실패:', error);
+        alert('이미지 저장에 실패했습니다.');
+      }
+    },
     handleImageError(index) {
       this.images[index].src = require('@/assets/rigth.png');
     },
@@ -191,13 +240,10 @@ export default {
 
         const accessToken = store.state.accessToken;
         const deleteUrl = `http://15.164.246.244:8080/notices/${this.notice.noticeId}`;
-        console.log('Delete Request URL:', deleteUrl);
 
         const response = await axios.delete(deleteUrl, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-
-        console.log('Delete Response:', response);
 
         if (response.status === 200) {
           alert('공지사항이 성공적으로 삭제되었습니다.');
@@ -254,7 +300,12 @@ export default {
   },
 };
 </script>
+
+
+
 <style scoped>
+
+
 * {
   box-sizing: border-box;
 }
