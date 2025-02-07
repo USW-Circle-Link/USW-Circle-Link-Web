@@ -40,9 +40,9 @@
     <!--추가할 회원 리스트-->
     <div v-if="members.length > 0" class="member-list">
       <div class="member-row" v-for="(member, index) in members" :key="index">
-        <span class="member-name">{{ member.name }}</span>
-        <span class="member-studentId">{{ member.studentId }}</span>
-        <span class="member-phone">{{ member.phone }}</span>
+        <span class="member-name">{{ member.userName }}</span>
+        <span class="member-studentId">{{ member.studentNumber }}</span>
+        <span class="member-phone">{{ formatPhoneNumber(member.userHp) }}</span>
         <!-- 첫 번째 select -->
         <select
             v-model="member.department"
@@ -54,7 +54,10 @@
         </select>
 
         <!-- 두 번째 select -->
-        <select v-model="member.major">
+        <select
+            v-model="member.major"
+            @change="addMajor(member)"
+        >
           <option v-for="(option, idx) in member.secondOptions" :key="idx" :value="option">
             {{ option }}
           </option>
@@ -87,6 +90,18 @@
         <button class="confirm-button" @click="SelectDepartment">확인</button>
       </div>
     </div>
+
+    <div v-if="isPopupVisible" class="popup-overlay2">
+      <div class="popup">
+        <h3>동아리 회원 추가</h3>
+        <div class="line2"></div>
+        <p class="popup-message">
+          <span class="popup-message-red">총 4명</span>입니다. <br>해당 동아리 회원들을 추가하시겠습니까?
+        </p>
+        <button class="confirm-button" @click="SelectDepartment">확인</button>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -101,6 +116,7 @@ export default {
       members: [], // 업로드된 회원 정보를 저장
       OverlappingMembers: [],
 
+      isPopupVisible: false,
       isOverlappingMemberListsPopupVisible : false,
       isSelectDepartmentPopupVisible : false,
 
@@ -181,9 +197,9 @@ export default {
 
         // JSON 데이터에서 필요한 항목만 추출
         this.members = jsonData.map((row) => ({
-          name: row["이름"] || "",
-          studentId: row["학번"] || "",
-          phone: row["전화번호"] || "",
+          userName: row["이름"] || "",
+          studentNumber: row["학번"] || "",
+          userHp: row["전화번호"] || "",
           department: "단과대학 선택",
           major: "학과(학) 선택"
         }));
@@ -237,8 +253,35 @@ export default {
       member.secondOptions = [...newOptions]; // 새로운 배열로 할당하여 반응성 유지
       member.major = ''; // 두 번째 선택 초기화
     },
-    OverlappingMemberLists(){
-      console.log(this.members);
+    addMajor(member){
+      console.log(member);
+    },
+    async OverlappingMemberLists(){
+      const clubId = store.state.clubId;
+      const accessToken = store.state.accessToken;
+      if(this.members.department === '단과대학 선택'){
+        const data = this.members.map(member => {
+          const { department,secondOptions, ...rest } = member; // destructuring으로 department 제외
+          return rest;
+        });
+        try {
+          const response = await axios.post(
+              `http://15.164.246.244:8080/club-leader/${clubId}/members`,
+              data,
+              {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+          console.log(response);
+          this.isPopupVisible = true;
+        } catch (error) {
+          console.error("오류가 발생했습니다:", error.response);
+        }
+      } else {
+        this.isSelectDepartmentPopupVisible = true;
+      }
     }
   },
 };
@@ -331,6 +374,7 @@ p {
 }
 
 .member-row {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   background-color: #fff;
@@ -354,6 +398,7 @@ p {
 
 .member-phone{
   margin-left: 50px;
+
 }
 
 select {
@@ -531,9 +576,14 @@ select {
 .popup-overlay2 .popup-message {
   font-size: 16px;
   font-weight: 500;
-  line-height: 12px;
+  line-height: 1.3;
   color: #2F2F2F;
-  margin-top: 40px;
+  margin-top: 30px;
+}
+
+.popup-overlay2 .popup-message-red{
+  line-height: 12px;
+  color: #FF5C5C;
 }
 
 .popup-overlay2 .confirm-button{
