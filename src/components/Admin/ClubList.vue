@@ -178,16 +178,14 @@ export default {
       localStorage.setItem('accessToken', store.state.accessToken);
 
       // 새 창의 크기와 위치 설정
-      const width = 680;
-      const height = 1074;
-      const left = (window.screen.width - width) / 3;
-      const top = (window.screen.height - height) / 2;
+      const width = 712;
+      const height = 960;
 
       // clubId만 URL 파라미터로 전달
       window.open(
         `/club-popup?clubId=${club.clubId}`,
         "ClubInfo",
-        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+        `width=${width},height=${height},scrollbars=yes,resizable=yes`
       );
     },
   },

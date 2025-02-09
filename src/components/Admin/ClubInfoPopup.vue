@@ -21,11 +21,16 @@
           <div class="club-details">
             <p class="clubname"><strong>{{ data.clubName }}</strong></p>
             <p class="clubleader">동아리장 <span class="name" style="color: #353549;"><strong>{{ data.leaderName }}</strong></span></p>
+            <div class="clubroom">
+              <div class="icon category"></div>
+              <p class="room">카테고리 | {{formattedCategory}} </p>
+            </div>
             <div class="hashtags">
               <span v-for="tag in data.clubHashtag" :key="tag" class="hashtag">#{{ tag }}</span>
             </div>
           </div>
         </div>
+
         <div class="more-options">
           <button @click="toggleContactInfo" class="dots-button">
             <span></span>
@@ -44,7 +49,7 @@
             <hr />
             <div class="location">
               <div class="icon location"></div>
-              <span>동아리방|  {{ data.clubRoom }}</span>
+              <span>동아리방 | 학생회관 {{ data.clubRoomNumber }}호</span>
             </div>
             <hr />
             <div class="phoneNum">
@@ -54,7 +59,12 @@
             <hr />
             <div class="instaName">
               <div class="icon insta"></div>
-              <a :href="instagramLink" target="_blank">@{{ data.clubInsta }}</a>
+              <a :href="instagramLink" target="_blank">인스타그램</a>
+            </div>
+            <hr />
+            <div class="instaName">
+              <div class="icon vector"></div>
+              <a :href="formLink" target="_blank">지원서 링크</a>
             </div>
           </div>
         </div>
@@ -62,22 +72,36 @@
 
       <!-- Tabs Section -->
       <div class="tabs-container">
-        <div class="tabs">
-          <button
-              :class="{ active: activeTab === 'intro' }"
-              @click="activeTab = 'intro'"
-          >동아리 소개 글</button>
-          <button
-              :class="{ active: activeTab === 'recruit' }"
-              @click="activeTab = 'recruit'"
-          >동아리 모집 글</button>
+        <div class="tabs-wrapper">
+          <div class="tabs">
+            <button
+                :class="{
+            active: activeTab === 'intro',
+            'single-tab': data.recruitmentStatus !== 'OPEN'
+          }"
+                @click="activeTab = 'intro'"
+            >동아리 소개 글</button>
+
+            <button
+                v-if="data.recruitmentStatus === 'OPEN'"
+                :class="{ active: activeTab === 'clubRecruitment' }"
+                @click="activeTab = 'clubRecruitment'"
+            >동아리 모집 글</button>
+          </div>
+
+          <!-- 모집 상태 표시 -->
+          <div class="recruitment-status">
+            <img :src="recruitmentIcon" alt="recruitment status" class="status-icon" />
+            <span class="status-text">{{ recruitmentText }}</span>
+          </div>
         </div>
+
         <div class="tab-content">
           <div v-if="activeTab === 'intro'" class="description">
             <p v-html="convertNewlinesToBr(data.clubIntro)"></p>
           </div>
-          <div v-if="activeTab === 'recruit'" class="description">
-            <p v-html="convertNewlinesToBr(data.clubRecruit)"></p>
+          <div v-if="activeTab === 'clubRecruitment'" class="description">
+            <p v-html="convertNewlinesToBr(data.clubRecruitment)"></p>
           </div>
         </div>
       </div>
@@ -114,9 +138,25 @@ export default {
         ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")
         : "";
     },
+    formattedCategory() {
+      return this.data.clubCategory || "카테고리 없음";
+    },
     instagramLink() {
       return this.data.clubInsta || "#";
     },
+    formLink() {
+      // Google Form 링크가 http로 시작하지 않으면 추가
+      const formUrl = this.data.googleFormUrl || '#';
+      return formUrl.startsWith('http') ? formUrl : `https://${formUrl}`;
+    },
+    recruitmentIcon() {
+      return this.data.recruitmentStatus === "OPEN"
+          ? require("@/assets/green.svg") // 모집 중
+          : require("@/assets/red.svg"); // 모집 마감
+    },
+    recruitmentText() {
+      return this.data.recruitmentStatus === "OPEN" ? "모집 중" : "모집 마감";
+    }
   },
   mounted() {
     console.log("API 응답 데이터:", this.data);
@@ -247,8 +287,8 @@ export default {
 }
 
 .logo {
-  width: 104px;
-  height: 112px;
+  width: 110px;
+  height: 120px;
   object-fit: cover;
   border-radius: 8px;
   margin-right: 35px;
@@ -257,6 +297,7 @@ export default {
 
 .Info {
   flex-grow: 1;
+  margin-top: -5px;
 }
 
 .hashtags {
@@ -354,6 +395,10 @@ export default {
   background: url('@/assets/insta.svg') no-repeat center center;
 }
 
+.icon.vector{
+  background: url('@/assets/link.svg') no-repeat center center;
+}
+
 .contact-info-popup .close-btn {
   background: none;
   border: none;
@@ -361,21 +406,57 @@ export default {
   cursor: pointer;
 }
 
+
+/* 🔹 모집 상태 스타일 추가 */
+.recruitment-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 20px;
+}
+
+.status-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #767676;
+}
+
 .tabs-container {
   width: 100%;
   display: flex;
   flex-direction: column;
+  gap: 0;
 }
 
+.tabs-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+.tabs-header {
+  width: 100%;
+  position: relative;
+}
+
+
 /* 탭 */
+
 .tabs {
   display: flex;
-  width: 100%;
+  gap: 0;
 }
 
 /* 탭 버튼 */
 .tabs button {
   width: 174px;
+  height: 45px;
   padding: 10px 0;
   text-align: center;
   background-color: #EEEEEE;
@@ -384,18 +465,40 @@ export default {
   border-bottom: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 18px
+  font-size: 18px;
+  font-weight: 500;
 }
 
 /* 왼쪽 탭 버튼 스타일 */
 .tabs button:first-child {
-  border-top-left-radius: 8px !important; /* Top-left corner rounded */
+  border-top-left-radius: 8px;
 }
 
-/* 오른쪽 탭 버튼 스타일 */
-.tabs button:last-child {
-  border-radius: 0 8px 0 0;
+/* 두 번째 탭 버튼 스타일 */
+.tabs button:nth-child(2) {
+  border-top-right-radius: 8px;
+  border-left: none;
 }
+
+.status-icon {
+  width: 10px;
+  height: 10px;
+}
+
+.status-icon.open {
+  background-color: #4CAF50; /* 초록색 (모집 중) */
+}
+
+.status-icon.closed {
+  background-color: #D9534F; /* 빨간색 (모집 마감) */
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #767676;
+}
+
 
 /* 활성화된 탭 */
 .tabs button.active {
@@ -410,10 +513,6 @@ export default {
   background-color: #EEEEEE;
   color: #C3C3C3;
   border: 1px solid #C3C3C3;
-}
-
-.tabs button:first-child {
-  border-radius: 0 0 0 0; /* 왼쪽 상단과 하단 둥글게 안 함 */
 }
 
 /* 탭 내용 */
@@ -466,6 +565,11 @@ export default {
   opacity: 0.8;
 }
 
+.clubroom p {
+  color: #767676;  /* 🔹 글씨 색상 변경 */
+}
+
+
 .popup-close-btn {
   background: none;
   border: none;
@@ -475,5 +579,32 @@ export default {
   align-items: center;
   justify-content: center;
   transition: opacity 0.2s ease;
+}
+
+.category {
+  width: 16px;
+  margin-right: 7px;
+  background: url('../../assets/category-dash.svg') no-repeat center center;
+}
+
+.club-details .clubname,
+.club-details .clubleader,
+.club-details .clubroom,
+.club-details .hashtags {
+  margin-bottom: -10px; /* Adjust the value as needed to reduce spacing */
+}
+
+.contact-info-popup a {
+  color: #4A90E2;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.contact-info-popup a:hover {
+  text-decoration: underline;
+}
+
+.tabs button.single-tab {
+  border-top-right-radius: 8px;
 }
 </style>
