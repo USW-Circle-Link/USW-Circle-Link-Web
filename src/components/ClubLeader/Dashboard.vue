@@ -1,5 +1,7 @@
 <template>
   <div>
+    <FirstAgree v-if="!isTermsAgreed" @agreement-confirmed="handleAgreementConfirmed" />
+
     <div class="ClubInfo">
       <img :src="imageSrc" alt="Logo" class="clublogo" v-if="imageSrc" oncontextmenu="return false;"/>
       <div class="Info">
@@ -188,11 +190,22 @@
 import axios from 'axios';
 import store from '../../store/store'; // 일단 store.js에서 Vuex 상태를 가져옴
 import { colleges, departmentsByCollege } from '../departments.js'; // 학과 정보 가져오기
+import FirstAgree from '../ClubLeader/policy/FirstAgree.vue';
 
 export default {
   name: 'Dashboard',
+  components: {
+    FirstAgree
+  },
+  props: {
+    isAgreedTerms: {
+      type: Boolean,
+      required: true
+    }
+  },
   data() {
     return {
+      showTermsPopup: false,
       validationErrors: {
         userName: false,
         studentNumber: false,
@@ -227,7 +240,7 @@ export default {
       totalMemberCount: 0, // 전체 회원 수를 저장할 새로운 변수
       regularMembers: [], // 정회원 목록
       nonRegularMembers: [], // 비회원 목록
-
+      isTermsAgreed: this.$store.state.isAgreedTerms,
     }
   },
   computed: {
@@ -289,11 +302,16 @@ export default {
   },
   // 페이지 첫 로드 시 가나다순 데이터 로드와 전체 회원 수 설정
   async mounted() {
+    // 약관 동의 상태 확인 및 팝업 표시
+    this.showTermsPopup = !this.isAgreedTerms;
     this.currentTab = 'alphabetical';
     await this.fetchData();
     await this.pageLoadFunction();
   },
   methods: {
+    handleAgreementConfirmed() {
+      this.isTermsAgreed = true;
+    },
     async saveEdit() {
       if (!this.validateInput()) {
         return;
