@@ -75,35 +75,32 @@ export default {
   name: "Login",
   data() {
     return {
-      id: "", // 사용자 ID
-      password: "", // 사용자 비밀번호
-      loginType: "LEADER", // 로그인 타입 (기본값: LEADER)
-      error: "", // 오류 메시지
-      selectedOption: '동아리 관리자', // 드롭다운 기본값
-      options: ['동아리 관리자', '동아리 연합회 / 개발팀'], // 드롭다운 옵션
-      isOpen: false, // 드롭다운 열림 여부
-      showFailurePopup: false, // 로그인 실패 팝업 표시 여부
-      failureMessage: "", // 로그인 실패 메시지 종류
+      id: "",
+      password: "",
+      loginType: "LEADER",
+      error: "",
+      selectedOption: '동아리 관리자',
+      options: ['동아리 관리자', '동아리 연합회 / 개발팀'],
+      isOpen: false,
+      showFailurePopup: false,
+      failureMessage: "",
       focusedElement: null,
     };
   },
   methods: {
-    toggleDropdown() { // 드롭다운 열기/닫기
+    toggleDropdown() {
       this.isOpen = !this.isOpen;
       this.focusedElement = this.isOpen ? 'dropdown' : null;
     },
-    selectOption(option) { // 드롭다운 옵션 선택
+    selectOption(option) {
       this.selectedOption = option;
       this.isOpen = false;
       this.focusedElement = null;
-
     },
-    // 입력 값 검증: SQL 키워드 및 공백 검사
     validateInput(value) {
       const sqlKeywords = ["select", "insert", "update", "delete"];
-      const regex = new RegExp(sqlKeywords.join("|"), "i"); // 대소문자 구분하지 않음
+      const regex = new RegExp(sqlKeywords.join("|"), "i");
 
-      // SQL 키워드가 포함된 경우와 공백이 포함된 경우 검사
       if (regex.test(value) || /\s/.test(value)) {
         return false;
       }
@@ -111,37 +108,72 @@ export default {
     },
 
     async login() {
-      // ID와 비밀번호 유효성 검사
       if (!this.validateInput(this.id) || !this.validateInput(this.password)) {
         this.error = "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
         alert(this.error);
         return;
       }
 
-      const loginTypeMap = { // 드롭다운 옵션에 따른 로그인 타입 매핑
+      const loginTypeMap = {
         "동아리 관리자": "LEADER",
         "동아리 연합회 / 개발팀": "ADMIN"
       };
-      this.loginType = loginTypeMap[this.selectedOption] || null;
+      this.loginType = loginTypeMap[this.selectedOption];
 
       try {
-        // 서버에 요청을 보냄
-        const response = await axios.post('http://15.164.246.244:8080/integration/login', {
-          integratedAccount: this.id,
-          integratedPw: this.password,
-          loginType: this.loginType
-        });
+        let response;
+        if (this.loginType === "LEADER") {
+          // 동아리 관리자 로그인
+          response = await axios.post('http://15.164.246.244:8080/club-leader/login', {
+            leaderAccount: this.id,
+            leaderPw: this.password,
+            loginType: this.loginType
+          });
+        } else {
+          // 동아리 연합회/개발팀 로그인
+          response = await axios.post('http://15.164.246.244:8080/admins/login', {
+            adminAccount: this.id,
+            adminPw: this.password,
+            loginType: this.loginType
+          });
+        }
+
+        // 서버 응답 로깅
+        console.log('=== 로그인 응답 데이터 ===');
+        console.log('전체 응답:', response);
+        console.log('응답 데이터:', response.data);
+        console.log('메시지:', response.data.message);
+        console.log('상세 데이터:', response.data.data);
+        console.log('========================');
 
         if (response.data) {
           const { message, data } = response.data;
-          const { accessToken, refreshToken, role, clubId } = data;
+          const { accessToken, refreshToken, role, clubId, isAgreedTerms } = data;
 
-          // Vuex에 인증 데이터 저장하고 상태를 업데이트하는 액션 호출
-          this.$store.dispatch('setAuthData', { accessToken, refreshToken, role, clubId });
+          // Store에 저장할 데이터 준비
+          const authData = {
+            accessToken,
+            refreshToken,
+            role,
+            clubId: clubId || null,
+            // isAgreedTerms가 boolean 값일 때만 해당 값을 사용하고,
+            // 그 외의 경우(undefined 등)에는 false를 기본값으로 사용
+            isAgreedTerms: typeof isAgreedTerms === 'boolean' ? isAgreedTerms : false
+          };
 
-          // role에 따라 라우팅
+          console.log('Vuex store에 저장될 데이터:', authData);  // 저장 전 데이터 확인
+
+          // Vuex store에 인증 데이터 저장
+          await this.$store.dispatch('setAuthData', authData);
+
+          // 역할에 따른 페이지 이동
           if (role === 'LEADER') {
-            this.$router.push({ name: 'main' });
+            this.$router.push({
+              name: 'main',
+              props: {
+                isAgreedTerms: isAgreedTerms
+              }
+            });
           } else if (role === 'ADMIN') {
             this.$router.push({ name: 'adminmain' });
           }
@@ -149,8 +181,14 @@ export default {
           throw new Error("서버 응답에 데이터가 없습니다.");
         }
       } catch (error) {
-        const { code } = error.response?.data || {};
+        // 에러 응답 로깅
+        console.log('=== 로그인 에러 ===');
+        console.log('에러:', error);
+        console.log('에러 응답:', error.response);
+        console.log('에러 데이터:', error.response?.data);
+        console.log('==================');
 
+        const { code } = error.response?.data || {};
 
         if (code === 'USR-211') {
           this.failureMessage = "아이디 또는 비밀번호가 일치하지 않습니다.";
@@ -164,7 +202,6 @@ export default {
     }
   },
   mounted() {
-    // 드롭다운 외부 클릭 감지를 위한 이벤트 리스너
     document.addEventListener('click', (e) => {
       const dropdown = e.target.closest('.custom-dropdown');
       if (!dropdown && this.isOpen) {
@@ -174,7 +211,6 @@ export default {
     });
   },
   beforeUnmount() {
-    // 컴포넌트 제거 시 이벤트 리스너 제거
     document.removeEventListener('click', this.handleClickOutside);
   }
 };
