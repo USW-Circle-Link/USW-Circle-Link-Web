@@ -492,6 +492,7 @@ select {
 .list-item-container{
   margin-top: 20px;
   height: 220px;
+  overflow-y: auto; /* 수직 스크롤 활성화 */
 }
 
 .list-item {
