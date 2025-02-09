@@ -63,7 +63,7 @@
           </option>
         </select>
       </div>
-      <button class="addClubMember" @click="OverlappingMemberLists">동아리 회원 추가 완료</button>
+      <button class="addClubMember" @click="submitMembers">동아리 회원 추가 완료</button>
     </div>
 
 
@@ -96,9 +96,9 @@
         <h3>동아리 회원 추가</h3>
         <div class="line2"></div>
         <p class="popup-message">
-          <span class="popup-message-red">총 4명</span>입니다. <br>해당 동아리 회원들을 추가하시겠습니까?
+          <span class="popup-message-red">총 {{this.members.length}}명</span>입니다. <br>해당 동아리 회원들을 추가하시겠습니까?
         </p>
-        <button class="confirm-button" @click="SelectDepartment">확인</button>
+        <button class="confirm-button" @click="OverlappingMemberLists">확인</button>
       </div>
     </div>
 
@@ -246,6 +246,13 @@ export default {
     SelectDepartment(){
       this.isSelectDepartmentPopupVisible = false;
     },
+    submitMembers(){
+      if(!this.members.some(member => member.department === '단과대학 선택')) {
+        this.isPopupVisible = true;
+      } else {
+        this.isSelectDepartmentPopupVisible = true;
+      }
+    },
     // 첫 번째 select가 변경될 때 호출
     updateSecondOptions(member) {
       /// 첫 번째 select 값이 변경되었을 때 해당 멤버의 두 번째 옵션 목록 업데이트
@@ -259,29 +266,25 @@ export default {
     async OverlappingMemberLists(){
       const clubId = store.state.clubId;
       const accessToken = store.state.accessToken;
-      if(this.members.department === '단과대학 선택'){
         const data = this.members.map(member => {
           const { department,secondOptions, ...rest } = member; // destructuring으로 department 제외
           return rest;
         });
-        try {
-          const response = await axios.post(
-              `http://15.164.246.244:8080/club-leader/${clubId}/members`,
-              data,
-              {
-                headers: {
-                  'Authorization': `Bearer ${accessToken}`,
-                  'Content-Type': 'application/json'
-                }
-              });
-          console.log(response);
-          this.isPopupVisible = true;
-        } catch (error) {
-          console.error("오류가 발생했습니다:", error.response);
-        }
-      } else {
-        this.isSelectDepartmentPopupVisible = true;
-      }
+          try {
+            const response = await axios.post(
+                `http://15.164.246.244:8080/club-leader/${clubId}/members`,
+                data,
+                {
+                  headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                  }
+                });
+            console.log(response);
+            this.isPopupVisible = false;
+          } catch (error) {
+            console.error("오류가 발생했습니다:", error.response);
+          }
     }
   },
 };
