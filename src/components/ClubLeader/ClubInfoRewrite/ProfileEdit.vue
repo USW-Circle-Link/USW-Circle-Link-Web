@@ -421,12 +421,7 @@ export default {
         }
         // 초기 계정이고(mainPhotoUrl이 빈 문자열) 사용자가 새로운 이미지를 선택하지 않은 경우
         else {
-          const defaultImageFile = new File(
-              [require('@/assets/profile.png')],
-              'profile.png',
-              { type: 'image/png' }
-          );
-          formData.append("mainPhoto", defaultImageFile);
+          formData.append("mainPhoto", null);
         }
 
         const response = await axios.put(
