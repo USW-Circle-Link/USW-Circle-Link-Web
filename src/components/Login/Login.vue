@@ -131,7 +131,7 @@ export default {
           });
         } else {
           // 동아리 연합회/개발팀 로그인
-          response = await axios.post('http://15.164.246.244:8080/admins/login', {
+          response = await axios.post('http://15.164.246.244:8080/admin/login', {
             adminAccount: this.id,
             adminPw: this.password,
             loginType: this.loginType
@@ -194,7 +194,11 @@ export default {
           this.failureMessage = "아이디 또는 비밀번호가 일치하지 않습니다.";
         } else if (code === 'ATTEMPT-503') {
           this.failureMessage = "최대 시도 횟수를 초과했습니다. 1분 후 다시 시도 하세요.";
-        } else {
+        }
+        else if (code === 'BAD_REQUEST') {
+          this.failureMessage = "잘못된 로그인 타입입니다. 다시 시도해주세요.";
+        }
+        else {
           this.failureMessage = "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
         }
         this.showFailurePopup = true;

@@ -161,7 +161,7 @@
         <div class="categories-display" v-if="selectedCategories.length > 0">
           <div class="categories-wrapper">
             <div v-for="(category, index) in selectedCategories" :key="index" class="category-item">
-              {{ category.clubCategory }}
+              {{ category.clubCategoryName }}
               <span class="remove-category" @click="removeCategory(index)">×</span>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default {
       // New variables added
       clubRoomNumber: '',
       clubHashtag: [],
-      clubCategory: [],
+      clubCategoryName: [],
 
       // Existing variables
       isLoading: false,
@@ -359,9 +359,9 @@ export default {
           this.hashtags = this.clubHashtag;
 
 
-          this.clubCategory = this.clubInfo.clubCategory || [];// 문자열 배열을 객체 배열로 변환
-          this.selectedCategories = this.clubCategory.map(category => ({
-            clubCategory: category.trim() // 혹시 모를 공백 제거
+          this.clubCategoryName = this.clubInfo.clubCategoryName || [];// 문자열 배열을 객체 배열로 변환
+          this.selectedCategories = this.clubCategoryName.map(category => ({
+            clubCategoryName: category.trim() // 혹시 모를 공백 제거
           }));
 
           console.log(this.clubInfo);
@@ -404,7 +404,7 @@ export default {
           leaderHp: this.leaderHp || this.clubInfo.leaderHp,
           clubRoomNumber: this.selectedRoom ? this.selectedRoom.replace('학생회관 ', '').replace('호', '') : '',
           clubHashtag: this.hashtags,
-          clubCategory: this.selectedCategories.map(category => category.clubCategory),
+          clubCategoryName: this.selectedCategories.map(category => category.clubCategoryName),
           clubInsta: this.clubInsta,
         };
 
