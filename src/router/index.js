@@ -94,7 +94,7 @@ const routes = [
             {
                 path: 'Accept',
                 name: 'Accept',
-                component: () => import('../components/ClubLeader/Accept.vue'),
+                component: () => import('../components/ClubLeader/Accept/Accept.vue'),
             },
             {
                 path: 'morepass',
