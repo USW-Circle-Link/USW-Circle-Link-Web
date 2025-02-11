@@ -2,76 +2,91 @@
   <div class="title">동아리 추가</div>
   <!--  동아리 추가 정보 입력 폼  -->
   <div class="form-container">
-      <!-- 아이디 -->
-      <div class="form-group-col">
-        <div class="form-group-row">
-          <label for="id">아이디</label>
-          <input class="from-input" type="text" id="id" v-model="id" placeholder="아이디 (5~20자 이내 영어, 숫자)" @input="validateId" />
-          <button class="DuplicateCheckbtn" @click="idDuplicateCheck">중복 확인</button>
-        </div>
-        <span v-if="idError" :style="getStyleId" class="warning">{{ idError }}</span>
+    <!-- 아이디 -->
+    <div class="form-group-col">
+      <div class="form-group-row">
+        <label for="id">아이디</label>
+        <input class="from-input" type="text" id="id" v-model="id" placeholder="아이디 (5~20자 이내 영어, 숫자)" @input="validateId" />
+        <button class="DuplicateCheckbtn" @click="idDuplicateCheck">중복 확인</button>
       </div>
-      <!-- 비밀번호 -->
-      <div class="form-group-col">
-        <div class="form-group-row">
-          <label for="password">비밀번호</label>
-          <input class="from-input" type="password" id="password" v-model="password" placeholder="비밀번호 (영어, 숫자, 특수문자 포함 8~20자)" @input="validatePassword" />
-        </div>
-        <span v-if="passwordError" class="warning">{{ passwordError }}</span>
+      <span v-if="idError" :style="getStyleId" class="warning">{{ idError }}</span>
+    </div>
+    <!-- 비밀번호 -->
+    <div class="form-group-col">
+      <div class="form-group-row">
+        <label for="password">비밀번호</label>
+        <input class="from-input" type="password" id="password" v-model="password" placeholder="비밀번호 (영어, 숫자, 특수문자 포함 8~20자)" @input="validatePassword" />
       </div>
-      <!-- 비밀번호 확인 -->
-      <div class="form-group-col">
-        <div class="form-group-row">
-          <label for="confirmPassword">비밀번호 확인</label>
-          <input class="from-input" type="password" id="confirmPassword" v-model="confirmPassword" placeholder="비밀번호 (영어, 숫자, 특수문자 포함 8~20자)" @input="validateConfirmPassword"/>
-        </div>
-        <span v-if="confirmPasswordError" class="warning">{{confirmPasswordError}}</span>
+      <span v-if="passwordError" class="warning">{{ passwordError }}</span>
+    </div>
+    <!-- 비밀번호 확인 -->
+    <div class="form-group-col">
+      <div class="form-group-row">
+        <label for="confirmPassword">비밀번호 확인</label>
+        <input
+            class="from-input"
+            type="password"
+            id="confirmPassword"
+            v-model="confirmPassword"
+            placeholder="비밀번호 (영어, 숫자, 특수문자 포함 8~20자)"
+            @input="validateConfirmPassword"
+            @focus="handleConfirmPasswordFocus"
+        />
       </div>
-      <!-- 동아리 이름 -->
-      <div class="form-group-col">
-        <div class="form-group-row">
-          <label for="clubName">동아리 이름</label>
-          <input class="from-input" type="text" id="clubName" v-model="clubName" placeholder="동아리 이름 (10자 이내)" @input="validateClubName" />
-          <button class="DuplicateCheckbtn" @click="clubNameDuplicateCheck">중복 확인</button>
-        </div>
-        <span v-if="clubNameError" :style="getStyleClubName" class="warning">{{ clubNameError }}</span>
+      <span v-if="confirmPasswordError" class="warning">{{confirmPasswordError}}</span>
+    </div>
+    <!-- 동아리 이름 -->
+    <div class="form-group-col">
+      <div class="form-group-row">
+        <label for="clubName">동아리 이름</label>
+        <input class="from-input" type="text" id="clubName" v-model="clubName" placeholder="동아리 이름 (10자 이내)" @input="validateClubName" />
+        <button class="DuplicateCheckbtn" @click="clubNameDuplicateCheck">중복 확인</button>
       </div>
-      <!-- 분과 -->
-      <div class="form-group">
-        <label for="clubName">분과</label>
-        <div class="custom-dropdown" @click="toggleDropdown">
-          <div class="dropdown-selected">
-            {{ selectedOption || '학술' }}
-          </div>
-          <span class="dropdown-icon">&#9662;</span>
-          <ul v-if="isOpen" class="dropdown-options" >
-            <li
-                v-for="option in options"
-                :key="option"
-                :class="{ 'dropdown-option-selected': option === selectedOption }"
-                @click="selectOption(option)"
-            >
-              {{ option }}
-            </li>
-          </ul>
+      <span v-if="clubNameError" :style="getStyleClubName" class="warning">{{ clubNameError }}</span>
+    </div>
+    <!-- 분과 -->
+    <div class="form-group">
+      <label for="clubName">분과</label>
+      <div class="custom-dropdown" @click="toggleDropdown">
+        <div class="dropdown-selected">
+          {{ selectedOption || '미선택' }}
         </div>
+        <span class="dropdown-icon">&#9662;</span>
+        <ul v-if="isOpen" class="dropdown-options" >
+          <li
+              v-for="option in options"
+              :key="option"
+              :class="{ 'dropdown-option-selected': option === selectedOption }"
+              @click="selectOption(option)"
+          >
+            {{ option }}
+          </li>
+        </ul>
       </div>
-      <!-- 동아리방 -->
-      <div class="form-group-col">
-        <div class="form-group-row">
-          <label for="clubName">동아리방</label>
-          <button class="club-room-btn" @click="selectClubRoom">
-            <svg width="15" height="18" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9.5 5C9.5 8.5 5 11.5 5 11.5C5 11.5 0.5 8.5 0.5 5C0.5 3.80653 0.974106 2.66193 1.81802 1.81802C2.66193 0.974106 3.80653 0.5 5 0.5C6.19347 0.5 7.33807 0.974106 8.18198 1.81802C9.02589 2.66193 9.5 3.80653 9.5 5Z" stroke="#5A5A5A" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M5 6.5C5.82843 6.5 6.5 5.82843 6.5 5C6.5 4.17157 5.82843 3.5 5 3.5C4.17157 3.5 3.5 4.17157 3.5 5C3.5 5.82843 4.17157 6.5 5 6.5Z" stroke="#5A5A5A" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            동아리방 선택
-          </button>
-          <input class="club-room" v-model="displayRoomNumber" readonly>
-        </div>
-        <span v-if="clubRoomError" class="warning">{{ clubRoomError }}</span>
+    </div>
+    <!-- 동아리방 -->
+    <div class="form-group-col">
+      <div class="form-group-row">
+        <label for="clubName">동아리방</label>
+        <button class="club-room-btn" @click="selectClubRoom">
+          <svg width="15" height="18" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.5 5C9.5 8.5 5 11.5 5 11.5C5 11.5 0.5 8.5 0.5 5C0.5 3.80653 0.974106 2.66193 1.81802 1.81802C2.66193 0.974106 3.80653 0.5 5 0.5C6.19347 0.5 7.33807 0.974106 8.18198 1.81802C9.02589 2.66193 9.5 3.80653 9.5 5Z" stroke="#5A5A5A" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 6.5C5.82843 6.5 6.5 5.82843 6.5 5C6.5 4.17157 5.82843 3.5 5 3.5C4.17157 3.5 3.5 4.17157 3.5 5C3.5 5.82843 4.17157 6.5 5 6.5Z" stroke="#5A5A5A" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          동아리방 선택
+        </button>
+        <input class="club-room" v-model="displayRoomNumber" readonly>
       </div>
-      <div class="popupbtn" @click="openPopup()">추가하기</div>
+      <span v-if="clubRoomError" class="warning">{{ clubRoomError }}</span>
+    </div>
+    <button
+        class="popupbtn"
+        :disabled="!isFormValid"
+        :class="{ 'disabled': !isFormValid }"
+        @click="openPopup"
+    >
+      추가하기
+    </button>
 
     <div v-if="isIdPopupVisible" class="popup-overlay">
       <div class="popup">
@@ -171,6 +186,16 @@ export default {
       selectedRoom: '미선택', //동아리 방
       Room : '',
 
+      // 폼 유효성 상태 관리
+      formValidation: {
+        idValid: false,
+        passwordValid: false,
+        passwordMatch: false,
+        clubNameValid: false,
+        departmentValid: false,
+        roomValid: false
+      },
+
       // 정보 입력 값 에러 메세지 변수
       idError: '',
       passwordError: '',
@@ -217,6 +242,7 @@ export default {
 
       isActiveId : true,
       isActiveClubName : true,
+      isConfirmPasswordTouched: false, // 비밀번호 확인 필드 터치 여부
     };
   },
   computed: {
@@ -226,17 +252,45 @@ export default {
     getStyleId(){
       return this.isActiveId
           ? { color : '#FF4B4B' }
-          : { color : '#42FF00' };
+          : { color : '#48A661' };
     },
     getStyleClubName(){
       return this.isActiveClubName
           ? { color : '#FF4B4B' }
-          : { color : '#42FF00' };
+          : { color : '#48A661' };
     },
     displayRoomNumber() {
-      return !isNaN(this.selectedRoom)
-          ? `${this.selectedRoom}호`
-          : this.selectedRoom.toString();
+      if (!this.selectedRoom || this.selectedRoom === '미선택') {
+        return this.selectedRoom;
+      }
+      // 모든 호수에 '호'를 붙여서 표시
+      return `${this.selectedRoom}호`;
+    },
+    isFormValid() {
+      // 모든 필수 조건 확인
+      const allFieldsFilled =
+          this.id !== '' &&
+          this.password !== '' &&
+          this.confirmPassword !== '' &&
+          this.clubName !== '' &&
+          this.selectedOption !== null &&
+          this.selectedRoom !== '미선택';
+
+      // 모든 유효성 검사 통과 확인
+      const allValidationsPass =
+          this.formValidation.idValid &&
+          this.formValidation.passwordValid &&
+          this.formValidation.passwordMatch &&
+          this.formValidation.clubNameValid &&
+          this.formValidation.departmentValid &&
+          this.formValidation.roomValid;
+
+      // 중복 확인 완료 확인
+      const duplicateChecksPass =
+          this.DuplicateCheckId &&
+          this.DuplicateCheckClubName;
+
+      return allFieldsFilled && allValidationsPass && duplicateChecksPass;
     }
   },
   methods: {
@@ -252,35 +306,78 @@ export default {
     // 사용자가 입력안 아이디, 비밀번호, 동아리 이름 값을 검사하여 입력 조건에 맞지 않으면 에러 메세지 출력
     validateId() {
       const idPattern = /^[a-zA-Z0-9]{5,20}$/;
-      if (!idPattern.test(this.id)) {
+      if (!this.id) {
+        this.isActiveId = true;
+        this.idError = '* 아이디를 입력해 주세요.';
+        this.formValidation.idValid = false;
+      } else if (!idPattern.test(this.id)) {
         this.isActiveId = true;
         this.idError = '* 아이디는 5~20자 이내의 숫자와 문자만 입력 가능합니다.';
+        this.formValidation.idValid = false;
       } else {
-        this.idError = '';
+        this.formValidation.idValid = true;
+        // 값이 변경되면 중복 확인 상태 초기화
+        if (this.DuplicateCheckId) {
+          this.DuplicateCheckId = false;
+          this.idError = '* 중복 확인이 필요합니다.';
+          this.isActiveId = true;
+        }
       }
     },
     validatePassword() {
       const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+]{5,20}$/;
-      if (!passwordPattern.test(this.password)) {
+      if (!this.password) {
+        this.passwordError = '* 비밀번호를 입력해 주세요.';
+        this.formValidation.passwordValid = false;
+      } else if (!passwordPattern.test(this.password)) {
         this.passwordError = '* 비밀번호는 5~20자 이내의 숫자, 문자, 특수문자만 입력 가능합니다.';
+        this.formValidation.passwordValid = false;
       } else {
         this.passwordError = '';
+        this.formValidation.passwordValid = true;
       }
+      // 비밀번호가 변경되면 확인도 다시 체크
+      this.validateConfirmPassword();
     },
     validateClubName() {
-      if (this.clubName.length > 10) {
+      if (!this.clubName) {
+        this.isActiveClubName = true;
+        this.clubNameError = '* 동아리 이름을 입력해 주세요.';
+        this.formValidation.clubNameValid = false;
+      } else if (this.clubName.length > 10) {
         this.isActiveClubName = true;
         this.clubNameError = '* 동아리 이름은 공백 포함 10자 이내로 작성해주세요.';
+        this.formValidation.clubNameValid = false;
       } else {
-        this.clubNameError = '';
+        this.formValidation.clubNameValid = true;
+        // 값이 변경되면 중복 확인 상태 초기화
+        if (this.DuplicateCheckClubName) {
+          this.DuplicateCheckClubName = false;
+          this.clubNameError = '* 중복 확인이 필요합니다.';
+          this.isActiveClubName = true;
+        }
       }
     },
+
     validateConfirmPassword() {
-      if(this.password !== this.confirmPassword){
+      if (!this.isConfirmPasswordTouched) {
+        this.confirmPasswordError = '';
+        return;
+      }
+      if (!this.confirmPassword) {
+        this.confirmPasswordError = '* 비밀번호 확인을 입력해 주세요.';
+        this.formValidation.passwordMatch = false;
+      } else if (this.password !== this.confirmPassword) {
         this.confirmPasswordError = '* 비밀번호가 일치하지 않습니다.';
+        this.formValidation.passwordMatch = false;
       } else {
         this.confirmPasswordError = '';
+        this.formValidation.passwordMatch = true;
       }
+    },
+    handleConfirmPasswordFocus() {
+      this.isConfirmPasswordTouched = true;
+      this.validateConfirmPassword();
     },
     async idDuplicateCheck() { //아이디 중복 확인
       if(this.id !== ''){
@@ -328,15 +425,18 @@ export default {
         this.clubNameError = '* 동아리 이름을 입력해 주세요.';
       }
     },
-    ConfirmedId(){
+    ConfirmedId() {
       this.isIdPopupVisible = false;
       this.isActiveId = false;
-      this.idError = "* 중복확인 완료"
+      this.idError = "* 중복확인 완료";
+      this.DuplicateCheckId = true;
     },
-    ConfirmedClubName(){
+
+    ConfirmedClubName() {
       this.isClubNamePopupVisible = false;
       this.isActiveClubName = false;
-      this.clubNameError = "* 중복확인 완료"
+      this.clubNameError = "* 중복확인 완료";
+      this.DuplicateCheckClubName = true;
     },
     // "추가하기" 버튼을 눌러 팝업창 나타내기
     openPopup() {
@@ -351,20 +451,14 @@ export default {
       {
         this.isPopupVisible = true;
       }  else {
-        alert("중복확인 및 빈칸을 모두 채워주세요.");
+        alert("중복 확인 진행 및 빈칸을 모두 채워주세요.");
         console.log(this.DuplicateCheckClubName, this.DuplicateCheckId, this.id, this.password, this.confirmPassword, this.clubName, this.selectedOption, this.selectedRoom);
       }
     },
 
-    // 팝업창 "취소" 버튼을 눌러 팝업창을 지우고 입력폼 값 초기화
+    // 팝업창 "취소" 버튼을 눌러 팝업창을 지우기
     cancelDelete() {
       this.isPopupVisible = false;
-      this.id = '';
-      this.password = '';
-      this.confirmPassword = '';
-      this.clubName = '';
-      this.department = '';
-      this.selectedRoom =- '';
     },
 
     // 분과 선택을 위해 클릭 시 드롭다운 리스트를 나타내고 지우기
@@ -375,8 +469,8 @@ export default {
     // 선택한 분과 selectedOption에 저장
     selectOption(option) {
       this.selectedOption = option;
+      this.formValidation.departmentValid = true;
     },
-
     // 팝업창 동연회/개발팀 비밀번호 입력 후 "추가" 버튼으로 동아리 추가하기
     async submitForm() {
 
@@ -436,9 +530,9 @@ export default {
 
     // 동아리 방 선택
     selectRoom() {
-      if (this.selectedRoom) {
-        console.log(this.selectedRoom);
-        this.closeSelectRoom()
+      if (this.selectedRoom && this.selectedRoom !== '미선택') {
+        this.formValidation.roomValid = true;
+        this.closeSelectRoom();
       }
     },
     selectClubRoom(){
@@ -447,6 +541,17 @@ export default {
     closeSelectRoom(){
       this.isClubRoomPopupVisible = false;
     }
+  },
+  created() {
+    // 컴포넌트 생성 시 모든 유효성 상태 초기화
+    this.formValidation = {
+      idValid: false,
+      passwordValid: false,
+      passwordMatch: false,
+      clubNameValid: false,
+      departmentValid: false,
+      roomValid: false
+    };
   }
 };
 </script>
@@ -457,7 +562,7 @@ export default {
   color: black;
   font-size: 25px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   position: relative; /* 상대 위치 설정 */
   display: inline-block;
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
@@ -520,23 +625,29 @@ h2 {
 }
 
 .DuplicateCheckbtn:hover{
-  background-color: #e6b800;
+  background-color: #f49421
+;
 }
 
 .club-room-btn{
   display: flex;
-  width: 20%;
+  width: 18%;
   right: 40px;
   border: 0.5px solid #C5C5C5;
-  padding: 15px 20px 15px 20px;
+  padding: 15px 15px 15px 20px;
   background-color: #FFFFFF;
   border-radius: 5px;
   font-size: 14px;
+  color: #5A5A5A;
   align-items: center;
 }
 
+.club-room-btn:hover {
+  border: 1.1px solid #f49421;
+}
+
 .club-room-btn svg{
-  margin-right: 17px;
+  margin-right: 15px;
 }
 
 .club-room{
@@ -591,21 +702,32 @@ label {
 
 .popupbtn {
   display: flex;
-  margin-left: 83%;
-  margin-top: 60px;
-  width: 80px;
-  padding: 8px 15px;
-  border: none;
+  margin-top: 30px;
+  margin-right: 40px;
+  width: 140px;
+  height: 40px;
+  padding: 8px 10px;
   border-radius: 4px;
   cursor: pointer;
   background-color: #FFB052;
   color: #ffffff;
   font-size: 15px;
   justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  border: none;
+  transition: background-color 0.2s ease;
 }
 
-.popupbtn:hover {
-  background-color: #e6b800;
+.popupbtn.disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* 활성화된 버튼의 hover 스타일 */
+.popupbtn:not(.disabled):hover {
+  background-color: #f49421; /* 더 진한 노란색으로 변경 */
 }
 
 /* Popup Overlay and Popup Window */
@@ -711,7 +833,7 @@ label {
 }
 
 .expel-button:hover {
-  background-color: #e6953e;
+  background-color: #f49421;
 }
 
 .cancel-button {
@@ -785,16 +907,17 @@ label {
 }
 
 .dropdown-options li:hover {
-  background-color: #FFB052;
+  background-color: #f49421;
+  color: white;
 }
 
 .dropdown-options li:first-child:hover {
-  background-color: #FFB052;
+  background-color: #f49421;
   border-radius: 8px 8px 0 0;
 }
 
 .dropdown-options li:last-child:hover {
-  background-color: #FFB052;
+  background-color: #f49421;
   border-radius: 0 0 8px 8px;
 }
 
@@ -965,7 +1088,7 @@ label {
 }
 
 .select-button:hover {
-  background: #FFA726;
+  background: #f49421;
 }
 
 </style>
