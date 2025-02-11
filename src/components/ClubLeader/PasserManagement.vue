@@ -60,7 +60,7 @@ export default {
         message: '',//사용자에게 표시 할 알림 메세지
         type: '' // 알림 메시지 타입
       },
-      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/applicants?page=0&size=500`, // 지원자 명단을 가져오는 서버 URL
+      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/applicants`, // 지원자 명단을 가져오는 서버 URL
       submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/applicants/notifications`, // 합/불 결과를 보내는 서버 URL
     };
   },
@@ -81,11 +81,12 @@ export default {
         });
         if (response.ok) {
           const result = await response.json();
-        //  console.log(':', result); // 응답 데이터 출력
+          console.log(':', result); // 응답 데이터 출력
+        
         // 데이터가 올바른 형식인지(서버가 기대하는) 확인 후 지원자 배열에 저장
           const data = result.data;
-          if (data && Array.isArray(data.content)) {
-            this.applicants = data.content.map(applicant => ({
+          if (data && Array.isArray(data)) { // 올바른 배열인지 확인
+            this.applicants = data.map(applicant => ({
               aplictId: applicant.aplictId, // 지원자 id
               userName: applicant.userName,//지원자 이름
               studentNumber: applicant.studentNumber,//학번
