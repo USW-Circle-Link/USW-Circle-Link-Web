@@ -44,7 +44,6 @@ export default createStore({
         },
         setOverlappingMembers(state, members) {
             state.OverlappingMembers = members;
-            localStorage.setItem("OverlappingMembers", JSON.stringify(members)); // ✅ 저장
         }
     },
     actions: {
