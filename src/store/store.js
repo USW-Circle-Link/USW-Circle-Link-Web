@@ -8,7 +8,6 @@ export default createStore({
         clubId: localStorage.getItem('clubId') || 0,
         role: localStorage.getItem('role') || '',
         isAgreedTerms: localStorage.getItem('isAgreedTerms') === 'true' || false,
-        OverlappingMembers: JSON.parse(localStorage.getItem("OverlappingMembers")) || {}
     },
     mutations: {
         setAccessToken(state, token) {
