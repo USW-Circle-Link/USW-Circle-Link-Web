@@ -57,6 +57,31 @@
       </div>
     </div>
 
+
+    <!-- 중복 회원 목록 섹션 수정 -->
+    <div v-if="hasOverlappingMembers" class="duplicate-list-section">
+      <div class="duplicate-list-header">
+        <div class="header-content">
+          <h3 class="duplicate-list-title">
+            조회된 중복회원 목록
+            <span class="member-count">총 {{ overlappingMembersCount }}명</span>
+          </h3>
+          <p class="list-subtitle">현재 페이지를 벗어나시면 하단 목록을 다시 확인하실 수 없습니다.</p>
+        </div>
+      </div>
+      <div class="member-list-wrapper">
+        <div class="member-list">
+          <div v-for="(member, index) in OverlappingMembers" :key="index" class="member-item">
+            <div class="member-info">
+              <span class="info-cell name1">{{ member.userName }}</span>
+              <span class="info-cell student-id">{{ member.studentNumber }}</span>
+              <span class="info-cell phone1">{{ formatPhoneNumber(member.userHp) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Confirmation Popup -->
     <AddPopup
         v-if="showPopup"
@@ -84,11 +109,21 @@ import AddPopup from './AddPopup.vue'
 import SuccessFailPopup from './SuccessFailPopup.vue'
 import axios from 'axios'
 
+import { mapState } from "vuex";
 export default {
   name: 'DuplicateMember',
   components: {
     AddPopup,
-    SuccessFailPopup
+    SuccessFailPopup,
+  },
+  computed: {
+    ...mapState(["OverlappingMembers"]),
+    hasOverlappingMembers() {
+      return this.OverlappingMembers && this.OverlappingMembers.length > 0;
+    },
+    overlappingMembersCount() {
+      return this.OverlappingMembers ? this.OverlappingMembers.length : 0;
+    }
   },
   data() {
     return {
@@ -104,9 +139,21 @@ export default {
       studentIdError: false,
       phoneNumberError: false,
       serverMessage: '',
+      DuplicateMember: [],
+      }
+  },
+  mounted() {
+    // 새로고침 시 localStorage에서 데이터 불러오기
+    const savedMembers = localStorage.getItem("saveDuplicateMember");
+    if (savedMembers) {
+      this.OverlappingMembers = JSON.parse(savedMembers);
     }
+    console.log("전달받은 회원 데이터:", this.OverlappingMembers);
   },
   methods: {
+    saveDuplicateMember() {
+      localStorage.setItem("saveDuplicateMember", JSON.stringify(this.OverlappingMembers));
+    },
     validateForm() {
       const nameValid = /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== ''
       const studentIdValid = /^\d{8}$/.test(this.studentId)
@@ -188,7 +235,11 @@ export default {
       this.studentIdError = false
       this.phoneNumberError = false
       this.isFormValid = false
-    }
+    },
+    formatPhoneNumber(phone) {
+      if (!phone) return '';
+      return phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+    },
   }
 }
 </script>
@@ -232,7 +283,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-left: 0px;
+  padding-left: 0;
 }
 
 .input-group {
@@ -272,7 +323,6 @@ export default {
   margin-bottom: -5px;
   padding-left: 50px;
   color: #FF3535;
-  font-family: Pretendard;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
@@ -315,5 +365,109 @@ export default {
   margin-right: 5px;
   margin-left: -4px;
   transform: translateY(-1px);
+}
+
+.duplicate-list-section {
+  margin-top: 165px;
+  width: 820px;
+}
+
+.duplicate-list-header {
+  margin-bottom: 10px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.duplicate-list-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.member-count {
+  font-size: 14px;
+  color: #666;
+  font-weight: normal;
+}
+
+.list-subtitle {
+  color: #FF3535;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.35px;
+  align-items: center;
+}
+
+.member-list-wrapper {
+  max-height: 290px;
+  overflow-y: auto;
+  border-radius: 8px;
+  background: #F0F2F5;
+}
+
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.member-item {
+  background: #FFFFFF;
+  border-radius: 8px;
+  padding: 10px 0;
+}
+
+.member-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14px;
+  height: 24px;
+}
+
+.info-cell {
+  flex: 1;
+  text-align: center;
+  color: #000;
+  font-size: 14px;
+}
+
+.info-cell.name1 {
+  flex: 0 0 260px;
+}
+
+.info-cell.student-id {
+  flex: 0 0 260px;
+}
+
+.info-cell.phone1 {
+  flex: 0 0 260px;
+}
+
+/* 스크롤바 스타일링 */
+.member-list-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.member-list-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.member-list-wrapper::-webkit-scrollbar-thumb {
+  background: #CED4DA;
+  border-radius: 4px;
+}
+
+.member-list-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #ADB5BD;
 }
 </style>

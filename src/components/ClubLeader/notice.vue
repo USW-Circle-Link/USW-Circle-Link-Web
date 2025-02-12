@@ -1,4 +1,3 @@
-
 <template>
   <div class="container">
     <div class="contents">
@@ -6,37 +5,36 @@
       <div class="notices">
         <table>
           <thead>
-            <tr>
-              <th>제목</th>
-              <th>작성자</th>
-              <th>작성일</th>
-            </tr>
+          <tr>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>작성일</th>
+          </tr>
           </thead>
           <tbody>
-            <tr v-if="notices.length === 0">
-              <td colspan="3">공지사항이 없습니다.</td>
-            </tr>
-            <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
-              <td>
-                <button @click="goToNotice(notice.noticeId, notice.adminName)">
-                  {{ notice.noticeTitle }}
-                </button>
-              </td>
-              <td>{{ notice.adminName }}</td>
-              <td>{{ new Date(notice.noticeCreatedAt).toLocaleDateString('ko-KR') }}</td>
-            </tr>
-
+          <tr v-if="notices.length === 0">
+            <td colspan="3">공지사항이 없습니다.</td>
+          </tr>
+          <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
+            <td>
+              <button @click="goToNotice(notice.noticeId, notice.adminName)">
+                {{ notice.noticeTitle }}
+              </button>
+            </td>
+            <td>{{ notice.adminName }}</td>
+            <td>{{ new Date(notice.noticeCreatedAt).toLocaleDateString('ko-KR') }}</td>
+          </tr>
           </tbody>
         </table>
         <div class="pagination">
           <button @click="previousPage" :disabled="currentPage === 1">
             <img src="@/assets/left.png" alt="Previous" />
           </button>
-          <button 
-            v-for="page in totalPagesArray" 
-            :key="page" 
-            @click="changePage(page)" 
-            :class="{ active: page === currentPage }"
+          <button
+              v-for="page in totalPagesArray"
+              :key="page"
+              @click="changePage(page)"
+              :class="{ active: page === currentPage }"
           >
             {{ page }}
           </button>
@@ -46,100 +44,94 @@
         </div>
       </div>
     </div>
+
+    <!-- 401 팝업 컴포넌트 추가 -->
+    <Popup401 v-if="show401Popup" />
   </div>
 </template>
 
 <script>
 import store from '@/store/store';
+import Popup401 from './401Popup.vue';  // 401 팝업 컴포넌트 import
 
 export default {
+  components: {
+    Popup401  // 컴포넌트 등록
+  },
   data() {
     return {
-      notices: [], // 공지사항 목록
-      currentPage: 1, // 현재 페이지 번호
-      itemsPerPage: 12, // 페이지당 항목 수
-      totalPages: 1, // 전체 페이지 수, 초기값 설정
+      notices: [],
+      currentPage: 1,
+      itemsPerPage: 12,
+      totalPages: 1,
+      show401Popup: false  // 401 팝업 표시 여부
     };
   },
   computed: {
     paginatedNotices() {
-      return this.notices; // 이미 서버에서 페이징된 데이터를 가져오기 때문에 그대로 사용
+      return this.notices;
     },
     totalPagesArray() {
       return Array.from({ length: this.totalPages }, (_, i) => i + 1);
     }
   },
   mounted() {
-    
     this.initializePage();
-
   },
   methods: {
     initializePage() {
-    const isFirstVisit = localStorage.getItem("firstVisit") === null;
-    const reloaded = sessionStorage.getItem("reloaded");
+      const isFirstVisit = localStorage.getItem("firstVisit") === null;
+      const reloaded = sessionStorage.getItem("reloaded");
 
-    if (isFirstVisit) {
-      localStorage.setItem("firstVisit", "true");
-      sessionStorage.setItem("reloaded", "true");
-
-     // console.log("🔄 첫 방문이므로 새로고침 실행");
-      window.location.reload(); // 강제 새로고침
-    } else if (!reloaded) {
-      sessionStorage.setItem("reloaded", "true");
-
-      //console.log("🔄 새로고침 여부 확인 후 실행");
-      window.location.reload(); // 강제 새로고침
-    } else {
-      //console.log("✅ 이미 새로고침 완료됨");
-      sessionStorage.removeItem("reloaded");
-    }
-  },
-    goToNotice(id, adminName) {
-      this.$router.push({ name: 'NoticeClick', params: { id, adminName } });
+      if (isFirstVisit) {
+        localStorage.setItem("firstVisit", "true");
+        sessionStorage.setItem("reloaded", "true");
+        window.location.reload();
+      } else if (!reloaded) {
+        sessionStorage.setItem("reloaded", "true");
+        window.location.reload();
+      } else {
+        sessionStorage.removeItem("reloaded");
+      }
     },
     async fetchNotices() {
-  try {
-    const accessToken = store.state.accessToken;
+      try {
+        const accessToken = store.state.accessToken;
 
-    const response = await fetch(
-      `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
+        const response = await fetch(
+            `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+              },
+            }
+        );
+
+        if (!response.ok) { //HTTP 응답의 상태가 200-299 범위에 있는지 확인하는 boolean 값
+          if (response.status === 401) { //HTTP 응답의 상태 코드가 401로 "Unauthorized"(인증 실패)일 때
+            this.show401Popup = true;  // 401 에러 시 팝업 표시
+            return; //함수 실행을 여기서 종료
+          }
+          throw new Error(`오류: ${response.statusText}`); //401이 아닌 다른 에러의 경우 에러를 throw
+        }
+
+        const data = await response.json();
+
+        if (data && data.data && Array.isArray(data.data.content)) {
+          this.notices = data.data.content.sort((a, b) => new Date(b.noticeCreatedAt) - new Date(a.noticeCreatedAt));
+          this.totalPages = data.data.totalPages;
+          this.currentPage = data.data.pageable.pageNumber + 1;
+        } else {
+          console.warn('Unexpected response format:', data);
+          this.notices = [];
+        }
+      } catch (error) {
+        console.error('Error fetching notices:', error);
+        this.notices = [];
       }
-    );
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        alert('인증되지 않은 사용자입니다. 다시 로그인해주세요.');
-        this.$router.push({ name: 'Login' });
-        return;
-      }
-      throw new Error(`Failed to fetch notices: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    console.log('Fetched data:', data);
-
-    // 최신순으로 정렬
-    if (data && data.data && Array.isArray(data.data.content)) {
-      this.notices = data.data.content.sort((a, b) => new Date(b.noticeCreatedAt) - new Date(a.noticeCreatedAt));
-      this.totalPages = data.data.totalPages;
-      this.currentPage = data.data.pageable.pageNumber + 1;
-    } else {
-      console.warn('Unexpected response format:', data);
-      this.notices = [];
-    }
-  } catch (error) {
-    console.error('Error fetching notices:', error);
- //   alert('공지사항 목록을 불러오는 중 오류가 발생했습니다.');
-    this.notices = []; // 오류 발생 시 목록 초기화
-  }
-},
+    },
     goToNotice(noticeId) {
       const currentPath = this.$route.path;
       if (currentPath.startsWith('/main')) {
@@ -149,30 +141,27 @@ export default {
       }
     },
     changePage(page) {
-  if (page >= 1 && page <= this.totalPages) {
-    this.currentPage = page;
-    this.fetchNotices(); // 페이지 변경 후 데이터 다시 로드
-  }
-},
-previousPage() {
-  if (this.currentPage > 1) {
-    this.changePage(this.currentPage - 1);
-  }
-},
-nextPage() {
-  if (this.currentPage < this.totalPages) {
-    this.changePage(this.currentPage + 1);
-  }
-}
-
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        this.fetchNotices();
+      }
+    },
+    previousPage() {
+      if (this.currentPage > 1) {
+        this.changePage(this.currentPage - 1);
+      }
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.changePage(this.currentPage + 1);
+      }
+    }
   },
-  
   created() {
-    this.fetchNotices(); // 컴포넌트가 생성될 때 공지사항 목록을 가져옴
+    this.fetchNotices();
   }
 };
 </script>
-
 
 
 

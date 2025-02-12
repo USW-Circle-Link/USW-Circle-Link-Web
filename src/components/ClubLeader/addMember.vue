@@ -38,7 +38,7 @@
     </div>
 
     <!--추가할 회원 리스트-->
-    <div v-if="members.length > 0" class="member-list">
+    <div v-if="members.length > 0 && !isOverlappingMemberListsPopupVisible" class="member-list">
       <div class="member-row" v-for="(member, index) in members" :key="index">
         <span class="member-name">{{ member.userName }}</span>
         <span class="member-studentId">{{ member.studentNumber }}</span>
@@ -73,9 +73,9 @@
         <p class="confirm-message">아래 목록은 타 동아리에도 소속되어 있는 회원입니다. 중복되는 회원을 파일에서 삭제하신 후 다시 업로드해주세요. <br>이후 ‘중복 회원 추가’를 통해 아래 회원을 추가하실 수 있습니다.</p>
         <div class="list-item-container">
           <div v-for="(item, index) in OverlappingMembers" :key="index" class="list-item">
-            <div class="name">{{ item.이름 }}</div>
-            <div class="id">{{ item.학번 }}</div>
-            <div class="Phone">{{ formatPhoneNumber(item.전화번호) }}</div>
+            <div class="name">{{ item.userName }}</div>
+            <div class="id">{{ item.studentNumber }}</div>
+            <div class="Phone">{{ formatPhoneNumber(item.userHp) }}</div>
           </div>
         </div>
         <button class="confirm-button" @click="Delete">확인</button>
@@ -88,6 +88,15 @@
         <div class="line2"></div>
         <p class="popup-message">학과를 모두 선택해주세요.</p>
         <button class="confirm-button" @click="SelectDepartment">확인</button>
+      </div>
+    </div>
+
+    <div v-if="isOverlappingMembersPopupVisible" class="popup-overlay2">
+      <div class="popup">
+        <h3>동아리 회원 추가</h3>
+        <div class="line2"></div>
+        <p class="popup-message">중복회원이 존재합니다. <br>'중복회원 추가' 페이지로 이동합니다.</p>
+        <button class="confirm-button" @click="DuplicateMemberPage">확인</button>
       </div>
     </div>
 
@@ -106,7 +115,7 @@
 </template>
 
 <script>
-import * as XLSX from "xlsx";
+//import * as XLSX from "xlsx";
 import axios from "axios";
 import store from "@/store/store";
 
@@ -119,6 +128,7 @@ export default {
       isPopupVisible: false,
       isOverlappingMemberListsPopupVisible : false,
       isSelectDepartmentPopupVisible : false,
+      isOverlappingMembersPopupVisible: false,
 
       // 첫 번째 select의 옵션들
       firstOptions: ['단과대학 선택', '인문사회융합대학', '경영공학대학', '혁신공과대학', '지능형SW융합대학', '라이프케어사이언스대학', '디자인앤아트대학', '음악테크놀로지대학', '문화예술융합대학', '글로벌인재대학'],
@@ -178,35 +188,33 @@ export default {
       const file = event.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
+      //const reader = new FileReader();
 
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
+      //reader.onload = (e) => {
+        //const data = new Uint8Array(e.target.result);
+        //const workbook = XLSX.read(data, { type: "array" });
 
         // 첫 번째 시트의 데이터를 가져옵니다
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
+        //const sheetName = workbook.SheetNames[0];
+        //const sheet = workbook.Sheets[sheetName];
+        //const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-        this.Errormembers = jsonData.map((row) => ({
-          학번: row["학번"] || "",
-          전화번호: row["전화번호"] || "",
-          이름: row["이름"] || "",
-        }));
+        // this.Errormembers = jsonData.map((row) => ({
+        //   학번: row["학번"] || "",
+        //   전화번호: row["전화번호"] || "",
+        //   이름: row["이름"] || "",
+        // }));
 
         // JSON 데이터에서 필요한 항목만 추출
-        this.members = jsonData.map((row) => ({
-          userName: row["이름"] || "",
-          studentNumber: row["학번"] || "",
-          userHp: row["전화번호"] || "",
-          department: "단과대학 선택",
-          major: "학과(학) 선택"
-        }));
+        // this.members = jsonData.map((row) => ({
+        //   userName: row["이름"] || "",
+        //   studentNumber: row["학번"] || "",
+        //   userHp: row["전화번호"] || "",
+        //   department: "단과대학 선택",
+        //   major: "학과(학) 선택"
+        // }));
 
-        console.log("중복검사 전 동아리원 명단",this.Errormembers);
-        console.log("중복없는 동아리원 명단",this.members);
-      };
+      //};
 
       const formData = new FormData(); // FormData 객체 생성
       formData.append("clubMembersFile", file); // 파일 추가
@@ -221,26 +229,30 @@ export default {
                 'Content-Type': 'multipart/form-data'
               }
             });
-        if(response.status !== 200){
-          console.log(response.status);
+        console.log(response.data.data.addClubMembers);
+        console.log(response.data.data.duplicateClubMembers);
+
+        this.members = response.data.data.addClubMembers;
+        this.OverlappingMembers = response.data.data.duplicateClubMembers;
+
+        if(this.OverlappingMembers.length > 0){
+          console.log(response);
           this.isOverlappingMemberListsPopupVisible = true;
         }
       } catch (error) {
         console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
-        if(error.response.status === 400){
-          this.isOverlappingMemberListsPopupVisible = true;
-          this.OverlappingMembers = error.response.data.additionalData;
-          console.log("중복된 회원",error.response.data.additionalData);
-        }
       }
 
-      reader.readAsArrayBuffer(file);
+      //reader.readAsArrayBuffer(file);
     },
     // 리스트 초기화
     clearList() {
       this.members = [];
     },
     Delete(){
+      if(this.members.length === 0 ){
+        this.isOverlappingMembersPopupVisible = true;
+      }
       this.isOverlappingMemberListsPopupVisible = false;
     },
     SelectDepartment(){
@@ -282,10 +294,30 @@ export default {
                 });
             console.log(response);
             this.isPopupVisible = false;
+            if(this.OverlappingMembers > 0){
+              this.isOverlappingMembersPopupVisible = true;
+            }
           } catch (error) {
             console.error("오류가 발생했습니다:", error.response);
           }
-    }
+    },
+    navigateTo(routeName) {
+      this.selectedLink = routeName; // Add this line
+
+      store.commit("setOverlappingMembers", this.OverlappingMembers);
+
+      this.$router.push({
+        name: routeName
+      }).catch(err => {
+        if (err.name !== 'NavigationDuplicated') {
+          throw err;
+        }
+      });
+    },
+    DuplicateMemberPage(){
+      this.isOverlappingMembersPopupVisible = false;
+      this.navigateTo('duplicate-member');
+    },
   },
 };
 </script>

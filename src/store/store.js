@@ -7,7 +7,7 @@ export default createStore({
         refreshToken: localStorage.getItem('refreshToken') || '',
         clubId: localStorage.getItem('clubId') || 0,
         role: localStorage.getItem('role') || '',
-        isAgreedTerms: localStorage.getItem('isAgreedTerms') === 'true' || false
+        isAgreedTerms: localStorage.getItem('isAgreedTerms') === 'true' || false,
     },
     mutations: {
         setAccessToken(state, token) {
@@ -41,6 +41,9 @@ export default createStore({
             localStorage.removeItem('clubId');
             localStorage.removeItem('role');
             localStorage.removeItem('isAgreedTerms');
+        },
+        setOverlappingMembers(state, members) {
+            state.OverlappingMembers = members;
         }
     },
     actions: {

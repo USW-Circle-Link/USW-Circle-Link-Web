@@ -151,7 +151,7 @@ export default {
 
 .sidebar {
   width: 240px;
-  height: 600px;
+  height: 670px;
   color: #000;
   display: flex;
   flex-direction: column;
