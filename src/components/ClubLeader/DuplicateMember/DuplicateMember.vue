@@ -373,13 +373,13 @@ export default {
 }
 
 .duplicate-list-header {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .header-content {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 26px;
 }
 
 .duplicate-list-title {
@@ -399,9 +399,12 @@ export default {
 }
 
 .list-subtitle {
-  color: #FF0000;
+  color: #FF3535;
   font-size: 14px;
-  margin: 8px 0 0 0;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.35px;
+  align-items: center;
 }
 
 .member-list-wrapper {
