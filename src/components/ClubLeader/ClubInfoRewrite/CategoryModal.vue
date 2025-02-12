@@ -44,7 +44,7 @@
                 @click="toggleCategory(category)"
                 :disabled="isMaxSelected && !isSelectedCategory(category)"
             >
-              {{ category.clubCategory }}
+              {{ category.clubCategoryName }}
             </button>
           </div>
           <div class="selected-info">
@@ -112,13 +112,13 @@ export default {
     // 현재 카테고리가 선택된 상태인지 확인하는 메서드 추가
     isSelectedCategory(category) {
       return this.currentSelected.some(
-          selected => selected.clubCategory === category.clubCategory
+          selected => selected.clubCategoryName === category.clubCategoryName
       );
     },
 
     toggleCategory(category) {
       const index = this.currentSelected.findIndex(
-          selected => selected.clubCategory === category.clubCategory
+          selected => selected.clubCategoryName === category.clubCategoryName
       );
 
       const updatedCategories = [...this.currentSelected];
@@ -126,7 +126,7 @@ export default {
       if (index === -1 && updatedCategories.length < 3) {
         // 선택되지 않은 상태이고 3개 미만일 때 추가
         updatedCategories.push({
-          clubCategory: category.clubCategory,
+          clubCategoryName: category.clubCategoryName,
           clubCategoryId: category.clubCategoryId
         });
       } else if (index !== -1) {

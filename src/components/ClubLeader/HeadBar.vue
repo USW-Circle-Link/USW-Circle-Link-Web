@@ -3,7 +3,7 @@
   <div class="header">
     <img src="../../assets/dongurami_logo.png" alt="Dongurami Logo" class="logo" />
     <h1 class="title">동구라미</h1>
-    <NotificationButton/>
+<!--    <NotificationButton/>-->
   </div>
 </template>
 
@@ -12,7 +12,7 @@ import NotificationButton from "@/components/ClubLeader/NotificationButton.vue";
 
 export default {
   name: 'Headbar',
-  components: {NotificationButton}
+  // components: {NotificationButton}
 };
 
 
@@ -42,7 +42,7 @@ export default {
   height: 25px;
   padding: 5px;
   transform: scaleX(-1);
-  margin-left: 260px;
+  margin-left: 230px;
 }
 
 .title {

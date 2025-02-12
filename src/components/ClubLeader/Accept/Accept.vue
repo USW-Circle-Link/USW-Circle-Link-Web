@@ -22,7 +22,7 @@
         </div>
       </div>
 
-<!--      <div class="vertical-line"></div> 구분선 삭제함-->
+      <!--      <div class="vertical-line"></div> 구분선 삭제함-->
 
       <!-- Right Section: Added Members -->
       <div class="section added-members">
@@ -670,9 +670,9 @@ export default {
 
 /*.vertical-line { */
 /*  width: 2px; */
-  //background-color: #ddd;
-  //margin: 0 10px; /* 양쪽에 20px의 여백 추가 */
-  //flex-shrink: 0; /* 크기가 줄어들지 않도록 설정 */
+//background-color: #ddd;
+//margin: 0 10px; /* 양쪽에 20px의 여백 추가 */
+//flex-shrink: 0; /* 크기가 줄어들지 않도록 설정 */
 /* height: auto; 높이를 자동으로 설정 */
 /* align-self: stretch; 부모 컨테이너의 높이에 맞춤 */
 /*z-index: 1;  다른 요소들 위에 표시 }*/

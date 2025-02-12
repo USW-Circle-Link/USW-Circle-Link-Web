@@ -117,8 +117,8 @@
               <span class="remove-tag" @click="removeHashTag(index)">×</span>
             </div>
           </div>
-          <div v-if="!isHashTagValid && hashTagInput" class="hashtag-error-message">
-            *해시태그 입력 형식이 잘못되었습니다.
+          <div v-if="hashTagError" class="hashtag-error-message">
+            {{ hashTagError }}
           </div>
         </div>
 
@@ -161,7 +161,7 @@
         <div class="categories-display" v-if="selectedCategories.length > 0">
           <div class="categories-wrapper">
             <div v-for="(category, index) in selectedCategories" :key="index" class="category-item">
-              {{ category.clubCategory }}
+              {{ category.clubCategoryName }}
               <span class="remove-category" @click="removeCategory(index)">×</span>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default {
       // New variables added
       clubRoomNumber: '',
       clubHashtag: [],
-      clubCategory: [],
+      clubCategoryName: [],
 
       // Existing variables
       isLoading: false,
@@ -255,6 +255,8 @@ export default {
       isLeaderNameValid: true,
       isInstaValid: true,
       showSuccessPopup: false,
+
+      hashTagError: '',
     };
   },
   async created() {
@@ -359,9 +361,9 @@ export default {
           this.hashtags = this.clubHashtag;
 
 
-          this.clubCategory = this.clubInfo.clubCategory || [];// 문자열 배열을 객체 배열로 변환
-          this.selectedCategories = this.clubCategory.map(category => ({
-            clubCategory: category.trim() // 혹시 모를 공백 제거
+          this.clubCategoryName = this.clubInfo.clubCategoryName || [];// 문자열 배열을 객체 배열로 변환
+          this.selectedCategories = this.clubCategoryName.map(category => ({
+            clubCategoryName: category.trim() // 혹시 모를 공백 제거
           }));
 
           console.log(this.clubInfo);
@@ -404,7 +406,7 @@ export default {
           leaderHp: this.leaderHp || this.clubInfo.leaderHp,
           clubRoomNumber: this.selectedRoom ? this.selectedRoom.replace('학생회관 ', '').replace('호', '') : '',
           clubHashtag: this.hashtags,
-          clubCategory: this.selectedCategories.map(category => category.clubCategory),
+          clubCategoryName: this.selectedCategories.map(category => category.clubCategoryName),
           clubInsta: this.clubInsta,
         };
 
@@ -421,12 +423,7 @@ export default {
         }
         // 초기 계정이고(mainPhotoUrl이 빈 문자열) 사용자가 새로운 이미지를 선택하지 않은 경우
         else {
-          const defaultImageFile = new File(
-              [require('@/assets/profile.png')],
-              'profile.png',
-              { type: 'image/png' }
-          );
-          formData.append("mainPhoto", defaultImageFile);
+          formData.append("mainPhoto", null);
         }
 
         const response = await axios.put(
@@ -533,16 +530,37 @@ export default {
     // 해시태그 추가 메소드
     addHashTag() {
       const tag = this.hashTagInput.trim();
-      if (tag && !this.hashtags.includes(tag) && this.validateHashTag(tag)) {
-        this.hashtags.push(tag);
-        this.hashTagInput = '';
-        this.isHashTagValid = true;
+      if (!tag) return;
+
+      if (this.hashtags.length >= 2) {
+        this.hashTagError = '*해시태그는 최대 2개까지만 입력 가능합니다.';
+        return;
       }
+
+      if (!this.validateHashTag(tag)) {
+        this.hashTagError = '*해시태그 입력 형식이 잘못되었습니다.';
+        return;
+      }
+
+      if (this.hashtags.includes(tag)) {
+        this.hashTagError = '*이미 존재하는 해시태그입니다.';
+        return;
+      }
+
+      this.hashtags.push(tag);
+      this.hashTagInput = '';
+      this.hashTagError = '';
+      this.isHashTagValid = true;
     },
 
     // 해시태그 입력 감시
     watchHashTagInput() {
       this.isHashTagValid = this.validateHashTag(this.hashTagInput);
+      if (this.isHashTagValid) {
+        this.hashTagError = '';
+      } else {
+        this.hashTagError = '*해시태그 입력 형식이 잘못되었습니다.';
+      }
     },
 
     // 해시태그 제거 메소드

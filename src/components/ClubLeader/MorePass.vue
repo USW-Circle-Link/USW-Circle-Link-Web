@@ -62,7 +62,7 @@ export default {
         message: '',
         type: ''
       },
-      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants?page=0&size=500`, // 지원자 명단을 가져오는 서버 URL
+      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants`, // 지원자 명단을 가져오는 서버 URL
       submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants/notifications`, // 합/불 결과를 보내는 서버 URL
     };
   },
@@ -86,8 +86,8 @@ export default {
         //  console.log('Fetched data:', result); // 응답 데이터 출력
           //데이터 형식이 올바른 지 확인 후,지원자 배열에 저장
           const data = result.data;
-          if (data && Array.isArray(data.content)) {
-            this.applicants = data.content.map(applicant => ({
+          if (data && Array.isArray(data)) {
+            this.applicants = data.map(applicant => ({
               aplictId: applicant.aplictId, // 지원자 id
               userName: applicant.userName,//이름
               studentNumber: applicant.studentNumber,//학번

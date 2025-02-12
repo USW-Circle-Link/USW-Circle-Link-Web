@@ -281,13 +281,13 @@ export default {
       }
     },
     formattedCategory() {
-      if (!this.data.clubCategory) return '없음';
+      if (!this.data.clubCategoryName) return '없음';
 
       try {
         // 문자열로 온 경우 배열로 파싱
-        const categories = Array.isArray(this.data.clubCategory)
-            ? this.data.clubCategory
-            : JSON.parse(this.data.clubCategory);
+        const categories = Array.isArray(this.data.clubCategoryName)
+            ? this.data.clubCategoryName
+            : JSON.parse(this.data.clubCategoryName);
 
         // 배열이 비어있는 경우
         if (categories.length === 0) return '없음';
@@ -296,7 +296,7 @@ export default {
         return categories.join(', ');
       } catch (e) {
         // JSON 파싱 실패 시 원본 반환
-        return this.data.clubCategory || '없음';
+        return this.data.clubCategoryName || '없음';
       }
     }
   },

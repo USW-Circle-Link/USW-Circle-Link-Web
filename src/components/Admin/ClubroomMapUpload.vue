@@ -340,7 +340,6 @@ export default {
   margin-bottom: 30px;
   position: relative; /* 상대 위치 설정 */
   display: inline-block;
-  z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
 }
 
 .floor-images-container {

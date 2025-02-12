@@ -23,7 +23,7 @@
             <p class="clubleader">동아리장 <span class="name" style="color: #353549;"><strong>{{ data.leaderName }}</strong></span></p>
             <div class="clubroom">
               <div class="icon category"></div>
-              <p class="room">카테고리 | {{formattedCategory}} </p>
+              <p class="room">카테고리 | {{data.clubCategoryName}} </p>
             </div>
             <div class="hashtags">
               <span v-for="tag in data.clubHashtag" :key="tag" class="hashtag">#{{ tag }}</span>
