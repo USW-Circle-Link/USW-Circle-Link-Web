@@ -83,12 +83,15 @@ import store from '@/store/store';
 import AddPopup from './AddPopup.vue'
 import SuccessFailPopup from './SuccessFailPopup.vue'
 import axios from 'axios'
-
+import { mapState } from "vuex";
 export default {
   name: 'DuplicateMember',
   components: {
     AddPopup,
-    SuccessFailPopup
+    SuccessFailPopup,
+  },
+  computed: {
+    ...mapState(["OverlappingMembers"])
   },
   data() {
     return {
@@ -104,9 +107,18 @@ export default {
       studentIdError: false,
       phoneNumberError: false,
       serverMessage: '',
-    }
+      DuplicateMember: [],
+      }
+  },
+  mounted() {
+    // 새로고침 시 localStorage에서 데이터 불러오기
+    this.OverlappingMembers = localStorage.getItem("saveDuplicateMember") || "";
+    console.log("전달받은 회원 데이터:", this.OverlappingMembers);
   },
   methods: {
+    saveDuplicateMember() {
+      localStorage.setItem("savedOverlappingMembers", this.OverlappingMembers); // localStorage에 저장
+    },
     validateForm() {
       const nameValid = /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== ''
       const studentIdValid = /^\d{8}$/.test(this.studentId)
@@ -188,7 +200,7 @@ export default {
       this.studentIdError = false
       this.phoneNumberError = false
       this.isFormValid = false
-    }
+    },
   }
 }
 </script>
@@ -232,7 +244,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-left: 0px;
+  padding-left: 0;
 }
 
 .input-group {
@@ -272,7 +284,6 @@ export default {
   margin-bottom: -5px;
   padding-left: 50px;
   color: #FF3535;
-  font-family: Pretendard;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
