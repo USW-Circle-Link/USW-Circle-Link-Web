@@ -39,7 +39,7 @@
           <div class="plus" @click="$event.target.previousElementSibling.click()">+</div>
         </div>
       </div>
-      <button class="submit-button" @click="submitNotice">작성 완료</button>
+      <button class="submit-button" @click="submitNotice" :disabled="isLoading"> 완료</button>
     </div>
   </div>
 </template>
@@ -115,7 +115,8 @@ editImage(index) {
   }
 },
 async submitNotice() {
-  console.log('Submit button clicked');
+  
+
   const maxTitleLength = 100;
   const maxContentLength = 3000;
 
@@ -130,77 +131,96 @@ async submitNotice() {
   }
 
   try {
-    console.log('Preparing form data');
+    
     const form = new FormData();
     const noticeData = {
       noticeTitle: this.notice.noticeTitle,
       noticeContent: this.notice.noticeContent
         .replace(/ /g, '&nbsp;')
         .replace(/\n/g, '<br>'),
-      photoOrders: this.images.map((_, index) => index + 1), // 이미지 순서 전달
+      photoOrders: this.images.length > 0 ? this.images.map((_, index) => index + 1) : [],
     };
+
     form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
 
-    this.images.forEach((image) => {
-      form.append('photos', image.file);
-    });
+    if (this.images.length > 0) {
+      this.images.forEach((image, i) => {
+        console.log(`(${i + 1}/${this.images.length})`);
+        form.append('photos', image.file);
+      });
+    }
 
-    // ✅ 공지사항 저장 요청
+    
+    
     const response = await axios.post('http://15.164.246.244:8080/notices', form, {
       headers: {
         Authorization: `Bearer ${store.state.accessToken}`,
         'Content-Type': 'multipart/form-data',
       },
     });
-      // 에러 상태 코드 처리
-      if (response.status === 401 || response.status === 400 || response.status === 422) {
-  let message = '';
 
-  if (response.status === 401) {
-    message = '인증되지 않은 사용자입니다. 다시 로그인해주세요.';
-    this.$router.push({ name: 'Login' }); // 401 에러 시 로그인 페이지로 이동
-  } else if (response.status === 400) {
-    message = '업로드 가능한 사진 갯수를 초과했습니다.';
-  } else if (response.status === 422) {
-    message = '제목과 내용을 모두 입력해주세요.';
-  }
+    
 
-  alert(message);
-  return;
-}
-
-
-    console.log('Notice creation response:', response.data);
-
-    // ✅ Presigned URL이 있는 경우 S3 업로드 진행
-    const presignedUrls = response?.data?.data || [];
-    if (!Array.isArray(presignedUrls) || presignedUrls.length === 0) {
-      console.error('No Presigned URLs found in response');
+    if (!response || !response.data) {
+      console.error('응답 데이터 없음');
+      alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
       return;
     }
 
+    // 서버 응답 상태 코드 확인
+    if ([401, 400, 422].includes(response.status)) {
+      let message = '';
+
+      if (response.status === 401) {
+        message = '인증되지 않은 사용자입니다. 다시 로그인해주세요.';
+        this.$router.push({ name: 'Login' }); // 401 에러 시 로그인 페이지로 이동
+      } else if (response.status === 400) {
+        message = '업로드 가능한 사진 갯수를 초과했습니다.';
+      } else if (response.status === 422) {
+        message = '제목과 내용을 모두 입력해주세요.';
+      }
+
+      alert(message);
+      return;
+    }
+
+    
+    const presignedUrls = response?.data?.data || [];
+
+    // ✅ 만약 Presigned URL이 없으면 바로 공지사항 목록으로 이동
+    if (!Array.isArray(presignedUrls) || presignedUrls.length === 0) {
+     
+      alert("공지사항이 성공적으로 등록되었습니다.");
+      this.$router.push({ name: 'Notice' });
+      return;
+    }
+
+    
+
+    // ✅ Presigned URL이 있을 경우에만 S3 업로드 실행
     await Promise.all(
       presignedUrls.map(async (url, index) => {
         const file = this.images[index].file;
-        console.log(`Uploading to S3: ${url}`);
+        
         await axios.put(url, file, {
           headers: { 'Content-Type': file.type },
         });
       })
     );
 
+    
     alert("공지사항이 성공적으로 등록되었습니다.");
 
-    // ✅ 모든 비동기 작업이 끝난 후 이동
-    await this.$router.push('/adminmain/Notice'); // URL 직접 입력
-    // 또는 await this.$router.push({ name: 'AdminNoticeList' });
+    // ✅ 공지사항 목록 페이지로 이동
+    this.$router.push({ name: 'Notice' });
 
   } catch (error) {
     console.error('공지사항 제출 실패:', error.response || error.message);
     alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
   }
 }
-  }
+  },
+
 };
 </script>
 
