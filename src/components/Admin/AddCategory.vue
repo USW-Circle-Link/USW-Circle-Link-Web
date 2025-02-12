@@ -80,10 +80,10 @@ export default {
         });
         const jsonData = response.data;
         if (jsonData && Array.isArray(jsonData.data)) {
-          this.categories = jsonData.data.map(item => item.clubCategory);
+          this.categories = jsonData.data.map(item => item.clubCategoryName);
           console.log(this.categories); // ["운동", "학술", "봉사", "개발", "공부"]
           jsonData.data.forEach(item => {
-            this.categoryMap.set(item.clubCategory, item.clubCategoryId);
+            this.categoryMap.set(item.clubCategoryName, item.clubCategoryId);
           });
         }
         console.log('카테고리 불러오기 성공',this.categoryMap);
@@ -112,7 +112,7 @@ export default {
         this.isPopupVisible1 = true;
         // 중복 확인 및 값 추가
         this.categories.push(trimmedCategory);
-        this.clubCategory = ""; // 입력 필드 초기화
+        this.categoryName = ""; // 입력 필드 초기화
       } else if (this.categories.includes(trimmedCategory)) {
         this.isPopupVisible2 = true;
       }
