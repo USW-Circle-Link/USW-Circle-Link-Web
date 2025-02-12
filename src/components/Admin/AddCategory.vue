@@ -18,7 +18,7 @@
     <div class="category-add">
       <input
           ref="inputField"
-          v-model="clubCategory"
+          v-model="categoryName"
           type="text"
           placeholder="추가할 카테고리를 작성해주세요."
           class="input-field"
@@ -58,7 +58,7 @@ export default {
   data() {
     return {
       categories: [], // 초기 카테고리 데이터
-      clubCategory: "", // 새로 추가할 카테고리
+      categoryName: "", // 새로 추가할 카테고리
       categoryMap: new Map(),
 
       isPopupVisible1: false,
@@ -93,12 +93,12 @@ export default {
       }
     },
     async addCategory() {
-      const trimmedCategory = this.clubCategory.trim(); // 입력값의 앞뒤 공백 제거
+      const trimmedCategory = this.categoryName.trim(); // 입력값의 앞뒤 공백 제거
       if (trimmedCategory !== "" && !this.categories.includes(trimmedCategory)) {
         try {
           await axios.post(
               `http://15.164.246.244:8080/admin/category`,
-              this.clubCategory,
+              this.categoryName,
               {
                 headers: {
                   'Authorization': `Bearer ${store.state.accessToken}`,
