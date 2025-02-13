@@ -135,7 +135,7 @@ export default {
             'Content-Type': 'application/json'
           }
         });
-        //console.log("서버에서 받은 GET 응답 데이터:", response.data); 
+        console.log("서버에서 받은 GET 응답 데이터:", response.data); 
         
         //가져온 클럽 데이터를 저장
         this.clubData = response.data.data;
@@ -339,7 +339,6 @@ export default {
 
         this.showPopup();
         await this.fetchClubInfo();  // 저장 후 클럽 정보 다시 가져오기
-        this.navigateTo('dashboard');//완료 되면 홈 화면으로 이동
         this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
 
       } catch (error) {
@@ -517,9 +516,12 @@ h2{
   padding: 0 20px;
   text-align: left;
   border: none;
-  font-size: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
   resize: none;
   white-space: pre-wrap;
+  font-family: 'Malgun Gothic', sans-serif;
 }
 
  /* 모집중 X일 때 */
@@ -530,6 +532,13 @@ h2{
   border-style: solid;
   border-width: 1px;
   border-color: #999999 
+}
+
+.ClubTextInput textarea.RecruitToggleOff {
+  font-size: 14px;  
+  line-height: 1.5; 
+  color: #333;     
+
 }
 
 textarea:focus {
@@ -615,8 +624,10 @@ label::after {
   padding: 0 20px;
   text-align: left;
   border: none;
-  font-size: 16px;
   resize: none;
+  font-size: 14px;  
+  color: #333;  
+  font-family: 'Malgun Gothic', sans-serif;
 }
 
 /*
@@ -635,15 +646,15 @@ button {
   border: none;
   border-radius: 4px;
   color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
   line-height: 16px;
   letter-spacing: -0.025em;
   text-align: center;
-  margin-top: 30px;
+  margin-top: 35px;
   margin-left: 774px;
   margin-bottom: 30px;
   cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
 }
 
 .textSize{
@@ -729,7 +740,7 @@ hr {
 .popup-buttons {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
+  margin-top: 40px;
 }
 .popup-buttons button {
   width: 80px;
