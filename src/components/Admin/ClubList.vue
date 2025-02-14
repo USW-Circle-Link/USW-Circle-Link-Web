@@ -59,15 +59,21 @@
     </div>
   </div>
 
+  <Popup401 v-if="show401Popup" />
 
 </template>
 
 <script>
 import axios from "axios";
-import store from "@/store/store"; // Vuex store
+import store from "@/store/store";
+import Popup401 from "@/components/Admin/401Popup.vue"; // Vuex store
 
 export default {
   name: "ClubProfile",
+  components:
+      {
+        Popup401
+      },
 
   data() {
     return {
@@ -81,6 +87,7 @@ export default {
       clubToDelete: null, // 삭제할 클럽 ID
       deleteIndex: null, // 삭제할 클럽의 인덱스
       PopupClubName: null, // 삭제할 클럽 이름
+      show401Popup: false  // 401 팝업
     };
   },
 
@@ -89,6 +96,14 @@ export default {
   },
 
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     // 클럽 리스트 가져오기
     async fetchClubs() {
       try {
@@ -107,8 +122,9 @@ export default {
         this.clubs = content || []; // 현재 페이지 클럽 리스트
         this.totalPages = totalPages || 1; // 전체 페이지 수
       } catch (error) {
-        console.error("Error fetching clubs:", error);
-        alert("동아리 리스트를 불러오는데 실패했습니다.");
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
 
@@ -167,8 +183,9 @@ export default {
         this.isPopupVisible = false;
         alert("동아리가 성공적으로 삭제되었습니다.");
       } catch (error) {
-        console.error("Error deleting club:", error);
-        alert("비밀번호를 다시 확인해주세요.");
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
 

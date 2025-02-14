@@ -65,19 +65,25 @@
       </div>
     </div>
   </div>
+  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
 import axios from 'axios';
 import store from '../../store/store';
+import Popup401 from './401Popup.vue';
 
 export default {
   name: 'RemoveMemberDashboard',
+  components: {
+    Popup401
+  },
   data() {
     return {
       clubMembers: [],
       showExpulsionPopup: false,
       selectedMembers: [],
+      show401Popup: false, // 401 팝업 상태 추가
     }
   },
   computed: {
@@ -95,6 +101,14 @@ export default {
     this.fetchData();
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     async fetchData() {
       const accessToken = store.state.accessToken;
       const clubId = store.state.clubId;
@@ -109,7 +123,10 @@ export default {
 
         this.clubMembers = response.data.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
     },
 
@@ -150,7 +167,10 @@ export default {
         this.selectedMembers = [];
         this.showExpulsionPopup = false;
       } catch (error) {
-        console.error('Error expelling members:', error);
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
     }
   }

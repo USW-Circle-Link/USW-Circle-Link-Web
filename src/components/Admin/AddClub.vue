@@ -169,12 +169,15 @@
     </div>
 
   </div>
+  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
 import axios from "axios";
 import store from "@/store/store";
+import Popup401 from "@/components/Admin/401Popup.vue";
 export default {
+  components: {Popup401},
   data() {
     return {
       // 동연회/개발팀이 동아리 회장에게 생성해주는 동아리 계정 정보
@@ -243,6 +246,7 @@ export default {
       isActiveId : true,
       isActiveClubName : true,
       isConfirmPasswordTouched: false, // 비밀번호 확인 필드 터치 여부
+      show401Popup: false  // 401 팝업
     };
   },
   computed: {
@@ -294,6 +298,14 @@ export default {
     }
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     // 함수 실행 시 routeName의 컴포넌트로 이동
     navigateTo(routeName) {
       this.$router.push({ name: routeName }).catch(err => {
@@ -391,6 +403,9 @@ export default {
           this.isIdPopupVisible = true;
           this.DuplicateCheckId = true;
         } catch (error) {
+          if (!this.handle401Error(error)) {
+            console.error('Error updating member:', error);
+          }
           if (error.response.status === 422) {
             this.isActiveId = true;
             this.idError = '* 이미 존재하는 아이디입니다.';
@@ -414,6 +429,9 @@ export default {
           this.isClubNamePopupVisible = true;
           this.DuplicateCheckClubName = true;
         } catch (error) {
+          if (!this.handle401Error(error)) {
+            console.error('Error updating member:', error);
+          }
           if (error.response.status === 409) {
             this.isActiveClubName = true;
             this.clubNameError = '* 이미 존재하는 동아리 이름입니다.';
@@ -509,11 +527,12 @@ export default {
         this.isPopupVisible = false;  // 팝업창 닫기
       } catch (error) {
         if (error.response) {
-          console.error('응답 에러 상태 코드 : ', error.response.status);
-        }
-        // 서버에서 보낸 에러 코드에 따라 사용자에게 에러 정보 제공
-        if (error.response.status === 400) {
-          this.adminPwError = '* 비밀번호를 다시 확인해주세요.';
+          if (!this.handle401Error(error)) {
+            console.error('Error updating member:', error);
+          }
+          if (error.response.status === 400) {
+            this.adminPwError = '* 비밀번호를 다시 확인해주세요.';
+          }
         }
       }
     },

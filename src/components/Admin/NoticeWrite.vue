@@ -1,5 +1,4 @@
-
-<template> 
+<template>
   <div>
     <h2 class="title">공지사항 작성</h2>
 
@@ -42,22 +41,34 @@
       <button class="submit-button" @click="submitNotice" :disabled="isLoading"> 완료</button>
     </div>
   </div>
+  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
 import axios from 'axios';
 import store from '@/store/store';
+import Popup401 from "@/components/Admin/401Popup.vue";
 
 export default {
   name: 'NoticeWrite',
+  components: {Popup401},
   props: ['id'],
   data() {
     return {
       notice: { noticeTitle: '', noticeContent: '' },
       images: [], // 이미지 파일 및 미리보기 저장
+      show401Popup: false  // 401 팝업
     };
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     // 이미지 업로드
     onImageUpload(event) {
       const file = event.target.files[0];
@@ -114,111 +125,117 @@ editImage(index) {
     alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
   }
 },
-async submitNotice() {
-  
+    async submitNotice() {
 
-  const maxTitleLength = 100;
-  const maxContentLength = 3000;
 
-  if (this.notice.noticeTitle.length > maxTitleLength) {
-    alert(`공지사항 제목은 최대 ${maxTitleLength}자까지 입력 가능합니다.`);
-    return;
-  }
+      const maxTitleLength = 100;
+      const maxContentLength = 3000;
 
-  if (this.notice.noticeContent.length > maxContentLength) {
-    alert(`공지사항 내용은 최대 ${maxContentLength}자까지 입력 가능합니다.`);
-    return;
-  }
-
-  try {
-    
-    const form = new FormData();
-    const noticeData = {
-      noticeTitle: this.notice.noticeTitle,
-      noticeContent: this.notice.noticeContent
-        .replace(/ /g, '&nbsp;')
-        .replace(/\n/g, '<br>'),
-      photoOrders: this.images.length > 0 ? this.images.map((_, index) => index + 1) : [],
-    };
-
-    form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
-
-    if (this.images.length > 0) {
-      this.images.forEach((image, i) => {
-        console.log(`(${i + 1}/${this.images.length})`);
-        form.append('photos', image.file);
-      });
-    }
-
-    
-    
-    const response = await axios.post('http://15.164.246.244:8080/notices', form, {
-      headers: {
-        Authorization: `Bearer ${store.state.accessToken}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    
-
-    if (!response || !response.data) {
-      console.error('응답 데이터 없음');
-      alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
-      return;
-    }
-
-    // 서버 응답 상태 코드 확인
-    if ([401, 400, 422].includes(response.status)) {
-      let message = '';
-
-      if (response.status === 401) {
-        message = '인증되지 않은 사용자입니다. 다시 로그인해주세요.';
-        this.$router.push({ name: 'Login' }); // 401 에러 시 로그인 페이지로 이동
-      } else if (response.status === 400) {
-        message = '업로드 가능한 사진 갯수를 초과했습니다.';
-      } else if (response.status === 422) {
-        message = '제목과 내용을 모두 입력해주세요.';
+      if (this.notice.noticeTitle.length > maxTitleLength) {
+        alert(`공지사항 제목은 최대 ${maxTitleLength}자까지 입력 가능합니다.`);
+        return;
       }
 
-      alert(message);
-      return;
-    }
+      if (this.notice.noticeContent.length > maxContentLength) {
+        alert(`공지사항 내용은 최대 ${maxContentLength}자까지 입력 가능합니다.`);
+        return;
+      }
 
-    
-    const presignedUrls = response?.data?.data || [];
+      try {
 
-    // ✅ 만약 Presigned URL이 없으면 바로 공지사항 목록으로 이동
-    if (!Array.isArray(presignedUrls) || presignedUrls.length === 0) {
-     
-      alert("공지사항이 성공적으로 등록되었습니다.");
-      this.$router.push({ name: 'Notice' });
-      return;
-    }
+        const form = new FormData();
+        const noticeData = {
+          noticeTitle: this.notice.noticeTitle,
+          noticeContent: this.notice.noticeContent
+              .replace(/ /g, '&nbsp;')
+              .replace(/\n/g, '<br>'),
+          photoOrders: this.images.length > 0 ? this.images.map((_, index) => index + 1) : [],
+        };
 
-    
+        form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
 
-    // ✅ Presigned URL이 있을 경우에만 S3 업로드 실행
-    await Promise.all(
-      presignedUrls.map(async (url, index) => {
-        const file = this.images[index].file;
-        
-        await axios.put(url, file, {
-          headers: { 'Content-Type': file.type },
+        if (this.images.length > 0) {
+          this.images.forEach((image, i) => {
+            console.log(`(${i + 1}/${this.images.length})`);
+            form.append('photos', image.file);
+          });
+        }
+
+
+
+        const response = await axios.post('http://15.164.246.244:8080/notices', form, {
+          headers: {
+            Authorization: `Bearer ${store.state.accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
         });
-      })
-    );
 
-    
-    alert("공지사항이 성공적으로 등록되었습니다.");
 
-    // ✅ 공지사항 목록 페이지로 이동
-    this.$router.push({ name: 'Notice' });
 
-  } catch (error) {
-    console.error('공지사항 제출 실패:', error.response || error.message);
-    alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
-  }
-}
+        if (!response || !response.data) {
+          console.error('응답 데이터 없음');
+          alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
+          return;
+        }
+
+        // 서버 응답 상태 코드 확인
+        if ([401, 400, 422].includes(response.status)) {
+          let message = '';
+
+          if (response.status === 401) {
+            message = '인증되지 않은 사용자입니다. 다시 로그인해주세요.';
+            this.$router.push({ name: 'Login' }); // 401 에러 시 로그인 페이지로 이동
+          } else if (response.status === 400) {
+            message = '업로드 가능한 사진 갯수를 초과했습니다.';
+          } else if (response.status === 422) {
+            message = '제목과 내용을 모두 입력해주세요.';
+          }
+
+          alert(message);
+          return;
+        }
+
+
+        const presignedUrls = response?.data?.data || [];
+
+        // ✅ 만약 Presigned URL이 없으면 바로 공지사항 목록으로 이동
+        if (!Array.isArray(presignedUrls) || presignedUrls.length === 0) {
+
+          alert("공지사항이 성공적으로 등록되었습니다.");
+          this.$router.push({ name: 'Notice' });
+          return;
+        }
+
+
+
+        // ✅ Presigned URL이 있을 경우에만 S3 업로드 실행
+        await Promise.all(
+            presignedUrls.map(async (url, index) => {
+              const file = this.images[index].file;
+
+              await axios.put(url, file, {
+                headers: { 'Content-Type': file.type },
+              });
+            })
+        );
+
+
+        alert("공지사항이 성공적으로 등록되었습니다.");
+
+        // ✅ 공지사항 목록 페이지로 이동
+        this.$router.push({ name: 'Notice' });
+
+      } catch (error) {
+        // 401 에러 처리
+        if (error.response && error.response.status === 401) {
+          this.show401Popup = true;
+          return;
+        }
+        // 다른 에러 처리
+        console.error('공지사항 제출 실패:', error.response || error.message);
+        alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
   },
 
 };

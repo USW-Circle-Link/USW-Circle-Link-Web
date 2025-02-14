@@ -199,6 +199,8 @@
       @close="closeSuccessPopup"
   />
 
+  <Popup401 v-if="show401Popup" />
+
 </template>
 
 
@@ -208,6 +210,7 @@ import axios from 'axios';
 import ClubRoomModal from './ClubRoomModal.vue';
 import CategoryModal from './CategoryModal.vue';
 import UpdateSuccessPopup from './UpdateSuccessPopup.vue';
+import Popup401 from '../401Popup.vue';
 
 
 export default {
@@ -215,6 +218,7 @@ export default {
     ClubRoomModal,
     CategoryModal,
     UpdateSuccessPopup,
+    Popup401
   },
   data() {
     return {
@@ -257,6 +261,7 @@ export default {
       showSuccessPopup: false,
 
       hashTagError: '',
+      show401Popup: false,
     };
   },
   async created() {
@@ -266,6 +271,13 @@ export default {
     }
   },
   methods: {
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     validateLeaderName() {
       // 특수문자를 체크하는 정규식 (공백은 허용)
       const specialCharPattern = /[!@#₩$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+/;
@@ -369,8 +381,10 @@ export default {
           console.log(this.clubInfo);
         }
       } catch (error) {
-        console.error('동아리 정보를 불러오는데 실패했습니다.', error);
-        alert('동아리 정보를 불러오는데 실패했습니다.');
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
     },
     // URL -> 파일 객체 반환
@@ -423,7 +437,7 @@ export default {
         }
         // 초기 계정이고(mainPhotoUrl이 빈 문자열) 사용자가 새로운 이미지를 선택하지 않은 경우
         else {
-          formData.append("mainPhoto", null);
+          formData.append("mainPhoto", "");
         }
 
         const response = await axios.put(
@@ -445,12 +459,14 @@ export default {
           await this.uploadFile();
         }
       } catch (error) {
-        console.error('Error updating profile:', error);
-        if (error.response && error.response.data) {
-          const errorMessages = Object.values(error.response.data).join('\n');
-          alert(`${errorMessages}`);
-        } else {
-          alert('서버 오류가 발생했습니다.');
+        if (!this.handle401Error(error)) {
+          console.error('Error updating profile:', error);
+          if (error.response && error.response.data) {
+            const errorMessages = Object.values(error.response.data).join('\n');
+            alert(`${errorMessages}`);
+          } else {
+            alert('서버 오류가 발생했습니다.');
+          }
         }
       } finally {
         this.isLoading = false;
@@ -468,8 +484,10 @@ export default {
           },
         });
       } catch (error) {
-        console.error('파일 업로드 실패:', error);
-        alert('파일 업로드 실패!');
+        if (!this.handle401Error(error)) {
+          console.error('파일 업로드 실패:', error);
+          alert('파일 업로드 실패!');
+        }
       }
     },
 

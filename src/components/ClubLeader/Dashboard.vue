@@ -168,6 +168,10 @@
         </ul>
       </div>
     </div>
+
+    <!-- 401 팝업 컴포넌트 추가 -->
+    <Popup401 v-if="show401Popup" />
+
   </div>
 
   <div class="custom-popup" v-if="showEditConfirmPopup">
@@ -191,11 +195,13 @@ import axios from 'axios';
 import store from '../../store/store'; // 일단 store.js에서 Vuex 상태를 가져옴
 import { colleges, departmentsByCollege } from '../departments.js'; // 학과 정보 가져오기
 import FirstAgree from '../ClubLeader/policy/FirstAgree.vue';
+import Popup401 from './401Popup.vue';
 
 export default {
   name: 'Dashboard',
   components: {
-    FirstAgree
+    FirstAgree,
+    Popup401  // 컴포넌트 등록
   },
   props: {
     isAgreedTerms: {
@@ -241,6 +247,7 @@ export default {
       regularMembers: [], // 정회원 목록
       nonRegularMembers: [], // 비회원 목록
       isTermsAgreed: this.$store.state.isAgreedTerms,
+      show401Popup: false  // 401 팝업 표
     }
   },
   computed: {
@@ -309,6 +316,14 @@ export default {
     await this.pageLoadFunction();
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     handleAgreementConfirmed() {
       this.isTermsAgreed = true;
     },
@@ -321,13 +336,13 @@ export default {
       const clubId = this.$store.state.clubId;
       const memberId = this.displayedMembers[this.editingIndex].clubMemberId;
 
-      // 정상적으로 하면 이름제외하고 뒤죽박죽 꼬임 -> 수정함
       const updateData = {
         userName: this.editingMember.userName,
         studentNumber: this.editingMember.studentNumber,
         userHp: this.editingMember.userHp.replace(/-/g, ''),
         major: this.editingMember.major,
       };
+
       try {
         await axios.patch(
             `http://15.164.246.244:8080/club-leader/${clubId}/members/${memberId}/non-member`,
@@ -344,11 +359,11 @@ export default {
         this.editingIndex = -1;
         this.editingMember = null;
 
-        // 데이터 새로고침
         await this.fetchData();
-
       } catch (error) {
-        console.error('Error updating member:', error);
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
     onCollegeChange() {
@@ -427,7 +442,9 @@ export default {
           this.imageSrc = require('@/assets/profile.png');
         }
       } catch (error) {
-        console.error('Fetch error:', error);
+        if (!this.handle401Error(error)) {
+          console.error('Fetch error:', error);
+        }
       }
     },
 
@@ -436,7 +453,6 @@ export default {
       const clubId = store.state.clubId;
 
       try {
-        // 회원과 비회원 데이터를 동시에 가져오기
         const [regularResponse, nonRegularResponse] = await Promise.all([
           axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?sort=regular-member`, {
             headers: {
@@ -452,10 +468,6 @@ export default {
           })
         ]);
 
-        console.log('Regular Members:', regularResponse.data.data);
-        console.log('Non-Regular Members:', nonRegularResponse.data.data);
-
-        // 각 멤버에 isRegularMember 플래그 추가
         this.regularMembers = regularResponse.data.data.map(member => ({
           ...member,
           isRegularMember: true,
@@ -468,10 +480,11 @@ export default {
           userHp: member.userHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')
         }));
 
-        // 전체 회원 수 업데이트
         this.totalMemberCount = this.regularMembers.length + this.nonRegularMembers.length;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        if (!this.handle401Error(error)) {
+          console.error('Error fetching data:', error);
+        }
       }
     },
 
@@ -504,9 +517,10 @@ export default {
         link.click();
         document.body.removeChild(link);
       } catch (error) {
-        console.error('Fetch error:', error);
-        this.error = error.message;
-      } finally {
+        if (!this.handle401Error(error)) {
+          console.error('Fetch error:', error);
+        }
+      }  finally {
         this.isLoading = false; // 로딩 종료
       }
     },

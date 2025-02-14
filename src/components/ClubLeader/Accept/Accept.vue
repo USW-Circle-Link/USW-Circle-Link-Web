@@ -144,6 +144,8 @@
            :message2="`${completedMemberName} 동아리 회원에게 회원 가입 완료 소식을 전달해주세요.`"
            :hideCancelButton="true"
            @confirm="closerealCompletePopup"/>
+
+    <Popup401 v-if="show401Popup" />
   </div>
 </template>
 
@@ -152,10 +154,12 @@ import { colleges, departmentsByCollege } from '../../departments'; // 학과 �
 import Popup from './Popup.vue';
 import axios from 'axios';
 import store from '../../../store/store';
+import Popup401 from '../401Popup.vue'; // 401 팝업 컴포넌트 추가
 
 export default {
   components: {
-    Popup
+    Popup,
+    Popup401,
   },
   data() {
     return {
@@ -180,6 +184,8 @@ export default {
 
       errorData: '', // 400 에러시 additionalData 저장
       completedMemberName: '', // 회원가입 완료된 회원 이름 저장
+
+      show401Popup: false,
     };
   },
   computed: {
@@ -193,6 +199,15 @@ export default {
     await this.fetchData();
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
+
     async fetchData() {
       const accessToken = store.state.accessToken;
       const clubId = store.state.clubId;
@@ -237,8 +252,10 @@ export default {
           college: this.findCollegeByDepartment(member.major),
         }));
       } catch (error) {
-        console.error('데이터 fetch 중 오류 발생:', error);
-        // 에러 처리 로직 추가 필요
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
     },
     findCollegeByDepartment(department) {
@@ -275,8 +292,10 @@ export default {
         }
         return false;
       } catch (error) {
-        console.error('회원 정보 수정 중 오류 발생:', error);
-        throw error;
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
     },
     async confirmEditPopup() {
@@ -372,8 +391,10 @@ export default {
         this.showRejectionPopup = false;
         this.saveData();
       } catch (error) {
-        console.error('회원 삭제 중 오류 발생:', error);
-        // 에러 처리 로직 추가 필요
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
     },
 
@@ -437,8 +458,9 @@ export default {
           if (status === 400 && data.exception === "ProfileException") {
             this.errorData = data.additionalData.join(', ');
             this.showErrorPopup = true;
-          } else if (status === 404 && data.exception === "ClubMemberException") {
-            this.show404ErrorPopup = true;
+          } else if (!this.handle401Error(error)) {
+            console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+            alert('동아리 정보를 불러오는데 실패했습니다.');
           }
         } else {
           console.error('Error accepting member:', error);

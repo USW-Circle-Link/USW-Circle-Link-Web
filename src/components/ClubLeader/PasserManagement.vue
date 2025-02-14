@@ -44,14 +44,19 @@
     </div>
 
   </div>
+  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
 import axios from 'axios'; // axios를 가져옵니다.
 import store from '@/store/store'; // Vuex에서 상태 가져오기
+import Popup401 from './401Popup.vue';
 
 export default {
   name: 'ApplicantManagement',
+  components: {
+    Popup401
+  },
   data() {
     return {
       applicants: [],//지원자 목록 배열
@@ -62,6 +67,7 @@ export default {
       },
       fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/applicants`, // 지원자 명단을 가져오는 서버 URL
       submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/applicants/notifications`, // 합/불 결과를 보내는 서버 URL
+      show401Popup: false,
     };
   },
   //지원자 명단 가져오기
@@ -69,6 +75,15 @@ export default {
     this.fetchApplicants();
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
+
     // 지원자 목록을 서버에서 가져오는 메서드
     async fetchApplicants() {
       try {
@@ -79,23 +94,28 @@ export default {
             'Content-Type': 'application/json',
           },
         });
+
+        // 여기에 401 체크 추가
+        if (response.status === 401) {
+          this.show401Popup = true;
+          return;
+        }
+
         if (response.ok) {
           const result = await response.json();
-          console.log(':', result); // 응답 데이터 출력
-        
-        // 데이터가 올바른 형식인지(서버가 기대하는) 확인 후 지원자 배열에 저장
+          console.log(':', result);
+
           const data = result.data;
-          if (data && Array.isArray(data)) { // 올바른 배열인지 확인
+          if (data && Array.isArray(data)) {
             this.applicants = data.map(applicant => ({
-              aplictId: applicant.aplictId, // 지원자 id
-              userName: applicant.userName,//지원자 이름
-              studentNumber: applicant.studentNumber,//학번
-              major: applicant.major,//전공
-              userHp: applicant.userHp,//전화번호
-              decision: null, // decision 필드 초기화(합/불 경정 초기화)
+              aplictId: applicant.aplictId,
+              userName: applicant.userName,
+              studentNumber: applicant.studentNumber,
+              major: applicant.major,
+              userHp: applicant.userHp,
+              decision: null,
             }));
 
-          //  console.log(":", this.applicants); // 변환된 지원자 데이터 출력
             this.showNotification('지원자 목록을 성공적으로 가져왔습니다.', 'success');
           } else {
             console.error('지원자 데이터 형식 오류', data);
@@ -106,8 +126,8 @@ export default {
           this.showNotification('지원자 데이터를 가져오는 데 실패했습니다.', 'error');
         }
       } catch (error) {
-        console.error('지원자 데이터 가져오는 중 에러 발생', error);
-        this.showNotification('지원자 데이터를 가져오는 중 문제가 발생했습니다.', 'error');
+        console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+        alert('동아리 정보를 불러오는데 실패했습니다.');
       }
     },
     //합/불 결과 전송 확인 팝업 표시
@@ -137,15 +157,11 @@ export default {
         return;
       }
       console.log('결과 전송 중...');
-      //지원자 합/불 상태를 결과 배열로 구성
       const results = this.applicants.map(applicant => ({
-        aplictId: applicant.aplictId, // 지원자 id
-        aplictStatus: applicant.decision, // 합/불 상태
+        aplictId: applicant.aplictId,
+        aplictStatus: applicant.decision,
       }));
 
-      // 전송할 데이터 로그 출력
-    //  console.log("전송할 데이터:", results);
-      //합/불 결과 서버에 요청
       try {
         const response = await axios.post(this.submitUrl, results, {
           headers: {
@@ -154,27 +170,27 @@ export default {
           },
         });
 
-        //결과 전송 성공 시 페이지 새로고침
-        //console.log('결과 전송 성공:', response.data);
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
-        window.location.reload();  // 페이지 새로고침
+        window.location.reload();
       } catch (error) {
         if (error.response) {
-          const errorData = error.response.data;
+          // 401 체크 추가
+          if (error.response.status === 401) {
+            this.show401Popup = true;
+            return;
+          }
 
-          // ClubMemberException 예외 처리
+          const errorData = error.response.data;
           if (errorData.code === "CMEM-202") {
             console.error('ClubMemberException 발생:', errorData.message);
             this.showNotification('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
-            window.location.reload();  // 페이지 새로고침
-          } 
-          // 기타 서버 응답 오류 처리
-          else {
+            window.location.reload();
+          } else {
             console.error('결과 전송 실패:', errorData.message || '서버 오류 발생');
             this.showNotification(errorData.message || '결과 전송에 실패했습니다.', 'error');
-            window.location.reload();  // 페이지 새로고침
+            window.location.reload();
           }
-        } 
+        }
       }
     },
     // 지원자의 합/불 상태를 토글하는 메서드

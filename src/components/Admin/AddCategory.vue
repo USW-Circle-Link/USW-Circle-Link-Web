@@ -47,14 +47,17 @@
       <button class="confirm-button" @click="closePopup3">확인</button>
     </div>
   </div>
+  <Popup401 v-if="show401Popup" />
 </template>
 
 
 <script>
 import axios from "axios";
 import store from "@/store/store";
+import Popup401 from "@/components/Admin/401Popup.vue";
 
 export default {
+  components: {Popup401},
   data() {
     return {
       categories: [], // 초기 카테고리 데이터
@@ -65,12 +68,21 @@ export default {
       isPopupVisible2: false,
       isPopupVisible3: false,
 
+      show401Popup: false  // 401 팝업
     };
   },
   mounted() {
     this.fetchCategory();
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     async fetchCategory(){
       try {
         const response = await axios.get("http://15.164.246.244:8080/admin/category", {
@@ -88,8 +100,9 @@ export default {
         }
         console.log('카테고리 불러오기 성공',this.categoryMap);
       } catch (error) {
-        console.error("Error fetching clubs:", error);
-        alert("카테고리를 불러오는데 실패했습니다.");
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
     async addCategory() {
@@ -107,7 +120,9 @@ export default {
               });
           //console.log(response);
         } catch (error) {
-          console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
+          if (!this.handle401Error(error)) {
+            console.error('Error updating member:', error);
+          }
         }
         this.isPopupVisible1 = true;
         // 중복 확인 및 값 추가
@@ -129,7 +144,9 @@ export default {
         this.categories.splice(index, 1); // 카테고리 삭제
         this.isPopupVisible3 = true;
       } catch (error) {
-        console.error("Error:", error);
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
     closePopup1(){

@@ -85,15 +85,20 @@
       </div>
     </div>
 
+    <Popup401 v-if="show401Popup" />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import store from '../../store/store';
+import Popup401 from './401Popup.vue';
 
 export default {
   name: 'ClubInfoTextInput',
+  components: {
+    Popup401
+  },
   data() {
     return {
       images: [
@@ -117,12 +122,22 @@ export default {
       textSize: 0,
       RecruittextSize: 0,
       showConfirmPopup: false,
+      show401Popup: false
     };
   },
   mounted() {
     this.fetchClubInfo();  // 클럽 정보를 가져옵니다.
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
+
     // 클럽 정보 가져오기
     async fetchClubInfo() {
       const clubId = store.state.clubId;
@@ -152,8 +167,10 @@ export default {
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
 
       } catch (error) {
-        //console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
-        this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
       this.updateTextSize();
       this.updateRecruitTextSize();
@@ -342,7 +359,10 @@ export default {
         this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
 
       } catch (error) {
-        console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
     },
     // 이미지 업로드

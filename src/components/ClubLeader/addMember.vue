@@ -112,14 +112,19 @@
     </div>
 
   </div>
+  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
 //import * as XLSX from "xlsx";
 import axios from "axios";
 import store from "@/store/store";
+import Popup401 from './401Popup.vue'; // 401 팝업 컴포넌트 추가
 
 export default {
+  components:{
+    Popup401,
+  },
   data() {
     return {
       members: [], // 업로드된 회원 정보를 저장
@@ -141,6 +146,7 @@ export default {
 
       // 두 번째 select의 선택된 값
       selectedSecondOption: '',
+      show401Popup: false,
 
       // 첫 번째 옵션 값에 따라 두 번째 옵션 목록을 정의
       optionsMapping: {
@@ -170,6 +176,14 @@ export default {
     }
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     formatPhoneNumber(phoneNumber) {
       // 전화번호를 '010-1234-5678' 형식으로 변환
       if (!phoneNumber) return "";
@@ -240,7 +254,10 @@ export default {
           this.isOverlappingMemberListsPopupVisible = true;
         }
       } catch (error) {
-        console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
 
       //reader.readAsArrayBuffer(file);
@@ -298,7 +315,10 @@ export default {
               this.isOverlappingMembersPopupVisible = true;
             }
           } catch (error) {
-            console.error("오류가 발생했습니다:", error.response);
+            if (!this.handle401Error(error)) {
+              console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+              alert('동아리 정보를 불러오는데 실패했습니다.');
+            }
           }
     },
     navigateTo(routeName) {
