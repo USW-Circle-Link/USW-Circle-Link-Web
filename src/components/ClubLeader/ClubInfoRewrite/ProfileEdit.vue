@@ -453,6 +453,7 @@ export default {
 
         this.showSuccessPopup = true;
         this.$emit('update');
+        this.$store.dispatch('triggerSidebarUpdate');
 
         if (this.file && response.data.data.presignedUrl) {
           this.presignedUrl = response.data.data.presignedUrl;

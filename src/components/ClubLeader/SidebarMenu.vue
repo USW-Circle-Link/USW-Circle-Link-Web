@@ -76,8 +76,21 @@ export default {
       selectedLink: '', //선택 중이라면 노란색으로 (footer)
     }
   },
+  computed: {
+    shouldUpdateSidebar() {
+      return this.$store.state.shouldUpdateSidebar;
+    }
+  },
   mounted() {
     this.pageLoadFunction();
+  },
+  watch: {
+    shouldUpdateSidebar(newValue) {
+      if (newValue) {
+        this.pageLoadFunction();
+        this.$store.commit('SET_SIDEBAR_UPDATE', false);
+      }
+    }
   },
   methods: {
     navigateTo(routeName) {

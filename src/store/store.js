@@ -8,8 +8,12 @@ export default createStore({
         clubId: localStorage.getItem('clubId') || 0,
         role: localStorage.getItem('role') || '',
         isAgreedTerms: localStorage.getItem('isAgreedTerms') === 'true' || false,
+        shouldUpdateSidebar: false
     },
     mutations: {
+        SET_SIDEBAR_UPDATE(state, value) {
+            state.shouldUpdateSidebar = value;
+        },
         setAccessToken(state, token) {
             state.accessToken = token;
             localStorage.setItem('accessToken', token);
@@ -47,6 +51,9 @@ export default createStore({
         }
     },
     actions: {
+        triggerSidebarUpdate({ commit }) {
+            commit('SET_SIDEBAR_UPDATE', true);
+        },
         async setAuthData({ commit }, { accessToken, refreshToken, role, clubId, isAgreedTerms }) {
             commit('setAccessToken', accessToken);
             commit('setRefreshToken', refreshToken);
