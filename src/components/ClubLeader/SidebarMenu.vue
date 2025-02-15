@@ -11,32 +11,31 @@
     </div>
     <nav>
       <ul>
-        <li class="list1">
+        <li class="list2">
           <div class="top" @click="navigateTo('dashboard')">
             <i class="icon home"></i>
             <p class="menu">홈(회원관리)</p>
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-            <a @click.prevent="navigateTo('profileedit')">- 동아리 정보 수정</a>
-            <a @click.prevent="navigateTo('addMember')">- 동아리 회원 추가</a>
-            <a @click.prevent="navigateTo('duplicate-member')">- 중복 회원 추가</a>
-            <a @click.prevent="navigateTo('remove-member')">- 회원 퇴출</a>
-            <a @click.prevent="navigateTo('Accept')">- 동아리 회원 가입 요청 관리</a>
-
+            <a @click.prevent="navigateTo('addMember')">· 동아리 회원 추가</a>
+            <a @click.prevent="navigateTo('duplicate-member')">· 중복 회원 추가</a>
+            <a @click.prevent="navigateTo('remove-member')">· 회원 퇴출</a>
+            <a @click.prevent="navigateTo('Accept')">· 동아리 회원 가입 요청 관리</a>
           </div>
         </li>
-        <li class="list2">
-          <div class="top" @click="navigateTo('intro')">
+        <li class="list1">
+          <div class="top" @click="navigateTo('profileedit')">
             <i class="icon mail"></i>
-            <p class="menu">동아리 소개&모집</p>
+            <p class="menu">동아리 관리</p>
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-            <a @click="openNewWindow1">- 동아리소개/모집글</a>
-            <a @click="navigateTo('intro')">- 소개/모집글작성</a>
-            <a @click="navigateTo('passer-management')">- 지원자 합격 처리</a>
-            <a @click="navigateTo('morepass')">- 지원자 추가 합격 처리</a>
+            <a @click.prevent="navigateTo('profileedit')">· 동아리 정보 수정</a>
+            <a @click="openNewWindow1">· 동아리 소개/모집글</a>
+            <a @click="navigateTo('intro')">· 동아리 소개/모집글작성</a>
+            <a @click="navigateTo('passer-management')">· 지원자 합격/불합격 처리</a>
+            <a @click="navigateTo('morepass')">· 지원자 추가 합격 처리</a>
           </div>
         </li>
         <li class="list3" @click="navigateTo('notice')">
@@ -114,7 +113,7 @@ export default {
         });
 
         this.data = response.data.data;
-        this.department = this.getDepartmentName(this.data.department);
+        this.department = this.data.department;
 
         if (this.data.mainPhotoUrl) {
           const imageResponse = await axios.get(this.data.mainPhotoUrl, {
@@ -129,17 +128,6 @@ export default {
         this.error = error.message;
       }
     },
-    getDepartmentName(departmentCode) {
-      const departmentMapping = {
-        'ACADEMIC': '학술',
-        'RELIGION': '종교',
-        'ART': '예술',
-        'SPORT': '체육',
-        'SHOW': '공연',
-        'VOLUNTEER': '봉사'
-      };
-      return departmentMapping[departmentCode] || '';
-    }
   }
 };
 </script>

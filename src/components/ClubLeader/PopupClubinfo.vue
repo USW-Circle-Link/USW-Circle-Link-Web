@@ -176,7 +176,7 @@ export default {
 
       try {
         const response = await axios.get(
-            `http://15.164.246.244:8080/club-leader/${clubId}/summary`,
+            `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
