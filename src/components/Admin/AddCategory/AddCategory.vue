@@ -1,6 +1,5 @@
 <template>
   <div class="title">카테고리 작성하기</div>
-
   <div class="container">
     <!-- 카테고리 리스트 -->
     <h2>카테고리 리스트</h2>
@@ -26,27 +25,13 @@
       <button class="save-btn" @click="addCategory">저장하기</button>
     </div>
   </div>
+  <!--카테고리 추가 성공, 중복, 삭제 팝업창-->
+  <AddCategoryPopup
+      v-if="showPopup"
+      :serverMessage="serverMessage"
+      @close="closeResultPopup"
+  />
 
-  <div v-if="isPopupVisible1" class="popup-overlay">
-    <div class="popup">
-      <p class="confirm-message">카테고리가 정상적으로 저장되었습니다.</p>
-      <button class="confirm-button" @click="closePopup1">확인</button>
-    </div>
-  </div>
-
-  <div v-if="isPopupVisible2" class="popup-overlay">
-    <div class="popup">
-      <p class="confirm-message">이미 존재하는 카테고리입니다.</p>
-      <button class="confirm-button" @click="closePopup2">확인</button>
-    </div>
-  </div>
-
-  <div v-if="isPopupVisible3" class="popup-overlay">
-    <div class="popup">
-      <p class="confirm-message">카테고리가 정상적으로 삭제되었습니다.</p>
-      <button class="confirm-button" @click="closePopup3">확인</button>
-    </div>
-  </div>
   <Popup401 v-if="show401Popup" />
 </template>
 
@@ -55,18 +40,18 @@
 import axios from "axios";
 import store from "@/store/store";
 import Popup401 from "@/components/Admin/401Popup.vue";
+import AddCategoryPopup from "@/components/Admin/AddCategory/AddCategoryPopup.vue";
 
 export default {
-  components: {Popup401},
+  components: {AddCategoryPopup, Popup401},
   data() {
     return {
       categories: [], // 초기 카테고리 데이터
       categoryName: "", // 새로 추가할 카테고리
       categoryMap: new Map(),
 
-      isPopupVisible1: false,
-      isPopupVisible2: false,
-      isPopupVisible3: false,
+      showPopup: false,
+      serverMessage: '',
 
       show401Popup: false  // 401 팝업
     };
@@ -119,17 +104,19 @@ export default {
                 }
               });
           //console.log(response);
+          this.serverMessage = '카테고리가 정상적으로 저장되었습니다.'
+          this.showPopup = true;
+          // 중복 확인 및 값 추가
+          this.categories.push(trimmedCategory);
+          this.categoryName = ""; // 입력 필드 초기화
         } catch (error) {
           if (!this.handle401Error(error)) {
             console.error('Error updating member:', error);
           }
         }
-        this.isPopupVisible1 = true;
-        // 중복 확인 및 값 추가
-        this.categories.push(trimmedCategory);
-        this.categoryName = ""; // 입력 필드 초기화
       } else if (this.categories.includes(trimmedCategory)) {
-        this.isPopupVisible2 = true;
+        this.serverMessage = '이미 존재하는 카테고리입니다.'
+        this.showPopup = true;
       }
     },
     async removeCategory(category,index) {
@@ -142,21 +129,16 @@ export default {
           },
         });
         this.categories.splice(index, 1); // 카테고리 삭제
-        this.isPopupVisible3 = true;
+        this.serverMessage = '카테고리가 정상적으로 삭제되었습니다.'
+        this.showPopup = true;
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('Error updating member:', error);
         }
       }
     },
-    closePopup1(){
-      this.isPopupVisible1 = false;
-    },
-    closePopup2(){
-      this.isPopupVisible2 = false;
-    },
-    closePopup3(){
-      this.isPopupVisible3 = false;
+    closeResultPopup() {
+      this.showPopup = false
     }
   },
 };
@@ -268,54 +250,5 @@ h2 {
 
 .save-btn:hover {
   background-color: #e0891a;
-}
-
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  flex-direction: column;
-}
-
-.popup {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 452px;
-  height: 184px;
-  text-align: left;
-  position: relative;
-}
-
-.confirm-message{
-  text-align: center;
-  margin-top: 80px;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 12px;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-}
-
-.confirm-button{
-  background-color: #FFB052;
-  color: white;
-  border: none;
-  padding: 7px 30px;
-  border-radius: 7px;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
 }
 </style>
