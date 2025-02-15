@@ -141,7 +141,7 @@ const routes = [
             {
                 path: 'AddClub',
                 name: 'AddClub',
-                component: () => import('../components/Admin/AddClub.vue'),
+                component: () => import('../components/Admin/AddClub/AddClub.vue'),
             },
 
             {
