@@ -21,12 +21,12 @@
             />
             <div v-if="floorData.B1.showingIcon" class="icons-container">
               <img
-                src="../../assets/zoom-in.png"
+                src="../../assets/zoom.svg"
                 class="icon zoom-icon"
                 @click="enlargeImage(floorData.B1.imageSrc)"
               />
               <img
-                src="../../assets/remove.png"
+                src="../../assets/remove.svg"
                 class="icon remove-icon"
                 @click="markImageForDeletion('B1')"
               />
@@ -68,12 +68,12 @@
               />
               <div v-if="floorData.F1.showingIcon" class="icons-container">
                 <img
-                  src="../../assets/zoom-in.png"
+                  src="../../assets/zoom.svg"
                   class="icon zoom-icon"
                   @click="enlargeImage(floorData.F1.imageSrc)"
                 />
                 <img
-                  src="../../assets/remove.png"
+                  src="../../assets/remove.svg"
                   class="icon remove-icon"
                   @click="markImageForDeletion('F1')"
                 />
@@ -113,12 +113,12 @@
               />
               <div v-if="floorData.F2.showingIcon" class="icons-container">
                 <img
-                  src="../../assets/zoom-in.png"
+                  src="../../assets/zoom.svg"
                   class="icon zoom-icon"
                   @click="enlargeImage(floorData.F2.imageSrc)"
                 />
                 <img
-                  src="../../assets/remove.png"
+                  src="../../assets/remove.svg"
                   class="icon remove-icon"
                   @click="markImageForDeletion('F2')"
                 />
@@ -147,7 +147,7 @@
     <div v-if="enlargedImage" class="image-modal">
       <div class="image-wrapper">
         <img
-          src="../../assets/remove.png"
+          src="../../assets/remove.svg"
           class="remove-icon-modal"
           @click="closeModal"
           alt="Close Modal"
@@ -369,8 +369,8 @@ export default {
 <style scoped>
 .title {
   color: black;
-  font-size: 25px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 600;
   margin-bottom: 30px;
   position: relative; /* 상대 위치 설정 */
   display: inline-block;
@@ -406,7 +406,7 @@ export default {
 
 .image-box {
   width: 280px; /* 고정 너비 */
-  height: 160px; /* 고정 높이 */
+  height: 182px; /* 고정 높이 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -457,7 +457,6 @@ export default {
   transform: translate(-40%, -30%);
   pointer-events: all;
   cursor: pointer;
-  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
 }
 
 .upload-placeholder {
@@ -465,8 +464,8 @@ export default {
 }
 
 .upload-button {
-    width: 280px;
-    height: 30px;
+    width: 274px;
+    height: 35px;
     display: flex;
     flex-shrink: 0;
     border-radius: 8px;
@@ -537,7 +536,6 @@ export default {
   top: 10px;
   right: 0px;
   cursor: pointer;
-  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
 }
 h2{
   align-self: start;
@@ -545,7 +543,7 @@ h2{
   margin-bottom: -5px;
 }
 h3 {
-  font-size: 18px;
+  font-size: 14px;
 }
 .line {
   border: 1px solid;
@@ -561,7 +559,6 @@ h3 {
   top: 10px;
   right: 10px;
   pointer-events: all;
-  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
 }
 .upload-icon {
   width: 16px;
