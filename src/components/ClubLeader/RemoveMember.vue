@@ -4,7 +4,7 @@
     <div id="RemoveMemberDashboard" class="RemoveMemberDashboard">
       <div class="member-list">
         <ul>
-          <li v-for="member in formattedClubMembers" :key="member.clubMemberId" class="member-item">
+          <li v-for="member in formattedClubMembers" :key="member.clubMemberUUID" class="member-item">
             <label class="custom-checkbox">
               <input
                   type="checkbox"
@@ -39,7 +39,7 @@
     <div class="expulsion-section">
       <div class="expulsion-list">
         <ul>
-          <li v-for="member in selectedMembers" :key="member.clubMemberId" class="member-item">
+          <li v-for="member in selectedMembers" :key="member.clubMemberUUID" class="member-item">
             <span>{{ member.userName }}</span>
             <span>{{ member.studentNumber }}</span>
             <span>{{ member.major }}</span>
@@ -111,10 +111,10 @@ export default {
     },
     async fetchData() {
       const accessToken = store.state.accessToken;
-      const clubUUId = store.state.clubUUId;
+      const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUId}/members?=null`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?=null`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -131,7 +131,7 @@ export default {
     },
 
     toggleMemberSelection(member) {
-      const index = this.selectedMembers.findIndex(m => m.clubMemberId === member.clubMemberId);
+      const index = this.selectedMembers.findIndex(m => m.clubMemberUUID === member.clubMemberUUID);
       if (index === -1) {
         this.selectedMembers.push(member);
       } else {
@@ -141,16 +141,16 @@ export default {
 
     async expelMember() {
       const accessToken = store.state.accessToken;
-      const clubUUId = store.state.clubUUId;
+      const clubUUID = store.state.clubUUID;
 
       try {
-        // 선택된 회원들의 clubMemberId만 추출하여 요청 데이터 생성
+        // 선택된 회원들의 clubMemberUUID 추출하여 요청 데이터 생성
         const expelData = this.selectedMembers.map(member => ({
-          clubMemberId: member.clubMemberId
+          clubMemberUUID: member.clubMemberUUID
         }));
 
         // DELETE 요청 보내기
-        await axios.delete(`http://15.164.246.244:8080/club-leader/${clubUUId}/members`, {
+        await axios.delete(`http://15.164.246.244:8080/club-leader/${clubUUID}/members`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -160,7 +160,7 @@ export default {
 
         // 퇴출된 회원들을 목록에서 제거
         this.clubMembers = this.clubMembers.filter(
-            member => !this.selectedMembers.some(selected => selected.clubMemberId === member.clubMemberId)
+            member => !this.selectedMembers.some(selected => selected.clubMemberUUID === member.clubMemberUUID)
         );
 
         // 선택된 회원 목록 초기화 및 팝업 닫기
