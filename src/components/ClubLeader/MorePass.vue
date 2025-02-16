@@ -12,7 +12,7 @@
     </div>
     <div class="contents">
       <div class="applicant-list">
-        <div class="applicant-item" v-for="applicant in applicants" :key="applicant.aplictId">
+        <div class="applicant-item" v-for="applicant in applicants" :key="applicant.aplictUUID">
           <p>{{ applicant.userName }}</p>
           <p>{{ applicant.studentNumber }}</p>
           <p>{{ applicant.major }}</p>
@@ -98,7 +98,7 @@ export default {
         const data = response.data.data;
         if (data && Array.isArray(data)) {
           this.applicants = data.map(applicant => ({
-            aplictId: applicant.aplictId,
+            aplictUUID: applicant.aplictUUID,
             userName: applicant.userName,
             studentNumber: applicant.studentNumber,
             major: applicant.major,
@@ -148,7 +148,7 @@ export default {
       const selectedApplicants = this.applicants.filter(applicant => applicant.decision !== null);
 
       const results = selectedApplicants.map(applicant => ({
-        aplictId: applicant.aplictId,
+        aplictUUID: applicant.aplictUUID,
         aplictStatus: applicant.decision,
       }));
 

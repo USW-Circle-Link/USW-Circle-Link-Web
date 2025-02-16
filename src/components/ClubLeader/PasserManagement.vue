@@ -12,7 +12,7 @@
     </div>
     <div class="contents">
       <div class="applicant-list">
-        <div class="applicant-item" v-for="applicant in applicants" :key="applicant.aplictId">
+        <div class="applicant-item" v-for="applicant in applicants" :key="applicant.aplictUUID">
           <p>{{ applicant.userName }}</p>
           <p>{{ applicant.studentNumber }}</p>
           <p>{{ applicant.major }}</p>
@@ -108,7 +108,7 @@ export default {
           const data = result.data;
           if (data && Array.isArray(data)) {
             this.applicants = data.map(applicant => ({
-              aplictId: applicant.aplictId,
+              aplictUUID: applicant.aplictUUID,
               userName: applicant.userName,
               studentNumber: applicant.studentNumber,
               major: applicant.major,
@@ -158,7 +158,7 @@ export default {
       }
       console.log('결과 전송 중...');
       const results = this.applicants.map(applicant => ({
-        aplictId: applicant.aplictId,
+        aplictUUID: applicant.aplictUUID,
         aplictStatus: applicant.decision,
       }));
 
@@ -171,7 +171,7 @@ export default {
         });
 
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
-        window.location.reload();
+        //window.location.reload();
       } catch (error) {
         if (error.response) {
           // 401 체크 추가
@@ -184,11 +184,11 @@ export default {
           if (errorData.code === "CMEM-202") {
             console.error('ClubMemberException 발생:', errorData.message);
             this.showNotification('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
-            window.location.reload();
+            //window.location.reload();
           } else {
             console.error('결과 전송 실패:', errorData.message || '서버 오류 발생');
             this.showNotification(errorData.message || '결과 전송에 실패했습니다.', 'error');
-            window.location.reload();
+            //window.location.reload();
           }
         }
       }
