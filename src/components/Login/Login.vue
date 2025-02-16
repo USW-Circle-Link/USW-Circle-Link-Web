@@ -148,14 +148,14 @@ export default {
 
         if (response.data) {
           const { message, data } = response.data;
-          const { accessToken, refreshToken, role, clubId, isAgreedTerms } = data;
+          const { accessToken, refreshToken, role, clubUUID, isAgreedTerms } = data;
 
           // Store에 저장할 데이터 준비
           const authData = {
             accessToken,
             refreshToken,
             role,
-            clubId: clubId || null,
+            clubUUID: clubUUID || null,
             // isAgreedTerms가 boolean 값일 때만 해당 값을 사용하고,
             // 그 외의 경우(undefined 등)에는 false를 기본값으로 사용
             isAgreedTerms: typeof isAgreedTerms === 'boolean' ? isAgreedTerms : false

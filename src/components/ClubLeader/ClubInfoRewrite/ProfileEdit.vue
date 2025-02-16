@@ -343,10 +343,10 @@ export default {
     // 동아리 정보 로드
     async fetchClubInfo() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -409,7 +409,7 @@ export default {
 
       this.isLoading = true;
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
         const formData = new FormData();
@@ -437,11 +437,11 @@ export default {
         }
         // 초기 계정이고(mainPhotoUrl이 빈 문자열) 사용자가 새로운 이미지를 선택하지 않은 경우
         else {
-          formData.append("mainPhoto", "");
+          formData.append("mainPhoto", null);
         }
 
         const response = await axios.put(
-            `http://15.164.246.244:8080/club-leader/${clubId}/info`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/info`,
             formData,
             {
               headers: {

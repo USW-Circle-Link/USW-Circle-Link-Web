@@ -333,19 +333,25 @@ export default {
       }
 
       const accessToken = this.$store.state.accessToken;
-      const clubId = this.$store.state.clubId;
-      const memberId = this.displayedMembers[this.editingIndex].clubMemberId;
+      const clubUUID = this.$store.state.clubUUID;
+      const memberUUID = this.displayedMembers[this.editingIndex].clubMemberUUID;
+
+      // 수정된 데이터 로깅
+      console.log('Modified member data:', this.editingMember);
 
       const updateData = {
-        userName: this.editingMember.userName,
-        studentNumber: this.editingMember.studentNumber,
+        userName: this.editingMember.userName.trim(),
+        studentNumber: this.editingMember.studentNumber.trim(),
         userHp: this.editingMember.userHp.replace(/-/g, ''),
-        major: this.editingMember.major,
+        major: this.editingMember.major.trim()
       };
 
+      // 요청 데이터 로깅
+      console.log('Request payload:', updateData);
+
       try {
-        await axios.patch(
-            `http://15.164.246.244:8080/club-leader/${clubId}/members/${memberId}/non-member`,
+        const response = await axios.patch(
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/${memberUUID}/non-member`,
             updateData,
             {
               headers: {
@@ -355,12 +361,17 @@ export default {
             }
         );
 
+        console.log('Server response:', response);
+
         this.showEditConfirmPopup = false;
         this.editingIndex = -1;
         this.editingMember = null;
 
         await this.fetchData();
       } catch (error) {
+        if (error.response) {
+          console.error('Error response data:', error.response.data);
+        }
         if (!this.handle401Error(error)) {
           console.error('Error updating member:', error);
         }
@@ -386,9 +397,9 @@ export default {
       this.editingIndex = index;
       const currentMember = this.displayedMembers[index];
 
-      // 명시적으로 각 필드를 매핑하여 순서 보장
+      // 깊은 복사를 통해 현재 멤버 정보를 새로운 객체로 복사
       this.editingMember = {
-        clubMemberId: currentMember.clubMemberId,
+        clubMemberUUID: currentMember.clubMemberUUID,
         userName: currentMember.userName,
         studentNumber: currentMember.studentNumber,
         major: currentMember.major,
@@ -420,10 +431,10 @@ export default {
 
     async pageLoadFunction() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -450,17 +461,17 @@ export default {
 
     async fetchData() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
         const [regularResponse, nonRegularResponse] = await Promise.all([
-          axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?sort=regular-member`, {
+          axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?sort=regular-member`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
             }
           }),
-          axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?sort=non-member`, {
+          axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?sort=non-member`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
@@ -468,6 +479,7 @@ export default {
           })
         ]);
 
+        // clubMemberId 대신 clubMemberUUID를 사용하도록 매핑 수정
         this.regularMembers = regularResponse.data.data.map(member => ({
           ...member,
           isRegularMember: true,
@@ -499,8 +511,8 @@ export default {
       this.isLoading = true; // 로딩 시작
       try {
         const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
-        const clubId = store.state.clubId; // 저장된 clubId 가져오기
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members/export`, {
+        const clubUUID = store.state.clubUUID; // 저장된 clubUUID 가져오기
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members/export`, {
           responseType: 'blob', // Blob 형태로 응답을 받기 위해 설정
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함

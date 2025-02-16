@@ -213,11 +213,11 @@ export default {
       };
 
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
         const response = await axios.post(
-            `http://15.164.246.244:8080/club-leader/${clubId}/members/duplicate-profiles`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/duplicate-profiles`,
             data,
             {
               headers: {
@@ -229,10 +229,14 @@ export default {
         console.log('서버 응답:', response.data);
         return response.data;
       } catch (error) {
-        if (!this.handle401Error(error)) {
-          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
-          alert('동아리 정보를 불러오는데 실패했습니다.');
+        if (error.response && error.response.status === 401) {
+          this.show401Popup = true;
+        } else if (error.response && (error.response.status === 400 || error.response.status === 404)) {
+          this.isSuccess = false;
+          this.serverMessage = error.response.data.message || '요청 처리 중 오류가 발생했습니다.';
+          this.showResultPopup = true;
         }
+        throw error;
       }
     },
     closeResultPopup() {
@@ -258,6 +262,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 
 .duplicate-title {

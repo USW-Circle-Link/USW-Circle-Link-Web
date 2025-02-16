@@ -115,10 +115,10 @@ export default {
     async pageLoadFunction() {
       console.log('Page has been loaded!');
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'

@@ -111,10 +111,10 @@ export default {
     },
     async fetchData() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUId = store.state.clubUUId;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?=null`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUId}/members?=null`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -141,7 +141,7 @@ export default {
 
     async expelMember() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUId = store.state.clubUUId;
 
       try {
         // 선택된 회원들의 clubMemberId만 추출하여 요청 데이터 생성
@@ -150,7 +150,7 @@ export default {
         }));
 
         // DELETE 요청 보내기
-        await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members`, {
+        await axios.delete(`http://15.164.246.244:8080/club-leader/${clubUUId}/members`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
