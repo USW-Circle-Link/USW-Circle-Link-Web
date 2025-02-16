@@ -1,6 +1,10 @@
 <template>
   <div class="whole-container">
-    <h2>동아리 활동 사진</h2>
+    <div class="head">
+      <h2>동아리 활동 사진</h2>
+      <div class="empty"></div>
+      <div class="warning-text">동아리와 관련 없는 사진 업로드 시, 권한이 제한될 수 있습니다.</div>
+    </div>
     <div class="image-upload-container">
       <div v-for="(image, index) in images" :key="index" class="image-preview">
         <div v-if="image.src" class="image-preview">
@@ -28,7 +32,7 @@
     <div class="ClubTextInput">
       <div class="textarea-container">
         <textarea
-          placeholder="동아리에 대해 자유롭게 설명해주세요. 사진은 5장까지 첨부 가능합니다. 동아리와 관련 없는 사진 업로드 시, 권한이 제한될 수 있습니다."
+          placeholder="동아리에 대해 자유롭게 설명해주세요."
           v-model="textareaContent"
           rows="4"
           cols="50"
@@ -140,11 +144,11 @@ export default {
 
     // 클럽 정보 가져오기
     async fetchClubInfo() {
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/intro`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/intro`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -199,11 +203,11 @@ export default {
     // 모집중 토글(on/off)
     async toggleCheckbox() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
       this.isChecked = !this.isChecked;
       this.$emit('sendData', this.isChecked);
 
-      axios.patch(`http://15.164.246.244:8080/club-leader/${clubId}/recruitment`, {
+      axios.patch(`http://15.164.246.244:8080/club-leader/${clubUUID}/recruitment`, {
         key: this.isChecked
       }, {
         headers: {
@@ -298,7 +302,7 @@ export default {
     },
     // 정보 저장
     async saveInfo() {
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
 
       // if (this.textareaContent === '') {
@@ -339,7 +343,7 @@ export default {
 
       try {
         const response = await axios.put(
-            `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/intro`,
             form,
             {
               headers: {
@@ -406,6 +410,12 @@ export default {
 
 
 <style scoped>
+.warning-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: #656565;
+}
+
 .whole-container {
   display: flex;
   flex-direction: column; /* 세로 정렬 */
@@ -568,7 +578,7 @@ textarea:focus {
 .head{
   display: flex;
   width: 886px;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   white-space: nowrap; /* 줄바꿈 방지 */
 }
