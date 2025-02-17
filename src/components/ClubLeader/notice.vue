@@ -17,7 +17,7 @@
           </tr>
           <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
             <td>
-              <button @click="goToNotice(notice.noticeId, notice.adminName)">
+              <button @click="goToNotice(notice.noticeUUID, notice.adminName)">
                 {{ notice.noticeTitle }}
               </button>
             </td>
@@ -133,12 +133,12 @@ export default {
         this.notices = [];
       }
     },
-    goToNotice(noticeId) {
+    goToNotice(noticeUUID) {
       const currentPath = this.$route.path;
       if (currentPath.startsWith('/main')) {
-        this.$router.push({ name: 'NoticeClick', params: { id: noticeId } });
+        this.$router.push({ name: 'NoticeClick', params: { id: noticeUUID } });
       } else {
-        this.$router.push({ name: 'NoticeClick', params: { id: noticeId } });
+        this.$router.push({ name: 'NoticeClick', params: { id: noticeUUID } });
       }
     },
     changePage(page) {
