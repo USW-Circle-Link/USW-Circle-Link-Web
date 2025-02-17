@@ -88,9 +88,9 @@
     <div class="notice-list">
       <table>
         <tbody>
-          <tr v-for="notice in notices" :key="notice.noticeId">
+          <tr v-for="notice in notices" :key="notice.noticeUUID">
             <td>
-              <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
+              <button @click="goToNotice(notice.noticeUUID)">{{ notice.noticeTitle }}</button>
             </td>
             <td>{{ notice.adminName }}</td>
             <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
@@ -251,13 +251,13 @@ export default {
     },
     async confirmDelete() {
       try {
-        if (!this.notice || !this.notice.noticeId) {
+        if (!this.notice || !this.notice.noticeUUID) {
           alert('삭제할 공지사항 정보가 없습니다.');
           return;
         }
 
         const accessToken = store.state.accessToken;
-        const deleteUrl = `http://15.164.246.244:8080/notices/${this.notice.noticeId}`;
+        const deleteUrl = `http://15.164.246.244:8080/notices/${this.notice.noticeUUID}`;
 
         const response = await axios.delete(deleteUrl, {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -265,7 +265,7 @@ export default {
 
         if (response.status === 200) {
           alert('공지사항이 성공적으로 삭제되었습니다.');
-          this.notices = this.notices.filter((n) => n.noticeId !== this.notice.noticeId);
+          this.notices = this.notices.filter((n) => n.noticeId !== this.notice.noticeUUID);
           this.showDeletePopup = false;
           this.$router.push({ name: 'Notice' });
         } else {
@@ -282,14 +282,14 @@ export default {
       alert(`${message}: ${error.message}`);
     },
     prevNotice() {
-      const currentIndex = this.notices.findIndex((n) => n.noticeId === this.notice.noticeId);
+      const currentIndex = this.notices.findIndex((n) => n.noticeUUID === this.notice.noticeUUID);
       const prevIndex = (currentIndex - 1 + this.notices.length) % this.notices.length;
-      this.goToNotice(this.notices[prevIndex].noticeId); // 이전 공지 이동
+      this.goToNotice(this.notices[prevIndex].noticeUUID); // 이전 공지 이동
     },
     nextNotice() {
-      const currentIndex = this.notices.findIndex((n) => n.noticeId === this.notice.noticeId);
+      const currentIndex = this.notices.findIndex((n) => n.noticeUUID === this.notice.noticeUUID);
       const nextIndex = (currentIndex + 1) % this.notices.length;
-      this.goToNotice(this.notices[nextIndex].noticeId); // 다음 공지 이동
+      this.goToNotice(this.notices[nextIndex].noticeUUID); // 다음 공지 이동
     },
     changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
@@ -298,11 +298,11 @@ export default {
       }
     },
     goToNotice(id) {
-      this.$router.push({ name: 'AdminNoticeClick', params: { id } }); // 공지사항 상세보기로 이동
+      this.$router.push({ name: 'AdminNoticeClick', params: { noticeUUID } }); // 공지사항 상세보기로 이동
     },
     editNotice() {
-      if (this.notice && this.notice.noticeId) {
-        this.$router.push({ name: 'noticeedit', params: { id: this.notice.noticeId } });
+      if (this.notice && this.notice.noticeUUID) {
+        this.$router.push({ name: 'noticeedit', params: { id: this.notice.noticeUUID } });
       } else {
         console.error('No notice available to edit.');
       }
@@ -313,7 +313,7 @@ export default {
   },
   watch: {
     $route(to) {
-      this.fetchNotice(to.params.id);
+      this.fetchNotice(to.params.noticeUUID);
     },
   },
 };
