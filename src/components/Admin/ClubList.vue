@@ -22,7 +22,7 @@
         <div class="list-item-numberOfClubMembers">{{ club.numberOfClubMembers }}</div>
       </div>
       <div class="list-item-delete">
-        <button class="delete-btn" @click="openPopup(club.clubId, index, club.clubName)">삭제</button>
+        <button class="delete-btn" @click="openPopup(club.clubUUID, index, club.clubName)">삭제</button>
       </div>
     </div>
     </div>
@@ -153,9 +153,9 @@ export default {
     },
 
     // 삭제 팝업 열기
-    openPopup(clubId, index, clubName) {
+    openPopup(clubUUID, index, clubName) {
       this.PopupClubName = clubName;
-      this.clubToDelete = clubId;
+      this.clubToDelete = clubUUID;
       this.deleteIndex = index;
       this.isPopupVisible = true;
     },
@@ -200,7 +200,7 @@ export default {
 
       // clubId만 URL 파라미터로 전달
       window.open(
-        `/club-popup?clubId=${club.clubId}`,
+        `/club-popup?clubId=${club.clubUUID}`,
         "ClubInfo",
         `width=${width},height=${height},scrollbars=yes,resizable=yes`
       );

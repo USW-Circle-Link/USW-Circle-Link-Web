@@ -163,23 +163,23 @@ export default {
     console.log("해시태그 데이터:", this.data.clubHashtag);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const clubId = urlParams.get("clubId");
+    const clubUUID = urlParams.get("clubId");
 
-    if (!clubId) {
-      console.error("URL에서 clubId를 가져오지 못했습니다.");
+    if (!clubUUID) {
+      console.error("URL에서 clubUUID를 가져오지 못했습니다.");
       return;
     }
 
-    store.commit("SET_CLUB_ID", clubId); // 상태 업데이트
-    this.pageLoadFunction(clubId);
+    store.commit("SET_CLUB_ID", clubUUID); // 상태 업데이트
+    this.pageLoadFunction(clubUUID);
   },
   methods: {
-    async pageLoadFunction(clubId) {
+    async pageLoadFunction(clubUUID) {
       const accessToken = store.state.accessToken;
 
       try {
         const response = await axios.get(
-          `http://15.164.246.244:8080/admin/clubs/${clubId}`,
+          `http://15.164.246.244:8080/admin/clubs/${clubUUID}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
