@@ -118,13 +118,18 @@
       </div>
     </div>
   </div>
+
+  <Popup401 v-if="show401Popup" />
+
 </template>
 
 <script>
 import store from '@/store/store';
 import axios from 'axios';
+import Popup401 from "@/components/Admin/401Popup.vue";
 
 export default {
+  components: {Popup401},
   data() {
     return {
       notices: [], // 공지사항 목록
@@ -134,6 +139,7 @@ export default {
       totalPages: 1, // 전체 페이지 수
       itemsPerPage: 5, // 페이지당 항목 수
       images: [], // 이미지 배열
+      show401Popup: false  // 401 팝업
     };
   },
   created() {
@@ -141,6 +147,14 @@ export default {
     this.fetchNotice(this.$route.params.id); // 현재 공지사항 정보 가져오기
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     convertNewlinesToBr(text) {
       return text ? text.replace(/\n/g, '<br>') : ''; // 줄바꿈을 <br> 태그로 변환
     },
@@ -156,7 +170,9 @@ export default {
         this.notices = response.data.data.content || []; // 공지사항 목록 설정
         this.totalPages = response.data.data.totalPages || 1; // 전체 페이지 수 설정
       } catch (error) {
-        console.error('공지사항 목록을 가져오는 중 오류:', error);
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
     async fetchNotice(id) {
@@ -168,7 +184,9 @@ export default {
         this.notice = response.data.data; // 공지사항 정보 설정
         this.loadImages(response.data.data.noticePhotos); // 이미지 설정
       } catch (error) {
-        console.error('공지사항을 가져오는 중 오류:', error);
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
     loadImages(photoUrls) {
@@ -254,9 +272,9 @@ export default {
           alert(`삭제 실패: 상태 코드 ${response.status}`);
         }
       } catch (error) {
-        console.error('삭제 중 오류:', error.response || error.message);
-        alert(error.response?.data?.message || '삭제 요청 처리 중 문제가 발생했습니다.');
-        this.showDeletePopup = false;
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
     handleError(error, message) {

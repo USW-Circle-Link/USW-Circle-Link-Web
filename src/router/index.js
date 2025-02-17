@@ -141,7 +141,7 @@ const routes = [
             {
                 path: 'AddClub',
                 name: 'AddClub',
-                component: () => import('../components/Admin/AddClub.vue'),
+                component: () => import('../components/Admin/AddClub/AddClub.vue'),
             },
 
             {
@@ -172,7 +172,7 @@ const routes = [
             {
                 path: 'category',
                 name: 'category',
-                component: () => import('../components/Admin/AddCategory.vue'),
+                component: () => import('@/components/Admin/AddCategory/AddCategory.vue'),
                 props: true,
             },
         ]

@@ -23,7 +23,7 @@
             <p class="clubleader">동아리장 <span class="name" style="color: #353549;"><strong>{{ data.leaderName }}</strong></span></p>
             <div class="clubroom">
               <div class="icon category"></div>
-              <p class="room">카테고리 | {{data.clubCategoryName}} </p>
+              <p class="room">카테고리 | {{formattedCategory}} </p>
             </div>
             <div class="hashtags">
               <span v-for="tag in data.clubHashtag" :key="tag" class="hashtag">#{{ tag }}</span>
@@ -139,7 +139,7 @@ export default {
           : "";
     },
     formattedCategory() {
-      return this.data.clubCategory || "카테고리 없음";
+      return this.data.clubCategoryName || "카테고리 없음";
     },
     instagramLink() {
       // Instagram 링크가 http로 시작하지 않으면 추가
@@ -163,11 +163,11 @@ export default {
   },
   mounted() {
     this.pageLoadFunction();
-    console.log("API 응답 데이터:", this.data);
+    console.log("API 응답 데이터!!:", this.data);
     console.log("해시태그 데이터:", this.data.clubHashtag);
     console.log("해시태그 데이터:", this.data.clubRoomNumber);
     console.log("해시태그 데이터:", this.data.clubRecruitment);
-
+    console.log("해시태그 데이터:", this.data.clubCategoryName);
   },
   methods: {
     async pageLoadFunction() {
@@ -564,7 +564,7 @@ export default {
   opacity: 0.8;
 }
 
-.clubroom p {
+.clubroom span {
   color: #767676;  /* 🔹 글씨 색상 변경 */
 }
 

@@ -47,18 +47,22 @@
       </div>
     </div>
   </div>
+  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
 import store from '@/store/store';
+import Popup401 from "@/components/Admin/401Popup.vue";
 
 export default {
+  components: {Popup401},
   data() {
     return {
       notices: [], // 공지사항 목록
       currentPage: 1, // 현재 페이지 번호
       itemsPerPage: 12, // 페이지당 항목 수
       totalPages: 1, // 전체 페이지 수, 초기값 설정
+      show401Popup: false  // 401 팝업 표시 여부
     };
   },
   computed: {
@@ -88,18 +92,14 @@ export default {
       }
     );
 
-    if (!response.ok) {
-  if (response.status === 401 || response.status === 400) {
-    alert(response.status === 401 
-      ? '인증되지 않은 사용자입니다. 다시 로그인해주세요.' 
-      : '공지사항 조회 중 에러가 발생했습니다.');
+    // if (!response.ok) { //HTTP 응답의 상태가 200-299 범위에 있는지 확인하는 boolean 값
+    if (response.status === 401) { //HTTP 응답의 상태 코드가 401로 "Unauthorized"(인증 실패)일 때
+      this.show401Popup = true;  // 401 에러 시 팝업 표시
+      return; //함수 실행을 여기서 종료
+    }
+    //   throw new Error(`오류: ${response.statusText}`); //401이 아닌 다른 에러의 경우 에러를 throw
+    // }
 
-    this.$router.push({ name: 'Login' });
-    return;
-  }
-  
-  throw new Error(`Failed to fetch notices: ${response.status} - ${response.statusText}`);
-}
 
 
     const data = await response.json();

@@ -12,7 +12,7 @@
     </div>
     <div class="contents">
       <div class="applicant-list">
-        <div class="applicant-item" v-for="applicant in applicants" :key="applicant.aplictId">
+        <div class="applicant-item" v-for="applicant in applicants" :key="applicant.aplictUUID">
           <p>{{ applicant.userName }}</p>
           <p>{{ applicant.studentNumber }}</p>
           <p>{{ applicant.major }}</p>
@@ -46,14 +46,19 @@
     </div>
    
   </div>
+  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
 import axios from 'axios'; // axios를 가져옵니다.
 import store from '@/store/store'; // Vuex에서 상태 가져오기
+import Popup401 from './401Popup.vue'; // 401 팝업 컴포넌트 추가
 
 export default {
   name: 'ApplicantManagement',
+  components: {
+    Popup401
+  },
   data() {
     return {
       applicants: [],//지원자 목록 배열
@@ -62,8 +67,9 @@ export default {
         message: '',
         type: ''
       },
-      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants`, // 지원자 명단을 가져오는 서버 URL
-      submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubId}/failed-applicants/notifications`, // 합/불 결과를 보내는 서버 URL
+      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubUUID}/failed-applicants`, // 지원자 명단을 가져오는 서버 URL
+      submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubUUID}/failed-applicants/notifications`, // 합/불 결과를 보내는 서버 URL
+      show401Popup: false,
     };
   },
   //로드 되면 지원자 목록 가져오기
@@ -71,44 +77,41 @@ export default {
     this.fetchApplicants();
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     // 지원자 목록을 서버에서 가져오는 메서드
     async fetchApplicants() {
       try {
-        const response = await fetch(this.fetchUrl, {
-          method: 'GET',
+        const response = await axios.get(this.fetchUrl, {
           headers: {
             'Authorization': `Bearer ${store.state.accessToken}`,
             'Content-Type': 'application/json',
           },
         });
-        if (response.ok) {
-          const result = await response.json();
-        //  console.log('Fetched data:', result); // 응답 데이터 출력
-          //데이터 형식이 올바른 지 확인 후,지원자 배열에 저장
-          const data = result.data;
-          if (data && Array.isArray(data)) {
-            this.applicants = data.map(applicant => ({
-              aplictId: applicant.aplictId, // 지원자 id
-              userName: applicant.userName,//이름
-              studentNumber: applicant.studentNumber,//학번
-              major: applicant.major,//전공
-              userHp: applicant.userHp,//연락처
-              decision: null, // 합/불 결정 초기화
-            }));
 
-            //console.log(":", this.applicants); // 변환된 지원자 데이터 출력
-            this.showNotification('지원자 목록을 성공적으로 가져왔습니다.', 'success');
-          } else {
-            //console.error('지원자 데이터 형식 오류', data);
-            this.showNotification('지원자 데이터를 처리하는 중 오류가 발생했습니다.', 'error');
-          }
-        } else {
-          console.error('지원자 데이터 가져오기 실패', response.statusText);
-          this.showNotification('지원자 데이터를 가져오는 데 실패했습니다.', 'error');
+        const data = response.data.data;
+        if (data && Array.isArray(data)) {
+          this.applicants = data.map(applicant => ({
+            aplictUUID: applicant.aplictUUID,
+            userName: applicant.userName,
+            studentNumber: applicant.studentNumber,
+            major: applicant.major,
+            userHp: applicant.userHp,
+            decision: null,
+          }));
+          this.showNotification('지원자 목록을 성공적으로 가져왔습니다.', 'success');
         }
       } catch (error) {
-        console.error('지원자 데이터 가져오는 중 에러 발생', error);
-        this.showNotification('지원자 데이터를 가져오는 중 문제가 발생했습니다.', 'error');
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          this.showNotification('동아리 정보를 불러오는데 실패했습니다.', 'error');
+        }
       }
     },
     showPopup() {
@@ -126,29 +129,28 @@ export default {
     },
     // 합/불 결과를 서버에 전송하기 전 데이터 검증 메서드
     validateResults() {
-      const valid = this.applicants.every(applicant => applicant.decision !== null);
-      if (!valid) {
-        this.showNotification('모든 지원자에 대해 합/불 상태를 설정해 주세요.', 'error');
+      // 선택된 지원자가 하나라도 있는지 확인
+      const hasSelectedApplicants = this.applicants.some(applicant => applicant.decision !== null);
+
+      if (!hasSelectedApplicants) {
+        alert('최소 한 명 이상의 지원자에 대해 합/불 상태를 설정해 주세요.');
+        return false;
       }
-      return valid;//합/불 상태가 모두 설정 된 경우 true반환
+      return true;
     },
     // 합/불 결과를 서버에 전송하는 메서드
     async sendResults() {
       if (!this.validateResults()) {
-        return;//검증 실패시 전송 중단
-      }
-    
-      const results = this.applicants.map(applicant => ({
-        aplictId: applicant.aplictId, // 필드명 확인
-        aplictStatus: applicant.decision, // 필드명 확인
-      }));
-
-        //전송할 데이터에서 필수 값이 누락되지 않았는 지 확인
-      const hasInvalidData = results.some(result => !result.aplictId || !result.aplictStatus);
-      if (hasInvalidData) {
-        this.showNotification('모든 지원자의 합격/불합격 상태가 설정되지 않았습니다.', 'error');
         return;
       }
+
+      // 결정된 지원자만 필터링
+      const selectedApplicants = this.applicants.filter(applicant => applicant.decision !== null);
+
+      const results = selectedApplicants.map(applicant => ({
+        aplictUUID: applicant.aplictUUID,
+        aplictStatus: applicant.decision,
+      }));
 
       try {
         const response = await axios.post(this.submitUrl, results, {
@@ -158,38 +160,34 @@ export default {
           },
         });
 
-        //console.log('결과 전송 성공:', response.data);
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
-        window.location.reload();  // 페이지 새로고침
-      }  catch (error) {
-        if (error.response) {
-          const errorData = error.response.data;
-
-          // ClubMemberException 예외 처리
-          if (errorData.code === "CMEM-202") {
-            console.error('ClubMemberException 발생:', errorData.message);
-            this.showNotification('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
-            window.location.reload();  // 페이지 새로고침
-          } 
-          // 기타 서버 응답 오류 처리
-          else {
-            console.error('결과 전송 실패:', errorData.message || '서버 오류 발생');
-            this.showNotification(errorData.message || '결과 전송에 실패했습니다.', 'error');
-            window.location.reload();  // 페이지 새로고침
-          }
-        } 
+        window.location.reload();
+      } catch (error) {
+        if (error.response?.data?.code === "CMEM-202") {
+          this.showNotification('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
+          window.location.reload();
+        } else if (!this.handle401Error(error)) {
+          const errorMessage = error.response?.data?.message || '결과 전송에 실패했습니다.';
+          this.showNotification(errorMessage, 'error');
+          window.location.reload();
+        }
       }
     },
-
     // 지원자의 합/불 상태를 토글하는 메서드 @
     toggleDecision(applicant, decision) {
-  if (['PASS', 'FAIL'].includes(decision)) {
-    applicant.decision = decision; // 유효한 값만 설정
-  } else {
-    console.error("잘못된 상태 값: ", decision);
-    this.showNotification('잘못된 합격/불합격 상태입니다. 상태는 PASS 또는 FAIL이어야 합니다.', 'error');
-  }
-},
+      if (['PASS', 'FAIL'].includes(decision)) {
+        // 현재 상태와 같은 상태를 선택하면 선택 해제 (null로 설정)
+        if (applicant.decision === decision) {
+          applicant.decision = null;
+        } else {
+          // 다른 상태를 선택하면 해당 상태로 변경
+          applicant.decision = decision;
+        }
+      } else {
+        console.error("잘못된 상태 값: ", decision);
+        this.showNotification('잘못된 합격/불합격 상태입니다. 상태는 PASS 또는 FAIL이어야 합니다.', 'error');
+      }
+    },
     // 전체 지원자의 합/불 상태를 설정하는 메서드
     setAllApplicantsStatus(status) {
       this.applicants.forEach(applicant => {
@@ -259,6 +257,10 @@ export default {
   color: white;
   cursor: pointer;
   margin-inline-end: 10px;
+}
+
+.approve-box:hover {
+  background-color: #6a9b75;
 }
 /*
 .reject-box {
@@ -338,6 +340,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 999;
 }
 .popup {
   background: white;
@@ -384,6 +387,10 @@ hr {
 .popup-buttons button:last-child {
   background: #ffb052;
   color: white;
+}
+
+.popup-buttons button:last-child:hover {
+  background-color: #e6953e; /* Change to a darker shade on hover */
 }
 /*
 .close-btn {

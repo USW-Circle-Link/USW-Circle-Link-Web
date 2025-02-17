@@ -168,6 +168,10 @@
         </ul>
       </div>
     </div>
+
+    <!-- 401 팝업 컴포넌트 추가 -->
+    <Popup401 v-if="show401Popup" />
+
   </div>
 
   <div class="custom-popup" v-if="showEditConfirmPopup">
@@ -191,11 +195,13 @@ import axios from 'axios';
 import store from '../../store/store'; // 일단 store.js에서 Vuex 상태를 가져옴
 import { colleges, departmentsByCollege } from '../departments.js'; // 학과 정보 가져오기
 import FirstAgree from '../ClubLeader/policy/FirstAgree.vue';
+import Popup401 from './401Popup.vue';
 
 export default {
   name: 'Dashboard',
   components: {
-    FirstAgree
+    FirstAgree,
+    Popup401  // 컴포넌트 등록
   },
   props: {
     isAgreedTerms: {
@@ -241,6 +247,7 @@ export default {
       regularMembers: [], // 정회원 목록
       nonRegularMembers: [], // 비회원 목록
       isTermsAgreed: this.$store.state.isAgreedTerms,
+      show401Popup: false  // 401 팝업 표
     }
   },
   computed: {
@@ -309,6 +316,14 @@ export default {
     await this.pageLoadFunction();
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     handleAgreementConfirmed() {
       this.isTermsAgreed = true;
     },
@@ -318,19 +333,25 @@ export default {
       }
 
       const accessToken = this.$store.state.accessToken;
-      const clubId = this.$store.state.clubId;
-      const memberId = this.displayedMembers[this.editingIndex].clubMemberId;
+      const clubUUID = this.$store.state.clubUUID;
+      const memberUUID = this.displayedMembers[this.editingIndex].clubMemberUUID;
 
-      // 정상적으로 하면 이름제외하고 뒤죽박죽 꼬임 -> 수정함
+      // 수정된 데이터 로깅
+      console.log('Modified member data:', this.editingMember);
+
       const updateData = {
-        userName: this.editingMember.userName,
-        studentNumber: this.editingMember.studentNumber,
+        userName: this.editingMember.userName.trim(),
+        studentNumber: this.editingMember.studentNumber.trim(),
         userHp: this.editingMember.userHp.replace(/-/g, ''),
-        major: this.editingMember.major,
+        major: this.editingMember.major.trim()
       };
+
+      // 요청 데이터 로깅
+      console.log('Request payload:', updateData);
+
       try {
-        await axios.patch(
-            `http://15.164.246.244:8080/club-leader/${clubId}/members/${memberId}/non-member`,
+        const response = await axios.patch(
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/${memberUUID}/non-member`,
             updateData,
             {
               headers: {
@@ -340,15 +361,20 @@ export default {
             }
         );
 
+        console.log('Server response:', response);
+
         this.showEditConfirmPopup = false;
         this.editingIndex = -1;
         this.editingMember = null;
 
-        // 데이터 새로고침
         await this.fetchData();
-
       } catch (error) {
-        console.error('Error updating member:', error);
+        if (error.response) {
+          console.error('Error response data:', error.response.data);
+        }
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
     onCollegeChange() {
@@ -371,9 +397,9 @@ export default {
       this.editingIndex = index;
       const currentMember = this.displayedMembers[index];
 
-      // 명시적으로 각 필드를 매핑하여 순서 보장
+      // 깊은 복사를 통해 현재 멤버 정보를 새로운 객체로 복사
       this.editingMember = {
-        clubMemberId: currentMember.clubMemberId,
+        clubMemberUUID: currentMember.clubMemberUUID,
         userName: currentMember.userName,
         studentNumber: currentMember.studentNumber,
         major: currentMember.major,
@@ -405,10 +431,10 @@ export default {
 
     async pageLoadFunction() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -427,24 +453,25 @@ export default {
           this.imageSrc = require('@/assets/profile.png');
         }
       } catch (error) {
-        console.error('Fetch error:', error);
+        if (!this.handle401Error(error)) {
+          console.error('Fetch error:', error);
+        }
       }
     },
 
     async fetchData() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
-        // 회원과 비회원 데이터를 동시에 가져오기
         const [regularResponse, nonRegularResponse] = await Promise.all([
-          axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?sort=regular-member`, {
+          axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?sort=regular-member`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
             }
           }),
-          axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?sort=non-member`, {
+          axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?sort=non-member`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
@@ -452,10 +479,7 @@ export default {
           })
         ]);
 
-        console.log('Regular Members:', regularResponse.data.data);
-        console.log('Non-Regular Members:', nonRegularResponse.data.data);
-
-        // 각 멤버에 isRegularMember 플래그 추가
+        // clubMemberId 대신 clubMemberUUID를 사용하도록 매핑 수정
         this.regularMembers = regularResponse.data.data.map(member => ({
           ...member,
           isRegularMember: true,
@@ -468,10 +492,11 @@ export default {
           userHp: member.userHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')
         }));
 
-        // 전체 회원 수 업데이트
         this.totalMemberCount = this.regularMembers.length + this.nonRegularMembers.length;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        if (!this.handle401Error(error)) {
+          console.error('Error fetching data:', error);
+        }
       }
     },
 
@@ -486,8 +511,8 @@ export default {
       this.isLoading = true; // 로딩 시작
       try {
         const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
-        const clubId = store.state.clubId; // 저장된 clubId 가져오기
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members/export`, {
+        const clubUUID = store.state.clubUUID; // 저장된 clubUUID 가져오기
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members/export`, {
           responseType: 'blob', // Blob 형태로 응답을 받기 위해 설정
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함
@@ -504,9 +529,10 @@ export default {
         link.click();
         document.body.removeChild(link);
       } catch (error) {
-        console.error('Fetch error:', error);
-        this.error = error.message;
-      } finally {
+        if (!this.handle401Error(error)) {
+          console.error('Fetch error:', error);
+        }
+      }  finally {
         this.isLoading = false; // 로딩 종료
       }
     },

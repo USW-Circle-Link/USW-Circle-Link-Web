@@ -63,16 +63,20 @@
       <button class="submit-button" @click="submitNotice" :disabled="isLoading">수정 완료</button>
     </div>
   </div>
+
+  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
 import axios from 'axios';
 import store from '@/store/store';
 import draggable from 'vuedraggable';
+import Popup401 from "@/components/Admin/401Popup.vue";
 
 export default {
   name: 'NoticeEdit',
   components: {
+    Popup401,
     draggable,
   },
   props: ['id'],
@@ -82,9 +86,18 @@ export default {
       noticePhotos: [], // { id, src, file, order }
       deletedPhotoIds: [], // 삭제된 사진 ID 저장
       isLoading: false, // 로딩 상태
+      show401Popup: false  // 401 팝업
     };
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     async fetchNotice(id) {
       try {
         const accessToken = store.state.accessToken;
@@ -132,8 +145,9 @@ export default {
           );
         }
       } catch (error) {
-        console.error('Error fetching notice:', error);
-        alert('공지사항 데이터를 불러오는 데 실패했습니다.');
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
 
@@ -313,8 +327,9 @@ export default {
         alert('공지사항이 성공적으로 수정되었습니다!');
         this.$router.push({ name: 'Notice' });
       } catch (error) {
-        console.error('공지사항 수정 실패:', error.response || error.message);
-        alert('공지사항 수정에 실패했습니다. 다시 시도해주세요.');
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       } finally {
         this.isLoading = false;
       }

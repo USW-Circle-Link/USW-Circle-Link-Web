@@ -5,11 +5,15 @@ export default createStore({
     state: {
         accessToken: localStorage.getItem('accessToken') || '',
         refreshToken: localStorage.getItem('refreshToken') || '',
-        clubId: localStorage.getItem('clubId') || 0,
+        clubUUID: localStorage.getItem('clubUUID') || 0,
         role: localStorage.getItem('role') || '',
         isAgreedTerms: localStorage.getItem('isAgreedTerms') === 'true' || false,
+        shouldUpdateSidebar: false
     },
     mutations: {
+        SET_SIDEBAR_UPDATE(state, value) {
+            state.shouldUpdateSidebar = value;
+        },
         setAccessToken(state, token) {
             state.accessToken = token;
             localStorage.setItem('accessToken', token);
@@ -18,9 +22,9 @@ export default createStore({
             state.refreshToken = token;
             localStorage.setItem('refreshToken', token);
         },
-        setClubId(state, clubId) {
-            state.clubId = clubId;
-            localStorage.setItem('clubId', clubId);
+        setClubId(state, clubUUID) {
+            state.clubUUID = clubUUID;
+            localStorage.setItem('clubUUID', clubUUID);
         },
         setRole(state, role) {
             state.role = role;
@@ -33,12 +37,12 @@ export default createStore({
         clearAuthData(state) {
             state.accessToken = '';
             state.refreshToken = '';
-            state.clubId = 0;
+            state.clubUUID = 0;
             state.role = '';
             state.isAgreedTerms = false;
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
-            localStorage.removeItem('clubId');
+            localStorage.removeItem('clubUUID');
             localStorage.removeItem('role');
             localStorage.removeItem('isAgreedTerms');
         },
@@ -47,11 +51,14 @@ export default createStore({
         }
     },
     actions: {
-        async setAuthData({ commit }, { accessToken, refreshToken, role, clubId, isAgreedTerms }) {
+        triggerSidebarUpdate({ commit }) {
+            commit('SET_SIDEBAR_UPDATE', true);
+        },
+        async setAuthData({ commit }, { accessToken, refreshToken, role, clubUUID, isAgreedTerms }) {
             commit('setAccessToken', accessToken);
             commit('setRefreshToken', refreshToken);
             commit('setRole', role);
-            if (clubId !== null) commit('setClubId', clubId);
+            if (clubUUID !== null) commit('setClubId', clubUUID);
             if (isAgreedTerms !== null) commit('setIsAgreedTerms', isAgreedTerms);
         },
         async refreshToken({ commit, state }) {
@@ -91,7 +98,7 @@ export default createStore({
     },
     getters: {
         isAuthenticated: state => !!state.accessToken,
-        clubId: state => state.clubId,
+        clubUUID: state => state.clubUUID,
         role: state => state.role,
         isAgreedTerms: state => state.isAgreedTerms
     }

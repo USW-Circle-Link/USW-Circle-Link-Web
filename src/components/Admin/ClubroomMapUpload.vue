@@ -1,3 +1,4 @@
+
 <template>
   <div class="title">동아리 위치 정보 수정</div>
 
@@ -20,12 +21,12 @@
             />
             <div v-if="floorData.B1.showingIcon" class="icons-container">
               <img
-                src="../../assets/zoom-in.png"
+                src="../../assets/zoom.svg"
                 class="icon zoom-icon"
                 @click="enlargeImage(floorData.B1.imageSrc)"
               />
               <img
-                src="../../assets/remove.png"
+                src="../../assets/remove.svg"
                 class="icon remove-icon"
                 @click="markImageForDeletion('B1')"
               />
@@ -67,12 +68,12 @@
               />
               <div v-if="floorData.F1.showingIcon" class="icons-container">
                 <img
-                  src="../../assets/zoom-in.png"
+                  src="../../assets/zoom.svg"
                   class="icon zoom-icon"
                   @click="enlargeImage(floorData.F1.imageSrc)"
                 />
                 <img
-                  src="../../assets/remove.png"
+                  src="../../assets/remove.svg"
                   class="icon remove-icon"
                   @click="markImageForDeletion('F1')"
                 />
@@ -112,12 +113,12 @@
               />
               <div v-if="floorData.F2.showingIcon" class="icons-container">
                 <img
-                  src="../../assets/zoom-in.png"
+                  src="../../assets/zoom.svg"
                   class="icon zoom-icon"
                   @click="enlargeImage(floorData.F2.imageSrc)"
                 />
                 <img
-                  src="../../assets/remove.png"
+                  src="../../assets/remove.svg"
                   class="icon remove-icon"
                   @click="markImageForDeletion('F2')"
                 />
@@ -146,7 +147,7 @@
     <div v-if="enlargedImage" class="image-modal">
       <div class="image-wrapper">
         <img
-          src="../../assets/remove.png"
+          src="../../assets/remove.svg"
           class="remove-icon-modal"
           @click="closeModal"
           alt="Close Modal"
@@ -155,13 +156,17 @@
       </div>
     </div>
   </div>
+
+  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
 import axios from 'axios';
 import store from '../../store/store';
+import Popup401 from "@/components/Admin/401Popup.vue";
 
 export default {
+  components: {Popup401},
   data() {
     return {
       floorData: {
@@ -170,12 +175,21 @@ export default {
         F2: { imageSrc: '', originalImageSrc: '', file: null, showingIcon: false },
       },
       enlargedImage: null, // 확대된 이미지
+      show401Popup: false  // 401 팝업
     };
   },
   async created() {
     await this.fetchImages();
   },
   methods: {
+    // 401 에러 처리를 위한 공통 메서드
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     // 모든 층 이미지 가져오기
     async fetchImages() {
       const accessToken = store.state.accessToken;
@@ -183,19 +197,22 @@ export default {
       try {
         const floorIds = Object.keys(this.floorData);
         const requests = floorIds.map((floorId) =>
-          axios
-            .get(`http://15.164.246.244:8080/admin/floor/photo/${floorId}`, {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            })
-            .catch((error) => {
-              if (error.response && error.response.status === 404) {
-                console.warn(`층 ${floorId}에 대한 이미지를 찾을 수 없습니다.`);
-                return null; // 404 에러 무시
-              }
-              throw error;
-            })
+            axios
+                .get(`http://15.164.246.244:8080/admin/floor/photo/${floorId}`, {
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                  },
+                })
+                .catch((error) => {
+                  if (error.response && error.response.status === 404) {
+                    console.warn(`층 ${floorId}에 대한 이미지를 찾을 수 없습니다.`);
+                    return null;
+                  }
+                  if (this.handle401Error(error)) {
+                    return null;
+                  }
+                  throw error;
+                })
         );
 
         const responses = await Promise.all(requests);
@@ -204,14 +221,17 @@ export default {
           if (response && response.data && response.data.data) {
             const floorId = Object.keys(this.floorData)[index];
             this.floorData[floorId].imageSrc = response.data.data.presignedUrl;
-            this.floorData[floorId].originalImageSrc = response.data.data.presignedUrl; // 원본 저장
+            this.floorData[floorId].originalImageSrc = response.data.data.presignedUrl;
           }
         });
       } catch (error) {
-        console.error('이미지 불러오기 실패:', error.response?.data || error);
-        alert('이미지를 불러오는 데 실패했습니다.');
+        if (!this.handle401Error(error)) {
+          console.error('이미지 불러오기 실패:', error.response?.data || error);
+          alert('이미지를 불러오는 데 실패했습니다.');
+        }
       }
     },
+
 
     // 파일 입력창 열기
     triggerFileInput(floorId) {
@@ -251,21 +271,26 @@ export default {
       try {
         const floorIds = Object.keys(this.floorData);
 
-        // 삭제된 이미지 서버에서 제거 (기존에 존재했던 이미지만 삭제 요청)
         for (const floorId of floorIds) {
           const { imageSrc, file, originalImageSrc } = this.floorData[floorId];
 
           if (!imageSrc && !file && originalImageSrc) {
-            await axios.delete(`http://15.164.246.244:8080/admin/floor/photo/${floorId}`, {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            });
-            console.log(`층 ${floorId} 이미지 삭제 성공`);
+            try {
+              await axios.delete(`http://15.164.246.244:8080/admin/floor/photo/${floorId}`, {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              });
+              console.log(`층 ${floorId} 이미지 삭제 성공`);
+            } catch (error) {
+              if (this.handle401Error(error)) {
+                return;
+              }
+              throw error;
+            }
           }
         }
 
-        // 새 파일 업로드
         for (const floorId of floorIds) {
           const { file } = this.floorData[floorId];
 
@@ -273,38 +298,47 @@ export default {
             const formData = new FormData();
             formData.append('photo', file);
 
-            const response = await axios.put(
-              `http://15.164.246.244:8080/admin/floor/photo/${floorId}`,
-              formData,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                  'Content-Type': 'multipart/form-data',
-                },
+            try {
+              const response = await axios.put(
+                  `http://15.164.246.244:8080/admin/floor/photo/${floorId}`,
+                  formData,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${accessToken}`,
+                      'Content-Type': 'multipart/form-data',
+                    },
+                  }
+              );
+
+              if (response.data && response.data.data.presignedUrl) {
+                const presignedUrl = response.data.data.presignedUrl;
+
+                await axios.put(presignedUrl, file, {
+                  headers: {
+                    'Content-Type': file.type,
+                  },
+                });
+
+                this.floorData[floorId].imageSrc = presignedUrl;
+                this.floorData[floorId].originalImageSrc = presignedUrl;
+                console.log(`층 ${floorId} 이미지 저장 성공`);
               }
-            );
-
-            if (response.data && response.data.data.presignedUrl) {
-              const presignedUrl = response.data.data.presignedUrl;
-
-              await axios.put(presignedUrl, file, {
-                headers: {
-                  'Content-Type': file.type,
-                },
-              });
-
-              this.floorData[floorId].imageSrc = presignedUrl;
-              this.floorData[floorId].originalImageSrc = presignedUrl; // 업데이트된 URL 저장
-              console.log(`층 ${floorId} 이미지 저장 성공`);
+            } catch (error) {
+              if (this.handle401Error(error)) {
+                return;
+              }
+              throw error;
             }
           }
         }
 
         alert('모든 이미지가 성공적으로 저장되었습니다.');
-        await this.fetchImages(); // 저장 후 이미지 갱신
+        await this.fetchImages();
       } catch (error) {
-        console.error('이미지 저장 실패:', error.response?.data || error);
-        alert('이미지 저장에 실패했습니다.');
+        if (!this.handle401Error(error)) {
+          console.error('이미지 저장 실패:', error.response?.data || error);
+          alert('이미지 저장에 실패했습니다.');
+        }
       }
     },
 
@@ -335,8 +369,8 @@ export default {
 <style scoped>
 .title {
   color: black;
-  font-size: 25px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 600;
   margin-bottom: 30px;
   position: relative; /* 상대 위치 설정 */
   display: inline-block;
@@ -372,7 +406,7 @@ export default {
 
 .image-box {
   width: 280px; /* 고정 너비 */
-  height: 160px; /* 고정 높이 */
+  height: 182px; /* 고정 높이 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -423,7 +457,6 @@ export default {
   transform: translate(-40%, -30%);
   pointer-events: all;
   cursor: pointer;
-  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
 }
 
 .upload-placeholder {
@@ -431,8 +464,8 @@ export default {
 }
 
 .upload-button {
-    width: 280px;
-    height: 30px;
+    width: 274px;
+    height: 35px;
     display: flex;
     flex-shrink: 0;
     border-radius: 8px;
@@ -503,7 +536,6 @@ export default {
   top: 10px;
   right: 0px;
   cursor: pointer;
-  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
 }
 h2{
   align-self: start;
@@ -511,7 +543,7 @@ h2{
   margin-bottom: -5px;
 }
 h3 {
-  font-size: 18px;
+  font-size: 14px;
 }
 .line {
   border: 1px solid;
@@ -527,7 +559,6 @@ h3 {
   top: 10px;
   right: 10px;
   pointer-events: all;
-  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
 }
 .upload-icon {
   width: 16px;

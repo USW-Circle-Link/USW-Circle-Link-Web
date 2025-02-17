@@ -17,8 +17,8 @@
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-            <a @click="navigateTo('clubroom')">- 동아리 위치 정보 수정</a>
-            <a @click="navigateTo('category')">- 동아리 카테고리 설정</a>
+            <a @click="navigateTo('clubroom')">· 동아리 위치 정보 수정</a>
+            <a @click="navigateTo('category')">· 동아리 카테고리 설정</a>
           </div>
         </li>
         <li class="list3" @click="navigateTo('AddClub')">
@@ -35,8 +35,8 @@
             <div class="yellowLine"></div>
           </div>
           <div class="bottom">
-            <a @click="navigateTo('Notice')">- 공지사항</a>
-            <a @click="navigateTo('noticewrite')">- 공지사항 작성</a>
+            <a @click="navigateTo('Notice')">· 공지사항</a>
+            <a @click="navigateTo('noticewrite')">· 공지사항 작성</a>
           </div>
         </li>
       </ul>

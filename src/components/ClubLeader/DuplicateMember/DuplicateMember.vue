@@ -99,6 +99,8 @@
         :serverMessage="serverMessage"
         @close="closeResultPopup"
     />
+
+    <Popup401 v-if="show401Popup" />
   </div>
 </template>
 
@@ -108,6 +110,7 @@ import store from '@/store/store';
 import AddPopup from './AddPopup.vue'
 import SuccessFailPopup from './SuccessFailPopup.vue'
 import axios from 'axios'
+import Popup401 from '../401Popup.vue';
 
 import { mapState } from "vuex";
 export default {
@@ -115,6 +118,7 @@ export default {
   components: {
     AddPopup,
     SuccessFailPopup,
+    Popup401
   },
   computed: {
     ...mapState(["OverlappingMembers"]),
@@ -140,6 +144,7 @@ export default {
       phoneNumberError: false,
       serverMessage: '',
       DuplicateMember: [],
+      show401Popup: false,
       }
   },
   mounted() {
@@ -151,6 +156,14 @@ export default {
     console.log("전달받은 회원 데이터:", this.OverlappingMembers);
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     saveDuplicateMember() {
       localStorage.setItem("saveDuplicateMember", JSON.stringify(this.OverlappingMembers));
     },
@@ -200,11 +213,11 @@ export default {
       };
 
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
         const response = await axios.post(
-            `http://15.164.246.244:8080/club-leader/${clubId}/members/duplicate-profiles`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/duplicate-profiles`,
             data,
             {
               headers: {
@@ -216,7 +229,13 @@ export default {
         console.log('서버 응답:', response.data);
         return response.data;
       } catch (error) {
-        console.error('서버 에러 응답:', error);
+        if (error.response && error.response.status === 401) {
+          this.show401Popup = true;
+        } else if (error.response && (error.response.status === 400 || error.response.status === 404)) {
+          this.isSuccess = false;
+          this.serverMessage = error.response.data.message || '요청 처리 중 오류가 발생했습니다.';
+          this.showResultPopup = true;
+        }
         throw error;
       }
     },
@@ -243,6 +262,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 
 .duplicate-title {

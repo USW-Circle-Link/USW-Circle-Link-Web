@@ -1,6 +1,10 @@
 <template>
   <div class="whole-container">
-    <h2>동아리 활동 사진</h2>
+    <div class="head">
+      <h2>동아리 활동 사진</h2>
+      <div class="empty"></div>
+      <div class="warning-text">동아리와 관련 없는 사진 업로드 시, 권한이 제한될 수 있습니다.</div>
+    </div>
     <div class="image-upload-container">
       <div v-for="(image, index) in images" :key="index" class="image-preview">
         <div v-if="image.src" class="image-preview">
@@ -28,7 +32,7 @@
     <div class="ClubTextInput">
       <div class="textarea-container">
         <textarea
-          placeholder="동아리에 대해 자유롭게 설명해주세요. 사진은 5장까지 첨부 가능합니다. 동아리와 관련 없는 사진 업로드 시, 권한이 제한될 수 있습니다."
+          placeholder="동아리에 대해 자유롭게 설명해주세요."
           v-model="textareaContent"
           rows="4"
           cols="50"
@@ -85,15 +89,20 @@
       </div>
     </div>
 
+    <Popup401 v-if="show401Popup" />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import store from '../../store/store';
+import Popup401 from './401Popup.vue';
 
 export default {
   name: 'ClubInfoTextInput',
+  components: {
+    Popup401
+  },
   data() {
     return {
       images: [
@@ -117,25 +126,35 @@ export default {
       textSize: 0,
       RecruittextSize: 0,
       showConfirmPopup: false,
+      show401Popup: false
     };
   },
   mounted() {
     this.fetchClubInfo();  // 클럽 정보를 가져옵니다.
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
+
     // 클럽 정보 가져오기
     async fetchClubInfo() {
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/intro`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/intro`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           }
         });
-        //console.log("서버에서 받은 GET 응답 데이터:", response.data); 
+        console.log("서버에서 받은 GET 응답 데이터:", response.data); 
         
         //가져온 클럽 데이터를 저장
         this.clubData = response.data.data;
@@ -152,8 +171,10 @@ export default {
         this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
 
       } catch (error) {
-        //console.error('클럽 정보를 가져오는 중 오류가 발생했습니다:', error);
-        this.errorMessage = '클럽 정보를 가져오는 중 오류가 발생했습니다. 다시 시도해주세요.';
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
       this.updateTextSize();
       this.updateRecruitTextSize();
@@ -182,11 +203,11 @@ export default {
     // 모집중 토글(on/off)
     async toggleCheckbox() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
       this.isChecked = !this.isChecked;
       this.$emit('sendData', this.isChecked);
 
-      axios.patch(`http://15.164.246.244:8080/club-leader/${clubId}/recruitment`, {
+      axios.patch(`http://15.164.246.244:8080/club-leader/${clubUUID}/recruitment`, {
         key: this.isChecked
       }, {
         headers: {
@@ -281,7 +302,7 @@ export default {
     },
     // 정보 저장
     async saveInfo() {
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
 
       // if (this.textareaContent === '') {
@@ -322,7 +343,7 @@ export default {
 
       try {
         const response = await axios.put(
-            `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/intro`,
             form,
             {
               headers: {
@@ -339,11 +360,13 @@ export default {
 
         this.showPopup();
         await this.fetchClubInfo();  // 저장 후 클럽 정보 다시 가져오기
-        this.navigateTo('dashboard');//완료 되면 홈 화면으로 이동
         this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
 
       } catch (error) {
-        console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
       }
     },
     // 이미지 업로드
@@ -387,6 +410,12 @@ export default {
 
 
 <style scoped>
+.warning-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: #656565;
+}
+
 .whole-container {
   display: flex;
   flex-direction: column; /* 세로 정렬 */
@@ -517,9 +546,12 @@ h2{
   padding: 0 20px;
   text-align: left;
   border: none;
-  font-size: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
   resize: none;
   white-space: pre-wrap;
+  font-family: 'Malgun Gothic', sans-serif;
 }
 
  /* 모집중 X일 때 */
@@ -532,6 +564,13 @@ h2{
   border-color: #999999 
 }
 
+.ClubTextInput textarea.RecruitToggleOff {
+  font-size: 14px;  
+  line-height: 1.5; 
+  color: #333;     
+
+}
+
 textarea:focus {
   outline: none; /* 포커스 상태일 때 테두리 제거 */
 }
@@ -539,7 +578,7 @@ textarea:focus {
 .head{
   display: flex;
   width: 886px;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   white-space: nowrap; /* 줄바꿈 방지 */
 }
@@ -615,8 +654,10 @@ label::after {
   padding: 0 20px;
   text-align: left;
   border: none;
-  font-size: 16px;
   resize: none;
+  font-size: 14px;  
+  color: #333;  
+  font-family: 'Malgun Gothic', sans-serif;
 }
 
 /*
@@ -635,15 +676,15 @@ button {
   border: none;
   border-radius: 4px;
   color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
   line-height: 16px;
   letter-spacing: -0.025em;
   text-align: center;
-  margin-top: 30px;
+  margin-top: 35px;
   margin-left: 774px;
   margin-bottom: 30px;
   cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
 }
 
 .textSize{
@@ -698,6 +739,7 @@ textarea::placeholder{
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .popup {
@@ -729,7 +771,7 @@ hr {
 .popup-buttons {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
+  margin-top: 40px;
 }
 .popup-buttons button {
   width: 80px;
