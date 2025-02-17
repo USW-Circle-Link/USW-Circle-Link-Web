@@ -70,7 +70,7 @@ export default {
     },
     async fetchCategory(){
       try {
-        const response = await axios.get("http://15.164.246.244:8080/admin/category", {
+        const response = await axios.get("http://15.164.246.244:8080/admin/clubs/category", {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
@@ -80,7 +80,7 @@ export default {
           this.categories = jsonData.data.map(item => item.clubCategoryName);
           console.log(this.categories); // ["운동", "학술", "봉사", "개발", "공부"]
           jsonData.data.forEach(item => {
-            this.categoryMap.set(item.clubCategoryName, item.clubCategoryId);
+            this.categoryMap.set(item.clubCategoryName, item.clubCategoryUUID);
           });
         }
         console.log('카테고리 불러오기 성공',this.categoryMap);
@@ -95,7 +95,7 @@ export default {
       if (trimmedCategory !== "" && !this.categories.includes(trimmedCategory)) {
         try {
           await axios.post(
-              `http://15.164.246.244:8080/admin/category`,
+              `http://15.164.246.244:8080/admin/clubs/category`,
               this.categoryName,
               {
                 headers: {
@@ -123,7 +123,7 @@ export default {
       console.log(category);
       const categoryId = this.categoryMap.get(category);
       try {
-        await axios.delete(`http://15.164.246.244:8080/admin/category/${categoryId}`, {
+        await axios.delete(`http://15.164.246.244:8080/admin/clubs/category/${categoryId}`, {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
