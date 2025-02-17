@@ -195,47 +195,19 @@ export default {
     },
     // 파일 업로드 처리
     async handleFileUpload(event) {
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
 
       console.log("엑셀 파일 업로드")
       const file = event.target.files[0];
       if (!file) return;
 
-      //const reader = new FileReader();
-
-      //reader.onload = (e) => {
-        //const data = new Uint8Array(e.target.result);
-        //const workbook = XLSX.read(data, { type: "array" });
-
-        // 첫 번째 시트의 데이터를 가져옵니다
-        //const sheetName = workbook.SheetNames[0];
-        //const sheet = workbook.Sheets[sheetName];
-        //const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-        // this.Errormembers = jsonData.map((row) => ({
-        //   학번: row["학번"] || "",
-        //   전화번호: row["전화번호"] || "",
-        //   이름: row["이름"] || "",
-        // }));
-
-        // JSON 데이터에서 필요한 항목만 추출
-        // this.members = jsonData.map((row) => ({
-        //   userName: row["이름"] || "",
-        //   studentNumber: row["학번"] || "",
-        //   userHp: row["전화번호"] || "",
-        //   department: "단과대학 선택",
-        //   major: "학과(학) 선택"
-        // }));
-
-      //};
-
       const formData = new FormData(); // FormData 객체 생성
       formData.append("clubMembersFile", file); // 파일 추가
 
       try {
         const response = await axios.post(
-            `http://15.164.246.244:8080/club-leader/${clubId}/members/import`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/import`,
             formData,
             {
               headers: {
@@ -247,6 +219,13 @@ export default {
         console.log(response.data.data.duplicateClubMembers);
 
         this.members = response.data.data.addClubMembers;
+        this.members = this.members.map(member => {
+          return {
+            ...member,
+            department: '단과대학 선택', // 원하는 값으로 변경 가능,
+            major: '학부(학과) 선택'
+          };
+        });
         this.OverlappingMembers = response.data.data.duplicateClubMembers;
 
         if(this.OverlappingMembers.length > 0){
@@ -293,7 +272,7 @@ export default {
       console.log(member);
     },
     async OverlappingMemberLists(){
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
         const data = this.members.map(member => {
           const { department,secondOptions, ...rest } = member; // destructuring으로 department 제외
@@ -301,7 +280,7 @@ export default {
         });
           try {
             const response = await axios.post(
-                `http://15.164.246.244:8080/club-leader/${clubId}/members`,
+                `http://15.164.246.244:8080/club-leader/${clubUUID}/members`,
                 data,
                 {
                   headers: {
