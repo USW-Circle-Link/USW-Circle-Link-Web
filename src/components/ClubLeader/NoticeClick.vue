@@ -11,6 +11,7 @@
         <img src="@/assets/rigth.png" alt="Next" class="nav-icon" />
       </button>
     </div>
+    
 
     <!-- 공지사항 상세보기 -->
     <div v-if="notice" class="notice-details">
@@ -25,27 +26,26 @@
 
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
-          <img
-            :src="image.src"
-            alt="Notice Image"
-            class="notice-image"
-            @error="handleImageError(index)"
-          />
-        </div>
+        <img
+          :src="image.src"
+          alt="Notice Image"
+          class="notice-image"
+          @error="handleImageError(index)" />
+      </div>
+
       </div>
     </div>
 
 
 
     
-
     <!-- 공지사항 목록 -->
     <div class="notice-list">
       <table>
         <tbody>
-          <tr v-for="notice in notices" :key="notice.noticeId">
+          <tr v-for="notice in notices" :key="notice.noticeUUID">
             <td>
-              <button @click="goToNotice(notice.noticeId)">{{ notice.noticeTitle }}</button>
+              <button @click="goToNotice(notice.noticeUUID)">{{ notice.noticeTitle }}</button>
             </td>
             <td>{{ notice.adminName }}</td>
             <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
@@ -73,28 +73,43 @@
       </div>
     </div>
   </div>
+
+  <Popup401 v-if="show401Popup" />
+
 </template>
 
 <script>
 import store from '@/store/store';
 import axios from 'axios';
+import Popup401 from "@/components/Admin/401Popup.vue";
 
 export default {
+  components: {Popup401},
   data() {
     return {
       notices: [], // 공지사항 목록
       notice: null, // 현재 선택된 공지사항
+      showDeletePopup: false, // 삭제 팝업 상태
       currentPage: 1, // 현재 페이지 번호
       totalPages: 1, // 전체 페이지 수
       itemsPerPage: 5, // 페이지당 항목 수
       images: [], // 이미지 배열
+      show401Popup: false  // 401 팝업
     };
   },
   created() {
     this.fetchNotices(); // 공지사항 목록 가져오기
-    this.fetchNotice(this.$route.params.id); // 현재 공지사항 정보 가져오기
+    this.fetchNotice(this.$route.params.noticeUUID); // 현재 공지사항 정보 가져오기
   },
   methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
+      }
+      return false;
+    },
     convertNewlinesToBr(text) {
       return text ? text.replace(/\n/g, '<br>') : ''; // 줄바꿈을 <br> 태그로 변환
     },
@@ -110,24 +125,89 @@ export default {
         this.notices = response.data.data.content || []; // 공지사항 목록 설정
         this.totalPages = response.data.data.totalPages || 1; // 전체 페이지 수 설정
       } catch (error) {
-        console.error('공지사항 목록을 가져오는 중 오류:', error);
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
       }
     },
-    async fetchNotice(id) {
-      try {
-        const accessToken = store.state.accessToken;
-        const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        this.notice = response.data.data; // 공지사항 정보 설정
-        this.loadImages(response.data.data.noticePhotos); // 이미지 설정
-      } catch (error) {
-        console.error('공지사항을 가져오는 중 오류:', error);
+    async fetchNotice(noticeUUID) {
+  try {
+    const response = await axios.get(`http://15.164.246.244:8080/notices/${noticeUUID}`, {
+      headers: { Authorization: `Bearer ${store.state.accessToken}` },
+    });
+
+    if (response.data && response.data.data) {
+      this.notice = response.data.data;
+
+      console.log("📡 서버에서 받은 noticePhotos:", response.data.data.noticePhotos);
+
+      // ✅ noticePhotos가 빈 배열인지 확인
+      if (!response.data.data.noticePhotos || response.data.data.noticePhotos.length === 0) {
+        console.warn("🚨 이미지 데이터 없음! 서버에서 noticePhotos가 비어 있음.");
+      } else {
+        this.images = response.data.data.noticePhotos.map(photoUrl => ({
+          src: photoUrl
+        }));
+
+        console.log("📷 업데이트된 이미지 배열:", this.images);
       }
-    },
+    }
+  } catch (error) {
+    console.error("공지사항 불러오기 실패:", error);
+  }
+},
     loadImages(photoUrls) {
       if (Array.isArray(photoUrls)) {
         this.images = photoUrls.map((photoUrl) => ({ src: photoUrl }));
+      }
+    },
+    async saveImages() {
+      try {
+        const accessToken = store.state.accessToken;
+
+        // Presigned URL 요청 및 S3 업로드
+        for (let i = 0; i < this.images.length; i++) {
+          const image = this.images[i];
+          if (image.file) {
+            // Presigned URL 요청
+            const presignedResponse = await axios.post(
+              `http://15.164.246.244:8080/admin/photo/presigned`,
+              { fileName: image.file.name, contentType: image.file.type },
+              {
+                headers: { Authorization: `Bearer ${accessToken}` },
+              }
+            );
+              // 에러 상태 코드 처리
+    if (response.status === 401 || response.status === 400) {
+      alert(response.status === 401 
+        ? '인증되지 않은 사용자입니다. 다시 로그인해주세요.' 
+        : '공지사항 조회 중 에러가 발생했습니다.');
+
+      this.$router.push({ name: 'Login' });
+      return;
+    }
+
+
+            const presignedUrl = presignedResponse.data?.data?.presignedUrl;
+
+            if (presignedUrl) {
+              // S3에 파일 업로드
+              await axios.put(presignedUrl, image.file, {
+                headers: {
+                  'Content-Type': image.file.type, // 파일 MIME 타입
+                },
+              });
+              console.log(`이미지 ${i + 1} 업로드 성공`);
+            } else {
+              console.error(`Presigned URL이 없습니다. 이미지 ${i + 1} 업로드 실패`);
+            }
+          }
+        }
+
+        alert('모든 이미지가 성공적으로 저장되었습니다.');
+      } catch (error) {
+        console.error('이미지 저장 실패:', error);
+        alert('이미지 저장에 실패했습니다.');
       }
     },
     handleImageError(index) {
@@ -136,20 +216,47 @@ export default {
     cancelDelete() {
       this.showDeletePopup = false;
     },
-    
+    async confirmDelete() {
+      try {
+        if (!this.notice || !this.notice.noticeUUID) {
+          alert('삭제할 공지사항 정보가 없습니다.');
+          return;
+        }
+
+        const accessToken = store.state.accessToken;
+        const deleteUrl = `http://15.164.246.244:8080/notices/${this.notice.noticeUUID}`;
+
+        const response = await axios.delete(deleteUrl, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (response.status === 200) {
+          alert('공지사항이 성공적으로 삭제되었습니다.');
+          this.notices = this.notices.filter((n) => n.noticeId !== this.notice.noticeUUID);
+          this.showDeletePopup = false;
+          this.$router.push({ name: 'Notice' });
+        } else {
+          alert(`삭제 실패: 상태 코드 ${response.status}`);
+        }
+      } catch (error) {
+        if (!this.handle401Error(error)) {
+          console.error('Error updating member:', error);
+        }
+      }
+    },
     handleError(error, message) {
       console.error(message, error);
       alert(`${message}: ${error.message}`);
     },
     prevNotice() {
-      const currentIndex = this.notices.findIndex((n) => n.noticeId === this.notice.noticeId);
+      const currentIndex = this.notices.findIndex((n) => n.noticeUUID === this.notice.noticeUUID);
       const prevIndex = (currentIndex - 1 + this.notices.length) % this.notices.length;
-      this.goToNotice(this.notices[prevIndex].noticeId); // 이전 공지 이동
+      this.goToNotice(this.notices[prevIndex].noticeUUID); // 이전 공지 이동
     },
     nextNotice() {
-      const currentIndex = this.notices.findIndex((n) => n.noticeId === this.notice.noticeId);
+      const currentIndex = this.notices.findIndex((n) => n.noticeUUID === this.notice.noticeUUID);
       const nextIndex = (currentIndex + 1) % this.notices.length;
-      this.goToNotice(this.notices[nextIndex].noticeId); // 다음 공지 이동
+      this.goToNotice(this.notices[nextIndex].noticeUUID); // 다음 공지 이동
     },
     changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
@@ -157,21 +264,29 @@ export default {
         this.fetchNotices(); // 페이지 변경 시 공지사항 목록 다시 로드
       }
     },
-    goToNotice(id) {
-      this.$router.push({ name: 'NoticeClick', params: { id } }); // 공지사항 상세보기로 이동
+    goToNotice(noticeUUID) {
+      this.$router.push({ name: 'NoticeClick', params: { noticeUUID } }); // 공지사항 상세보기로 이동
     },
-    
+    editNotice() {
+      if (this.notice && this.notice.noticeUUID) {
+        this.$router.push({ name: 'noticeedit', params: { noticeUUID: this.notice.noticeUUID } });
+      } else {
+        console.error('No notice available to edit.');
+      }
+    },
     formattedDate(dateString) {
       return new Date(dateString).toLocaleDateString();
     },
   },
   watch: {
     $route(to) {
-      this.fetchNotice(to.params.id);
+      this.fetchNotice(to.params.noticeUUID);
     },
   },
 };
 </script>
+
+
 
 <style scoped>
 
@@ -296,6 +411,7 @@ export default {
   margin: 0 5px;
   cursor: pointer;
   font-size: 16px;
+  pointer-events: auto; /* 클릭 이벤트 허용 */
 }
 
 .edit-button {
