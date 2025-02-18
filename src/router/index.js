@@ -66,7 +66,7 @@ const routes = [
                 component: () => import('../components/ClubLeader/notice.vue'),
             },
             {
-                path: 'noticeclick/:id',
+                path: 'noticeclick/:noticeUUID',
                 name: 'NoticeClick',
                 component: () => import('../components/ClubLeader/NoticeClick.vue'),
                 props: true,
@@ -133,7 +133,7 @@ const routes = [
                 component: () => import('../components/Admin/notice.vue'),
             },
             {
-                path: 'noticeclick/:id',
+                path: 'noticeclick/:noticeUUID',
                 name: 'AdminNoticeClick',
                 component: AdminNoticeClick,
                 props: true,
@@ -145,7 +145,7 @@ const routes = [
             },
 
             {
-                path: 'noticeedit/:id',
+                path: 'noticeedit/:noticeUUID',
                 name: 'noticeedit',
                 component: () => import('../components/Admin/NoticeEdit.vue'),
                 props: true,
