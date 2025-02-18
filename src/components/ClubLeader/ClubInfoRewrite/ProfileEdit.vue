@@ -426,18 +426,30 @@ export default {
 
         formData.append("clubInfoRequest", new Blob([JSON.stringify(updatedData)], { type: 'application/json' }));
 
-        // 사용자가 새로운 이미지를 선택한 경우
-        if (this.file) {
+        // 사용자가 새로운 이미지를 선택했는지 판단하는 플래그
+        let userSelectedNewImage = false;
+
+        // onFileChange 메소드가 호출되어 사용자가 실제로 새 파일을 선택한 경우에만 true로 설정
+        if (this.$refs.fileInput && this.$refs.fileInput.files && this.$refs.fileInput.files.length > 0) {
+          userSelectedNewImage = true;
+        }
+
+        // 사용자가 새 이미지를 선택한 경우에만 mainPhoto를 추가
+        if (userSelectedNewImage) {
           formData.append("mainPhoto", this.file);
+          console.log('새 이미지가 첨부되어 mainPhoto를 formData에 추가합니다:', this.file.name);
+        } else {
+          console.log('새 이미지가 첨부되지 않아 mainPhoto를 formData에 추가하지 않습니다.');
         }
-        // 기존에 서버에 저장된 이미지가 있는 경우 (mainPhotoUrl이 빈 문자열이 아닌 경우)
-        else if (this.clubInfo.mainPhotoUrl) {
-          const existingFile = await this.urlToFile(this.mainPhoto, 'existingImage.jpg', 'image/jpeg');
-          formData.append("mainPhoto", existingFile);
-        }
-        // 초기 계정이고(mainPhotoUrl이 빈 문자열) 사용자가 새로운 이미지를 선택하지 않은 경우
-        else {
-          formData.append("mainPhoto", null);
+
+        // FormData 내용을 콘솔에 출력
+        console.log('FormData에 포함된 항목들:');
+        for (let pair of formData.entries()) {
+          if (pair[0] === 'clubInfoRequest') {
+            console.log(pair[0] + ': ', JSON.parse(await pair[1].text()));
+          } else {
+            console.log(pair[0] + ': ', pair[1]);
+          }
         }
 
         const response = await axios.put(
@@ -455,7 +467,7 @@ export default {
         this.$emit('update');
         this.$store.dispatch('triggerSidebarUpdate');
 
-        if (this.file && response.data.data.presignedUrl) {
+        if (userSelectedNewImage && response.data.data.presignedUrl) {
           this.presignedUrl = response.data.data.presignedUrl;
           await this.uploadFile();
         }
