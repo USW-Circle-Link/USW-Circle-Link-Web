@@ -45,13 +45,13 @@
 
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
-          <img
-            :src="image.src"
-            alt="Notice Image"
-            class="notice-image"
-            @error="handleImageError(index)"
-          />
-        </div>
+        <img
+          :src="image.src"
+          alt="Notice Image"
+          class="notice-image"
+          @error="handleImageError(index)" />
+      </div>
+
       </div>
     </div>
 
@@ -144,7 +144,7 @@ export default {
   },
   created() {
     this.fetchNotices(); // 공지사항 목록 가져오기
-    this.fetchNotice(this.$route.params.id); // 현재 공지사항 정보 가져오기
+    this.fetchNotice(this.$route.params.noticeUUID); // 현재 공지사항 정보 가져오기
   },
   methods: {
     // 401 에러 처리를 위한 공통 함수
@@ -175,20 +175,32 @@ export default {
         }
       }
     },
-    async fetchNotice(id) {
-      try {
-        const accessToken = store.state.accessToken;
-        const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        this.notice = response.data.data; // 공지사항 정보 설정
-        this.loadImages(response.data.data.noticePhotos); // 이미지 설정
-      } catch (error) {
-        if (!this.handle401Error(error)) {
-          console.error('Error updating member:', error);
-        }
+    async fetchNotice(noticeUUID) {
+  try {
+    const response = await axios.get(`http://15.164.246.244:8080/notices/${noticeUUID}`, {
+      headers: { Authorization: `Bearer ${store.state.accessToken}` },
+    });
+
+    if (response.data && response.data.data) {
+      this.notice = response.data.data;
+
+      console.log("📡 서버에서 받은 noticePhotos:", response.data.data.noticePhotos);
+
+      // ✅ noticePhotos가 빈 배열인지 확인
+      if (!response.data.data.noticePhotos || response.data.data.noticePhotos.length === 0) {
+        console.warn("🚨 이미지 데이터 없음! 서버에서 noticePhotos가 비어 있음.");
+      } else {
+        this.images = response.data.data.noticePhotos.map(photoUrl => ({
+          src: photoUrl
+        }));
+
+        console.log("📷 업데이트된 이미지 배열:", this.images);
       }
-    },
+    }
+  } catch (error) {
+    console.error("공지사항 불러오기 실패:", error);
+  }
+},
     loadImages(photoUrls) {
       if (Array.isArray(photoUrls)) {
         this.images = photoUrls.map((photoUrl) => ({ src: photoUrl }));
@@ -297,12 +309,12 @@ export default {
         this.fetchNotices(); // 페이지 변경 시 공지사항 목록 다시 로드
       }
     },
-    goToNotice(id) {
+    goToNotice(noticeUUID) {
       this.$router.push({ name: 'AdminNoticeClick', params: { noticeUUID } }); // 공지사항 상세보기로 이동
     },
     editNotice() {
       if (this.notice && this.notice.noticeUUID) {
-        this.$router.push({ name: 'noticeedit', params: { id: this.notice.noticeUUID } });
+        this.$router.push({ name: 'noticeedit', params: { noticeUUID: this.notice.noticeUUID } });
       } else {
         console.error('No notice available to edit.');
       }

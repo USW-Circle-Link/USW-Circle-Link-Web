@@ -79,7 +79,7 @@ export default {
     Popup401,
     draggable,
   },
-  props: ['id'],
+  props: ['noticeUUID'],
   data() {
     return {
       notice: { noticeTitle: '', noticeContent: '' }, // 제목, 내용 저장
@@ -98,10 +98,10 @@ export default {
       }
       return false;
     },
-    async fetchNotice(id) {
+    async fetchNotice(noticeUUID) {
       try {
         const accessToken = store.state.accessToken;
-        const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
+        const response = await axios.get(`http://15.164.246.244:8080/notices/${noticeUUID}`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -299,7 +299,7 @@ export default {
 
         // API 호출
         const response = await axios.put(
-          `http://15.164.246.244:8080/notices/${this.id}`,
+          `http://15.164.246.244:8080/notices/${this.noticeUUID}`,
           form,
           {
             headers: {
@@ -339,7 +339,7 @@ export default {
   
 
   created() {
-    this.fetchNotice(this.id);
+    this.fetchNotice(this.noticeUUID);
   },
 };
 </script>

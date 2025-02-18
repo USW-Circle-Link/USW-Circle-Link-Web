@@ -15,7 +15,7 @@
           <tr v-if="notices.length === 0">
             <td colspan="3">공지사항이 없습니다.</td>
           </tr>
-          <tr v-for="notice in paginatedNotices" :key="notice.noticeId">
+          <tr v-for="notice in paginatedNotices" :key="notice.noticeUUID">
             <td>
               <button @click="goToNotice(notice.noticeUUID, notice.adminName)">
                 {{ notice.noticeTitle }}
@@ -96,49 +96,48 @@ export default {
       }
     },
     async fetchNotices() {
-      try {
-        const accessToken = store.state.accessToken;
+  try {
+    const accessToken = store.state.accessToken;
 
-        const response = await fetch(
-            `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
-            {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-              },
-            }
-        );
-
-        // if (!response.ok) { //HTTP 응답의 상태가 200-299 범위에 있는지 확인하는 boolean 값
-          if (response.status === 401) { //HTTP 응답의 상태 코드가 401로 "Unauthorized"(인증 실패)일 때
-            this.show401Popup = true;  // 401 에러 시 팝업 표시
-            return; //함수 실행을 여기서 종료
-          }
-        //   throw new Error(`오류: ${response.statusText}`); //401이 아닌 다른 에러의 경우 에러를 throw
-        // }
-
-        const data = await response.json();
-
-        if (data && data.data && Array.isArray(data.data.content)) {
-          this.notices = data.data.content.sort((a, b) => new Date(b.noticeCreatedAt) - new Date(a.noticeCreatedAt));
-          this.totalPages = data.data.totalPages;
-          this.currentPage = data.data.pageable.pageNumber + 1;
-        } else {
-          console.warn('Unexpected response format:', data);
-          this.notices = [];
-        }
-      } catch (error) {
-        console.error('Error fetching notices:', error);
-        this.notices = [];
+    const response = await fetch(
+      `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
       }
-    },
+    );
+
+    if (response.status === 401) {
+      this.show401Popup = true;
+      return;
+    }
+
+    const data = await response.json();
+    
+    console.log("📡 서버 응답 데이터:", data); // ✅ 응답 데이터 확인
+
+    if (data && data.data && Array.isArray(data.data.content)) {
+      this.notices = data.data.content.sort((a, b) => new Date(b.noticeCreatedAt) - new Date(a.noticeCreatedAt));
+      this.totalPages = data.data.totalPages || 1; // ✅ undefined 방지
+      this.currentPage = (data.data.pageable?.pageNumber || 0) + 1; // ✅ undefined 방지
+    } else {
+      console.warn('⚠️ Unexpected response format:', data);
+      this.notices = [];
+    }
+  } catch (error) {
+    console.error('❌ Error fetching notices:', error);
+    this.notices = [];
+  }
+},
     goToNotice(noticeUUID) {
       const currentPath = this.$route.path;
       if (currentPath.startsWith('/adminmain')) {
-        this.$router.push({ name: 'AdminNoticeClick', params: { id: noticeUUID } });
+        this.$router.push({ name: 'AdminNoticeClick', params: { noticeUUID: noticeUUID } });
       } else {
-        this.$router.push({ name: 'AdminNoticeClick', params: { id: noticeUUID } });
+        this.$router.push({ name: 'AdminNoticeClick', params: { noticeUUID: noticeUUID } });
       }
     },
     changePage(page) {

@@ -52,7 +52,7 @@ import Popup401 from "@/components/Admin/401Popup.vue";
 export default {
   name: 'NoticeWrite',
   components: {Popup401},
-  props: ['id'],
+  props: ['noticeUUID'],
   data() {
     return {
       notice: { noticeTitle: '', noticeContent: '' },
