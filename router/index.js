@@ -1,7 +1,8 @@
+import store from '@/store/store';
 import { createRouter, createWebHistory } from 'vue-router';
 import AdminNoticeClick from '../components/Admin/NoticeClick.vue';
-import ProfileEdit from '../components/ClubLeader/ProfileEdit.vue';
-import store from "@/store/store";
+import ProfileEdit from '../components/ClubLeader/ClubInfoRewrite/ProfileEdit.vue';
+import ClubPopupWindow from '../components/Admin/ClubInfoPopup.vue';
 
 const routes = [
     {
@@ -9,20 +10,41 @@ const routes = [
         name: 'login',
         component: () => import('@/components/Login/Login.vue'),
     },
+    // {
+    //     path: '/user',
+    //     name: 'user',
+    //     component: () => import('@/components/User/Main.vue'),
+    // },
     {
-        path: '/new-page',
-        name: 'new-page',
+        path: '/ClubProfile',
+        name: 'ClubProfile',
         component: () => import('../components/ClubLeader/PopupClubinfo.vue'),
-        //   meta: { requiresAuth: true, requiresLeader: true },
+        meta: { requiresAuth: true, requiresLeader: true },
     },
-
+    {
+        path: '/club-popup',
+        name: 'ClubPopupWindow',
+        component: ClubPopupWindow
+    },
     {
         path: '/main',
         name: 'main',
         component: () => import('../components/ClubLeader/Main.vue'),
         redirect: { name: 'dashboard' },
-        //  meta: { requiresAuth: true, requiresLeader: true },
+        meta: { requiresAuth: true, requiresLeader: true },
         children: [
+            {
+                path: '/TermsOfUse',
+                name: 'TermsOfUse',
+                component: () => import('../components/ClubLeader/policy/TermsOfUse.vue'),
+                meta: { layout: 'no-layout' } // 특수한 레이아웃을 사용하지 않도록 설정
+            },
+            {
+                path: '/privacy_policy',
+                name: 'privacy_policy',
+                component: () => import('../components/ClubLeader/policy/PrivacyPolicy.vue'),
+                meta: { layout: 'no-layout' } // 특수한 레이아웃을 사용하지 않도록 설정
+            },
             {
                 path: '',
                 name: 'dashboard',
@@ -44,7 +66,7 @@ const routes = [
                 component: () => import('../components/ClubLeader/notice.vue'),
             },
             {
-                path: 'noticeclick/:id',
+                path: 'noticeclick/:noticeUUID',
                 name: 'NoticeClick',
                 component: () => import('../components/ClubLeader/NoticeClick.vue'),
                 props: true,
@@ -55,15 +77,29 @@ const routes = [
                 component: ProfileEdit
             },
             {
+                path: 'duplicate-member',
+                name: 'duplicate-member',
+                component: () => import('../components/ClubLeader/DuplicateMember/DuplicateMember.vue'),
+            },
+            {
+                path: 'remove-member',
+                name: 'remove-member',
+                component: () => import('../components/ClubLeader/RemoveMember.vue'),
+            },
+            {
+                path: 'addMember',
+                name: 'addMember',
+                component: () => import('../components/ClubLeader/addMember.vue'),
+            },
+            {
+                path: 'Accept',
+                name: 'Accept',
+                component: () => import('../components/ClubLeader/Accept/Accept.vue'),
+            },
+            {
                 path: 'morepass',
                 name: 'morepass',
                 component: () => import('../components/ClubLeader/MorePass.vue'),
-            },
-            {
-                path: '/TermsOfUse',
-                name: 'TermsOfUse',
-                component: () => import('../components/ClubLeader/TermsOfUse.vue'),
-                //   meta: { requiresAuth: true, requiresLeader: true },
             },
         ]
     },
@@ -72,13 +108,19 @@ const routes = [
         name: 'adminmain',
         component: () => import('../components/Admin/Main.vue'),
         redirect: { name: 'admindashboard' },
-        //  meta: { requiresAuth: true, requiresAdmin: true },
+        meta: { requiresAuth: true, requiresAdmin: true },
         children: [
             {
                 path: '/AdminTermsOfUse',
                 name: 'AdminTermsOfUse',
-                component: () => import('../components/Admin/AdminTermsOfUse.vue'),
-                meta: { layout: 'no-layout' } // 특수한 레이아웃을 사용하지 않도록 설정
+                component: () => import('../components/Admin/policy/AdminTermsOfUse.vue'),
+                meta: { requiresAuth: true, requiresLeader: true },
+            },
+            {
+                path: '/privacy_policy_',
+                name: 'privacy_policy_',
+                component: () => import('../components/Admin/policy/PrivacyPolicy.vue'),
+                meta: { requiresAuth: true, requiresLeader: true },
             },
             {
                 path: '',
@@ -91,7 +133,7 @@ const routes = [
                 component: () => import('../components/Admin/notice.vue'),
             },
             {
-                path: 'noticeclick/:id',
+                path: 'noticeclick/:noticeUUID',
                 name: 'AdminNoticeClick',
                 component: AdminNoticeClick,
                 props: true,
@@ -99,11 +141,11 @@ const routes = [
             {
                 path: 'AddClub',
                 name: 'AddClub',
-                component: () => import('../components/Admin/AddClub.vue'),
+                component: () => import('../components/Admin/AddClub/AddClub.vue'),
             },
 
             {
-                path: 'noticeedit/:id',
+                path: 'noticeedit/:noticeUUID',
                 name: 'noticeedit',
                 component: () => import('../components/Admin/NoticeEdit.vue'),
                 props: true,
@@ -121,8 +163,21 @@ const routes = [
                 component: () => import('../components/Admin/ClubList.vue'),
                 props: true,
             },
+            {
+                path: 'clubroom',
+                name: 'clubroom',
+                component: () => import('../components/Admin/ClubroomMapUpload.vue'),
+                props: true,
+            },
+            {
+                path: 'category',
+                name: 'category',
+                component: () => import('@/components/Admin/AddCategory/AddCategory.vue'),
+                props: true,
+            },
         ]
-    }
+    },
+
 ];
 
 const router = createRouter({
