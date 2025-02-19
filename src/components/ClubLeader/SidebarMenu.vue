@@ -105,7 +105,7 @@ export default {
       const path = '/ClubProfile'; // 이동할 경로
       const url = `${path}`; // 상대 경로만 지정
       const windowName = '_blank';
-      const windowFeatures = 'width=712,height=960,resizable=no,scrollbars=no';
+      const windowFeatures = 'width=652,height=790,resizable=no,scrollbars=no';
       window.open(url, windowName, windowFeatures);
     },
     logout() {
@@ -260,7 +260,7 @@ nav li {
 }
 
 .list2:hover {
-  height: 170px;
+  height: 177px;
 }
 
 .list2:hover a {

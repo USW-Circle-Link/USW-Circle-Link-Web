@@ -172,11 +172,11 @@ export default {
   methods: {
     async pageLoadFunction() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
         const response = await axios.get(
-            `http://15.164.246.244:8080/club-leader/${clubId}/intro`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/summary`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
