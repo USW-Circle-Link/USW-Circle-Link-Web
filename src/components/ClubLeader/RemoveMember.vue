@@ -187,7 +187,7 @@ export default {
 }
 
 .RemoveMemberDashboard {
-  width: 886px;
+  width: 896px;
   background: #fff;
   border-radius: 8px;
   align-items: center;
