@@ -407,7 +407,7 @@ export default {
   height: 382px;
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #d51414;
+  border: 1px solid #ddd;
   border-radius: 5px;
   resize: none;
 }
