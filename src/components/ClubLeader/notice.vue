@@ -117,27 +117,37 @@ export default {
 
     const data = await response.json();
     
-    console.log("📡 서버 응답 데이터:", data); // ✅ 응답 데이터 확인
+    // ✅ 응답 데이터 구조 확인
+    console.log("📡 서버 응답 데이터:", JSON.stringify(data, null, 2));
 
-        if (data && data.data && Array.isArray(data.data.content)) {
-          this.notices = data.data.content.sort((a, b) => new Date(b.noticeCreatedAt) - new Date(a.noticeCreatedAt));
-          this.totalPages = data.data.totalPages;
-          this.currentPage = data.data.pageable.pageNumber + 1;
-        } else {
-          console.warn('Unexpected response format:', data);
-          this.notices = [];
-        }
-      } catch (error) {
-        console.error('Error fetching notices:', error);
-        this.notices = [];
+    if (data && data.data) {
+      this.notices = Array.isArray(data.data.content) ? data.data.content : [];
+
+      // ✅ 'pageable'이 존재하는지 확인 후 할당
+      if (data.data.pageable) {
+        this.totalPages = data.data.totalPages;
+        this.currentPage = data.data.pageable.pageNumber + 1;
+      } else {
+        console.warn("🚨 'pageable' 속성이 응답 데이터에 없음!");
+        this.totalPages = 1; // 기본값 설정
+        this.currentPage = 1;
       }
-    },
-    goToNotice(noticeId) {
+    } else {
+      console.warn("🚨 응답 데이터 형식이 예상과 다릅니다:", data);
+      this.notices = [];
+    }
+  } catch (error) {
+    console.error('❌ Error fetching notices:', error);
+    this.notices = [];
+  }
+},
+
+    goToNotice(noticeUUID) {
       const currentPath = this.$route.path;
       if (currentPath.startsWith('/main')) {
-        this.$router.push({ name: 'NoticeClick', params: { id: noticeId } });
+        this.$router.push({ name: 'NoticeClick', params: { noticeUUID: noticeUUID } });
       } else {
-        this.$router.push({ name: 'NoticeClick', params: { id: noticeId } });
+        this.$router.push({ name: 'NoticeClick', params: { noticeUUID: noticeUUID } });
       }
     },
     changePage(page) {
