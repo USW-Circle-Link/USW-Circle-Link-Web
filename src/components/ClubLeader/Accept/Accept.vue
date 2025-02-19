@@ -209,55 +209,83 @@ export default {
     },
 
     async fetchData() {
-      const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      console.log("🔍 Vuex 상태 확인:", store.state);
+    console.log("🔍 Access Token:", store.state.accessToken);
+    console.log("🔍 clubUUID:", store.state.clubUUID);
+    console.log("🔍 clubMemberUUID:", store.state.clubMemberUUID);
+    console.log("🔍 clubMemberAccountStatusUUID:", store.state.clubMemberAccountStatusUUID);
 
-      try {
-        // 가입 요청 목록 조회
-        const requestResponse = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members/sign-up`,{
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-              }
-            }
-        );
-        console.log('Request Response:', requestResponse);
-
-        // 응답 데이터를 컴포넌트에 맞게 변환
-        this.requestedMembers = requestResponse.data.data.map(member => ({
-          id: member.clubMemberAccountStatusId, // 추후 작업을 위해 저장
-          name: member.profileTempName,
-          studentId: member.profileTempStudentNumber,
-          department: member.profileTempMajor,
-          phone: member.profileTempHp,
-          rejected: false
-        }));
-
-        // 엑셀로 추가된 비회원 목록 조회
-        const membersResponse = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/members?sort=non-member`,{
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-              }
-            }
-        );
-
-        // 응답 데이터를 컴포넌트에 맞게 변환
-        this.addedMembers = membersResponse.data.data.map(member => ({
-          id: member.clubMemberId, // 추후 작업을 위해 저장
-          name: member.userName,
-          studentId: member.studentNumber,
-          department: member.major,
-          phone: member.userHp,
-          college: this.findCollegeByDepartment(member.major),
-        }));
-      } catch (error) {
-        if (!this.handle401Error(error)) {
-          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
-          alert('동아리 정보를 불러오는데 실패했습니다.');
+    const accessToken = store.state.accessToken;
+    const clubMemberUUID = store.state.clubMemberUUID; // ✅ 주석 해제 후 값 가져오기
+    const clubMemberAccountStatusUUID = store.state.clubMemberAccountStatusUUID;
+    const clubUUID = store.state.clubUUID;
+    try {
+        // ✅ Vuex 상태값 확인
+        if (!accessToken || !clubUUID) {
+            console.error('Access token or clubMemberAccountStatusUUID is missing');
+            alert('로그인이 필요합니다.');
+            return;
         }
-      }
-    },
+
+        // ✅ 가입 요청 목록 조회
+        const requestResponse = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members/sign-up`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Request Response:', requestResponse.data);
+
+        if (!requestResponse.data || !requestResponse.data.data) {
+            throw new Error('가입 요청 목록 응답이 올바르지 않습니다.');
+        }
+
+        this.requestedMembers = requestResponse.data.data.map(member => ({
+          clubMemberAccountStatusUUID: member.clubMemberAccountStatusUUID,
+            name: member.profileTempName,
+            studentId: member.profileTempStudentNumber,
+            department: member.profileTempMajor,
+            phone: member.profileTempHp,
+            rejected: false
+        }));
+
+        // ✅ clubMemberUUID가 존재하는지 확인
+        if (!clubUUID) {
+            console.warn('clubMemberUUID가 존재하지 않습니다. 비회원 목록을 불러오지 않습니다.');
+            return;
+        }
+
+        // ✅ 엑셀로 추가된 비회원 목록 조회
+        const membersResponse = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?sort=non-member`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Members Response:', membersResponse.data);
+
+        if (!membersResponse.data || !membersResponse.data.data) {
+            throw new Error('비회원 목록 응답이 올바르지 않습니다.');
+        }
+
+        this.addedMembers = membersResponse.data.data.map(member => ({
+          clubMemberUUID: member.clubMemberUUID,
+            name: member.userName,
+            studentId: member.studentNumber,
+            department: member.major,
+            phone: member.userHp,
+            college: this.findCollegeByDepartment(member.major),
+        }));
+
+    } catch (error) {
+        if (!this.handle401Error(error)) {
+            console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+            alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
+    }
+},
     findCollegeByDepartment(department) {
       for (const college of colleges) {
         if (departmentsByCollege[college.id].includes(department)) {
@@ -266,13 +294,15 @@ export default {
       }
       return '';
     },
+    
     async updateMemberInfo(memberId, memberData) {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
+     // const memberId = this.requestedMembers[index].clubMemberUUID;
 
       try {
         const response = await axios.patch(
-            `http://15.164.246.244:8080/club-leader/${clubId}/members/${memberId}/non-member`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/${memberId}/non-member`,
             {
               userName: memberData.name,
               studentNumber: memberData.studentId,
@@ -298,6 +328,7 @@ export default {
         }
       }
     },
+
     async confirmEditPopup() {
       if (!this.tempEditingMember) {
         console.error('No editing member data available');
@@ -305,7 +336,7 @@ export default {
       }
 
       try {
-        const memberId = this.addedMembers[this.editingIndex].id;
+        const memberId = this.addedMembers[this.editingIndex].clubMemberUUID;
 
         // Clean phone number before sending
         const cleanedPhone = this.tempEditingMember.phone.replace(/\D/g, '');
@@ -372,13 +403,13 @@ export default {
     },
     async confirmRejection() {
       const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+      const clubUUID = store.state.clubUUID;
 
       try {
         for (const index of this.membersToReject) {
-          const memberId = this.requestedMembers[index].id;
+          const memberId = this.requestedMembers[index].clubMemberAccountStatusUUID;
 
-          await axios.delete(`http://15.164.246.244:8080/club-leader/${clubId}/members/sign-up/${memberId}`, {
+          await axios.delete(`http://15.164.246.244:8080/club-leader/${clubUUID}/members/sign-up/${memberId}`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
@@ -402,74 +433,87 @@ export default {
       this.showAcceptPopup = false;
     },
     async confirmAccept() {
-      const accessToken = store.state.accessToken;
-      const clubId = store.state.clubId;
+  const accessToken = store.state.accessToken;
+  const clubUUID = store.state.clubUUID;
 
-      try {
-        const requestedMember = this.requestedMembers[this.selectedRequestedMembers[0]];
-        const addedMember = this.addedMembers[this.selectedAddedMembers[0]];
+  if (!clubUUID) {
+    console.error("❌ clubUUID가 없습니다.");
+    alert("클럽 정보가 올바르지 않습니다. 다시 로그인하거나 새로고침해 주세요.");
+    return;
+  }
 
-        const requestBody = {
-          signUpProfileRequest: {
-            id: requestedMember.id,
-            userName: requestedMember.name,
-            studentNumber: requestedMember.studentId,
-            major: requestedMember.department,
-            userHp: requestedMember.phone.replace(/-/g, '')
-          },
-          clubNonMemberProfileRequest: {
-            id: addedMember.id,
-            userName: addedMember.name,
-            studentNumber: addedMember.studentId,
-            major: addedMember.department,
-            userHp: addedMember.phone.replace(/-/g, '')
-          }
-        };
+  try {
+    // 🔹 선택한 회원의 uuid 값 가져오기 (갱신)
+    const requestedIndex = this.selectedRequestedMembers[0];
+    const addedIndex = this.selectedAddedMembers[0];
 
-        const response = await axios.post(
-            `http://15.164.246.244:8080/club-leader/${clubId}/members/sign-up`,
-            requestBody,
-            {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-              }
-            }
-        );
+    const requestedMember = { ...this.requestedMembers[requestedIndex] };
+    const addedMember = { ...this.addedMembers[addedIndex] };
 
-        // 성공 응답 처리
-        if (response.data.message === "기존 동아리 회원 가입 요청 수락 완료") {
-          this.showConfirmationPopup = true;
-        } else if (response.data.message === "기존 동아리 회원 가입 요청 수락 후 계정 생성 완료") {
-          this.completedMemberName = response.data.data;
-          this.realCompletePopup = true;
-        }
+    console.log("✅ 선택한 회원 정보 업데이트 확인:", requestedMember, addedMember);
 
-        // 목록에서 처리된 회원 제거
-        this.requestedMembers.splice(this.selectedRequestedMembers[0], 1);
-        this.addedMembers.splice(this.selectedAddedMembers[0], 1);
-        this.selectedRequestedMembers = [];
-        this.selectedAddedMembers = [];
+    const requestBody = {
+      signUpProfileRequest: {
+        uuid: requestedMember.clubMemberAccountStatusUUID, // 클럽 가입 요청 UUID
+        userName: requestedMember.name,
+        studentNumber: requestedMember.studentId,
+        major: requestedMember.department,
+        userHp: requestedMember.phone.replace(/-/g, '')
+      },
+      clubNonMemberProfileRequest: {
+        uuid: addedMember.clubMemberUUID, // 클럽 비회원 UUID
+        userName: addedMember.name,
+        studentNumber: addedMember.studentId,
+        major: addedMember.department,
+        userHp: addedMember.phone.replace(/-/g, '')
+      }
+    };
 
-      } catch (error) {
-        if (error.response) {
-          const { status, data } = error.response;
+    console.log("📡 API 요청 바디:", JSON.stringify(requestBody, null, 2));
 
-          if (status === 400 && data.exception === "ProfileException") {
-            this.errorData = data.additionalData.join(', ');
-            this.showErrorPopup = true;
-          } else if (!this.handle401Error(error)) {
-            console.error('동아리 정보를 불러오는데 실패했습니다.', error);
-            alert('동아리 정보를 불러오는데 실패했습니다.');
-          }
-        } else {
-          console.error('Error accepting member:', error);
+    // 🔹 API 요청
+    const response = await axios.post(
+      `http://15.164.246.244:8080/club-leader/${clubUUID}/members/sign-up`,
+      requestBody,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
         }
       }
+    );
 
-      this.showAcceptPopup = false;
-      this.saveData();
-    },
+    console.log("✅ 가입 요청 성공:", response.data);
+
+    if (response.data.message === "기존 동아리 회원 가입 요청 수락 완료") {
+      this.showConfirmationPopup = true;
+    } else if (response.data.message === "기존 동아리 회원 가입 요청 수락 후 계정 생성 완료") {
+      this.completedMemberName = response.data.data;
+      this.realCompletePopup = true;
+    }
+
+    // ✅ 선택한 회원 제거
+    this.requestedMembers.splice(requestedIndex, 1);
+    this.addedMembers.splice(addedIndex, 1);
+    this.selectedRequestedMembers = [];
+    this.selectedAddedMembers = [];
+
+  } catch (error) {
+    if (error.response) {
+      console.error("❌ API 요청 실패:", error.response.data);
+
+      if (error.response.status === 404) {
+        alert("⚠️ 해당 클럽 멤버를 찾을 수 없습니다. 올바른 데이터를 선택했는지 확인하세요.");
+      } else if (!this.handle401Error(error)) {
+        alert("🚨 오류 발생: 관리자에게 문의하세요.");
+      }
+    }
+  }
+
+  this.showAcceptPopup = false;
+  this.saveData();
+},
+
     closeConfirmationPopup() {
       this.resetPopups();
       this.showConfirmationPopup = false;
@@ -689,15 +733,6 @@ export default {
   padding: 12px;
   width: 450px;
 }
-
-/*.vertical-line { */
-/*  width: 2px; */
-//background-color: #ddd;
-//margin: 0 10px; /* 양쪽에 20px의 여백 추가 */
-//flex-shrink: 0; /* 크기가 줄어들지 않도록 설정 */
-/* height: auto; 높이를 자동으로 설정 */
-/* align-self: stretch; 부모 컨테이너의 높이에 맞춤 */
-/*z-index: 1;  다른 요소들 위에 표시 }*/
 
 
 .added-members .edit-section + .added-member-list {
