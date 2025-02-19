@@ -9,27 +9,30 @@
     </div>
     <div class="login-box">
       <form @submit.prevent="login">
-        <div class="input-container" :class="{ 'focused': focusedElement === 'id' }">
+        <div class="input-group" :class="{ 'focused': focusedElement === 'id', 'has-value': id.length > 0 }">
           <span class="icon vector"></span>
           <input
               type="text"
-              placeholder="아이디"
+              id="id-input"
               v-model="id"
               required
               @focus="focusedElement = 'id'"
               @blur="focusedElement = null"
           />
+          <label for="id-input" class="floating-label">아이디</label>
         </div>
-        <div class="input-container" :class="{ 'focused': focusedElement === 'password' }">
+
+        <div class="input-group" :class="{ 'focused': focusedElement === 'password', 'has-value': password.length > 0 }">
           <span class="icon password"></span>
           <input
               type="password"
-              placeholder="비밀번호"
+              id="password-input"
               v-model="password"
               required
               @focus="focusedElement = 'password'"
               @blur="focusedElement = null"
           />
+          <label for="password-input" class="floating-label">비밀번호</label>
         </div>
 
         <div class="custom-dropdown"
@@ -300,7 +303,6 @@ export default {
   min-height: 100vh;
   background-color: #f0f0f0;
   width: 100%;
-  padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -316,10 +318,9 @@ export default {
   margin-bottom: 40px;
   text-align: center;
   color: #9D9D9D;
-  font-family: Pretendard;
   font-size: 32px;
   font-style: normal;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 14px; /* 43.75% */
 }
 
@@ -331,7 +332,7 @@ export default {
 }
 
 .logo {
-  height: 70px; /* 로고 높이 조정 */
+  height: 65px; /* 로고 높이 조정 */
   object-fit: contain; /* 이미지 비율 유지 */
   margin-top: -10px; /* 로고를 살짝 아래로 조정 */
 }
@@ -351,8 +352,8 @@ export default {
 .login-box {
   padding: 40px;
   width: 100%;
-  max-width: 676px;
-  height: 400px; /* 높이 고정 */
+  max-width: 576px;
+  height: 350px; /* 높이 고정 */
   border-radius: 16px;
   background: #FFF;
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
@@ -365,8 +366,8 @@ form {
   justify-content: space-between; /* 요소들 사이의 간격을 균일하게 배분 */
 }
 
-.input-container, .custom-dropdown {
-  height: 74px;
+.custom-dropdown {
+  height: 64px;
   padding: 0 15px;
   background-color: #fff;
   display: flex;
@@ -376,6 +377,7 @@ form {
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
   font-size: 20px;
   padding-left: 25px;
+  margin-bottom: 20px;
 }
 
 .input-container input {
@@ -395,6 +397,11 @@ form {
 .icon {
   width: 26px;
   height: 26px;
+  color: #9D9D9D;
+  margin-right: 10px;
+}
+
+.input-group.has-value input {
   color: #9D9D9D;
 }
 
@@ -509,9 +516,56 @@ option {
   background-color: #e6953e;
 }
 
-.input-container.focused,
 .custom-dropdown.focused {
   border-color: #FFB052;
-  box-shadow: 0 0 0 2px rgba(255, 192, 29, 0.2);
+  box-shadow: 0 0 0 1px #FFB052;
 }
+
+.input-group {
+  position: relative;
+  height: 64px;
+  padding: 0 15px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid #D7D7D7;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  height: 100%;
+  padding: 20px 10px 0;
+  font-size: 20px;
+  border: none;
+  outline: none;
+  width: 100%;
+  background: transparent;
+}
+
+.floating-label {
+  position: absolute;
+  left: 60px; /* icon width + padding */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: #9D9D9D;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+
+.input-group.focused .floating-label,
+.input-group.has-value .floating-label {
+  top: 25%;
+  font-size: 14px;
+  color: #FFB052;
+}
+
+.input-group.focused {
+  border-color: #FFB052;
+  box-shadow: 0 0 0 1px #FFB052;
+}
+
 </style>
