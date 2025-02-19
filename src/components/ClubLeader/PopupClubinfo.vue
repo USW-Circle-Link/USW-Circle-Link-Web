@@ -139,7 +139,11 @@ export default {
           : "";
     },
     formattedCategory() {
-      return this.data.clubCategoryName || "카테고리 없음";
+      if (!this.data.clubCategories) return "카테고리 없음";
+      // 배열을 콤마로 구분된 문자열로 변환
+      return Array.isArray(this.data.clubCategories)
+          ? this.data.clubCategories.join(', ')
+          : this.data.clubCategories;
     },
     instagramLink() {
       // Instagram 링크가 http로 시작하지 않으면 추가
@@ -167,7 +171,7 @@ export default {
     console.log("해시태그 데이터:", this.data.clubHashtag);
     console.log("해시태그 데이터:", this.data.clubRoomNumber);
     console.log("해시태그 데이터:", this.data.clubRecruitment);
-    console.log("해시태그 데이터:", this.data.clubCategoryName);
+    console.log("해시태그 데이터:", this.data.clubCategories);
   },
   methods: {
     async pageLoadFunction() {
