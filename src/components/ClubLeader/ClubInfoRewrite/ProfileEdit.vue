@@ -1,6 +1,8 @@
 <template>
   <div class="profile-edit-container">
-    <h2 class="profile-title">동아리 정보 수정</h2>
+    <div class="title">
+      <h2 class="profile-title">동아리 정보 수정</h2>
+    </div>
     <div class="profile-edit">
       <div class="image-container">
         <img
@@ -663,7 +665,7 @@ export default {
   height: 42px;
   font-size: 13px;
   color: #5A5A5A;
-  width: 140px;
+  width: 152px;
 }
 
 .category-select-button:hover {
@@ -719,7 +721,7 @@ export default {
   height: 42px;
   font-size: 13px;
   color: #5A5A5A;
-  width: 120px;
+  width: 130px;
 }
 
 .room-select-button:hover {
@@ -741,6 +743,14 @@ export default {
 .profile-edit-container {
   text-align: center;
   position: relative;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  width: 886px;  /* RemoveMemberDashboard와 동일한 너비 */
+  margin: 0 auto;  /* 중앙 정렬 */
+  padding: 0 20px;  /* 내부 여백 추가 */
 }
 
 .profile-title {
@@ -963,7 +973,6 @@ button.disabled {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 4px 0;
 }
 
 .category-item {

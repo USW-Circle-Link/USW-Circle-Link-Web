@@ -16,32 +16,32 @@
     <div class="list">
       <div class="list-item-container" v-for="(club, index) in clubs" :key="index">
         <div class="list-item-row" @click="openPopupClubInfo(club)">
-        <div class="list-item-department">{{ club.department }}</div>
-        <div class="list-item-clubname">{{ club.clubName }}</div>
-        <div class="list-item-clubleader">{{ club.leaderName }}</div>
-        <div class="list-item-numberOfClubMembers">{{ club.numberOfClubMembers }}</div>
+          <div class="list-item-department">{{ club.department }}</div>
+          <div class="list-item-clubname">{{ club.clubName }}</div>
+          <div class="list-item-clubleader">{{ club.leaderName }}</div>
+          <div class="list-item-numberOfClubMembers">{{ club.numberOfClubMembers }}</div>
+        </div>
+        <div class="list-item-delete">
+          <button class="delete-btn" @click="openPopup(club.clubUUID, index, club.clubName)">삭제</button>
+        </div>
       </div>
-      <div class="list-item-delete">
-        <button class="delete-btn" @click="openPopup(club.clubUUID, index, club.clubName)">삭제</button>
-      </div>
-    </div>
     </div>
     <div class="pagination">
-  <button @click="prevPage" :disabled="currentPage === 1">
-    <img src="@/assets/left.png" alt="Previous" />
-  </button>
-  <button
-    v-for="page in totalPages"
-    :key="page"
-    @click="setPage(page)"
-    :class="{ active: page === currentPage }"
-  >
-    {{ page }}
-  </button>
-  <button @click="nextPage" :disabled="currentPage === totalPages">
-    <img src="@/assets/rigth.png" alt="Next" />
-  </button>
-</div>
+      <button @click="prevPage" :disabled="currentPage === 1">
+        <img src="@/assets/left.png" alt="Previous" />
+      </button>
+      <button
+          v-for="page in totalPages"
+          :key="page"
+          @click="setPage(page)"
+          :class="{ active: page === currentPage }"
+      >
+        {{ page }}
+      </button>
+      <button @click="nextPage" :disabled="currentPage === totalPages">
+        <img src="@/assets/rigth.png" alt="Next" />
+      </button>
+    </div>
   </div>
 
 
@@ -200,9 +200,9 @@ export default {
 
       // clubId만 URL 파라미터로 전달
       window.open(
-        `/club-popup?clubId=${club.clubUUID}`,
-        "ClubInfo",
-        `width=${width},height=${height},scrollbars=yes,resizable=yes`
+          `/club-popup?clubId=${club.clubUUID}`,
+          "ClubInfo",
+          `width=${width},height=${height},scrollbars=yes,resizable=yes`
       );
     },
   },
@@ -227,18 +227,20 @@ body {
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   height: 620px;
-   /* 페이지네이션을 하단에 고정 */
-   justify-content: space-between;
+  /* 페이지네이션을 하단에 고정 */
+  justify-content: space-between;
 }
 
 .title {
   color: black;
   font-size: 25px;
   font-weight: bold;
-  margin-bottom: 10px;
   position: relative; /* 상대 위치 설정 */
   display: inline-block;
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
+  width: 830px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 
@@ -247,7 +249,7 @@ body {
   width: 820px;
   background-color: #ffffff;
   border-radius: 8px;
-  margin: 20px 0 30px 0;
+  margin: 20px auto;
   padding: 0 20px 0 20px;
 }
 

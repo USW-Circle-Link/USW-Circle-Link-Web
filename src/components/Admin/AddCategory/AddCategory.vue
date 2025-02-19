@@ -1,6 +1,6 @@
 <template>
-  <div class="title">카테고리 작성하기</div>
   <div class="container">
+    <div class="title">카테고리 작성하기</div>
     <!-- 카테고리 리스트 -->
     <h2>카테고리 리스트</h2>
     <div class="category-list">
@@ -152,14 +152,14 @@ export default {
   font-weight: bold;
   margin-bottom: 30px;
   position: relative; /* 상대 위치 설정 */
-  display: inline-block;
+  display: block;
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
 }
 
 .container {
   width: 890px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 10px;
 }
 
 h2 {

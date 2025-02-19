@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="notice-write-container">
     <h2>공지사항 수정</h2>
 
     <div v-if="notice">
@@ -7,22 +7,24 @@
         <label for="title-input" class="label">제목</label>
         <input id="title-input" v-model="notice.noticeTitle" placeholder="제목을 입력해주세요.(100자이내)" class="title-input"/>
       </div>
-      <div class="content-container">
-  <label for="content-input" class="label">내용</label>
 
-  <!-- textarea -->
-  <div class="textarea-wrapper">
-    <textarea 
-      id="content-input" 
-      v-model="notice.noticeContent" 
-      @input="limitContentLength"
-      placeholder="내용을 입력해 주세요. 사진은 5장까지 첨부 가능합니다." 
-      class="content-input">
+
+      <div class="content-container">
+        <label for="content-input" class="label">내용</label>
+
+        <!-- textarea -->
+        <div class="textarea-wrapper">
+    <textarea
+        id="content-input"
+        v-model="notice.noticeContent"
+        @input="limitContentLength"
+        placeholder="내용을 입력해 주세요. 사진은 5장까지 첨부 가능합니다."
+        class="content-input">
     </textarea>
-    <!-- 글자수 표시 -->
-    <div class="character-count">{{ notice.noticeContent.length }} / 3000</div>
-  </div>
-</div>
+          <!-- 글자수 표시 -->
+          <div class="character-count">{{ notice.noticeContent.length }} / 3000</div>
+        </div>
+      </div>
 
 
       <div class="image-upload-container">
@@ -36,19 +38,19 @@
               </div>
 
               <div class="delete-icon" @click="deleteImage(index)">
-            &times;
-          </div>
+                &times;
+              </div>
 
-          <div class="edit-icon" @click="editImage(index)">
-  <img src="@/assets/penbrush.png" alt="Edit Icon" />
-</div>
+              <div class="edit-icon" @click="editImage(index)">
+                <img src="@/assets/penbrush.png" alt="Edit Icon" />
+              </div>
 
-<input 
-  type="file" 
-  :ref="'fileInput' + index" 
-  @change="onImageChange(index, $event)" 
-  style="display: none;" 
-/>
+              <input
+                  type="file"
+                  :ref="'fileInput' + index"
+                  @change="onImageChange(index, $event)"
+                  style="display: none;"
+              />
 
             </div>
           </template>
@@ -109,21 +111,21 @@ export default {
         });
 
 
-          // 에러 상태 코드 처리
-          if (response.status === 404 || response.status === 413 || response.status === 422) {
-                let message = '';
+        // 에러 상태 코드 처리
+        if (response.status === 404 || response.status === 413 || response.status === 422) {
+          let message = '';
 
-                if (response.status === 404) {
-                  message = '공지사항이 존재하지 않습니다.';
-                } else if (response.status === 413) {
-                  message = '최대 5개의 사진이 업로드 가능합니다.';
-                } else if (response.status === 422) {
-                  message = '제목과 내용을 모두 입력해주세요.';
-                }
+          if (response.status === 404) {
+            message = '공지사항이 존재하지 않습니다.';
+          } else if (response.status === 413) {
+            message = '최대 5개의 사진이 업로드 가능합니다.';
+          } else if (response.status === 422) {
+            message = '제목과 내용을 모두 입력해주세요.';
+          }
 
-                alert(message);
-                return;
-              }
+          alert(message);
+          return;
+        }
 
 
         if (response.data && response.data.data) {
@@ -132,16 +134,16 @@ export default {
           // 제목과 내용 설정
           this.notice.noticeTitle = data.noticeTitle || '';
           this.notice.noticeContent = (data.noticeContent || '')
-            .replace(/<br>/g, '\n') // 줄바꿈 처리
-            .replace(/&nbsp;/g, ' '); // 공백 처리
+              .replace(/<br>/g, '\n') // 줄바꿈 처리
+              .replace(/&nbsp;/g, ' '); // 공백 처리
 
           // 사진 설정
           const photoUrls = data.noticePhotos || [];
           this.noticePhotos = await Promise.all(
-            photoUrls.map(async (url, index) => {
-              const file = await this.urlToFile(url);
-              return { id: index + 1, src: url, file, order: index + 1 };
-            })
+              photoUrls.map(async (url, index) => {
+                const file = await this.urlToFile(url);
+                return { id: index + 1, src: url, file, order: index + 1 };
+              })
           );
         }
       } catch (error) {
@@ -211,37 +213,37 @@ export default {
       }
     },
     editImage(index) {
-  const fileInput = this.$refs[`fileInput${index}`];
-  if (fileInput && fileInput.click) {
-    fileInput.click(); // 파일 선택창 열기
-  } else {
-    console.error(`File input not found for index ${index}`);
-  }
-}
-,
-  onImageChange(index, event) {
-    if (!event || !event.target || !event.target.files) {
-      console.error('Invalid event object:', event);
-      return;
+      const fileInput = this.$refs[`fileInput${index}`];
+      if (fileInput && fileInput.click) {
+        fileInput.click(); // 파일 선택창 열기
+      } else {
+        console.error(`File input not found for index ${index}`);
+      }
     }
+    ,
+    onImageChange(index, event) {
+      if (!event || !event.target || !event.target.files) {
+        console.error('Invalid event object:', event);
+        return;
+      }
 
-    const file = event.target.files[0];
-    if (!file) return;
+      const file = event.target.files[0];
+      if (!file) return;
 
-    const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    const maxFileSize = 10 * 1024 * 1024;
+      const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const maxFileSize = 10 * 1024 * 1024;
 
-    if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
-      };
-      reader.readAsDataURL(file);
-    } else {
-      alert('파일 형식이 맞지 않거나 크기가 초과되었습니다.');
-    }
-  },
+      if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('파일 형식이 맞지 않거나 크기가 초과되었습니다.');
+      }
+    },
 
     // 이미지 삭제
     deleteImage(index) {
@@ -283,8 +285,8 @@ export default {
         const noticeData = {
           noticeTitle: this.notice.noticeTitle,
           noticeContent: this.notice.noticeContent
-            .replace(/ /g, '&nbsp;')
-            .replace(/\n/g, '<br>'),
+              .replace(/ /g, '&nbsp;')
+              .replace(/\n/g, '<br>'),
           photoOrders: this.noticePhotos.map(photo => photo.order),
           deletedPhotos: this.deletedPhotoIds,
         };
@@ -299,28 +301,28 @@ export default {
 
         // API 호출
         const response = await axios.put(
-          `http://15.164.246.244:8080/notices/${this.noticeUUID}`,
-          form,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'multipart/form-data',
-            },
-          }
+            `http://15.164.246.244:8080/notices/${this.noticeUUID}`,
+            form,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data',
+              },
+            }
         );
 
         // Presigned URLs 처리 (S3 업로드)
         const presignedUrls = response?.data?.data || [];
         if (presignedUrls.length) {
           await Promise.all(
-            presignedUrls.map(async (url, index) => {
-              const file = this.noticePhotos[index].file;
-              if (file) {
-                await axios.put(url, file, {
-                  headers: { 'Content-Type': file.type },
-                });
-              }
-            })
+              presignedUrls.map(async (url, index) => {
+                const file = this.noticePhotos[index].file;
+                if (file) {
+                  await axios.put(url, file, {
+                    headers: { 'Content-Type': file.type },
+                  });
+                }
+              })
           );
         }
 
@@ -336,7 +338,7 @@ export default {
     },
   },
 
-  
+
 
   created() {
     this.fetchNotice(this.noticeUUID);
@@ -347,7 +349,12 @@ export default {
 
 
 <style scoped>
-
+.notice-write-container {
+  width: 100%;
+  min-width: 900px;
+  margin: 0 auto;
+  padding: 10px;
+}
 
 * {
   box-sizing: border-box;
@@ -377,9 +384,11 @@ export default {
   border: 1px solid #ddd;
   border-radius: 5px;
 }
+
 .textarea-wrapper {
-  position: relative;
+  width: 100%;
   display: inline-block;
+  position: relative;
 }
 
 .character-count {
@@ -394,22 +403,11 @@ export default {
 }
 
 .content-input {
-  width: 817px;
+  width: 100%;
   height: 382px;
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  resize: none;
-}
-
-
-.content-input {
-  width: 817px;
-  height: 382px;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
+  border: 1px solid #d51414;
   border-radius: 5px;
   resize: none;
 }
@@ -525,7 +523,7 @@ export default {
   width: 102.5px;
   height: 45px;
   padding: 10px;
-  margin: 20px 0 20px auto; 
+  margin: 20px 0 20px auto;
   background-color: #FFB052;
   border: none;
   border-radius: 5px;

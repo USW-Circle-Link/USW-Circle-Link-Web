@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="notice-write-container">
     <h2 class="title">공지사항 작성</h2>
 
     <div v-if="notice">
@@ -7,20 +7,21 @@
         <label for="title-input" class="label">제목</label>
         <input id="title-input" v-model="notice.noticeTitle" class="title-input" placeholder="제목을 입력해 주세요. (100자 이내)" />
       </div>
+
       <div class="content-container">
         <!-- <label for="content-input" class="label">내용</label> -->
         <div class="textarea-wrapper">
-          <textarea 
-          id="content-input" 
-          v-model="notice.noticeContent" 
-          class="content-input" 
-          placeholder="내용을 입력해 주세요. 사진은 5장까지 첨부 가능합니다."
-          @input="limitContentLength" 
-        ></textarea>
-
+          <textarea
+              id="content-input"
+              v-model="notice.noticeContent"
+              class="content-input"
+              placeholder="내용을 입력해 주세요. 사진은 5장까지 첨부 가능합니다."
+              @input="limitContentLength"
+          ></textarea>
           <div class="character-count">{{ notice.noticeContent.length }} / 3000</div> <!-- 글자 수 표시 -->
         </div>
       </div>
+
       <div class="image-upload-container">
         <div v-for="(image, index) in images" :key="index" class="image-preview">
           <img :src="image.src" alt="Uploaded Image" class="uploaded-image" />
@@ -89,42 +90,42 @@ export default {
       }
     },
     editImage(index) {
-  const fileInputs = this.$refs.fileInputs; // 모든 파일 입력 요소 배열
-  if (fileInputs && fileInputs[index]) {
-    fileInputs[index].click(); // 선택한 입력 요소 클릭
-  } else {
-    console.error(`File input not found for index ${index}`);
-  }
-}
-,
-editImage(index) {
+      const fileInputs = this.$refs.fileInputs; // 모든 파일 입력 요소 배열
+      if (fileInputs && fileInputs[index]) {
+        fileInputs[index].click(); // 선택한 입력 요소 클릭
+      } else {
+        console.error(`File input not found for index ${index}`);
+      }
+    }
+    ,
+    editImage(index) {
       this.$refs[`fileInput${index}`][0].click();
     },
 
     // 이미지 수정
     onImageChange(index, event) {
-  if (!event || !event.target || !event.target.files) {
-    console.error('Invalid event object:', event);
-    return;
-  }
+      if (!event || !event.target || !event.target.files) {
+        console.error('Invalid event object:', event);
+        return;
+      }
 
-  const file = event.target.files[0];
-  if (!file) return;
+      const file = event.target.files[0];
+      if (!file) return;
 
-  const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-  const fileExtension = file.name.split('.').pop().toLowerCase();
-  const maxFileSize = 10 * 1024 * 1024;
+      const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const maxFileSize = 10 * 1024 * 1024;
 
-  if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      this.images[index] = { ...this.images[index], src: e.target.result, file };
-    };
-    reader.readAsDataURL(file);
-  } else {
-    alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
-  }
-},
+      if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.images[index] = { ...this.images[index], src: e.target.result, file };
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
+      }
+    },
     async submitNotice() {
 
 
@@ -243,9 +244,15 @@ editImage(index) {
 
 
 <style scoped>
+.notice-write-container {
+  width: 100%;
+  min-width: 900px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
 .title {
   color: #000000;
-
   font-size: 25px;
   font-weight: bold;
   margin-bottom: 0px;
@@ -254,13 +261,12 @@ editImage(index) {
   display: inline-block;
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
 }
+
 .label {
   font-size: 18px; /* 글씨 크기를 20px로 변경 */
   /*  필요 시 굵게 표시 */
   color: #000000; /* 필요 시 색상 변경 */
 }
-
-
 
 .title::after {
   content: '';
@@ -268,17 +274,17 @@ editImage(index) {
   left: 0;
   bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
   width: 102.5%;
-  
+
 ; /* 노란색 배경 */
   z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
   transform: skew(-12deg); /* 기울기 효과 추가 */
 }
 
 .character-count {
-    text-align: right; /* 글자 수 우측 정렬 */
-    font-size: 14px; /* 글자 크기 */
-    color: #666; /* 글자 색상 */
-    margin-top: 5px; /* 위쪽 여백 */
+  text-align: right; /* 글자 수 우측 정렬 */
+  font-size: 14px; /* 글자 크기 */
+  color: #666; /* 글자 색상 */
+  margin-top: 5px; /* 위쪽 여백 */
 }
 
 * {
@@ -289,7 +295,7 @@ editImage(index) {
   margin-top:30px ;
 }
 
-.content-container 
+.content-container
 {
   margin-top: 25px; /* 내용 입력 필드 위 여백 추가 */
 }
@@ -304,7 +310,7 @@ editImage(index) {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
 
-  margin-top: 25px; 
+  margin-top: 25px;
 }
 
 .label {
@@ -341,7 +347,7 @@ editImage(index) {
 }
 
 .content-input {
-  width: 817px;
+  width: 100%;
   height: 382px;
   padding: 10px;
   font-size: 16px;
@@ -355,7 +361,7 @@ editImage(index) {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 815px;
+  width: 100%;
   height: 153.96px;
   background-color: white;
   padding: 10px;
@@ -458,7 +464,7 @@ editImage(index) {
   width: 102.5px;
   height: 45px;
   padding: 10px;
-  margin: 20px 0 20px auto; 
+  margin: 20px 0 20px auto;
   background-color: #FFB052;
   border: none;
   border-radius: 5px;
@@ -469,8 +475,8 @@ editImage(index) {
   text-align: center;
 }
 
-.title-input::placeholder, 
-.content-input::placeholder, 
+.title-input::placeholder,
+.content-input::placeholder,
 .image-upload input::placeholder {
   font-family: Pretendard;
   font-size: 14px;

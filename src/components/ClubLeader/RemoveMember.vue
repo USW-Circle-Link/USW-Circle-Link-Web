@@ -181,6 +181,9 @@ export default {
 .title {
   font-size: 20px;
   font-weight: 600;
+  width: 886px;  /* RemoveMemberDashboard와 동일한 너비 */
+  margin: 0 auto;  /* 중앙 정렬 */
+  padding: 0 20px;  /* 내부 여백 추가 */
 }
 
 .RemoveMemberDashboard {
@@ -279,9 +282,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: end;
-  margin: 40px 0 0px 0;
+  margin: 40px auto 0px auto;  /* margin 중앙 정렬로 수정 */
   padding: 0;
-  width: 886px;
+  width: 886px;  /* RemoveMemberDashboard와 동일한 너비 */
 }
 
 .selected-count {
@@ -295,8 +298,8 @@ export default {
 }
 
 .expulsion-section {
-  margin-top: 13px;
-  width: 886px;
+  margin: 13px auto 10px auto;  /* margin 중앙 정렬로 수정 */
+  width: 886px;  /* RemoveMemberDashboard와 동일한 너비 */
   background: #fff;
   border-radius: 8px;
   position: relative;

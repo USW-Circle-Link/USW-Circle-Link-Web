@@ -1,7 +1,9 @@
 <template>
   <div class="duplicate-container">
-    <h2 class="duplicate-title">중복되는 동아리 회원 추가</h2>
-    <p class="duplicate-subtitle">동아리 회원을 추가할 때 중복되었던 회원을 추가해주세요.</p>
+    <div class="title">
+      <h2 class="duplicate-title">중복되는 동아리 회원 추가</h2>
+      <p class="duplicate-subtitle">동아리 회원을 추가할 때 중복되었던 회원을 추가해주세요.</p>
+    </div>
 
     <div class="form-container">
       <div class="form-content-wrapper">
@@ -145,7 +147,7 @@ export default {
       serverMessage: '',
       DuplicateMember: [],
       show401Popup: false,
-      }
+    }
   },
   mounted() {
     // 새로고침 시 localStorage에서 데이터 불러오기
@@ -264,6 +266,15 @@ export default {
 </script>
 
 <style scoped>
+.duplicate-container {
+  width: 830px;  /* form-container와 동일한 너비 */
+  margin: 0 auto;  /* 중앙 정렬 */
+}
+
+.title {
+  margin-bottom: 20px;
+}
+
 
 .duplicate-title {
   font-size: 20px;
@@ -274,7 +285,6 @@ export default {
 .duplicate-subtitle {
   color: #FF0000;
   font-size: 14px;
-  margin-bottom: 20px;
   font-style: normal;
   font-weight: 350;
 }
@@ -286,9 +296,11 @@ export default {
   background: #fff;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 820px;
+  width: 830px;
   border-radius: 8px;
-  margin: 20px auto 0 auto;
+  margin-top: 20px;  /* title과의 간격 */
+  margin-left: 0;    /* 왼쪽 마진 제거 */
+  margin-right: 0;   /* 오른쪽 마진 제거 */
   position: relative;
 }
 

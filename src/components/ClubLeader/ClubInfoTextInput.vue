@@ -32,12 +32,12 @@
     <div class="ClubTextInput">
       <div class="textarea-container">
         <textarea
-          placeholder="동아리에 대해 자유롭게 설명해주세요."
-          v-model="textareaContent"
-          rows="4"
-          cols="50"
-          class="preserve-whitespace"
-          @input="updateTextSize"
+            placeholder="동아리에 대해 자유롭게 설명해주세요."
+            v-model="textareaContent"
+            rows="4"
+            cols="50"
+            class="preserve-whitespace"
+            @input="updateTextSize"
         ></textarea>
         <p class="textSize">{{ textSize }} / 3000</p>
       </div>
@@ -54,27 +54,29 @@
     <div class="ClubTextInput" id="RecruitInputSpace" :readonly="!isChecked" :class="{ 'RecruitToggleOff': !isChecked }">
       <div class="textarea-container">
         <textarea
-          placeholder="동아리 모집에 대해 자유롭게 설명해주세요."
-          v-model="textareaRecruitContent"
-          :readonly="!isChecked"
-          :class="{ 'RecruitToggleOff': !isChecked }"
-          rows="4"
-          cols="50"
-          class="preserve-whitespace"
-          @input="updateRecruitTextSize"
+            placeholder="동아리 모집에 대해 자유롭게 설명해주세요."
+            v-model="textareaRecruitContent"
+            :readonly="!isChecked"
+            :class="{ 'RecruitToggleOff': !isChecked }"
+            rows="4"
+            cols="50"
+            class="preserve-whitespace"
+            @input="updateRecruitTextSize"
         ></textarea>
         <p class="textSize">{{ RecruittextSize }} / 3000</p>
       </div>
     </div>
 
-    <h2>지원서 링크</h2>
+    <div class="head">
+      <h2>지원서 링크</h2>
+    </div>
     <div class="GoogleFormLinkInput"
-      :readonly="!isChecked"
-      :class="{ 'RecruitToggleOff': !isChecked }">
-      <textarea placeholder="링크를 입력해 주세요" 
-      v-model="googleFormLink" rows="4" cols="1"
-      :readonly="!isChecked"
-      :class="{ 'RecruitToggleOff': !isChecked }"></textarea>
+         :readonly="!isChecked"
+         :class="{ 'RecruitToggleOff': !isChecked }">
+      <textarea placeholder="링크를 입력해 주세요"
+                v-model="googleFormLink" rows="4" cols="1"
+                :readonly="!isChecked"
+                :class="{ 'RecruitToggleOff': !isChecked }"></textarea>
     </div>
     <button @click="saveInfo" >작성 완료</button>
 
@@ -106,11 +108,11 @@ export default {
   data() {
     return {
       images: [
-      { src: '' }, // 업로드되지 않은 상태의 기본 이미지 슬롯
-      { src: '' },
-      { src: '' },
-      { src: '' },
-      { src: '' },], //업로드 된 이미지 정보
+        { src: '' }, // 업로드되지 않은 상태의 기본 이미지 슬롯
+        { src: '' },
+        { src: '' },
+        { src: '' },
+        { src: '' },], //업로드 된 이미지 정보
       textareaContent: '',  // 소개글
       textareaRecruitContent: '',  // 모집글
       isChecked: null,
@@ -154,8 +156,8 @@ export default {
             'Content-Type': 'application/json'
           }
         });
-        console.log("서버에서 받은 GET 응답 데이터:", response.data); 
-        
+        console.log("서버에서 받은 GET 응답 데이터:", response.data);
+
         //가져온 클럽 데이터를 저장
         this.clubData = response.data.data;
         this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
@@ -164,7 +166,7 @@ export default {
             .replace(/\n?<br>\n?/gi, '\n')
             .replace(/&nbsp;/g, ' ');
         // 줄바꿈 처리 수정
-        this.textareaRecruitContent = (this.clubData.clubRecruitment || '' || this.textareaRecruitContent) 
+        this.textareaRecruitContent = (this.clubData.clubRecruitment || '' || this.textareaRecruitContent)
             .replace(/\n?<br>\n?/gi, '\n')
             .replace(/&nbsp;/g, ' ');
         this.googleFormLink = this.clubData.googleFormUrl || '';
@@ -199,7 +201,7 @@ export default {
         console.error("Error while deleting image:", error);
       }
     },
-    
+
     // 모집중 토글(on/off)
     async toggleCheckbox() {
       const accessToken = store.state.accessToken;
@@ -214,7 +216,7 @@ export default {
           'Authorization': `Bearer ${accessToken}`
         }
       })
-          
+
           .then(response => {
             //모집 상태 변경 완료 후 알림
             if (this.isChecked === true) {
@@ -326,10 +328,10 @@ export default {
             .replace(/\n/g, '<br>'),
         //clubIntro: this.textareaContent,
 
-        clubRecruitment: this.textareaRecruitContent 
+        clubRecruitment: this.textareaRecruitContent
             .replace(/ /g, '&nbsp;')
             .replace(/\n/g, '<br>'),
-        
+
         recruitmentStatus: this.isChecked ? 'OPEN' : 'CLOSE',
         googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
         orders: this.orders || this.clubData.orders,
@@ -352,7 +354,7 @@ export default {
               }
             }
         );
-        //console.log("PUT 요청 응답:", response.data); 
+        //console.log("PUT 요청 응답:", response.data);
         if (response.data && response.data.data && response.data.data.presignedUrls) {
           this.presignedUrls = response.data.data.presignedUrls;
           await this.uploadFiles();//파일 업로드
@@ -418,9 +420,10 @@ export default {
 
 .whole-container {
   display: flex;
-  flex-direction: column; /* 세로 정렬 */
-  align-items: flex-start; /* 모든 요소를 왼쪽으로 정렬 */
-  max-width: 900px; /* 최대 너비 설정 */
+  flex-direction: column;
+  align-items: center; /* center로 변경 */
+  width: 886px; /* 컨테이너 너비 지정 */
+  margin: 0 auto; /* 중앙 정렬을 위해 추가 */
 }
 
 .whole-container h2{
@@ -554,20 +557,20 @@ h2{
   font-family: 'Malgun Gothic', sans-serif;
 }
 
- /* 모집중 X일 때 */
+/* 모집중 X일 때 */
 .RecruitToggleOff{
   background-color: #e5e5e5 !important; /* 회색 배경*/
   color: #a9a9a9; /* 회색 텍스트 */
   cursor: not-allowed; /* 마우스 입력 불가 */
   border-style: solid;
   border-width: 1px;
-  border-color: #999999 
+  border-color: #999999
 }
 
 .ClubTextInput textarea.RecruitToggleOff {
-  font-size: 14px;  
-  line-height: 1.5; 
-  color: #333;     
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
 
 }
 
@@ -655,8 +658,8 @@ label::after {
   text-align: left;
   border: none;
   resize: none;
-  font-size: 14px;  
-  color: #333;  
+  font-size: 14px;
+  color: #333;
   font-family: 'Malgun Gothic', sans-serif;
 }
 
@@ -689,8 +692,8 @@ button {
 
 .textSize{
   position:absolute;
-  bottom: -20px; 
-  right: 20px; 
+  bottom: -20px;
+  right: 20px;
 
   /*text-align: right;
   margin-right: 10px;*/
