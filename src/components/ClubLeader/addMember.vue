@@ -70,7 +70,7 @@
     <div v-if="isOverlappingMemberListsPopupVisible" class="popup-overlay1">
       <div class="popup">
         <h2>중복되는 회원 목록</h2>
-        <p class="confirm-message">아래 목록은 타 동아리에도 소속되어 있는 회원입니다. 중복되는 회원을 파일에서 삭제하신 후 다시 업로드해주세요. <br>이후 ‘중복 회원 추가’를 통해 아래 회원을 추가하실 수 있습니다.</p>
+        <p class="confirm-message">아래 목록은 타 동아리에도 소속되어 있는 회원입니다. <br>이후 '중복 회원 추가'를 통해 아래 회원을 추가해주세요.</p>
         <div class="list-item-container">
           <div v-for="(item, index) in OverlappingMembers" :key="index" class="list-item">
             <div class="name">{{ item.userName }}</div>
@@ -85,7 +85,7 @@
     <div v-if="isSelectDepartmentPopupVisible" class="popup-overlay2">
       <div class="popup">
         <h3>동아리 회원 추가</h3>
-        <div class="line2"></div>
+        <div class="line3"></div>
         <p class="popup-message">학과를 모두 선택해주세요.</p>
         <button class="confirm-button" @click="SelectDepartment">확인</button>
       </div>
@@ -94,8 +94,8 @@
     <div v-if="isOverlappingMembersPopupVisible" class="popup-overlay2">
       <div class="popup">
         <h3>동아리 회원 추가</h3>
-        <div class="line2"></div>
-        <p class="popup-message">중복회원이 존재합니다. <br>'중복회원 추가' 페이지로 이동합니다.</p>
+        <div class="line3"></div>
+        <p class="popup-message">중복회원이 존재합니다. '중복회원 추가' 페이지로 이동합니다.</p>
         <button class="confirm-button" @click="DuplicateMemberPage">확인</button>
       </div>
     </div>
@@ -103,11 +103,16 @@
     <div v-if="isPopupVisible" class="popup-overlay2">
       <div class="popup">
         <h3>동아리 회원 추가</h3>
-        <div class="line2"></div>
+        <div class="line3"></div>
         <p class="popup-message">
-          <span class="popup-message-red">총 {{this.members.length}}명</span>입니다. <br>해당 동아리 회원들을 추가하시겠습니까?
+          <span class="popup-message-red">총 {{this.members.length}}명</span>
+          입니다. <br>
+          해당 동아리 회원들을 추가하시겠습니까?
         </p>
-        <button class="confirm-button" @click="OverlappingMemberLists">확인</button>
+        <div class="button-group">
+          <button class="cancel-button" @click="closePopup">취소</button>
+          <button class="confirm-button" @click="OverlappingMemberLists">확인</button>
+        </div>
       </div>
     </div>
 
@@ -176,6 +181,9 @@ export default {
     }
   },
   methods: {
+    closePopup() {
+      this.isPopupVisible = false;
+    },
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
@@ -274,31 +282,40 @@ export default {
     async OverlappingMemberLists(){
       const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
-        const data = this.members.map(member => {
-          const { department,secondOptions, ...rest } = member; // destructuring으로 department 제외
-          return rest;
-        });
-          try {
-            const response = await axios.post(
-                `http://15.164.246.244:8080/club-leader/${clubUUID}/members`,
-                data,
-                {
-                  headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                  }
-                });
-            console.log(response);
-            this.isPopupVisible = false;
-            if(this.OverlappingMembers > 0){
-              this.isOverlappingMembersPopupVisible = true;
-            }
-          } catch (error) {
-            if (!this.handle401Error(error)) {
-              console.error('동아리 정보를 불러오는데 실패했습니다.', error);
-              alert('동아리 정보를 불러오는데 실패했습니다.');
-            }
-          }
+      const data = this.members.map(member => {
+        const { department, secondOptions, ...rest } = member;
+        return rest;
+      });
+
+      try {
+        const response = await axios.post(
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members`,
+            data,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+              }
+            });
+
+        console.log(response);
+        this.isPopupVisible = false;
+
+        if(this.OverlappingMembers.length > 0){
+          this.isOverlappingMembersPopupVisible = true;
+        } else {
+          // 성공 메시지 수동으로 수정함
+          alert(`${this.members.length}명의 회원이 성공적으로 추가되었습니다.`);
+          // 회원 정보 초기화
+          this.members = [];
+        }
+
+      } catch (error) {
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
+      }
     },
     navigateTo(routeName) {
       this.selectedLink = routeName; // Add this line
@@ -385,21 +402,25 @@ p {
   cursor: pointer;
 }
 
+.upload-btn:hover {
+  background-color: #14532d; /* Darker green color */
+}
+
 .clear-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f0f0f0; /* 회색 버튼 */
-  color: #333;
+  background-color: #FFF; /* 회색 버튼 */
+  color: #969696;
   padding: 10px 15px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid #969696;
   border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
 }
 
 .clear-btn:hover {
-  background-color: #e0e0e0;
+  background-color: #ececec;
 }
 
 .member-list {
@@ -454,6 +475,10 @@ select {
   color: #FFFFFF;
 }
 
+.addClubMember:hover {
+  background-color: #e69a3e; /* Slightly darker orange */
+}
+
 /* Popup Overlay and Popup Window */
 .popup-overlay1 {
   position: fixed;
@@ -483,7 +508,7 @@ select {
 
 .popup-overlay1 .confirm-message{
   font-size: 14px;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 16.71px;
   text-align: left;
   text-underline-position: from-font;
@@ -511,6 +536,10 @@ select {
   text-decoration-skip-ink: none;
 }
 
+.popup-overlay1 .confirm-button:hover {
+  background-color: #e69a3e; /* Slightly darker orange */
+}
+
 .popup-overlay1 .popup h2 {
   font-size: 16px;
   font-weight: 600;
@@ -533,7 +562,7 @@ select {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid red;
+  border: 1.2px solid red;
   border-radius: 10px;
   padding: 15px;
   margin: 10px 0;
@@ -596,6 +625,10 @@ select {
   right: 20px;
 }
 
+.popup-overlay2 .confirm-button:hover {
+  background-color: #e69a3e; /* Slightly darker orange */
+}
+
 .popup-overlay2 .popup h3 {
   font-size: 18px;
   font-weight: bold;
@@ -604,6 +637,16 @@ select {
 }
 
 .popup-overlay2 .line2{
+  border-bottom: 1px solid #d3d3d3;
+  margin: 10px 0;
+}
+
+.line2 {
+  border-bottom: 1px solid #d3d3d3;
+  margin: 10px 0;
+}
+
+.line3 {
   border-bottom: 1px solid #d3d3d3;
   margin: 10px 0;
 }
@@ -640,6 +683,22 @@ select {
   text-align: center;
 }
 
+.cancel-button {
+  background-color: #B9B9B9;
+  color: #FFFFFF;
+  border: none;
+  width: 90px;
+  height: 35px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 12px;
+  text-align: center;
+}
 
+.cancel-button:hover {
+  background-color: #7a7a7a;
+}
 
 </style>

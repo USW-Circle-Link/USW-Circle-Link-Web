@@ -86,6 +86,12 @@ export default {
   }
 }
 
+@media (max-width: 112px) {
+  .header-content {
+    margin-left: 68px;
+  }
+}
+
 @media (max-width: 992px) {
   .header-content {
     margin-left: 50px;
@@ -101,13 +107,6 @@ export default {
 @media (max-width: 576px) {
   .header-content {
     margin-left: 10px;
-  }
-}
-
-
-@media (max-width: 112px) {
-  .header-content {
-    margin-left: 68px;
   }
 }
 </style>

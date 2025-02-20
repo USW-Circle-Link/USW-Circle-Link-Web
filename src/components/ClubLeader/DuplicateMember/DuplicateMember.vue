@@ -400,8 +400,8 @@ export default {
 }
 
 .duplicate-list-section {
-  margin-top: 165px;
-  width: 820px;
+  margin-top: 145px;
+  width: 873px;
 }
 
 .duplicate-list-header {
