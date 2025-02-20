@@ -278,6 +278,14 @@ export default {
   margin-inline-end: 10px;
   cursor: pointer;
 }
+
+.approve-box:hover {
+  background-color: #62956d;
+}
+
+.reject-box:hover {
+  background-color: #cd5353;
+}
 .send-result-btn {
   width: 140px;
   height: 43px;

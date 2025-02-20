@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="total">
     <FirstAgree v-if="!isTermsAgreed" @agreement-confirmed="handleAgreementConfirmed" />
 
     <div class="ClubInfo">
@@ -559,6 +559,9 @@ export default {
 </script>
 
 <style>
+.total {
+  margin-bottom: 30px;
+}
 .transparent-box {
   width: 50px; /* 수정 버튼의 너비와 비슷하게 설정 */
   height: 30px; /* 수정 버튼의 높이와 비슷하게 설정 */

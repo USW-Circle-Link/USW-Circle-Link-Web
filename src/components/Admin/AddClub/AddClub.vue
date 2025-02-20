@@ -7,7 +7,13 @@
       <div class="form-group-row">
         <label for="id">아이디</label>
         <input class="from-input" type="text" id="id" v-model="id" placeholder="아이디 (5~20자 이내 영어, 숫자)" @input="validateId" />
-        <button class="DuplicateCheckbtn" @click="idDuplicateCheck">중복 확인</button>
+        <button
+            class="DuplicateCheckbtn"
+            @click="idDuplicateCheck"
+            :disabled="!isIdValid"
+        >
+          중복 확인
+        </button>
       </div>
       <span v-if="idError" :style="getStyleId" class="warning">{{ idError }}</span>
     </div>
@@ -40,7 +46,13 @@
       <div class="form-group-row">
         <label for="clubName">동아리 이름</label>
         <input class="from-input" type="text" id="clubName" v-model="clubName" placeholder="동아리 이름 (10자 이내)" @input="validateClubName" />
-        <button class="DuplicateCheckbtn" @click="clubNameDuplicateCheck">중복 확인</button>
+        <button
+            class="DuplicateCheckbtn"
+            @click="clubNameDuplicateCheck"
+            :disabled="!isClubNameValid"
+        >
+          중복 확인
+        </button>
       </div>
       <span v-if="clubNameError" :style="getStyleClubName" class="warning">{{ clubNameError }}</span>
     </div>
@@ -240,6 +252,13 @@ export default {
     };
   },
   computed: {
+    isIdValid() {
+      const idPattern = /^[a-zA-Z0-9]{5,20}$/;
+      return this.id && idPattern.test(this.id);
+    },
+    isClubNameValid() {
+      return this.clubName && this.clubName.length <= 10;
+    },
     roomsByFloor() {
       return this.roomMap[this.selectedFloor] || []
     },
@@ -1074,6 +1093,12 @@ label {
 
 .select-button:hover {
   background: #f49421;
+}
+
+.DuplicateCheckbtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 </style>

@@ -260,7 +260,7 @@ export default {
 }
 
 .approve-box:hover {
-  background-color: #6a9b75;
+  background-color: #62956d;
 }
 /*
 .reject-box {
