@@ -38,7 +38,7 @@ export default {
   methods: {
     checkWindowSize() {
       this.windowWidth = window.innerWidth;
-      // 화면 너비가 1200px 미만이면 사이드바를 자동으로 숨김
+      // 화면 너비가 1300px 미만이면 사이드바를 자동으로 숨김
       // 겹침을 방지하기 위해 더 일찍 사이드바를 숨김
       if (this.windowWidth < 1300) {
         this.showSidebar = false;
@@ -79,6 +79,7 @@ body {
   height: 100%;
   transition: all 0.3s;
   z-index: 10;
+  background: #F0F2F5;
 }
 
 .content{

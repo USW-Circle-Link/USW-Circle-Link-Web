@@ -216,18 +216,18 @@ export default {
     console.log("🔍 clubMemberAccountStatusUUID:", store.state.clubMemberAccountStatusUUID);
 
     const accessToken = store.state.accessToken;
-    const clubMemberUUID = store.state.clubMemberUUID; // ✅ 주석 해제 후 값 가져오기
+    const clubMemberUUID = store.state.clubMemberUUID; //주석 해제 후 값 가져오기
     const clubMemberAccountStatusUUID = store.state.clubMemberAccountStatusUUID;
     const clubUUID = store.state.clubUUID;
     try {
-        // ✅ Vuex 상태값 확인
+        // Vuex 상태값 확인
         if (!accessToken || !clubUUID) {
             console.error('Access token or clubMemberAccountStatusUUID is missing');
             alert('로그인이 필요합니다.');
             return;
         }
 
-        // ✅ 가입 요청 목록 조회
+        // 가입 요청 목록 조회
         const requestResponse = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members/sign-up`, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -250,13 +250,13 @@ export default {
             rejected: false
         }));
 
-        // ✅ clubMemberUUID가 존재하는지 확인
+        // clubMemberUUID가 존재하는지 확인
         if (!clubUUID) {
             console.warn('clubMemberUUID가 존재하지 않습니다. 비회원 목록을 불러오지 않습니다.');
             return;
         }
 
-        // ✅ 엑셀로 추가된 비회원 목록 조회
+        // 엑셀로 추가된 비회원 목록 조회
         const membersResponse = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?sort=non-member`, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -437,20 +437,20 @@ export default {
   const clubUUID = store.state.clubUUID;
 
   if (!clubUUID) {
-    console.error("❌ clubUUID가 없습니다.");
+    console.error("clubUUID가 없습니다.");
     alert("클럽 정보가 올바르지 않습니다. 다시 로그인하거나 새로고침해 주세요.");
     return;
   }
 
   try {
-    // 🔹 선택한 회원의 uuid 값 가져오기 (갱신)
+    //선택한 회원의 uuid 값 가져오기 (갱신)
     const requestedIndex = this.selectedRequestedMembers[0];
     const addedIndex = this.selectedAddedMembers[0];
 
     const requestedMember = { ...this.requestedMembers[requestedIndex] };
     const addedMember = { ...this.addedMembers[addedIndex] };
 
-    console.log("✅ 선택한 회원 정보 업데이트 확인:", requestedMember, addedMember);
+    console.log("선택한 회원 정보 업데이트 확인:", requestedMember, addedMember);
 
     const requestBody = {
       signUpProfileRequest: {
@@ -469,7 +469,7 @@ export default {
       }
     };
 
-    console.log("📡 API 요청 바디:", JSON.stringify(requestBody, null, 2));
+    console.log("API 요청 바디:", JSON.stringify(requestBody, null, 2));
 
     // 🔹 API 요청
     const response = await axios.post(
@@ -483,7 +483,7 @@ export default {
       }
     );
 
-    console.log("✅ 가입 요청 성공:", response.data);
+    console.log("가입 요청 성공:", response.data);
 
     if (response.data.message === "기존 동아리 회원 가입 요청 수락 완료") {
       this.showConfirmationPopup = true;
@@ -492,7 +492,7 @@ export default {
       this.realCompletePopup = true;
     }
 
-    // ✅ 선택한 회원 제거
+    // 선택한 회원 제거
     this.requestedMembers.splice(requestedIndex, 1);
     this.addedMembers.splice(addedIndex, 1);
     this.selectedRequestedMembers = [];
@@ -500,12 +500,12 @@ export default {
 
   } catch (error) {
     if (error.response) {
-      console.error("❌ API 요청 실패:", error.response.data);
+      console.error("API 요청 실패:", error.response.data);
 
       if (error.response.status === 404) {
-        alert("⚠️ 해당 클럽 멤버를 찾을 수 없습니다. 올바른 데이터를 선택했는지 확인하세요.");
+        alert("해당 클럽 멤버를 찾을 수 없습니다. 올바른 데이터를 선택했는지 확인하세요.");
       } else if (!this.handle401Error(error)) {
-        alert("🚨 오류 발생: 관리자에게 문의하세요.");
+        alert("오류 발생: 관리자에게 문의하세요.");
       }
     }
   }
@@ -676,11 +676,9 @@ export default {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  max-width: 1400px;
+  max-width: 1000px;
   position: relative;
-  margin-left: -100px;
   height: 100%;
-  padding-right: 20px;
 }
 
 .section {
@@ -742,7 +740,6 @@ export default {
 @media (max-width: 1200px) {
   .member-requests, .added-members {
     width: 100%; /* 작은 화면에서 한 줄로 표시 */
-    margin-bottom: 20px; /* 섹션 간 간격 */
   }
 }
 
@@ -890,6 +887,7 @@ export default {
   width: 175px;
   height: 45px;
   transition: background-color 0.3s ease;
+  margin-bottom: 30px;
 }
 
 .accept-button.active {
@@ -1013,4 +1011,97 @@ export default {
   margin-bottom: -15px;
   width: 100%;
 }
+
+
+
+/* 메인 컨테이너: 좌우 섹션을 담는 최상위 컨테이너 */
+.sections-container {
+  display: flex; /* Flexbox 레이아웃 사용 */
+  justify-content: space-between; /* 좌우 섹션 사이 공간 균등 분배 */
+  gap: 15px; /* 섹션 사이 간격 */
+  max-width: 1200px; /* 최대 너비 제한 */
+  position: relative;
+  height: 100%;
+  padding-right: 20px;
+  margin-left: -50px;
+}
+
+/* 화면 너비가 1300px 미만일 때의 반응형 스타일 */
+@media (max-width: 1300px) {
+  /* 컨테이너를 세로 방향으로 변경 */
+  .sections-container {
+    flex-direction: column; /* 섹션들을 세로로 배치 */
+    align-items: center; /* 가운데 정렬 */
+    padding-right: 0; /* 패딩 제거 */
+    gap: 60px;
+  }
+
+  /* 각 섹션의 너비 조정 */
+  .section {
+    flex: 1 1 100%; /* flex-grow: 1, flex-shrink: 1, flex-basis: 100% */
+    width: 100%;
+    max-width: 500px; /* 섹션 최대 너비 제한 */
+  }
+
+  /* 좌우 섹션 공통 스타일 */
+  .member-requests,
+  .added-members {
+    width: 100%;
+    min-width: unset; /* 최소 너비 제한 해제 */
+  }
+
+  /* 회원 컨테이너 스타일 */
+  .request-item-container,
+  .added-member-container {
+    width: 100%; /* 컨테이너 전체 너비 사용 */
+  }
+
+  /* 회원 아이템 스타일 */
+  .request-item,
+  .added-member-item {
+    width: 100%; /* 아이템 전체 너비 사용 */
+  }
+
+  /* 편집 폼 스타일 */
+  .edit-form {
+    width: 100%;
+  }
+
+  /* 입력 필드 컨테이너 스타일 */
+  .edit-inputs {
+    flex-wrap: wrap; /* 입력 필드 줄바꿈 허용 */
+    gap: 8px; /* 필드 간 간격 */
+  }
+
+  /* 입력 필드 공통 스타일 */
+  .edit-input,
+  .college-select,
+  .department-select {
+    flex: 1 1 calc(50% - 4px); /* 2열 배치를 위한 너비 계산 */
+    min-width: unset;
+    width: auto !important;
+  }
+
+  /* 이름, 학번, 전화번호 입력 필드 스타일 */
+  .name-input,
+  .id-input,
+  .phone-input {
+    flex: 1 1 calc(33.333% - 6px); /* 3열 배치를 위한 너비 계산 */
+    min-width: unset;
+    width: auto !important;
+  }
+
+  /* 수락 버튼 섹션 스타일 */
+  .accept-section {
+    min-width: unset;
+    width: 100%;
+    justify-content: center; /* 버튼 중앙 정렬 */
+  }
+
+  /* member-count와 added-member-list 사이 간격 조정 */
+  .member-count {
+    margin-bottom: 30px; /* 반응형에서는 간격을 줄임 (기존 69px에서 변경) */
+  }
+}
+
 </style>

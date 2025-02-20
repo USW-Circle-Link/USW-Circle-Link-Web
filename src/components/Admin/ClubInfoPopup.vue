@@ -139,7 +139,10 @@ export default {
         : "";
     },
     formattedCategory() {
-      return this.data.clubCategory || "카테고리 없음";
+      if (!this.data.clubCategories || this.data.clubCategories.length === 0) {
+        return "카테고리 없음";
+      }
+      return this.data.clubCategories.join(', ');  // 쉼표 뒤에 공백 추가
     },
     instagramLink() {
       return this.data.clubInsta || "#";

@@ -55,7 +55,7 @@ export default {
   border-radius: 8px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   width: 360px;
-  height: 152px;
+  height: 165px;
 }
 
 .session-popup-title {
