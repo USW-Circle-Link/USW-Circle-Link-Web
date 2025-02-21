@@ -9,7 +9,7 @@
           <p class="clubname">{{data.clubName}}</p>
           <div class="line1"></div>
           <p class="clubleader">동아리 회장</p>
-          <p class="name">{{data.leaderName}}</p>
+          <p class="name">{{formattedLeaderName}}</p>
         </div>
         <div class="phoneNum">
           <div class="icon phone"></div>
@@ -251,8 +251,12 @@ export default {
     }
   },
   computed: {
+    formattedLeaderName() {
+      return this.data.leaderName?.trim() || '정보 없음';
+    },
     formattedPhoneNumber() {
-      return this.data.leaderHp ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : '';
+      if (!this.data.leaderHp) return '정보 없음';
+      return this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
     },
     formattedClubMembers() {
       if (!this.clubMembers) return []; // clubMembers가 undefined일 경우 빈 배열 반환
