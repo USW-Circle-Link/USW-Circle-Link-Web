@@ -20,7 +20,7 @@
         <div class="Info">
           <div class="club-details">
             <p class="clubname"><strong>{{ data.clubName }}</strong></p>
-            <p class="clubleader">동아리장 <span class="name" style="color: #353549;"><strong>{{ data.leaderName }}</strong></span></p>
+            <p class="clubleader"><span class="leader-label">동아리 회장</span> <span class="leader-name">{{ displayLeaderName }}</span></p>
             <div class="clubroom">
               <div class="icon category"></div>
               <p class="room">카테고리 | {{formattedCategory}} </p>
@@ -54,7 +54,7 @@
             <hr />
             <div class="phoneNum">
               <div class="icon phone"></div>
-              <span>{{ formattedPhoneNumber }}</span>
+              <span class="phone-number">{{ formattedPhoneNumber }}</span>
             </div>
             <hr />
             <div class="instaName">
@@ -126,6 +126,8 @@ export default {
       data: {
         clubHashtag: [], // 해시태그 기본값 추가
         tags: [], // 필요 없는 경우 제거 가능
+        leaderName: '', // 동아리장 이름 기본값 추가
+        leaderHp: '', // 전화번호 기본값 추가
       },
       mainPhoto: defaultProfileImage,
       activeTab: "intro",
@@ -133,17 +135,22 @@ export default {
     };
   },
   computed: {
+    // 동아리장 이름 표시 computed 속성 추가
+    displayLeaderName() {
+      return this.data.leaderName ? this.data.leaderName : "정보 없음";
+    },
+    // 전화번호 표시 computed 속성 수정
     formattedPhoneNumber() {
-      return this.data.leaderHp
-          ? this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")
-          : "";
+      if (!this.data.leaderHp) {
+        return "정보 없음";
+      }
+      return this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
     },
     formattedCategory() {
-      if (!this.data.clubCategories) return "카테고리 없음";
-      // 배열을 콤마로 구분된 문자열로 변환
-      return Array.isArray(this.data.clubCategories)
-          ? this.data.clubCategories.join(', ')
-          : this.data.clubCategories;
+      if (!this.data.clubCategories || this.data.clubCategories.length === 0) {
+        return "카테고리 없음";
+      }
+      return this.data.clubCategories.join(', ');  // 쉼표 뒤에 공백 추가
     },
     instagramLink() {
       // Instagram 링크가 http로 시작하지 않으면 추가
@@ -609,5 +616,27 @@ export default {
 
 .tabs button.single-tab {
   border-top-right-radius: 8px;
+}
+
+.leader-label {
+  color: #767676;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.4px;
+}
+
+.leader-name {
+  font-weight: 500; /* semi-bold */
+}
+
+.phone-number {
+  color: #9A9A9A; /* 텍스트 색상을 배경에 맞게 흰색으로 변경 */
+}
+
+.clubroom p {
+  color: #767676;
 }
 </style>
