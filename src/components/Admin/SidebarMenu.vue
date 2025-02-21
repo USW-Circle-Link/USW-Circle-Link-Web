@@ -44,9 +44,9 @@
     <div class="line1"></div>
     <div class="footer">
       <div class="links">
-      <a @click.prevent="navigateTo('AdminTermsOfUse')" :class="{ selected: selectedLink === 'AdminTermsOfUse'}">이용약관</a>
-      <div class="line2"></div>
-      <a @click.prevent="navigateTo('privacy_policy_')" :class="{ selected: selectedLink === 'privacy_policy_', 'bold-text': true }">개인정보 처리방침</a>
+        <a @click.prevent="navigateTo('AdminTermsOfUse')" :class="{ selected: selectedLink === 'AdminTermsOfUse'}">이용약관</a>
+        <div class="line2"></div>
+        <a @click.prevent="navigateTo('privacy_policy_')" :class="{ selected: selectedLink === 'privacy_policy_', 'bold-text': true }">개인정보 처리방침</a>
       </div>
       <a @click.prevent="logout">로그아웃</a>
     </div>

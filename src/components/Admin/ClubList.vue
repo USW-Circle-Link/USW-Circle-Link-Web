@@ -229,6 +229,7 @@ body {
   height: 620px;
   /* 페이지네이션을 하단에 고정 */
   justify-content: space-between;
+  margin-bottom: 30px;
 }
 
 .title {

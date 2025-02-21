@@ -26,7 +26,7 @@
               <p class="room">카테고리 | {{formattedCategory}} </p>
             </div>
             <div class="hashtags">
-              <span v-for="tag in data.clubHashtag" :key="tag" class="hashtag">#{{ tag }}</span>
+              <span v-for="tag in data.clubHashtags" :key="tag" class="hashtag">#{{ tag }}</span>
             </div>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default {
     return {
       images: [],
       data: {
-        clubHashtag: [], // 해시태그 기본값 추가
+        clubHashtags: [], // 해시태그 기본값 추가
         tags: [], // 필요 없는 경우 제거 가능
       },
       mainPhoto: defaultProfileImage,
@@ -139,10 +139,10 @@ export default {
         : "";
     },
     formattedCategory() {
-      if (!this.data.clubCategories || this.data.clubCategories.length === 0) {
+      if (!this.data.clubCategoryNames || this.data.clubCategoryNames.length === 0) {
         return "카테고리 없음";
       }
-      return this.data.clubCategories.join(', ');  // 쉼표 뒤에 공백 추가
+      return this.data.clubCategoryNames.join(', ');  // 쉼표 뒤에 공백 추가
     },
     instagramLink() {
       return this.data.clubInsta || "#";
@@ -163,7 +163,7 @@ export default {
   },
   mounted() {
     console.log("API 응답 데이터:", this.data);
-    console.log("해시태그 데이터:", this.data.clubHashtag);
+    console.log("해시태그 데이터:", this.data.clubHashtags);
 
     const urlParams = new URLSearchParams(window.location.search);
     const clubUUID = urlParams.get("clubId");
