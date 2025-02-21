@@ -8,7 +8,7 @@
       </div>
     </div>
     <div class="login-box">
-      <form @submit.prevent="login">
+      <form @submit.prevent="login" autocomplete="off">
         <div class="input-group" :class="{ 'focused': focusedElement === 'id', 'has-value': id.length > 0 }">
           <span class="icon vector"></span>
           <input
@@ -16,9 +16,11 @@
               id="id-input"
               v-model="id"
               required
+              autocomplete="off"
               @focus="focusedElement = 'id'"
               @blur="focusedElement = null"
           />
+
           <label for="id-input" class="floating-label">아이디</label>
         </div>
 
@@ -29,6 +31,7 @@
               id="password-input"
               v-model="password"
               required
+              autocomplete="off"
               @focus="focusedElement = 'password'"
               @blur="focusedElement = null"
           />
