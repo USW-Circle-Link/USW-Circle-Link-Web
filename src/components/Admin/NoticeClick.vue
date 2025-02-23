@@ -87,14 +87,23 @@
     <!-- 공지사항 목록 -->
     <div class="notice-list">
       <table>
+        <thead>
+        <tr>
+          <th class="title-col">제목</th>
+          <th class="author-col">작성자</th>
+          <th class="date-col">작성일</th>
+        </tr>
+        </thead>
         <tbody>
-          <tr v-for="notice in notices" :key="notice.noticeUUID">
-            <td>
-              <button @click="goToNotice(notice.noticeUUID)">{{ notice.noticeTitle }}</button>
-            </td>
-            <td>{{ notice.adminName }}</td>
-            <td>{{ formattedDate(notice.noticeCreatedAt) }}</td>
-          </tr>
+        <tr v-for="notice in notices" :key="notice.noticeUUID">
+          <td class="title-col">
+            <button @click="goToNotice(notice.noticeUUID)" class="title-button">
+              {{ notice.noticeTitle }}
+            </button>
+          </td>
+          <td class="author-col">{{ notice.adminName }}</td>
+          <td class="date-col">{{ formattedDate(notice.noticeCreatedAt) }}</td>
+        </tr>
         </tbody>
       </table>
 
@@ -129,7 +138,7 @@ import axios from 'axios';
 import Popup401 from "@/components/Admin/401Popup.vue";
 
 export default {
-  components: {Popup401},
+  components: { Popup401 },
   data() {
     return {
       notices: [], // 공지사항 목록
@@ -139,15 +148,16 @@ export default {
       totalPages: 1, // 전체 페이지 수
       itemsPerPage: 5, // 페이지당 항목 수
       images: [], // 이미지 배열
-      show401Popup: false  // 401 팝업
+      show401Popup: false, // 401 팝업
+      totalNotices: 0, // 전체 공지사항 수
+      currentNoticeIndex: 0 // 현재 공지사항의 전체 인덱스
     };
   },
   created() {
-    this.fetchNotices(); // 공지사항 목록 가져오기
-    this.fetchNotice(this.$route.params.noticeUUID); // 현재 공지사항 정보 가져오기
+    this.fetchNotices();
+    this.fetchNotice(this.$route.params.noticeUUID);
   },
   methods: {
-    // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
         this.show401Popup = true;
@@ -156,108 +166,100 @@ export default {
       return false;
     },
     convertNewlinesToBr(text) {
-      return text ? text.replace(/\n/g, '<br>') : ''; // 줄바꿈을 <br> 태그로 변환
+      return text ? text.replace(/\n/g, '<br>') : '';
     },
     async fetchNotices() {
       try {
         const accessToken = store.state.accessToken;
         const response = await axios.get(
-          `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
+            `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
+            {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            }
         );
-        this.notices = response.data.data.content || []; // 공지사항 목록 설정
-        this.totalPages = response.data.data.totalPages || 1; // 전체 페이지 수 설정
+        this.notices = response.data.data.content || [];
+        this.totalPages = response.data.data.totalPages || 1;
+        this.totalNotices = response.data.data.totalElements || 0; // 전체 공지사항 수 저장
       } catch (error) {
         if (!this.handle401Error(error)) {
-          console.error('Error updating member:', error);
+          console.error('Error fetching notices:', error);
         }
       }
     },
     async fetchNotice(noticeUUID) {
-  try {
-    const response = await axios.get(`http://15.164.246.244:8080/notices/${noticeUUID}`, {
-      headers: { Authorization: `Bearer ${store.state.accessToken}` },
-    });
-
-    if (response.data && response.data.data) {
-      this.notice = response.data.data;
-
-      console.log("📡 서버에서 받은 noticePhotos:", response.data.data.noticePhotos);
-
-      // ✅ noticePhotos가 빈 배열인지 확인
-      if (!response.data.data.noticePhotos || response.data.data.noticePhotos.length === 0) {
-        console.warn("🚨 이미지 데이터 없음! 서버에서 noticePhotos가 비어 있음.");
-      } else {
-        this.images = response.data.data.noticePhotos.map(photoUrl => ({
-          src: photoUrl
-        }));
-
-        console.log("📷 업데이트된 이미지 배열:", this.images);
-      }
-    }
-  } catch (error) {
-    console.error("공지사항 불러오기 실패:", error);
-  }
-},
-    loadImages(photoUrls) {
-      if (Array.isArray(photoUrls)) {
-        this.images = photoUrls.map((photoUrl) => ({ src: photoUrl }));
-      }
-    },
-    async saveImages() {
       try {
-        const accessToken = store.state.accessToken;
+        const response = await axios.get(`http://15.164.246.244:8080/notices/${noticeUUID}`, {
+          headers: { Authorization: `Bearer ${store.state.accessToken}` },
+        });
 
-        // Presigned URL 요청 및 S3 업로드
-        for (let i = 0; i < this.images.length; i++) {
-          const image = this.images[i];
-          if (image.file) {
-            // Presigned URL 요청
-            const presignedResponse = await axios.post(
-              `http://15.164.246.244:8080/admin/photo/presigned`,
-              { fileName: image.file.name, contentType: image.file.type },
+        if (response.data && response.data.data) {
+          this.notice = response.data.data;
+
+          // 현재 공지사항의 전체 인덱스 찾기
+          const allNoticesResponse = await axios.get(
+              `http://15.164.246.244:8080/notices?page=0&size=${this.totalNotices}`,
               {
-                headers: { Authorization: `Bearer ${accessToken}` },
+                headers: { Authorization: `Bearer ${store.state.accessToken}` },
               }
-            );
-              // 에러 상태 코드 처리
-    if (response.status === 401 || response.status === 400) {
-      alert(response.status === 401 
-        ? '인증되지 않은 사용자입니다. 다시 로그인해주세요.' 
-        : '공지사항 조회 중 에러가 발생했습니다.');
+          );
 
-      this.$router.push({ name: 'Login' });
-      return;
-    }
+          const allNotices = allNoticesResponse.data.data.content;
+          this.currentNoticeIndex = allNotices.findIndex(n => n.noticeUUID === noticeUUID);
 
+          // 현재 페이지 계산 및 업데이트
+          const newPage = Math.floor(this.currentNoticeIndex / this.itemsPerPage) + 1;
+          if (this.currentPage !== newPage) {
+            this.currentPage = newPage;
+            this.fetchNotices();
+          }
 
-            const presignedUrl = presignedResponse.data?.data?.presignedUrl;
-
-            if (presignedUrl) {
-              // S3에 파일 업로드
-              await axios.put(presignedUrl, image.file, {
-                headers: {
-                  'Content-Type': image.file.type, // 파일 MIME 타입
-                },
-              });
-              console.log(`이미지 ${i + 1} 업로드 성공`);
-            } else {
-              console.error(`Presigned URL이 없습니다. 이미지 ${i + 1} 업로드 실패`);
-            }
+          if (response.data.data.noticePhotos && response.data.data.noticePhotos.length > 0) {
+            this.images = response.data.data.noticePhotos.map(photoUrl => ({
+              src: photoUrl
+            }));
+          } else {
+            this.images = [];
           }
         }
-
-        alert('모든 이미지가 성공적으로 저장되었습니다.');
       } catch (error) {
-        console.error('이미지 저장 실패:', error);
-        alert('이미지 저장에 실패했습니다.');
+        console.error("공지사항 불러오기 실패:", error);
       }
     },
     handleImageError(index) {
       this.images[index].src = require('@/assets/rigth.png');
     },
+    async prevNotice() {
+      const prevIndex = (this.currentNoticeIndex - 1 + this.totalNotices) % this.totalNotices;
+      const allNoticesResponse = await axios.get(
+          `http://15.164.246.244:8080/notices?page=0&size=${this.totalNotices}`,
+          {
+            headers: { Authorization: `Bearer ${store.state.accessToken}` },
+          }
+      );
+      const allNotices = allNoticesResponse.data.data.content;
+      this.goToNotice(allNotices[prevIndex].noticeUUID);
+    },
+    async nextNotice() {
+      const nextIndex = (this.currentNoticeIndex + 1) % this.totalNotices;
+      const allNoticesResponse = await axios.get(
+          `http://15.164.246.244:8080/notices?page=0&size=${this.totalNotices}`,
+          {
+            headers: { Authorization: `Bearer ${store.state.accessToken}` },
+          }
+      );
+      const allNotices = allNoticesResponse.data.data.content;
+      this.goToNotice(allNotices[nextIndex].noticeUUID);
+    },
+    async changePage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        await this.fetchNotices();
+      }
+    },
+    goToNotice(noticeUUID) {
+      this.$router.push({ name: 'AdminNoticeClick', params: { noticeUUID } });
+    },
+    // 기존 관리자 기능 유지
     cancelDelete() {
       this.showDeletePopup = false;
     },
@@ -285,32 +287,9 @@ export default {
         }
       } catch (error) {
         if (!this.handle401Error(error)) {
-          console.error('Error updating member:', error);
+          console.error('Error deleting notice:', error);
         }
       }
-    },
-    handleError(error, message) {
-      console.error(message, error);
-      alert(`${message}: ${error.message}`);
-    },
-    prevNotice() {
-      const currentIndex = this.notices.findIndex((n) => n.noticeUUID === this.notice.noticeUUID);
-      const prevIndex = (currentIndex - 1 + this.notices.length) % this.notices.length;
-      this.goToNotice(this.notices[prevIndex].noticeUUID); // 이전 공지 이동
-    },
-    nextNotice() {
-      const currentIndex = this.notices.findIndex((n) => n.noticeUUID === this.notice.noticeUUID);
-      const nextIndex = (currentIndex + 1) % this.notices.length;
-      this.goToNotice(this.notices[nextIndex].noticeUUID); // 다음 공지 이동
-    },
-    changePage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;
-        this.fetchNotices(); // 페이지 변경 시 공지사항 목록 다시 로드
-      }
-    },
-    goToNotice(noticeUUID) {
-      this.$router.push({ name: 'AdminNoticeClick', params: { noticeUUID } }); // 공지사항 상세보기로 이동
     },
     editNotice() {
       if (this.notice && this.notice.noticeUUID) {
@@ -668,6 +647,72 @@ button {
  text-decoration-skip-ink: none; /* 밑줄 효과 설정 */
  color:  #000000; /* 텍스트 색상 (추가) */
  padding: 2px 4px; /* 배경색과 텍스트 사이 여백 추가 (선택사항) */
+}
+
+.notice-list {
+  width: 817px;
+  height: auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* 테이블 레이아웃을 고정으로 설정 */
+}
+
+/* 컬럼 너비 설정 */
+.title-col {
+  width: 60%; /* 제목 열의 너비를 60%로 설정 */
+  text-align: center; /* 제목 열 중앙 정렬 */
+}
+
+.author-col {
+  width: 20%; /* 작성자 열의 너비를 20%로 설정 */
+}
+
+.date-col {
+  width: 20%; /* 작성일 열의 너비를 20%로 설정 */
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  vertical-align: top; /* 상단 정렬 */
+}
+
+/* th 태그 전체 중앙 정렬 */
+th {
+  text-align: center;
+}
+
+td.title-col {
+  overflow: hidden; /* 내용이 넘치면 숨김 */
+  text-align: center; /* 제목 열 내용 중앙 정렬 */
+}
+
+.title-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: center; /* 버튼 텍스트 중앙 정렬 */
+  width: 100%;
+  white-space: normal; /* 자동 줄바꿈 허용 */
+  word-break: break-word; /* 긴 단어도 줄바꿈 */
+  line-height: 1.4; /* 줄 간격 설정 */
+  padding: 0;
+}
+
+td.author-col, td.date-col {
+  white-space: nowrap; /* 작성자와 날짜는 줄바꿈 방지 */
+  overflow: hidden;
+  text-overflow: ellipsis; /* 내용이 넘치면 ... 표시 */
+  text-align: center; /* 중앙 정렬 추가 */
 }
 
 </style> 
