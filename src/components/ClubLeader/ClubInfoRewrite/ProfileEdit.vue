@@ -284,8 +284,11 @@ export default {
       // 특수문자를 체크하는 정규식 (공백은 허용)
       const specialCharPattern = /[!@#₩$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+/;
 
-      // 입력값이 비어있지 않고 특수문자가 없으면 true
-      this.isLeaderNameValid = !specialCharPattern.test(this.leaderName);
+      // 이모티콘과 특수문자를 모두 체크하는 정규식, 일단 유니코드 기준으로 체크함
+      const emojiPattern = /[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27FF]|[\u2900-\u2BFF]|[\u3000-\u303F]|[\u1F300-\u1F64F]|[\u1F680-\u1F6FF]/;
+
+      // 입력값이 비어있지 않고, 특수문자와 이모티콘이 없으면 true
+      this.isLeaderNameValid = !specialCharPattern.test(this.leaderName) && !emojiPattern.test(this.leaderName);
     },
 
     validateHashTag(input) {
