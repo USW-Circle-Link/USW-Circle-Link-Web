@@ -114,6 +114,7 @@ export default {
   width: 87px;
   height: 32px;
   font-size: 14px;
+  white-space: nowrap;  /* 텍스트 줄바꿈 방지 */
 }
 
 .cancel-button {
