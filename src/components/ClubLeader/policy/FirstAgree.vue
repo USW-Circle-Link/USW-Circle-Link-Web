@@ -14,7 +14,7 @@
             <label for="age-check">만 14세 이상입니다. <span class="required">* 필수</span></label>
           </div>
           <div class="terms-container1">
-            <p class="description">동구라미는 수원대학교 학생을 위한 서비스이며, 인증을 통해 만 14세 이상만 가입할 수 있습니다.</p>
+            <p class="description">동구라미는 수원대학교 학생을 위한 서비스이며, 만 14세 이상만 가입할 수 있습니다.</p>
           </div>
         </div>
 
