@@ -346,12 +346,12 @@ export default {
       }
     },
     validatePassword() {
-      const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+]{5,20}$/;
+      const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+]{8,20}$/;
       if (!this.password) {
         this.passwordError = '* 비밀번호를 입력해 주세요.';
         this.formValidation.passwordValid = false;
       } else if (!passwordPattern.test(this.password)) {
-        this.passwordError = '* 비밀번호는 5~20자 이내의 숫자, 문자, 특수문자만 입력 가능합니다.';
+        this.passwordError = '* 비밀번호는 8~20자 이내의 숫자, 문자, 특수문자만 입력 가능합니다.';
         this.formValidation.passwordValid = false;
       } else {
         this.passwordError = '';
