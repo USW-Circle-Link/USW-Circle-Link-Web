@@ -36,6 +36,7 @@
 </template>
 
 
+
 <script>
 import axios from "axios";
 import store from "@/store/store";
@@ -79,6 +80,7 @@ export default {
         if (jsonData && Array.isArray(jsonData.data)) {
           this.categories = jsonData.data.map(item => item.clubCategoryName);
           console.log(this.categories); // ["운동", "학술", "봉사", "개발", "공부"]
+          this.categoryMap.clear();
           jsonData.data.forEach(item => {
             this.categoryMap.set(item.clubCategoryName, item.clubCategoryUUID);
           });
@@ -91,27 +93,34 @@ export default {
       }
     },
     async addCategory() {
-      const trimmedCategory = this.categoryName.trim(); // 입력값의 앞뒤 공백 제거
+      const trimmedCategory = this.categoryName.trim();
       if (trimmedCategory !== "" && !this.categories.includes(trimmedCategory)) {
         try {
-          await axios.post(
-              `http://15.164.246.244:8080/admin/clubs/category`,
+          const response = await axios.post(
+              "http://15.164.246.244:8080/admin/clubs/category",
               this.categoryName,
               {
                 headers: {
                   'Authorization': `Bearer ${store.state.accessToken}`,
                   'Content-Type': 'application/json'
                 }
-              });
-          //console.log(response);
+              }
+          );
+
+          // 서버로부터 받은 새 카테고리의 UUID를 저장
+          if (response.data && response.data.data) {
+            const newCategoryUUID = response.data.data.clubCategoryUUID;
+            this.categoryMap.set(trimmedCategory, newCategoryUUID);
+            this.categories.push(trimmedCategory);
+          }
+
           this.serverMessage = '카테고리가 정상적으로 저장되었습니다.'
           this.showPopup = true;
-          // 중복 확인 및 값 추가
-          this.categories.push(trimmedCategory);
-          this.categoryName = ""; // 입력 필드 초기화
+          this.categoryName = "";
+
         } catch (error) {
           if (!this.handle401Error(error)) {
-            console.error('Error updating member:', error);
+            console.error('Error adding category:', error);
           }
         }
       } else if (this.categories.includes(trimmedCategory)) {
@@ -119,21 +128,26 @@ export default {
         this.showPopup = true;
       }
     },
-    async removeCategory(category,index) {
-      console.log(category);
+    async removeCategory(category, index) {
       const categoryId = this.categoryMap.get(category);
+      if (!categoryId) {
+        console.error('Category UUID not found');
+        return;
+      }
+
       try {
         await axios.delete(`http://15.164.246.244:8080/admin/clubs/category/${categoryId}`, {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
         });
-        this.categories.splice(index, 1); // 카테고리 삭제
+        this.categories.splice(index, 1);
+        this.categoryMap.delete(category); // Map에서도 카테고리 제거
         this.serverMessage = '카테고리가 정상적으로 삭제되었습니다.'
         this.showPopup = true;
       } catch (error) {
         if (!this.handle401Error(error)) {
-          console.error('Error updating member:', error);
+          console.error('Error removing category:', error);
         }
       }
     },
