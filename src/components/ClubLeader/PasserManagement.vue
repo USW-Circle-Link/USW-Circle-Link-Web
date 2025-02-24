@@ -123,7 +123,7 @@ export default {
           }
         } else {
           console.error('지원자 데이터 가져오기 실패', response.statusText);
-          this.showNotification('지원자 데이터를 가져오는 데 실패했습니다.', 'error');
+          alert('지원자 데이터를 가져오는 데 실패했습니다.', 'error');
         }
       } catch (error) {
         console.error('동아리 정보를 불러오는데 실패했습니다.', error);
@@ -147,7 +147,7 @@ export default {
     validateResults() {
       const valid = this.applicants.every(applicant => applicant.decision !== null);
       if (!valid) {
-        this.showNotification('모든 지원자에 대해 합/불 상태를 설정해 주세요.', 'error');
+        alert('모든 지원자에 대해 합/불 상태를 설정해 주세요.', 'error');
       }
       return valid;
     },
@@ -171,6 +171,7 @@ export default {
         });
 
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
+        await this.fetchApplicants();
         //window.location.reload();
       } catch (error) {
         if (error.response) {
@@ -183,11 +184,11 @@ export default {
           const errorData = error.response.data;
           if (errorData.code === "CMEM-202") {
             console.error('ClubMemberException 발생:', errorData.message);
-            this.showNotification('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
+            alert('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
             //window.location.reload();
           } else {
             console.error('결과 전송 실패:', errorData.message || '서버 오류 발생');
-            this.showNotification(errorData.message || '결과 전송에 실패했습니다.', 'error');
+            alert(errorData.message || '결과 전송에 실패했습니다.', 'error');
             //window.location.reload();
           }
         }

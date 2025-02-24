@@ -110,7 +110,7 @@ export default {
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('동아리 정보를 불러오는데 실패했습니다.', error);
-          this.showNotification('동아리 정보를 불러오는데 실패했습니다.', 'error');
+          alert('동아리 정보를 불러오는데 실패했습니다.', 'error');
         }
       }
     },
@@ -161,15 +161,16 @@ export default {
         });
 
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
-        window.location.reload();
+        await this.fetchApplicants();
+        //window.location.reload();
       } catch (error) {
         if (error.response?.data?.code === "CMEM-202") {
-          this.showNotification('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
-          window.location.reload();
+          alert('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
+          //window.location.reload();
         } else if (!this.handle401Error(error)) {
           const errorMessage = error.response?.data?.message || '결과 전송에 실패했습니다.';
-          this.showNotification(errorMessage, 'error');
-          window.location.reload();
+          alert(errorMessage, 'error');
+          //window.location.reload();
         }
       }
     },
@@ -185,7 +186,7 @@ export default {
         }
       } else {
         console.error("잘못된 상태 값: ", decision);
-        this.showNotification('잘못된 합격/불합격 상태입니다. 상태는 PASS 또는 FAIL이어야 합니다.', 'error');
+        alert('잘못된 합격/불합격 상태입니다. 상태는 PASS 또는 FAIL이어야 합니다.', 'error');
       }
     },
     // 전체 지원자의 합/불 상태를 설정하는 메서드
