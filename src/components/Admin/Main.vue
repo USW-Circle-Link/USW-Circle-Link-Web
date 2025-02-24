@@ -81,6 +81,15 @@ body {
   z-index: 10;
 }
 
+.sidebar-content::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-content {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 .content{
   flex-direction: column;
   display: flex;

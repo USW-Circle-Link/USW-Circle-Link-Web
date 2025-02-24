@@ -1,54 +1,58 @@
 <template>
   <div class="sidebar">
-    <div class="profile">
-      <img src="../../assets/FLAG.jpg" alt="FLAG Logo" class="profile-img" />
-      <div class="profile-info">
-        <div class="profile-name">
-          <h2>{{clubname}}</h2>
+    <div class="sidebar-content">
+      <div class="profile">
+        <img src="../../assets/FLAG.jpg" alt="FLAG Logo" class="profile-img" />
+        <div class="profile-info">
+          <div class="profile-name">
+            <h2>{{clubname}}</h2>
+          </div>
         </div>
       </div>
+      <nav>
+        <ul>
+          <li class="list2">
+            <div class="top" @click="navigateTo('clublist')">
+              <i class="icon home"></i>
+              <p class="menu">동아리 관리</p>
+              <div class="yellowLine"></div>
+            </div>
+            <div class="bottom">
+              <a @click="navigateTo('clubroom')">· 동아리 위치 정보 수정</a>
+              <a @click="navigateTo('category')">· 동아리 카테고리 설정</a>
+            </div>
+          </li>
+          <li class="list3" @click="navigateTo('AddClub')">
+            <div class="top">
+              <i class="icon check"></i>
+              <p class="menu">동아리 추가</p>
+              <div class="yellowLine"></div>
+            </div>
+          </li>
+          <li class="list2">
+            <div class="top">
+              <i class="icon clipboard"></i>
+              <p class="menu">공지사항</p>
+              <div class="yellowLine"></div>
+            </div>
+            <div class="bottom">
+              <a @click="navigateTo('Notice')">· 공지사항</a>
+              <a @click="navigateTo('noticewrite')">· 공지사항 작성</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
     </div>
-    <nav>
-      <ul>
-        <li class="list2">
-          <div class="top" @click="navigateTo('clublist')">
-            <i class="icon home"></i>
-            <p class="menu">동아리 관리</p>
-            <div class="yellowLine"></div>
-          </div>
-          <div class="bottom">
-            <a @click="navigateTo('clubroom')">· 동아리 위치 정보 수정</a>
-            <a @click="navigateTo('category')">· 동아리 카테고리 설정</a>
-          </div>
-        </li>
-        <li class="list3" @click="navigateTo('AddClub')">
-          <div class="top">
-            <i class="icon check"></i>
-            <p class="menu">동아리 추가</p>
-            <div class="yellowLine"></div>
-          </div>
-        </li>
-        <li class="list2">
-          <div class="top">
-            <i class="icon clipboard"></i>
-            <p class="menu">공지사항</p>
-            <div class="yellowLine"></div>
-          </div>
-          <div class="bottom">
-            <a @click="navigateTo('Notice')">· 공지사항</a>
-            <a @click="navigateTo('noticewrite')">· 공지사항 작성</a>
-          </div>
-        </li>
-      </ul>
-    </nav>
-    <div class="line1"></div>
-    <div class="footer">
-      <div class="links">
-        <a @click.prevent="navigateTo('AdminTermsOfUse')" :class="{ selected: selectedLink === 'AdminTermsOfUse'}">이용약관</a>
-        <div class="line2"></div>
-        <a @click.prevent="navigateTo('privacy_policy_')" :class="{ selected: selectedLink === 'privacy_policy_', 'bold-text': true }">개인정보 처리방침</a>
+    <div class="sidebar-footer">
+      <div class="line1"></div>
+      <div class="footer">
+        <div class="links">
+          <a @click.prevent="navigateTo('AdminTermsOfUse')" :class="{ selected: selectedLink === 'AdminTermsOfUse'}">이용약관</a>
+          <div class="line2"></div>
+          <a @click.prevent="navigateTo('privacy_policy_')" :class="{ selected: selectedLink === 'privacy_policy_', 'bold-text': true }">개인정보 처리방침</a>
+        </div>
+        <a @click.prevent="logout">로그아웃</a>
       </div>
-      <a @click.prevent="logout">로그아웃</a>
     </div>
   </div>
 </template>
@@ -86,19 +90,35 @@ export default {
 <style scoped>
 .sidebar {
   width: 240px;
-  height: 700px;
+  height: 73%;
   color: #000;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
   border-radius: 16px;
+  overflow-y: auto;
+}
+
+.sidebar-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-footer {
+  position: sticky;
+  bottom: 0;
+  background-color: inherit;
+  margin-top: 20px; /* 푸터와 컨텐츠 사이 간격 줄임 */
 }
 
 .profile {
   display: flex;
   align-items: center;
   flex-direction: column;
+  margin-bottom: 25px; /* 프로필과 내비게이션 사이 간격 늘림 */
 }
 
 .profile-img {
@@ -136,7 +156,7 @@ export default {
 }
 
 nav {
-  height: 370px;
+  min-height: 320px; /* 기존 370px에서 줄임 */
 }
 
 nav ul {
@@ -280,24 +300,25 @@ nav .icon {
 }
 
 .line1 {
-  margin-bottom: -20px;
   width: 100%;
   height: 1px;
   background-color: #999999;
+  margin-bottom: 10px;
 }
 
 .footer {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Change from center to flex-start */
+  align-items: flex-start;
   font-size: 12px;
-  padding-left: 30px; /* Add padding to align with other elements */
+  padding-left: 30px;
+  padding-bottom: 15px;
 }
 
 .footer .links {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin: 10px 0 17px 0;
 }
 
 .footer a {
@@ -307,9 +328,8 @@ nav .icon {
 }
 
 .footer a.selected {
-  color: #FFB052; /* Yellow color for selected link */
+  color: #FFB052;
 }
-
 
 .bold-text {
   font-weight: 800;
