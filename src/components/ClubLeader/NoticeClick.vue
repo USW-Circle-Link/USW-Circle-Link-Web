@@ -105,7 +105,25 @@ export default {
     this.fetchNotices();
     this.fetchNotice(this.$route.params.noticeUUID);
   },
+  mounted() {
+    this.initializePage();
+  },
   methods: {
+    initializePage() {
+      const isFirstVisit = localStorage.getItem("firstVisit") === null;
+      const reloaded = sessionStorage.getItem("reloaded");
+
+      if (isFirstVisit) {
+        localStorage.setItem("firstVisit", "true");
+        sessionStorage.setItem("reloaded", "true");
+        window.location.reload();
+      } else if (!reloaded) {
+        sessionStorage.setItem("reloaded", "true");
+        window.location.reload();
+      } else {
+        sessionStorage.removeItem("reloaded");
+      }
+    },
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
         this.show401Popup = true;

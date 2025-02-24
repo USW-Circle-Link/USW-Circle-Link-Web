@@ -157,7 +157,25 @@ export default {
     this.fetchNotices();
     this.fetchNotice(this.$route.params.noticeUUID);
   },
+  mounted() {
+    this.initializePage();
+  },
   methods: {
+    initializePage() {
+      const isFirstVisit = localStorage.getItem("firstVisit") === null;
+      const reloaded = sessionStorage.getItem("reloaded");
+
+      if (isFirstVisit) {
+        localStorage.setItem("firstVisit", "true");
+        sessionStorage.setItem("reloaded", "true");
+        window.location.reload();
+      } else if (!reloaded) {
+        sessionStorage.setItem("reloaded", "true");
+        window.location.reload();
+      } else {
+        sessionStorage.removeItem("reloaded");
+      }
+    },
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
         this.show401Popup = true;
@@ -388,13 +406,12 @@ export default {
 }
 
 .notice-content {
-  font-size: 14px;
-  color: #333;
-  margin-top: 20px;
-  line-height: 1.0;
-  border-top: 0.5px solid  #868686; /* 회색 구분선 추가 */
-  padding-top: 10px; /* 텍스트와 구분선 사이에 여백 추가 */
+  word-wrap: break-word;  /* 긴 단어 줄바꿈 */
+  overflow-wrap: break-word; /* 단어 단위로 줄바꿈 */
+  white-space: normal; /* 기본 줄바꿈 허용 */
+  max-width: 100%; /* 최대 너비 제한 */
 }
+
 
 .notice-images { 
   display: flex;

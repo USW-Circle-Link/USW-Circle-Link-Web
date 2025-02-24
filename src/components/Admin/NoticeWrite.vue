@@ -62,6 +62,10 @@ export default {
     };
   },
   methods: {
+    // 이미지 삭제 기능 추가
+    deleteImage(index) {
+    this.images.splice(index, 1);
+  },
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
