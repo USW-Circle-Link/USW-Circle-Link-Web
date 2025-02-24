@@ -79,7 +79,15 @@ body {
   height: 100%;
   transition: all 0.3s;
   z-index: 10;
-  background: #F0F2F5;
+}
+
+.sidebar-content::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-content {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 .content{

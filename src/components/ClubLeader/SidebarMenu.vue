@@ -1,62 +1,65 @@
 <template>
   <div class="sidebar">
-    <div class="profile">
-      <img :src="imageSrc" alt="Logo" class="profile-img" />
-      <div class="profile-info">
-        <div class="profile-name">
-          <h2>{{data.clubName}}</h2>
+    <div class="sidebar-content">
+      <div class="profile">
+        <img :src="imageSrc" alt="Logo" class="profile-img" />
+        <div class="profile-info">
+          <div class="profile-name">
+            <h2>{{data.clubName}}</h2>
+          </div>
+          <p>{{department}}</p>
         </div>
-        <p>{{department}}</p>
       </div>
+      <nav>
+        <ul>
+          <li class="list2">
+            <div class="top" @click="navigateTo('dashboard')">
+              <i class="icon home"></i>
+              <p class="menu">홈(회원관리)</p>
+              <div class="yellowLine"></div>
+            </div>
+            <div class="bottom">
+              <a @click.prevent="navigateTo('addMember')">· 동아리 회원 추가</a>
+              <a @click.prevent="navigateTo('duplicate-member')">· 중복 회원 추가</a>
+              <a @click.prevent="navigateTo('remove-member')">· 회원 퇴출</a>
+              <a @click.prevent="navigateTo('Accept')">· 동아리 회원 가입 요청 관리</a>
+            </div>
+          </li>
+          <li class="list1">
+            <div class="top" @click="navigateTo('profileedit')">
+              <i class="icon mail"></i>
+              <p class="menu">동아리 관리</p>
+              <div class="yellowLine"></div>
+            </div>
+            <div class="bottom">
+              <a @click.prevent="navigateTo('profileedit')">· 동아리 정보 수정</a>
+              <a @click="openNewWindow1">· 동아리 소개/모집글</a>
+              <a @click="navigateTo('intro')">· 동아리 소개/모집글작성</a>
+              <a @click="navigateTo('passer-management')">· 지원자 합격/불합격 처리</a>
+              <a @click="navigateTo('morepass')">· 지원자 추가 합격 처리</a>
+            </div>
+          </li>
+          <li class="list3" @click="navigateTo('notice')">
+            <div class="top">
+              <i class="icon clipboard"></i>
+              <p class="menu">공지사항</p>
+              <div class="yellowLine"></div>
+            </div>
+          </li>
+        </ul>
+      </nav>
     </div>
-    <nav>
-      <ul>
-        <li class="list2">
-          <div class="top" @click="navigateTo('dashboard')">
-            <i class="icon home"></i>
-            <p class="menu">홈(회원관리)</p>
-            <div class="yellowLine"></div>
-          </div>
-          <div class="bottom">
-            <a @click.prevent="navigateTo('addMember')">· 동아리 회원 추가</a>
-            <a @click.prevent="navigateTo('duplicate-member')">· 중복 회원 추가</a>
-            <a @click.prevent="navigateTo('remove-member')">· 회원 퇴출</a>
-            <a @click.prevent="navigateTo('Accept')">· 동아리 회원 가입 요청 관리</a>
-          </div>
-        </li>
-        <li class="list1">
-          <div class="top" @click="navigateTo('profileedit')">
-            <i class="icon mail"></i>
-            <p class="menu">동아리 관리</p>
-            <div class="yellowLine"></div>
-          </div>
-          <div class="bottom">
-            <a @click.prevent="navigateTo('profileedit')">· 동아리 정보 수정</a>
-            <a @click="openNewWindow1">· 동아리 소개/모집글</a>
-            <a @click="navigateTo('intro')">· 동아리 소개/모집글작성</a>
-            <a @click="navigateTo('passer-management')">· 지원자 합격/불합격 처리</a>
-            <a @click="navigateTo('morepass')">· 지원자 추가 합격 처리</a>
-          </div>
-        </li>
-        <li class="list3" @click="navigateTo('notice')">
-          <div class="top">
-            <i class="icon clipboard"></i>
-            <p class="menu">공지사항</p>
-            <div class="yellowLine"></div>
-          </div>
-        </li>
-      </ul>
-    </nav>
 
-    <div class="empty"></div>
-    <div class="line1"></div>
-    <div class="footer">
-      <div class="links">
-        <a @click.prevent="navigateTo('TermsOfUse')" :class="{ selected: selectedLink === 'TermsOfUse' }">이용약관</a>
-        <div class="line2"></div>
-        <a @click.prevent="navigateTo('privacy_policy')" :class="{ selected: selectedLink === 'privacy_policy', 'bold-text': true }">개인정보 처리방침</a>
+    <div class="footer-container">
+      <div class="line1"></div>
+      <div class="footer">
+        <div class="links">
+          <a @click.prevent="navigateTo('TermsOfUse')" :class="{ selected: selectedLink === 'TermsOfUse' }">이용약관</a>
+          <div class="line2"></div>
+          <a @click.prevent="navigateTo('privacy_policy')" :class="{ selected: selectedLink === 'privacy_policy', 'bold-text': true }">개인정보 처리방침</a>
+        </div>
+        <a @click.prevent="logout">로그아웃</a>
       </div>
-      <a @click.prevent="logout">로그아웃</a>
     </div>
   </div>
 </template>
@@ -152,13 +155,19 @@ export default {
 
 .sidebar {
   width: 240px;
-  height: 670px;
+  height: 77%;
   color: #000;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
   border-radius: 16px;
+  overflow-y: auto;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .profile {
@@ -203,7 +212,8 @@ export default {
 }
 
 nav {
-  height: 570px;
+  min-height: 200px;
+  margin-bottom: 20px;
 }
 
 nav ul {
@@ -229,6 +239,7 @@ nav li {
   flex-direction: column;
   transition-property: height;
   transition-duration: 0.2s;
+  margin-bottom: 7px;
 }
 
 .list1 a {
@@ -253,6 +264,7 @@ nav li {
   transition-duration: 0.2s;
   position: relative;
   z-index: 1;
+  margin-bottom: 7px;
 }
 
 .list2 a {
@@ -371,8 +383,12 @@ nav .icon {
   background: url('@/assets/clipboard.svg') no-repeat center center;
 }
 
-.empty {
-  height: 10px;
+.footer-container {
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  background: #F0F2F5;
+  padding-bottom: 10px;
 }
 
 .line1 {
@@ -382,13 +398,12 @@ nav .icon {
   margin-bottom: 20px;
 }
 
-
 .footer {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Change from center to flex-start */
+  align-items: flex-start;
   font-size: 12px;
-  padding-left: 30px; /* Add padding to align with other elements */
+  padding-left: 30px;
 }
 
 .footer .links {
