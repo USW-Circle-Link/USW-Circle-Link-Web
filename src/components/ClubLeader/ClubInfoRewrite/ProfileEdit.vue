@@ -530,9 +530,10 @@ export default {
       }
     },
     // 파일 형식 & 크기 검증
+// 파일 형식 & 크기 검증
     validateFile(file) {
       const validTypes = ['image/jpeg', 'image/png']; // JPG, PNG 형식의 파일만 허용
-      const maxSize = 2 * 1024 * 1024; // 크기 최대 2MB까지만 허용
+      const maxSize = 10 * 1024 * 1024; // 크기 최대 10MB까지만 허용
 
       if (!validTypes.includes(file.type)) {
         alert('지원하지 않는 파일 형식입니다. JPG 또는 PNG 파일을 선택해주세요.');
@@ -540,7 +541,7 @@ export default {
       }
 
       if (file.size > maxSize) {
-        alert('파일 크기가 2MB를 초과합니다. 작은 파일을 선택해주세요.');
+        alert('파일 크기가 10MB를 초과합니다. 더 작은 파일을 선택해주세요.');
         return false;
       }
 
