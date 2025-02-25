@@ -490,7 +490,7 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 1000;
   flex-direction: column;
 }
 
@@ -585,7 +585,7 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 1000;
   flex-direction: column;
 }
 
