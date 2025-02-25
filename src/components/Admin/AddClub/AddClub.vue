@@ -110,7 +110,7 @@
     <div v-if="AddClubPopupVisible" class="popup-overlay">
       <div class="popup">
         <h3>동아리 추가</h3>
-        <div class="line2"></div>
+        <div class="line33"></div>
         <p class="popup-message">'{{clubName}}'을(를) 추가하시겠습니까?</p>
         <input v-model="adminPw" type="password" placeholder="관리자 비밀번호" />
         <p class="popup-warning">{{adminPwError}}</p>
@@ -792,7 +792,7 @@ label {
   margin: 0;
 }
 
-.line2{
+.line33{
   border-bottom: 1px solid #d3d3d3;
   margin: 10px 0;
 }
