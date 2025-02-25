@@ -58,6 +58,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: 'SidebarMenu', // 구성요소 이름
   data(){
@@ -78,10 +80,28 @@ export default {
       });
     },
     // 로그아웃
-    logout() {
-      this.$store.dispatch('logout');
-      this.$router.push({ name: 'login' });
-    }
+    async logout() {
+      try {
+        const accessToken = this.$store.state.accessToken;
+
+        // 백엔드 서버에 로그아웃 요청 보내기
+        const response = await axios.post('http://15.164.246.244:8080/integration/logout', {}, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        this.$store.dispatch('logout'); // 로컬 스토어에서 사용자 정보 제거
+
+        this.$router.push({ name: 'login' }); // 로그인 페이지로 화면 이동
+      } catch (error) {
+        console.error('로그아웃 오류:', error);
+        alert('로그아웃 처리 중 오류가 발생했습니다.'); // 오류가 발생해도 일단 로컬에서는 로그아웃 처리
+        this.$store.dispatch('logout');
+        this.$router.push({ name: 'login' });
+      }
+    },
   }
 };
 </script>

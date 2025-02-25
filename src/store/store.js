@@ -45,6 +45,9 @@ export default createStore({
             localStorage.removeItem('clubUUID');
             localStorage.removeItem('role');
             localStorage.removeItem('isAgreedTerms');
+            localStorage.removeItem('addedMembers');
+            localStorage.removeItem('requestedMembers');
+            localStorage.removeItem('firstVisit');
         },
         setOverlappingMembers(state, members) {
             state.OverlappingMembers = members;
