@@ -19,7 +19,9 @@
         </div>
         <div v-else class="image-upload">
           <input type="file" @change="onImageUpload(index, $event)" />
-          <div class="plus" @click="$event.target.previousElementSibling.click()">+</div>
+          <div class="plus" @click="$event.currentTarget.previousElementSibling.click()">
+            <img src="../../assets/plus.svg" alt="이미지 추가" />
+          </div>
         </div>
       </div>
     </div>
@@ -713,25 +715,23 @@ textarea::placeholder{
 .plus {
   position: absolute;
   display: flex;
-  background: hsla(0,0%,100%,.7);
-  border-radius: 50%;
+  justify-content: center;
+  align-items: center;
   width: 25px;
   height: 25px;
-  justify-content: center;
-  font-size: 20px;
-  font-weight: 900;
-  color: #696969;
+  background: hsla(0,0%,100%,.7);
+  border-radius: 50%;
   border: 2px solid #ddd;
   box-shadow: 0 0 1px rgba(0,0,0,.1);
-  /* line-height: 60px; */
-  /* justify-items: center; */
-  /* justify-self: center; */
-  align-items: center;
-  /* align-content: center; */
-  /* align-self: center; */
-  /* top: 30px; */
-  /* box-sizing: border-box; */
+  color: #696969;
 }
+
+.plus img {
+  width: 15px; /* 이미지 크기 조정 */
+  height: 15px;
+  object-fit: contain;
+}
+
 .popup-overlay {
   position: fixed;
   top: 0;

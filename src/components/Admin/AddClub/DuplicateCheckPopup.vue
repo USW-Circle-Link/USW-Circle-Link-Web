@@ -86,4 +86,8 @@ export default {
   bottom: 20px;
   right: 20px;
 }
+
+.confirm-button:hover{
+  background-color: #f49421;
+}
 </style>

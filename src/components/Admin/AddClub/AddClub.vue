@@ -654,13 +654,12 @@ h2 {
 }
 
 .DuplicateCheckbtn:hover{
-  background-color: #f49421
-;
+  background-color: #f49421;
 }
 
 .club-room-btn{
   display: flex;
-  width: 18%;
+  width: 20%;
   right: 40px;
   border: 0.5px solid #C5C5C5;
   padding: 15px 15px 15px 20px;
@@ -676,7 +675,7 @@ h2 {
 }
 
 .club-room-btn svg{
-  margin-right: 15px;
+  margin-right: 20px;
 }
 
 .club-room{
