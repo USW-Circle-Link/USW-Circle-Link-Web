@@ -226,7 +226,7 @@ label {
 .confirm-button {
   width: 124px;
   height: 40px;
-  padding: 12px;
+  padding: 0; /* 패딩 제거 */
   background-color: #FFB052;
   color: white;
   border: none;
@@ -234,7 +234,9 @@ label {
   font-size: 16px;
   cursor: pointer;
   margin-left: auto;
-  display: block;
+  display: flex; /* block에서 flex로 변경 */
+  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: center; /* 수직 중앙 정렬 */
 }
 
 .confirm-button:disabled {
