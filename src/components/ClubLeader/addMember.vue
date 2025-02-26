@@ -38,28 +38,23 @@
     </div>
 
     <!--추가할 회원 리스트-->
-    <div v-if="members.length > 0 && !isOverlappingMemberListsPopupVisible" class="member-list">
+    <div v-if="visible && !isOverlappingMemberListsPopupVisible" class="member-list">
       <div class="member-row" v-for="(member, index) in members" :key="index">
         <span class="member-name">{{ member.userName }}</span>
         <span class="member-studentId">{{ member.studentNumber }}</span>
         <span class="member-phone">{{ formatPhoneNumber(member.userHp) }}</span>
-        <!-- 첫 번째 select -->
-        <select
-            v-model="member.department"
-            @change="updateSecondOptions(member)"
-        >
-          <option v-for="(option, idx) in firstOptions" :key="idx" :value="option">
-            {{ option }}
+        <select v-model="member.department" @change="onCollegeChange(index)">
+          <option disabled value="">단과대학 선택</option>
+          <option v-for="college in colleges" :key="college.id" :value="college.id">
+            {{ college.name }}
           </option>
         </select>
 
-        <!-- 두 번째 select -->
-        <select
-            v-model="member.major"
-            @change="addMajor(member)"
-        >
-          <option v-for="(option, idx) in member.secondOptions" :key="idx" :value="option">
-            {{ option }}
+        <!-- 학부(학과) 선택 -->
+        <select v-model="member.major">
+          <option disabled value="">학부(학과) 선택</option>
+          <option v-for="dept in member.departments" :key="dept" :value="dept">
+            {{ dept }}
           </option>
         </select>
       </div>
@@ -124,7 +119,8 @@
 //import * as XLSX from "xlsx";
 import axios from "axios";
 import store from "@/store/store";
-import Popup401 from './401Popup.vue'; // 401 팝업 컴포넌트 추가
+import Popup401 from './401Popup.vue';
+import {colleges, departmentsByCollege} from "@/components/departments"; // 401 팝업 컴포넌트 추가
 
 export default {
   components:{
@@ -140,44 +136,14 @@ export default {
       isSelectDepartmentPopupVisible : false,
       isOverlappingMembersPopupVisible: false,
 
-      // 첫 번째 select의 옵션들
-      firstOptions: ['단과대학 선택', '인문사회융합대학', '경영공학대학', '혁신공과대학', '지능형SW융합대학', '라이프케어사이언스대학', '디자인앤아트대학', '음악테크놀로지대학', '문화예술융합대학', '글로벌인재대학'],
-
-      // 첫 번째 select의 선택된 값
-      department: '',
-
-      // 두 번째 select의 옵션들 (동적으로 변경됨)
-      major: [],
-
-      // 두 번째 select의 선택된 값
-      selectedSecondOption: '',
       show401Popup: false,
 
-      // 첫 번째 옵션 값에 따라 두 번째 옵션 목록을 정의
-      optionsMapping: {
-        인문사회융합대학: ['인문학부', '국어국문학과', '사학과',
-          '외국어학부', '영어영문학과', '프랑스어문학과', '러시아어문학과', '일어일문학과', '중어중문학과',
-          '법행정학부', '법학과', '행정학과', '미디어커뮤니케이션학과', '행정학과', '소방행정학과'],
-        경영공학대학: ['경영학부', '경영학과', '글로벌비즈니스학과', '회계학과',
-          '경제학부', '경제금융학과', '국제개발협력학과',
-          '호텔관광학부', '호텔경영학과', '외식경영학과', '관광경영학과'],
-        혁신공과대학 : ['바이오화학산업학부', '바이오공학및마케팅학과', '융합화학산업학과',
-          '건설환경에너지공학부', '건설환경공학과', '환경에너지공학과',
-          '건축도시부동산학부', '건축학과', '도시부동산학과',
-          '산업및기계공학부', '산업공학과', '기계공학과', '반도체공학과',
-          '전기전자공학부', '전기공학과', '전자공학과',
-          '화학공학신소재공학부', '신소재공학과', '화학공학과'],
-        지능형SW융합대학 : ['컴퓨터학부', '컴퓨터SW학과', '미디어SW학과',
-          '정보통신학부', '정보통신학과', '정보보호학과',
-          '데이터과학부'],
-        라이프케어사이언스대학 : ['간호학과', '아동가족복지학과', '의류학과', '식품영양학과',
-          '스포츠과학부', '체육학과', '레저스포츠학과', '운동건강관리학과'],
-        디자인앤아트대학 : ['조형예술학부', '회화과', '조소과',
-          '디자인학부', '커뮤니케이션디자인과', '패션디자인과', '공예디자인과'],
-        음악테크놀로지대학 : ['아트앤테크놀로지작곡과', '성악과', '피아노과', '관현악과', '국악과'],
-        문화예술융합대학 : ['아트앤엔터테인먼트학부', '영화술과', '연기예술과', '디지털콘텐츠과'],
-        글로벌인재대학 : ['자유전공학부'],
-      },
+      colleges, // 가져온 단과대학 정보 사용
+      departmentsByCollege, // 가져온 학과 정보 사용
+      departments: [],
+      editingMember: null,
+
+      visible: false,
     }
   },
   methods: {
@@ -215,7 +181,7 @@ export default {
 
       try {
         const response = await axios.post(
-            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/import`,
+            `https://api.donggurami.net/club-leader/${clubUUID}/members/import`,
             formData,
             {
               headers: {
@@ -223,17 +189,18 @@ export default {
                 'Content-Type': 'multipart/form-data'
               }
             });
-        console.log(response.data.data.addClubMembers);
-        console.log(response.data.data.duplicateClubMembers);
 
         this.members = response.data.data.addClubMembers;
         this.members = this.members.map(member => {
           return {
             ...member,
-            department: '단과대학 선택', // 원하는 값으로 변경 가능,
-            major: '학부(학과) 선택'
+            department: '', // 원하는 값으로 변경 가능,
+            major: '',
+            departments: []
           };
         });
+        console.log(this.members);
+        this.visible = true;
         this.OverlappingMembers = response.data.data.duplicateClubMembers;
 
         if(this.OverlappingMembers.length > 0){
@@ -265,31 +232,33 @@ export default {
     submitMembers(){
       if(!this.members.some(member => member.department === '단과대학 선택')) {
         this.isPopupVisible = true;
+        console.log(this.members);
       } else {
         this.isSelectDepartmentPopupVisible = true;
       }
     },
-    // 첫 번째 select가 변경될 때 호출
-    updateSecondOptions(member) {
-      /// 첫 번째 select 값이 변경되었을 때 해당 멤버의 두 번째 옵션 목록 업데이트
-      const newOptions = this.optionsMapping[member.department] || [];
-      member.secondOptions = [...newOptions]; // 새로운 배열로 할당하여 반응성 유지
-      member.major = ''; // 두 번째 선택 초기화
-    },
-    addMajor(member){
-      console.log(member);
+    onCollegeChange(index) {
+      const selectedCollege = this.members[index].department;
+
+      // 선택한 단과대학의 학부(학과) 목록 설정
+      this.members[index].departments = this.departmentsByCollege[selectedCollege] || [];
+
+      // 현재 선택된 major가 유효한지 확인 후 초기화
+      if (!this.members[index].departments.includes(this.members[index].major)) {
+        this.members[index].major = "";
+      }
     },
     async OverlappingMemberLists(){
       const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
       const data = this.members.map(member => {
-        const { department, secondOptions, ...rest } = member;
+        const { department, departments, ...rest } = member;
         return rest;
       });
 
       try {
         const response = await axios.post(
-            `http://15.164.246.244:8080/club-leader/${clubUUID}/members`,
+            `https://api.donggurami.net/club-leader/${clubUUID}/members`,
             data,
             {
               headers: {
@@ -443,17 +412,16 @@ p {
 }
 
 .member-name{
-  margin-left: 100px;
-
+  flex: 1;
+  margin-left: 50px;
 }
 
 .member-studentId{
-  margin-left: 50px;
+  flex: 1;
 }
 
 .member-phone{
-  margin-left: 50px;
-
+  flex: 1;
 }
 
 select {
