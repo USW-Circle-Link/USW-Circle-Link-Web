@@ -181,7 +181,7 @@ export default {
 
       try {
         const response = await axios.post(
-            `https://api.donggurami.net/club-leader/${clubUUID}/members/import`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/import`,
             formData,
             {
               headers: {
@@ -258,7 +258,7 @@ export default {
 
       try {
         const response = await axios.post(
-            `https://api.donggurami.net/club-leader/${clubUUID}/members`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members`,
             data,
             {
               headers: {
