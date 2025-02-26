@@ -386,8 +386,8 @@ export default {
 
       } catch (error) {
         if (!this.handle401Error(error)) {
-          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
-          alert('동아리 정보를 불러오는데 실패했습니다.');
+          console.error('동아리 정보 저장에 실패했습니다.', error);
+          alert('동아리 정보 저장에 실패했습니다.');
         }
       }
     },
