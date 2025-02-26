@@ -84,6 +84,7 @@ export default {
       isPopupVisible: false, // 삭제 팝업 가시성
       isClubInfoPopupVisible: false, // 상세 팝업 가시성
       adminPw: "", // 삭제를 위한 비밀번호
+      adminPwError: "",
       clubToDelete: null, // 삭제할 클럽 ID
       deleteIndex: null, // 삭제할 클럽의 인덱스
       PopupClubName: null, // 삭제할 클럽 이름
@@ -185,6 +186,9 @@ export default {
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('Error updating member:', error);
+        }
+        if(error.response.status === 400){
+          this.adminPwError = "* 비밀번호를 다시 확인해주세요."
         }
       }
     },
