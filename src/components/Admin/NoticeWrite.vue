@@ -78,7 +78,7 @@ export default {
     onImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const validExtensions = ['png', 'jpg', 'jpeg'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
         const maxFileSize = 10 * 1024 * 1024;
 
