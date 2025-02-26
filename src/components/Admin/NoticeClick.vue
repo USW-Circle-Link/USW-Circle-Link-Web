@@ -480,7 +480,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999; /* 다른 요소 위에 보이게 설정 */
+  z-index: 1000; /* 다른 요소 위에 보이게 설정 */
 }
 
 .delete-popup {

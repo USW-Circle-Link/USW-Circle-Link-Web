@@ -19,7 +19,9 @@
         </div>
         <div v-else class="image-upload">
           <input type="file" @change="onImageUpload(index, $event)" />
-          <div class="plus" @click="$event.target.previousElementSibling.click()">+</div>
+          <div class="plus" @click="$event.currentTarget.previousElementSibling.click()">
+            <img src="../../assets/plus.svg" alt="이미지 추가" />
+          </div>
         </div>
       </div>
     </div>
@@ -244,29 +246,39 @@ export default {
       const file = event.target.files[0];
       //파일 확장자 및 크기 검사
       if (file) {
-        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const validExtensions = ['png', 'jpg', 'jpeg'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
-        const maxFileSize = 10 * 1024 * 1024;
+        const maxFileSize = 10 * 1024 * 1024; // 10MB 제한
 
-        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-          this.file.splice(index, 1, file);//파일 추가
-          this.errorMessage = '';
-          this.validFile = true;
-
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            this.images[index].src = e.target.result;//미리보기 이미지 설정
-            this.imagesData.push({ src: e.target.result, file });//이미지 데이터 추가
-          };
-          reader.readAsDataURL(file);
-
-          this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
-          this.orders.sort();
-        } else {
-          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
-          this.errorMessage = '파일 형식이 맞지 않습니다.';
+        // 사진 크기 체크를 명확하게 하고 별도 메시지 표시
+        if (file.size > maxFileSize) {
+          alert("사진 크기가 10MB를 초과합니다. 10MB 이하의 사진만 업로드 가능합니다.");
+          this.errorMessage = '사진 크기가 10MB를 초과합니다.';
           this.validFile = false;
+          return;
         }
+
+        if (!validExtensions.includes(fileExtension)) {
+          alert("지원하지 않는 사진 형식입니다. .png, .jpg, .jpeg 형식의 사진만 업로드 가능합니다.");
+          this.errorMessage = '지원하지 않는 사진 형식입니다.';
+          this.validFile = false;
+          return;
+        }
+
+        // 유효한 파일인 경우 처리
+        this.file.splice(index, 1, file);//파일 추가
+        this.errorMessage = '';
+        this.validFile = true;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.images[index].src = e.target.result;//미리보기 이미지 설정
+          this.imagesData.push({ src: e.target.result, file });//이미지 데이터 추가
+        };
+        reader.readAsDataURL(file);
+
+        this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
+        this.orders.sort();
       }
     },
     // 이미지 업로드
@@ -274,24 +286,32 @@ export default {
       const file = event.target.files[0];
       //파일 유효성 검사
       if (file) {
-        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const validExtensions = ['png', 'jpg', 'jpeg'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
-        const maxFileSize = 10 * 1024 * 1024;
+        const maxFileSize = 10 * 1024 * 1024; // 10MB 제한
 
-        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-          this.file.push(file);
-          this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);//삭제 된 순서 제거
-          this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
-          this.orders.sort();
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            this.images.splice(index, 1, { src: e.target.result });
-            this.imagesData.push({ src: e.target.result, file });
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+        // 사진 크기 체크를 명확하게 하고 별도 메시지 표시
+        if (file.size > maxFileSize) {
+          alert("사진 크기가 10MB를 초과합니다. 10MB 이하의 사진만 업로드 가능합니다.");
+          return;
         }
+
+        if (!validExtensions.includes(fileExtension)) {
+          alert("지원하지 않는 사진 형식입니다. .png, .jpg, .jpeg 형식의 사진만 업로드 가능합니다.");
+          return;
+        }
+
+        // 유효한 파일인 경우 처리
+        this.file.push(file);
+        this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);//삭제 된 순서 제거
+        this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
+        this.orders.sort();
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.images.splice(index, 1, { src: e.target.result });
+          this.imagesData.push({ src: e.target.result, file });
+        };
+        reader.readAsDataURL(file);
       }
     },
     //전송 확인 팝업 표시
@@ -366,8 +386,8 @@ export default {
 
       } catch (error) {
         if (!this.handle401Error(error)) {
-          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
-          alert('동아리 정보를 불러오는데 실패했습니다.');
+          console.error('동아리 정보 저장에 실패했습니다.', error);
+          alert('동아리 정보 저장에 실패했습니다.');
         }
       }
     },
@@ -713,25 +733,23 @@ textarea::placeholder{
 .plus {
   position: absolute;
   display: flex;
-  background: hsla(0,0%,100%,.7);
-  border-radius: 50%;
+  justify-content: center;
+  align-items: center;
   width: 25px;
   height: 25px;
-  justify-content: center;
-  font-size: 20px;
-  font-weight: 900;
-  color: #696969;
+  background: hsla(0,0%,100%,.7);
+  border-radius: 50%;
   border: 2px solid #ddd;
   box-shadow: 0 0 1px rgba(0,0,0,.1);
-  /* line-height: 60px; */
-  /* justify-items: center; */
-  /* justify-self: center; */
-  align-items: center;
-  /* align-content: center; */
-  /* align-self: center; */
-  /* top: 30px; */
-  /* box-sizing: border-box; */
+  color: #696969;
 }
+
+.plus img {
+  width: 15px; /* 이미지 크기 조정 */
+  height: 15px;
+  object-fit: contain;
+}
+
 .popup-overlay {
   position: fixed;
   top: 0;

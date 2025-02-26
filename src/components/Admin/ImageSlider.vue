@@ -37,7 +37,7 @@ export default {
   align-content: center;
   margin-top: 30px;
   margin-bottom: 20px; /* 슬라이더와 아래 콘텐츠 간격 추가 */
- 
+
 }
 
 .slides{

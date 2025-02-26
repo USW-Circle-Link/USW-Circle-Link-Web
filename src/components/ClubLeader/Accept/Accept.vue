@@ -105,7 +105,7 @@
     <Popup v-if="showAcceptPopup"
            :visible="showAcceptPopup"
            title="동아리 회원 가입 요청"
-           message="해당 동아리 회원이 맞습니까?"
+           message="해당 동아리 회원의 가입 요청을 수락하시겠습니까?"
            sub-message="다시 되돌릴 수 없으니 신중하게 선택해주세요."
            @cancel="cancelAccept"
            @confirm="confirmAccept"/>

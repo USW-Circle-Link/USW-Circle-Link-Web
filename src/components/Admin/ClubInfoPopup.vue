@@ -20,7 +20,7 @@
         <div class="Info">
           <div class="club-details">
             <p class="clubname"><strong>{{ data.clubName }}</strong></p>
-            <p class="clubleader"><span class="leader-label">동아리 장</span> <span class="leader-name">{{ displayLeaderName }}</span></p>
+            <p class="clubleader"><span class="leader-label">동아리 회장</span> <span class="leader-name">{{ displayLeaderName }}</span></p>
             <div class="clubroom">
               <div class="icon category"></div>
               <p class="room">카테고리 | {{formattedCategory}} </p>

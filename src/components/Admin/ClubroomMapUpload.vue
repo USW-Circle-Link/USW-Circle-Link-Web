@@ -501,6 +501,10 @@ export default {
   cursor: pointer;
 }
 
+.save-button:hover {
+  background-color: #e6953e;
+}
+
 .image-modal {
   position: fixed;
   top: 0;
@@ -511,6 +515,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
   /*cursor: pointer;*/
 }
 

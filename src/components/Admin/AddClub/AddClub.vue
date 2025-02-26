@@ -110,7 +110,7 @@
     <div v-if="AddClubPopupVisible" class="popup-overlay">
       <div class="popup">
         <h3>동아리 추가</h3>
-        <div class="line2"></div>
+        <div class="line33"></div>
         <p class="popup-message">'{{clubName}}'을(를) 추가하시겠습니까?</p>
         <input v-model="adminPw" type="password" placeholder="관리자 비밀번호" />
         <p class="popup-warning">{{adminPwError}}</p>
@@ -240,7 +240,7 @@ export default {
       floors: ['지하', '1층', '2층'],
       selectedFloor: '1층',
       roomMap: {
-        '지하': ['B101', 'B102', 'B103', 'B104', 'B105', 'B106', 'B107', 'B108', 'B109', 'B110', 'B111', 'B112', 'B113','B114', 'B115', 'B116', 'B117', 'B118', 'B119', 'B120', 'B121', 'B122', 'B123'],
+        '지하': ['B101', 'B102', 'B103', 'B104', 'B105', 'B106', 'B107', 'B108', 'B110', 'B111', 'B112', 'B113','B114', 'B115', 'B116', 'B117', 'B118', 'B119', 'B120', 'B121', 'B122', 'B123'],
         '1층': ['102', '103', '104', '105', '106', '107', '108', '109', '110', '112'],
         '2층': ['203', '205', '206','207', '208', '209', '210',]
       },
@@ -654,13 +654,12 @@ h2 {
 }
 
 .DuplicateCheckbtn:hover{
-  background-color: #f49421
-;
+  background-color: #f49421;
 }
 
 .club-room-btn{
   display: flex;
-  width: 18%;
+  width: 20%;
   right: 40px;
   border: 0.5px solid #C5C5C5;
   padding: 15px 15px 15px 20px;
@@ -676,7 +675,7 @@ h2 {
 }
 
 .club-room-btn svg{
-  margin-right: 15px;
+  margin-right: 20px;
 }
 
 .club-room{
@@ -770,7 +769,7 @@ label {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 1000;
   flex-direction: column;
 }
 
@@ -792,7 +791,7 @@ label {
   margin: 0;
 }
 
-.line2{
+.line33{
   border-bottom: 1px solid #d3d3d3;
   margin: 10px 0;
 }
