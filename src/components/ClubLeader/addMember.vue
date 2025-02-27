@@ -251,15 +251,24 @@ export default {
     async OverlappingMemberLists(){
       const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
-      const data = this.members.map(member => {
-        const { department, departments, ...rest } = member;
-        return rest;
-      });
+
+      // 필요한 데이터만 추출해서 새 DTO 형식에 맞게 구성
+      const membersData = this.members.map(member => ({
+        userName: member.userName,
+        major: member.major,
+        studentNumber: member.studentNumber,
+        userHp: member.userHp
+      }));
+
+      // 새로운 DTO 구조로 데이터 래핑
+      const requestData = {
+        clubMembersAddFromExcelRequestList: membersData
+      };
 
       try {
         const response = await axios.post(
             `http://15.164.246.244:8080/club-leader/${clubUUID}/members`,
-            data,
+            requestData,
             {
               headers: {
                 'Authorization': `Bearer ${accessToken}`,
