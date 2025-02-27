@@ -1,8 +1,14 @@
 <template>
   <div class="header">
     <div class="header-content">
-      <img src="../../assets/dongurami_logo.png" alt="Dongurami Logo" class="logo" />
-      <h1 class="title">동구라미</h1>
+      <img
+          src="../../assets/dongurami_logo.png"
+          alt="Dongurami Logo"
+          class="logo"
+          @click="navigateTo('dashboard')"
+          style="cursor: pointer;"
+      />
+      <h1 class="title" @click="navigateTo('dashboard')" style="cursor: pointer;">동구라미</h1>
       <!--    <NotificationButton/>-->
     </div>
   </div>
@@ -11,6 +17,12 @@
 <script>
 export default {
   name: 'Headbar',
+  methods: {
+    navigateTo(route) {
+      // 라우터를 사용하여 지정된 경로로 이동
+      this.$router.push({ name: route });
+    }
+  }
 };
 </script>
 

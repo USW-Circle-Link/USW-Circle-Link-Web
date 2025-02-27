@@ -1,8 +1,13 @@
 <template>
   <div class="header">
     <div class="header-content">
-      <img src="../../assets/dongurami_logo.png" alt="Dongurami Logo" class="logo" />
-      <h1 class="title">동구라미</h1>
+      <img
+          src="../../assets/dongurami_logo.png"
+          alt="Dongurami Logo"
+          class="logo clickable"
+          @click="navigateTo('clublist')"
+      />
+      <h1 class="title clickable" @click="navigateTo('clublist')">동구라미</h1>
       <!--    <NotificationButton/>-->
     </div>
   </div>
@@ -11,6 +16,11 @@
 <script>
 export default {
   name: 'Headbar',
+  methods: {
+    navigateTo(route) {
+      this.$router.push({ name: route });
+    }
+  }
 };
 </script>
 
@@ -53,6 +63,10 @@ export default {
   font-style: normal;
   font-weight: 405;
   line-height: 14px; /* 100% */
+}
+
+.clickable {
+  cursor: pointer;
 }
 
 /* 반응형 스타일 */
