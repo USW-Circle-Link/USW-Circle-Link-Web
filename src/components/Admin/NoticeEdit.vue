@@ -170,48 +170,54 @@ export default {
 
     // 이미지 업로드
     onImageUpload(event) {
-      if (this.noticePhotos.length >= 5) {
-        alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
-        return;
-      }
-      const file = event.target.files[0];
-      if (!file) return;
+    if (this.noticePhotos.length >= 5) {
+      alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
+      return;
+    }
+    const file = event.target.files[0];
+    if (!file) return;
 
-      const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-      const fileExtension = file.name.split('.').pop().toLowerCase();
-      const maxFileSize = 10 * 1024 * 1024;
+    const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const maxFileSize = 10 * 1024 * 1024;
 
-      if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const order = this.noticePhotos.length + 1;
-          this.noticePhotos.push({ id: null, src: e.target.result, file, order });
-        };
-        reader.readAsDataURL(file);
-      } else {
-        alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
-      }
-    },
+    if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const order = this.noticePhotos.length + 1;
+        this.noticePhotos.push({ id: null, src: e.target.result, file, order });
 
+        // 🔹 파일 입력 필드 초기화 (같은 파일 다시 업로드 가능)
+        event.target.value = "";
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
+    }
+  },
     // 이미지 수정
     onImageChange(index, event) {
-      const file = event.target.files[0];
-      if (!file) return;
+    const file = event.target.files[0];
+    if (!file) return;
 
-      const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-      const fileExtension = file.name.split('.').pop().toLowerCase();
-      const maxFileSize = 10 * 1024 * 1024;
+    const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const maxFileSize = 10 * 1024 * 1024;
 
-      if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
-        };
-        reader.readAsDataURL(file);
-      } else {
-        alert('파일 형식이 맞지 않거나 크기가 초과되었습니다.');
-      }
-    },
+    if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
+
+        // 🔹 파일 입력 필드 초기화 (같은 파일 다시 업로드 가능)
+        event.target.value = "";
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert('파일 형식이 맞지 않거나 크기가 초과되었습니다.');
+    }
+  },
+
     editImage(index) {
       const fileInput = this.$refs[`fileInput${index}`];
       if (fileInput && fileInput.click) {
@@ -247,12 +253,17 @@ export default {
 
     // 이미지 삭제
     deleteImage(index) {
-      const photo = this.noticePhotos[index];
-      if (photo.id) {
-        this.deletedPhotoIds.push(photo.id); // 삭제된 이미지 ID 저장
-      }
-      this.noticePhotos.splice(index, 1);
-    },
+    const photo = this.noticePhotos[index];
+    if (photo.id) {
+      this.deletedPhotoIds.push(photo.id); // 삭제된 이미지 ID 저장
+    }
+    this.noticePhotos.splice(index, 1);
+
+    // 🔹 파일 입력 필드 초기화 (같은 파일을 다시 업로드 가능하게 함)
+    if (this.$refs.fileInput) {
+      this.$refs.fileInput.value = "";
+    }
+  },
 
     // 이미지 순서 업데이트
     updateImageOrder() {

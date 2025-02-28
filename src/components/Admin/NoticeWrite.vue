@@ -65,6 +65,7 @@ export default {
     // 이미지 삭제 기능 추가
     deleteImage(index) {
     this.images.splice(index, 1);
+    this.$refs[`fileInput${index}`] = null; // 🔹 파일 입력 필드 초기화
   },
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
@@ -76,23 +77,26 @@ export default {
     },
     // 이미지 업로드
     onImageUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const validExtensions = ['png', 'jpg', 'jpeg'];
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-        const maxFileSize = 10 * 1024 * 1024;
+    const file = event.target.files[0];
+    if (file) {
+      const validExtensions = ['png', 'jpg', 'jpeg'];
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const maxFileSize = 10 * 1024 * 1024;
 
-        if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            this.images.push({ src: e.target.result, file });
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
-        }
+      if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.images.push({ src: e.target.result, file });
+
+          // 🔹 파일 입력 필드 초기화 (같은 파일 다시 업로드 가능)
+          event.target.value = "";
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
       }
-    },
+    }
+  },
     editImage(index) {
       const fileInputs = this.$refs.fileInputs; // 모든 파일 입력 요소 배열
       if (fileInputs && fileInputs[index]) {
