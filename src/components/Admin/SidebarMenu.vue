@@ -30,7 +30,7 @@
             </div>
           </li>
           <li class="list2">
-            <div class="top">
+            <div class="top" @click="navigateTo('Notice')">
               <i class="icon clipboard"></i>
               <p class="menu">공지사항</p>
               <div class="yellowLine"></div>
