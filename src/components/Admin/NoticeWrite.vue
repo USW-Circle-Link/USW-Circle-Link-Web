@@ -5,7 +5,7 @@
     <div v-if="notice">
       <div class="title-container">
         <label for="title-input" class="label">제목</label>
-        <input id="title-input" v-model="notice.noticeTitle" class="title-input" placeholder="제목을 입력해 주세요. (100자 이내)" />
+        <input id="title-input" v-model="notice.noticeTitle" class="title-input" placeholder="제목을 입력해 주세요. (200자 이내)" />
       </div>
 
       <div class="content-container">
@@ -137,7 +137,7 @@ export default {
     async submitNotice() {
 
 
-      const maxTitleLength = 100;
+      const maxTitleLength = 200;
       const maxContentLength = 3000;
 
       if (this.notice.noticeTitle.length > maxTitleLength) {

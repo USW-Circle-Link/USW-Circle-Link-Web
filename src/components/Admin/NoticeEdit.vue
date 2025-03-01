@@ -5,7 +5,7 @@
     <div v-if="notice">
       <div class="title-container">
         <label for="title-input" class="label">제목</label>
-        <input id="title-input" v-model="notice.noticeTitle" placeholder="제목을 입력해주세요.(100자이내)" class="title-input"/>
+        <input id="title-input" v-model="notice.noticeTitle" placeholder="제목을 입력해주세요.(200자이내)" class="title-input"/>
       </div>
 
 
@@ -192,7 +192,7 @@ export default {
       };
       reader.readAsDataURL(file);
     } else {
-      alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
+      alert('업로드 가능한 최대 파일 크기를 초과했습니다. (개별 파일 10MB, 총 파일 크기 50MB)');
     }
   },
     // 이미지 수정
@@ -214,7 +214,7 @@ export default {
       };
       reader.readAsDataURL(file);
     } else {
-      alert('파일 형식이 맞지 않거나 크기가 초과되었습니다.');
+      alert('업로드 가능한 최대 파일 크기를 초과했습니다. (개별 파일 10MB, 총 파일 크기 50MB)');
     }
   },
 
@@ -247,7 +247,7 @@ export default {
         };
         reader.readAsDataURL(file);
       } else {
-        alert('파일 형식이 맞지 않거나 크기가 초과되었습니다.');
+        alert('업로드 가능한 최대 파일 크기를 초과했습니다. (개별 파일 10MB, 총 파일 크기 50MB)');
       }
     },
 
@@ -274,7 +274,7 @@ export default {
 
     // 공지사항 수정 제출
     async submitNotice() {
-      const maxTitleLength = 100;
+      const maxTitleLength = 200;
       const maxContentLength = 3000;
 
       if (this.notice.noticeTitle.length > maxTitleLength) {

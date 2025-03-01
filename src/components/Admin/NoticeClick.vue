@@ -187,6 +187,10 @@ export default {
       return text ? text.replace(/\n/g, '<br>') : '';
     },
     async fetchNotices() {
+       // ✅ 최소 `size=1`로 설정하여 백엔드 에러 방지
+    const pageSize = Math.max(this.itemsPerPage, 1); // 최소값 보장
+    const currentPage = Math.max(this.currentPage - 1, 0); // 최소값 보장
+
       try {
         const accessToken = store.state.accessToken;
         const response = await axios.get(
@@ -389,6 +393,12 @@ export default {
   font-family: Pretendard;
   font-weight: 700;
   margin-bottom: 10px;
+  max-width: 100%;  /* 🔹 최대 너비를 100%로 설정 */
+  white-space: normal; /* 🔹 기본 줄바꿈 허용 */
+  word-wrap: break-word; /* 🔹 긴 단어 줄바꿈 */
+  overflow-wrap: break-word; /* 🔹 단어 단위 줄바꿈 */
+  text-overflow: ellipsis; /* 🔹 넘칠 경우 ... 표시 */
+  display: block;
 }
 
 .notice-meta {
@@ -406,12 +416,14 @@ export default {
 }
 
 .notice-content {
-  word-wrap: break-word;  /* 긴 단어 줄바꿈 */
-  overflow-wrap: break-word; /* 단어 단위로 줄바꿈 */
-  white-space: normal; /* 기본 줄바꿈 허용 */
-  max-width: 100%; /* 최대 너비 제한 */
+  word-wrap: break-word; /* 🔹 긴 단어 줄바꿈 */
+  overflow-wrap: break-word; /* 🔹 단어 단위 줄바꿈 */
+  white-space: normal; /* 🔹 줄바꿈 허용 */
+  max-width: 100%; /* 🔹 최대 너비 제한 */
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
 }
-
 
 .notice-images { 
   display: flex;
