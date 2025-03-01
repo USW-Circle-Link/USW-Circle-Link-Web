@@ -192,17 +192,21 @@ export default {
     },
     // 이미지 삭제
     deleteImage(index) {
-      this.pastImages = this.images;//현재 이미지를 임시 저장
       try {
-        this.images.splice(index, 1, { src: '' });//해당 인덱스의 이미지를 제거
-        this.orders.splice(this.orders.indexOf(index + 1), 1);//순서 정보 업데이트
-        this.deletedOrders.splice(index, 0, index + 1);//삭제 된 순서 저장
-        this.deletedOrders.sort();//순서 정렬
-        this.$forceUpdate();//변경사항 적용 강제
+        //  UI에서 해당 이미지를 삭제
+        this.images.splice(index, 1, { src: '' });
+
+        //  imagesData에서도 해당 데이터 삭제
+        this.imagesData = this.imagesData.filter((_, i) => i !== index);
+
+        console.log("이미지 삭제됨, images 상태:", this.images);
+
+        this.$forceUpdate(); // UI 강제 업데이트
       } catch (error) {
         console.error("Error while deleting image:", error);
       }
     },
+
 
     // 모집중 토글(on/off)
     async toggleCheckbox() {
@@ -284,13 +288,13 @@ export default {
     // 이미지 업로드
     onImageUpload(index, event) {
       const file = event.target.files[0];
-      //파일 유효성 검사
+
       if (file) {
         const validExtensions = ['png', 'jpg', 'jpeg'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
         const maxFileSize = 10 * 1024 * 1024; // 10MB 제한
 
-        // 사진 크기 체크를 명확하게 하고 별도 메시지 표시
+        // 파일 유효성 검사
         if (file.size > maxFileSize) {
           alert("사진 크기가 10MB를 초과합니다. 10MB 이하의 사진만 업로드 가능합니다.");
           return;
@@ -301,19 +305,21 @@ export default {
           return;
         }
 
-        // 유효한 파일인 경우 처리
-        this.file.push(file);
-        this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);//삭제 된 순서 제거
-        this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
-        this.orders.sort();
         const reader = new FileReader();
         reader.onload = (e) => {
+          //  UI에서만 이미지 추가
           this.images.splice(index, 1, { src: e.target.result });
-          this.imagesData.push({ src: e.target.result, file });
+
+          // imagesData 배열에도 추가 (서버로 전송할 실제 파일 정보 포함)
+          this.imagesData[index] = { src: e.target.result, file };
+
+          console.log(" 이미지 업로드됨, images 상태:", this.images);
         };
+
         reader.readAsDataURL(file);
       }
     },
+
     //전송 확인 팝업 표시
     showPopup() {
       this.showConfirmPopup = true;
@@ -327,62 +333,60 @@ export default {
       const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
 
-      // if (this.textareaContent === '') {
-      //   alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.");
-      //   return;
-      // }
-      // if (this.googleFormLink === '') {
-      //   alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
-      //   return;
-      // }
-      // if (!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")) {
-      //   alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
-      //   return;
-      // }
+      // 1️ 현재 남아있는 이미지들만 `orders`에 포함
+      this.orders = this.images
+        .map((image, index) => image.src ? index + 1 : null)
+        .filter(index => index !== null); // null 값 제거
+
+      // 2️서버에서 가져온 기존 이미지 목록과 비교하여 삭제된 것만 `deletedOrders`에 포함
+      const previousOrders = this.clubData.introPhotos.map((_, index) => index + 1); // 기존 서버 이미지 인덱스
+      this.deletedOrders = previousOrders.filter(index => !this.orders.includes(index)); // 기존에는 있었는데 없어진 것만
+
+      console.log("📢 최종 orders:", this.orders);
+      console.log("📢 최종 deletedOrders:", this.deletedOrders);
 
       const form = new FormData();
       const jsonData = {
-        // 줄바꿈을 <br>로 변환
         clubIntro: this.textareaContent
-            .replace(/ /g, '&nbsp;')
-            .replace(/\n/g, '<br>'),
-        //clubIntro: this.textareaContent,
+          .replace(/ /g, '&nbsp;')
+          .replace(/\n/g, '<br>'),
 
         clubRecruitment: this.textareaRecruitContent
-            .replace(/ /g, '&nbsp;')
-            .replace(/\n/g, '<br>'),
+          .replace(/ /g, '&nbsp;')
+          .replace(/\n/g, '<br>'),
 
         recruitmentStatus: this.isChecked ? 'OPEN' : 'CLOSE',
         googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
-        orders: this.orders || this.clubData.orders,
+        orders: this.orders,
         deletedOrders: this.deletedOrders
       };
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
-      //이미지 데이터 폼에 추가
-      this.imagesData.forEach((image, index) => {
+
+      // 이미지 데이터 폼에 추가
+      this.imagesData.forEach((image) => {
         form.append('introPhotos', image.file);
       });
 
       try {
         const response = await axios.put(
-            `http://15.164.246.244:8080/club-leader/${clubUUID}/intro`,
-            form,
-            {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'multipart/form-data'
-              }
+          `http://15.164.246.244:8080/club-leader/${clubUUID}/intro`,
+          form,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'multipart/form-data'
             }
+          }
         );
-        //console.log("PUT 요청 응답:", response.data);
+
         if (response.data && response.data.data && response.data.data.presignedUrls) {
           this.presignedUrls = response.data.data.presignedUrls;
-          await this.uploadFiles();//파일 업로드
+          await this.uploadFiles(); // 파일 업로드
         }
 
         this.showPopup();
-        await this.fetchClubInfo();  // 저장 후 클럽 정보 다시 가져오기
-        this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
+        await this.fetchClubInfo(); // 저장 후 클럽 정보 다시 가져오기
+        this.$emit('data-saved'); // 데이터 저장 완료 이벤트 발생
 
       } catch (error) {
         if (!this.handle401Error(error)) {
@@ -391,6 +395,7 @@ export default {
         }
       }
     },
+
     // 이미지 업로드
     async uploadFiles() {
       try {
