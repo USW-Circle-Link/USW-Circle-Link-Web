@@ -257,7 +257,7 @@ export default {
       return this.id && idPattern.test(this.id);
     },
     isClubNameValid() {
-      return this.clubName && this.clubName.length <= 10;
+      return this.clubName && !/\s/.test(this.clubName) && this.clubName.length <= 10;
     },
     roomsByFloor() {
       return this.roomMap[this.selectedFloor] || []
@@ -346,12 +346,12 @@ export default {
       }
     },
     validatePassword() {
-      const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+]{8,20}$/;
+      const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[a-zA-Z0-9!@#$%^&*()_+]{8,20}$/;
       if (!this.password) {
         this.passwordError = '* 비밀번호를 입력해 주세요.';
         this.formValidation.passwordValid = false;
       } else if (!passwordPattern.test(this.password)) {
-        this.passwordError = '* 비밀번호는 8~20자 이내의 숫자, 문자, 특수문자만 입력 가능합니다.';
+        this.passwordError = '* 비밀번호는 영어, 숫자, 특수문자를 모두 포함하여 8~20자 이내로 작성해주세요.';
         this.formValidation.passwordValid = false;
       } else {
         this.passwordError = '';
@@ -367,7 +367,10 @@ export default {
         this.formValidation.clubNameValid = false;
       } else if (this.clubName.length > 10) {
         this.isActiveClubName = true;
-        this.clubNameError = '* 동아리 이름은 공백 포함 10자 이내로 작성해주세요.';
+        this.clubNameError = '* 동아리 이름은 공백 미포함 10자 이내로 작성해주세요.';
+        this.formValidation.clubNameValid = false;
+      } else if (/\s/.test(this.clubName)){
+        this.clubNameError = '* 동아리명에는 공백 또는 특수문자를 포함할 수 없습니다.';
         this.formValidation.clubNameValid = false;
       } else {
         this.formValidation.clubNameValid = true;
