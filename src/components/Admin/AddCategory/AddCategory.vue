@@ -71,7 +71,7 @@ export default {
     },
     async fetchCategory(){
       try {
-        const response = await axios.get("https://api.donggurami.net/admin/clubs/category", {
+        const response = await axios.get("http://15.164.246.244:8080/admin/clubs/category", {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
@@ -93,11 +93,17 @@ export default {
       }
     },
     async addCategory() {
+      const specialCharPattern = /[!@#$%^&*(),.?":{}|<> ]/;
+
       const trimmedCategory = this.categoryName.trim();
-      if (trimmedCategory !== "" && !this.categories.includes(trimmedCategory)) {
+      if (
+          trimmedCategory !== "" &&
+          !this.categories.includes(trimmedCategory) &&
+          !specialCharPattern.test(trimmedCategory)
+      ) {
         try {
           const response = await axios.post(
-              "https://api.donggurami.net/admin/clubs/category",
+              "http://15.164.246.244:8080/admin/clubs/category",
               this.categoryName,
               {
                 headers: {
@@ -126,6 +132,9 @@ export default {
       } else if (this.categories.includes(trimmedCategory)) {
         this.serverMessage = '이미 존재하는 카테고리입니다.'
         this.showPopup = true;
+      } else if(specialCharPattern.test(trimmedCategory)){
+        this.serverMessage = '카테고리에는 공백 또는 특수문자를 포함할 수 없습니다.'
+        this.showPopup = true;
       }
     },
     async removeCategory(category, index) {
@@ -136,7 +145,7 @@ export default {
       }
 
       try {
-        await axios.delete(`https://api.donggurami.net/admin/clubs/category/${categoryId}`, {
+        await axios.delete(`http://15.164.246.244:8080/admin/clubs/category/${categoryId}`, {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
