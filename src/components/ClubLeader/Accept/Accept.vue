@@ -26,7 +26,7 @@
 
       <!-- Right Section: Added Members -->
       <div class="section added-members">
-        <h2>엑셀파일로 추가한 동아리 회원 정보</h2>
+        <h2>비회원 정보</h2>
         <p class="member-count">비회원: {{ addedMembers.length }} 명</p>
 
         <div class="added-member-list">

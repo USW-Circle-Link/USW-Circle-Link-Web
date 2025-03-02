@@ -64,7 +64,7 @@
 
     <div v-if="isOverlappingMemberListsPopupVisible" class="popup-overlay1">
       <div class="popup">
-        <h2>중복되는 회원 목록</h2>
+        <h2>프로필 중복 회원 목록</h2>
         <p class="confirm-message">아래 목록은 타 동아리에도 소속되어 있는 회원입니다. <br>이후 '중복 회원 추가'를 통해 아래 회원을 추가해주세요.</p>
         <div class="list-item-container">
           <div v-for="(item, index) in OverlappingMembers" :key="index" class="list-item">

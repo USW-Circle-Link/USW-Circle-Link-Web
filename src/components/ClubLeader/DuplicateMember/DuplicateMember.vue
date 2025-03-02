@@ -1,7 +1,7 @@
 <template>
   <div class="duplicate-container">
     <div class="title">
-      <h2 class="duplicate-title">중복되는 동아리 회원 추가</h2>
+      <h2 class="duplicate-title">프로필 중복 회원 추가</h2>
       <p class="duplicate-subtitle">동아리 회원을 추가할 때 중복되었던 회원을 추가해주세요.</p>
     </div>
 
@@ -65,7 +65,7 @@
       <div class="duplicate-list-header">
         <div class="header-content">
           <h3 class="duplicate-list-title">
-            조회된 중복회원 목록
+            조회된 프로필 중복 회원 목록
             <span class="member-count">총 {{ overlappingMembersCount }}명</span>
           </h3>
           <p class="list-subtitle">현재 페이지를 벗어나시면 하단 목록을 다시 확인하실 수 없습니다.</p>
