@@ -268,11 +268,14 @@ export default {
 }
 
 .category-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  display: flex;
+  flex-wrap: wrap; /* 넘칠 경우 자동 줄바꿈 */
   gap: 8px;
-  padding: 4px;
+  justify-content: flex-start; /* 왼쪽 정렬 */
+  align-items: center;
+  max-width: 100%; /* 부모 요소 안에서만 배치 */
 }
+
 .selected-info {
   margin-top: 16px;
   color: #5A5A5A;
@@ -285,20 +288,26 @@ export default {
 }
 
 .category-button {
-  padding: 10px 8px;
+  padding: 8px 10px;
   border: 1px solid #E0E0E0;
   border-radius: 4px;
   background: white;
   cursor: pointer;
   font-size: 14px;
   color: #5A5A5A;
-  height: 35px;
-  width: 68px;
+  min-height: 35px;
+  min-width: 68px;
+  max-width: 120px; /* 최대 너비 설정 */
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center; /* 텍스트 중앙 정렬 */
+  word-wrap: break-word; /* 단어가 길 경우 줄바꿈 */
+  white-space: normal; /* 여러 줄 허용 */
+  overflow-wrap: break-word; /* 긴 단어 줄바꿈 */
 }
+
 
 .category-button.active {
   border-color: #FFA000;
