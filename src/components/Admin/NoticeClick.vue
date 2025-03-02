@@ -149,7 +149,7 @@ export default {
       itemsPerPage: 5, // 페이지당 항목 수
       images: [], // 이미지 배열
       show401Popup: false, // 401 팝업
-      totalNotices: 0, // 전체 공지사항 수
+      totalNotices: 1, // 전체 공지사항 수
       currentNoticeIndex: 0 // 현재 공지사항의 전체 인덱스
     };
   },
@@ -194,14 +194,14 @@ export default {
       try {
         const accessToken = store.state.accessToken;
         const response = await axios.get(
-            `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
+            `http://15.164.246.244:8080/notices?page=${this.currentPage }&size=${this.itemsPerPage}`,
             {
               headers: { Authorization: `Bearer ${accessToken}` },
             }
         );
         this.notices = response.data.data.content || [];
         this.totalPages = response.data.data.totalPages || 1;
-        this.totalNotices = response.data.data.totalElements || 0; // 전체 공지사항 수 저장
+        this.totalNotices = response.data.data.totalElements || 1; // 전체 공지사항 수 저장
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('Error fetching notices:', error);
