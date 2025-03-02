@@ -58,7 +58,7 @@
           </option>
         </select>
       </div>
-      <button class="addClubMember" @click="submitMembers">동아리 회원 추가 완료</button>
+      <button class="addClubMember" @click="submitMembers">완료</button>
     </div>
 
 
@@ -144,7 +144,7 @@ export default {
       isOverlappingMemberListsPopupVisible : false,
       isSelectDepartmentPopupVisible : false,
       isOverlappingMembersPopupVisible: false,
-      isErrorPopupVisible: true,
+      isErrorPopupVisible: false,
 
       show401Popup: false,
 
@@ -466,6 +466,7 @@ select {
   border: none;
   border-radius: 4px;
   color: #FFFFFF;
+  font-size: 16px;
 }
 
 .addClubMember:hover {
