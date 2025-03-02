@@ -970,7 +970,7 @@ td:last-child{
   padding: 10px;
   background-color: #f2f4f6;
   border-radius: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 13px;
   height: 30px;
 }
 
@@ -987,7 +987,7 @@ td:last-child{
 .edit-input.error {
   border-color: #ff0000;
   background-color: rgba(255, 0, 0, 0.1);
-  margin-top: 18px;
+  margin-top: 0px;
 }
 
 .edit-select.error {
@@ -997,13 +997,12 @@ td:last-child{
 }
 
 .validation-error {
-  color: #ff0000;
-  font-size: 10px;
-  margin-top: 6px;
-  width: 100%;
-  text-align: left;
-  top: 100%;
-  padding-left: 10px;
+ position: absolute;
+  white-space: nowrap; /* 줄바꿈 방지 */
+  font-size: 12px;
+  color: red;
+  margin-top: 10px; /* 입력 필드와 간격 */
+  align-self: flex-start; /* 왼쪽 정렬 */
 }
 
 .input-wrapper {
