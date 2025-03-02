@@ -24,7 +24,7 @@
         <div class="info-section-col">
           <p>추가 회원: {{ members.length }}명</p>
           <p class="warning-text">
-            동아리 회원 추가의 경우, 오타가 없는지 회장분들은 꼼꼼하게 확인해 주시길 바랍니다.
+            동아리 회원 추가의 경우, 오타가 없는지 꼼꼼하게 확인해주세요.
           </p>
         </div>
         <div>
