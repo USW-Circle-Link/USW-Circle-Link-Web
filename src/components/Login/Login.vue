@@ -145,12 +145,12 @@ export default {
         }
 
         // 서버 응답 로깅
-        console.log('=== 로그인 응답 데이터 ===');
-        console.log('전체 응답:', response);
-        console.log('응답 데이터:', response.data);
-        console.log('메시지:', response.data.message);
-        console.log('상세 데이터:', response.data.data);
-        console.log('========================');
+        // console.log('=== 로그인 응답 데이터 ===');
+        // console.log('전체 응답:', response);
+        // console.log('응답 데이터:', response.data);
+        // console.log('메시지:', response.data.message);
+        // console.log('상세 데이터:', response.data.data);
+        // console.log('========================');
 
         if (response.data) {
           const { message, data } = response.data;
@@ -167,7 +167,7 @@ export default {
             isAgreedTerms: typeof isAgreedTerms === 'boolean' ? isAgreedTerms : false
           };
 
-          console.log('Vuex store에 저장될 데이터:', authData);  // 저장 전 데이터 확인
+          //console.log('Vuex store에 저장될 데이터:', authData);  // 저장 전 데이터 확인
 
           // Vuex store에 인증 데이터 저장
           await this.$store.dispatch('setAuthData', authData);
@@ -188,11 +188,11 @@ export default {
         }
       } catch (error) {
         // 에러 응답 로깅
-        console.log('=== 로그인 에러 ===');
-        console.log('에러:', error);
-        console.log('에러 응답:', error.response);
-        console.log('에러 데이터:', error.response?.data);
-        console.log('==================');
+        // console.log('=== 로그인 에러 ===');
+        // console.log('에러:', error);
+        // console.log('에러 응답:', error.response);
+        // console.log('에러 데이터:', error.response?.data);
+        // console.log('==================');
 
         const { code } = error.response?.data || {};
 
