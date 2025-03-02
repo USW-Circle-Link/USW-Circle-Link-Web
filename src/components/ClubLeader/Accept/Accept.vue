@@ -228,7 +228,7 @@ export default {
         }
 
         // 가입 요청 목록 조회
-        const requestResponse = await axios.get(`https://api.donggurami.net/club-leader/${clubUUID}/members/sign-up`, {
+        const requestResponse = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members/sign-up`, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
@@ -257,7 +257,7 @@ export default {
         }
 
         // 엑셀로 추가된 비회원 목록 조회
-        const membersResponse = await axios.get(`https://api.donggurami.net/club-leader/${clubUUID}/members?sort=non-member`, {
+        const membersResponse = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?sort=non-member`, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
@@ -302,7 +302,7 @@ export default {
 
       try {
         const response = await axios.patch(
-            `https://api.donggurami.net/club-leader/${clubUUID}/members/${memberId}/non-member`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/${memberId}/non-member`,
             {
               userName: memberData.name,
               studentNumber: memberData.studentId,
@@ -409,7 +409,7 @@ export default {
         for (const index of this.membersToReject) {
           const memberId = this.requestedMembers[index].clubMemberAccountStatusUUID;
 
-          await axios.delete(`https://api.donggurami.net/club-leader/${clubUUID}/members/sign-up/${memberId}`, {
+          await axios.delete(`http://15.164.246.244:8080/club-leader/${clubUUID}/members/sign-up/${memberId}`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
@@ -473,7 +473,7 @@ export default {
         console.log("API 요청 바디:", JSON.stringify(requestBody, null, 2));
 
         const response = await axios.post(
-            `https://api.donggurami.net/club-leader/${clubUUID}/members/sign-up`,
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/sign-up`,
             requestBody,
             {
               headers: {

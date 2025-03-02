@@ -70,11 +70,11 @@ export default createStore({
                 const currentRole = state.role;
 
                 if (currentRole === 'LEADER') {
-                    response = await axios.post('https://api.donggurami.net/club-leader/refresh-token', {
+                    response = await axios.post('http://15.164.246.244:8080/club-leader/refresh-token', {
                         refreshToken: state.refreshToken
                     });
                 } else if (currentRole === 'ADMIN') {
-                    response = await axios.post('https://api.donggurami.net/admins/refresh-token', {
+                    response = await axios.post('http://15.164.246.244:8080/admins/refresh-token', {
                         refreshToken: state.refreshToken
                     });
                 } else {

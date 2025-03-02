@@ -189,7 +189,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `https://api.donggurami.net/admin/clubs/${clubUUID}`,
+          `http://15.164.246.244:8080/admin/clubs/${clubUUID}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,

@@ -77,7 +77,7 @@ export default {
       const clubId = store.state.clubId;
 
       try {
-        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubId}/info`, {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export default {
 
         // 서버로 업데이트 요청을 전송
         const response = await axios.put(
-          `https://api.donggurami.net/club-leader/${clubId}/info`,
+          `http://15.164.246.244:8080/club-leader/${clubId}/info`,
           formData,
           {
             headers: {

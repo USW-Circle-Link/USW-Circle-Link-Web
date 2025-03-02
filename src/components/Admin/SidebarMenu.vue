@@ -85,7 +85,7 @@ export default {
         const accessToken = this.$store.state.accessToken;
 
         // 백엔드 서버에 로그아웃 요청 보내기
-        const response = await axios.post('https://api.donggurami.net/integration/logout', {}, {
+        const response = await axios.post('http://15.164.246.244:8080/integration/logout', {}, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
