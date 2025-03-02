@@ -171,10 +171,9 @@ import axios from 'axios';
 import store from '../../../store/store';
 import Popup401 from "@/components/Admin/401Popup.vue";
 import ClubroomMapUploadPopup from "@/components/Admin/ClubroomMapUpload/ClubroomMapUploadPopup.vue";
-import AddCategoryPopup from "@/components/Admin/AddCategory/AddCategoryPopup.vue";
 
 export default {
-  components: {AddCategoryPopup, ClubroomMapUploadPopup, Popup401},
+  components: {ClubroomMapUploadPopup, Popup401},
   data() {
     return {
       floorData: {
