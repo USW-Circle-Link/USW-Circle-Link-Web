@@ -91,7 +91,7 @@ export default {
       try {
         const accessToken = this.$store.state.accessToken;
 
-        await axios.patch('http://15.164.246.244:8080/club-leader/terms/agreement',
+        await axios.patch('https://api.donggurami.net/club-leader/terms/agreement',
             { },
             {
               headers: {

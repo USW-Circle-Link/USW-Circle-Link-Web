@@ -171,10 +171,9 @@ import axios from 'axios';
 import store from '../../../store/store';
 import Popup401 from "@/components/Admin/401Popup.vue";
 import ClubroomMapUploadPopup from "@/components/Admin/ClubroomMapUpload/ClubroomMapUploadPopup.vue";
-import AddCategoryPopup from "@/components/Admin/AddCategory/AddCategoryPopup.vue";
 
 export default {
-  components: {AddCategoryPopup, ClubroomMapUploadPopup, Popup401},
+  components: {ClubroomMapUploadPopup, Popup401},
   data() {
     return {
       floorData: {
@@ -210,7 +209,7 @@ export default {
         const floorIds = Object.keys(this.floorData);
         const requests = floorIds.map((floorId) =>
             axios
-                .get(`http://15.164.246.244:8080/admin/floor/photo/${floorId}`, {
+                .get(`https://api.donggurami.net/admin/floor/photo/${floorId}`, {
                   headers: {
                     Authorization: `Bearer ${accessToken}`,
                   },
@@ -288,7 +287,7 @@ export default {
 
           if (!imageSrc && !file && originalImageSrc) {
             try {
-              await axios.delete(`http://15.164.246.244:8080/admin/floor/photo/${floorId}`, {
+              await axios.delete(`https://api.donggurami.net/admin/floor/photo/${floorId}`, {
                 headers: {
                   Authorization: `Bearer ${accessToken}`,
                 },
@@ -312,7 +311,7 @@ export default {
 
             try {
               const response = await axios.put(
-                  `http://15.164.246.244:8080/admin/floor/photo/${floorId}`,
+                  `https://api.donggurami.net/admin/floor/photo/${floorId}`,
                   formData,
                   {
                     headers: {

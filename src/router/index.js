@@ -27,6 +27,18 @@ const routes = [
         component: ClubPopupWindow
     },
     {
+        path: '/TermsOfUse',
+        name: 'TermsOfUse',
+        component: () => import('../components/ClubLeader/TermsOfUse.vue'),
+        meta: { layout: 'no-layout' } // 특수한 레이아웃을 사용하지 않도록 설정
+    },
+    {
+        path: '/AdminTermsOfUse',
+        name: 'AdminTermsOfUse',
+        component: () => import('../components/Admin/AdminTermsOfUse.vue'),
+        meta: { layout: 'no-layout' } // 특수한 레이아웃을 사용하지 않도록 설정
+    },
+    {
         path: '/main',
         name: 'main',
         component: () => import('../components/ClubLeader/Main.vue'),
@@ -79,6 +91,11 @@ const routes = [
             {
                 path: 'duplicate-member',
                 name: 'duplicate-member',
+                component: () => import('../components/ClubLeader/RemoveMember.vue'),
+            },
+            {
+                path: 'remove-member',
+                name: 'remove-member',
                 component: () => import('../components/ClubLeader/DuplicateMember/DuplicateMember.vue'),
             },
             {
@@ -100,6 +117,11 @@ const routes = [
                 path: 'morepass',
                 name: 'morepass',
                 component: () => import('../components/ClubLeader/MorePass.vue'),
+            },
+            {
+                path: 'removemember',
+                name: 'removemember',
+                component: () => import('../components/ClubLeader/RemoveMember.vue'),
             },
         ]
     },
@@ -185,32 +207,32 @@ const router = createRouter({
     routes,
 });
 
-router.beforeEach((to, from, next) => {
-
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-        if (!store.getters.isAuthenticated) {
-
-            next({ name: 'login' });
-        } else if (to.matched.some(record => record.meta.requiresAdmin)) {
-
-            if (store.getters.role !== 'ADMIN') {
-                next({ name: 'login' });
-            } else {
-                next();
-            }
-        } else if (to.matched.some(record => record.meta.requiresLeader)) {
-
-            if (store.getters.role !== 'LEADER') {
-                next({ name: 'login' });
-            } else {
-                next();
-            }
-        } else {
-            next();
-        }
-    } else {
-        next();
-    }
-});
+// router.beforeEach((to, from, next) => {
+//
+//     if (to.matched.some(record => record.meta.requiresAuth)) {
+//         if (!store.getters.isAuthenticated) {
+//
+//             next({ name: 'login' });
+//         } else if (to.matched.some(record => record.meta.requiresAdmin)) {
+//
+//             if (store.getters.role !== 'ADMIN') {
+//                 next({ name: 'login' });
+//             } else {
+//                 next();
+//             }
+//         } else if (to.matched.some(record => record.meta.requiresLeader)) {
+//
+//             if (store.getters.role !== 'LEADER') {
+//                 next({ name: 'login' });
+//             } else {
+//                 next();
+//             }
+//         } else {
+//             next();
+//         }
+//     } else {
+//         next();
+//     }
+// });
 
 export default router;
