@@ -172,7 +172,21 @@ export default {
             .replace(/\n?<br>\n?/gi, '\n')
             .replace(/&nbsp;/g, ' ');
         this.googleFormLink = this.clubData.googleFormUrl || '';
-        this.images = this.clubData.introPhotos.map(url => ({ src: url })) || [];
+        
+        //  새로운 이미지가 반영되는지 확인
+        console.log("[fetchClubInfo] introPhotos:", this.clubData.introPhotos);
+        
+        //  UI가 변경되지 않도록 빈 값 포함하여 처리
+        this.images = Array(5).fill({ src: '' }); // 항상 5개의 슬롯 유지
+
+        // introPhotos를 기존 `this.images` 배열의 적절한 위치에 삽입
+        (this.clubData.introPhotos || []).forEach((url, index) => {
+          if (url) {
+            this.images[index] = { src: url };
+          }
+        });
+
+        console.log(" [fetchClubInfo] UI에 적용할 images:", this.images);
 
       } catch (error) {
         if (!this.handle401Error(error)) {
@@ -276,13 +290,15 @@ export default {
 
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.images[index].src = e.target.result;//미리보기 이미지 설정
-          this.imagesData.push({ src: e.target.result, file });//이미지 데이터 추가
+          // 기존의 `index` 위치를 강제적으로 유지하지 않고, 배열을 정리
+          this.images[index].src = e.target.result;
+
+          // 빈 공간이 생기지 않도록 배열을 정리하여 추가
+          this.imagesData = this.images
+            .map((image, i) => image.src ? { src: image.src, file: i === index ? file : this.imagesData[i]?.file } : null)
+            .filter(image => image !== null);
         };
         reader.readAsDataURL(file);
-
-        this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
-        this.orders.sort();
       }
     },
     // 이미지 업로드
@@ -333,17 +349,25 @@ export default {
       const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
 
-      // 1️ 현재 남아있는 이미지들만 `orders`에 포함
-      this.orders = this.images
-        .map((image, index) => image.src ? index + 1 : null)
-        .filter(index => index !== null); // null 값 제거
+      // 업로드 전에 실제 업로드할 파일들을 압축해서 새 배열로 만듭니다.
+      const uploadedFiles = this.imagesData.filter(item => item && item.file);
+      this.imagesData = uploadedFiles; // 이제 imagesData는 orders와 동일한 순서로 정렬됨.
 
-      // 2️서버에서 가져온 기존 이미지 목록과 비교하여 삭제된 것만 `deletedOrders`에 포함
+
+      // 현재 업로드된 이미지가 있는 칸만 추출
+      let tempOrders = this.images
+        .map((image, index) => (image.src ? index : null))
+        .filter(index => index !== null);
+        
+      //  빈 칸을 허용하지 않고 항상 1부터 연속된 숫자로 orders 변환
+      this.orders = tempOrders.map((_, i) => i + 1);
+
+      // 서버에서 가져온 기존 이미지 목록과 비교하여 삭제된 것만 `deletedOrders`에 포함
       const previousOrders = this.clubData.introPhotos.map((_, index) => index + 1); // 기존 서버 이미지 인덱스
       this.deletedOrders = previousOrders.filter(index => !this.orders.includes(index)); // 기존에는 있었는데 없어진 것만
 
-      console.log("📢 최종 orders:", this.orders);
-      console.log("📢 최종 deletedOrders:", this.deletedOrders);
+      console.log(" 최종 orders:", this.orders);
+      console.log(" 최종 deletedOrders:", this.deletedOrders);
 
       const form = new FormData();
       const jsonData = {
@@ -356,7 +380,7 @@ export default {
           .replace(/\n/g, '<br>'),
 
         recruitmentStatus: this.isChecked ? 'OPEN' : 'CLOSE',
-        googleFormUrl: this.googleFormLink,
+        googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
         orders: this.orders,
         deletedOrders: this.deletedOrders
       };
@@ -364,7 +388,9 @@ export default {
 
       // 이미지 데이터 폼에 추가
       this.imagesData.forEach((image) => {
-        form.append('introPhotos', image.file);
+        if (image.file) {
+          form.append('introPhotos', image.file);
+        }
       });
 
       try {
@@ -382,7 +408,9 @@ export default {
         if (response.data && response.data.data && response.data.data.presignedUrls) {
           this.presignedUrls = response.data.data.presignedUrls;
           await this.uploadFiles(); // 파일 업로드
+          console.log(" [saveInfo] 서버 응답 데이터:", response.data);
         }
+        
 
         this.showPopup();
         await this.fetchClubInfo(); // 저장 후 클럽 정보 다시 가져오기
@@ -400,11 +428,13 @@ export default {
     async uploadFiles() {
       try {
         await Promise.all(this.presignedUrls.map(async (photoUrl, index) => {
-          await axios.put(photoUrl, this.imagesData[index].file, {
-            headers: {
-              'Content-Type': this.imagesData[index].file.type,
-            }
-          });
+          if (this.imagesData[index] && this.imagesData[index].file) {
+            await axios.put(photoUrl, this.imagesData[index].file, {
+              headers: {
+                'Content-Type': this.imagesData[index].file.type,
+              }
+            });
+          }
         }));
       } catch (error) {
         console.error("파일 업로드 실패:", error);
