@@ -227,7 +227,6 @@ export default {
 
 .header-content h3 {
   color: #575757;
-  font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
@@ -238,7 +237,6 @@ export default {
 
 .sub-text {
   color: #FFB052;
-  font-family: Pretendard;
   font-size: 13px;
   font-style: normal;
   font-weight: 400;
@@ -280,7 +278,6 @@ export default {
   margin-top: 16px;
   color: #5A5A5A;
   text-align: right;
-  font-family: Pretendard;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
@@ -297,7 +294,7 @@ export default {
   color: #5A5A5A;
   min-height: 35px;
   min-width: 68px;
-  max-width: 120px; /* 최대 너비 설정 */
+  max-width: 160px; /* 최대 너비 설정 */
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
