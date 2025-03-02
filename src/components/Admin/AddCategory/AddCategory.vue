@@ -22,6 +22,7 @@
           placeholder="추가할 카테고리를 작성해주세요."
           class="input-field"
       />
+      <p class="error">{{errorMsg}}</p>
       <button class="save-btn" @click="addCategory">저장하기</button>
     </div>
   </div>
@@ -53,6 +54,8 @@ export default {
 
       showPopup: false,
       serverMessage: '',
+
+      errorMsg: "",
 
       show401Popup: false  // 401 팝업
     };
@@ -137,8 +140,7 @@ export default {
         this.serverMessage = '카테고리에는 공백 또는 특수문자를 포함할 수 없습니다.'
         this.showPopup = true;
       } else if(!trimmedCategory.length <= 10) {
-        this.serverMessage = '카테고리는 최대 10자까지 입력 가능합니다.'
-        this.showPopup = true;
+        this.errorMsg = '* 카테고리는 최대 10자까지 입력 가능합니다.'
       }
     },
     async removeCategory(category, index) {
@@ -231,9 +233,9 @@ h2 {
 
 .category-add {
   display: flex;
-  align-items: center;
   gap: 10px; /* 버튼과 입력 필드 간 간격 */
   flex-direction: column;
+  align-items: flex-start; /* 왼쪽 정렬 */
 }
 
 .input-field {
@@ -276,5 +278,14 @@ h2 {
 
 .save-btn:hover {
   background-color: #e0891a;
+}
+
+.error{
+  color: #FF3535;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 16.71px;
+  text-align: left;
+  margin-left: 10px;
 }
 </style>
