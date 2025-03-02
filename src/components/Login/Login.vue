@@ -130,14 +130,14 @@ export default {
         let response;
         if (this.loginType === "LEADER") {
           // 동아리 관리자 로그인
-          response = await axios.post('http://15.164.246.244:8080/club-leader/login', {
+          response = await axios.post('https://api.donggurami.net/club-leader/login', {
             leaderAccount: this.id,
             leaderPw: this.password,
             loginType: this.loginType
           });
         } else {
           // 동아리 연합회/개발팀 로그인
-          response = await axios.post('http://15.164.246.244:8080/admin/login', {
+          response = await axios.post('https://api.donggurami.net/admin/login', {
             adminAccount: this.id,
             adminPw: this.password,
             loginType: this.loginType

@@ -194,7 +194,7 @@ export default {
       try {
         const accessToken = store.state.accessToken;
         const response = await axios.get(
-            `http://15.164.246.244:8080/notices?page=${this.currentPage }&size=${this.itemsPerPage}`,
+            `https://api.donggurami.net/notices?page=${this.currentPage }&size=${this.itemsPerPage}`,
             {
               headers: { Authorization: `Bearer ${accessToken}` },
             }
@@ -210,7 +210,7 @@ export default {
     },
     async fetchNotice(noticeUUID) {
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/notices/${noticeUUID}`, {
+        const response = await axios.get(`https://api.donggurami.net/notices/${noticeUUID}`, {
           headers: { Authorization: `Bearer ${store.state.accessToken}` },
         });
 
@@ -219,7 +219,7 @@ export default {
 
           // 현재 공지사항의 전체 인덱스 찾기
           const allNoticesResponse = await axios.get(
-              `http://15.164.246.244:8080/notices?page=0&size=${this.totalNotices}`,
+              `https://api.donggurami.net/notices?page=0&size=${this.totalNotices}`,
               {
                 headers: { Authorization: `Bearer ${store.state.accessToken}` },
               }
@@ -253,7 +253,7 @@ export default {
     async prevNotice() {
       const prevIndex = (this.currentNoticeIndex - 1 + this.totalNotices) % this.totalNotices;
       const allNoticesResponse = await axios.get(
-          `http://15.164.246.244:8080/notices?page=0&size=${this.totalNotices}`,
+          `https://api.donggurami.net/notices?page=0&size=${this.totalNotices}`,
           {
             headers: { Authorization: `Bearer ${store.state.accessToken}` },
           }
@@ -264,7 +264,7 @@ export default {
     async nextNotice() {
       const nextIndex = (this.currentNoticeIndex + 1) % this.totalNotices;
       const allNoticesResponse = await axios.get(
-          `http://15.164.246.244:8080/notices?page=0&size=${this.totalNotices}`,
+          `https://api.donggurami.net/notices?page=0&size=${this.totalNotices}`,
           {
             headers: { Authorization: `Bearer ${store.state.accessToken}` },
           }
@@ -293,7 +293,7 @@ export default {
         }
 
         const accessToken = store.state.accessToken;
-        const deleteUrl = `http://15.164.246.244:8080/notices/${this.notice.noticeUUID}`;
+        const deleteUrl = `https://api.donggurami.net/notices/${this.notice.noticeUUID}`;
 
         const response = await axios.delete(deleteUrl, {
           headers: { Authorization: `Bearer ${accessToken}` },
