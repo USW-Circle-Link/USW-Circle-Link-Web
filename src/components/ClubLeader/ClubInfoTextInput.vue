@@ -356,7 +356,7 @@ export default {
           .replace(/\n/g, '<br>'),
 
         recruitmentStatus: this.isChecked ? 'OPEN' : 'CLOSE',
-        googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
+        googleFormUrl: this.googleFormLink,
         orders: this.orders,
         deletedOrders: this.deletedOrders
       };
