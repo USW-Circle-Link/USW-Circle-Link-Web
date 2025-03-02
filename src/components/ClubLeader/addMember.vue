@@ -230,7 +230,7 @@ export default {
       this.isSelectDepartmentPopupVisible = false;
     },
     submitMembers(){
-      if(!this.members.some(member => member.department === '단과대학 선택')) {
+      if(!this.members.some(member => member.major === "")) {
         this.isPopupVisible = true;
         console.log(this.members);
       } else {
@@ -639,6 +639,12 @@ select {
 .popup-overlay2 .popup-message-red{
   line-height: 12px;
   color: #FF5C5C;
+}
+
+.popup-overlay2 .button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
 }
 
 .popup-overlay2 .confirm-button{
