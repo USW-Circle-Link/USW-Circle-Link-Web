@@ -126,7 +126,7 @@ export default {
       try {
         const accessToken = store.state.accessToken;
         const response = await fetch(
-            `http://15.164.246.244:8080/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
+            `https://api.donggurami.net/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
             {
               method: 'GET',
               headers: {

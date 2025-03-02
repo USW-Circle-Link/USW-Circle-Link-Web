@@ -139,7 +139,7 @@ export default {
       const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/info`, {
+        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubUUID}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'

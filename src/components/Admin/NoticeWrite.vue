@@ -173,7 +173,7 @@ export default {
 
 
 
-        const response = await axios.post('http://15.164.246.244:8080/notices', form, {
+        const response = await axios.post('https://api.donggurami.net/notices', form, {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
             'Content-Type': 'multipart/form-data',

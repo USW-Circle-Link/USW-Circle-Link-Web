@@ -152,7 +152,7 @@ export default {
       const accessToken = store.state.accessToken;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/intro`, {
+        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubUUID}/intro`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -229,7 +229,7 @@ export default {
       this.isChecked = !this.isChecked;
       this.$emit('sendData', this.isChecked);
 
-      axios.patch(`http://15.164.246.244:8080/club-leader/${clubUUID}/recruitment`, {
+      axios.patch(`https://api.donggurami.net/club-leader/${clubUUID}/recruitment`, {
         key: this.isChecked
       }, {
         headers: {
@@ -395,7 +395,7 @@ export default {
 
       try {
         const response = await axios.put(
-          `http://15.164.246.244:8080/club-leader/${clubUUID}/intro`,
+          `https://api.donggurami.net/club-leader/${clubUUID}/intro`,
           form,
           {
             headers: {
