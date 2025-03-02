@@ -135,6 +135,10 @@ export default {
       return text ? text.replace(/\n/g, '<br>') : '';
     },
     async fetchNotices() {
+       // ✅ 최소 `size=1`로 설정하여 백엔드 에러 방지
+    const pageSize = Math.max(this.itemsPerPage, 1); // 최소값 보장
+    const currentPage = Math.max(this.currentPage - 1, 0); // 최소값 보장
+
       try {
         const accessToken = store.state.accessToken;
         const response = await axios.get(
@@ -298,6 +302,12 @@ export default {
   font-family: Pretendard;
   font-weight: 700;
   margin-bottom: 10px;
+  max-width: 100%;  /* 🔹 최대 너비를 100%로 설정 */
+  white-space: normal; /* 🔹 기본 줄바꿈 허용 */
+  word-wrap: break-word; /* 🔹 긴 단어 줄바꿈 */
+  overflow-wrap: break-word; /* 🔹 단어 단위 줄바꿈 */
+  text-overflow: ellipsis; /* 🔹 넘칠 경우 ... 표시 */
+  display: block;
 }
 
 .notice-meta {
@@ -315,12 +325,14 @@ export default {
 }
 
 .notice-content {
-  word-wrap: break-word;  /* 긴 단어 줄바꿈 */
-  overflow-wrap: break-word; /* 단어 단위로 줄바꿈 */
-  white-space: normal; /* 기본 줄바꿈 허용 */
-  max-width: 100%; /* 최대 너비 제한 */
+  word-wrap: break-word; /* 🔹 긴 단어 줄바꿈 */
+  overflow-wrap: break-word; /* 🔹 단어 단위 줄바꿈 */
+  white-space: normal; /* 🔹 줄바꿈 허용 */
+  max-width: 100%; /* 🔹 최대 너비 제한 */
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
 }
-
 
 .notice-images { 
   display: flex;
@@ -337,6 +349,10 @@ export default {
   border-radius: 8px;
 }
 
+.popup-highlight {
+  color: black;
+  font-weight: bold;
+}
 .image-container {
   width: 100%;
   max-width: 300px;
@@ -385,7 +401,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999; /* 다른 요소 위에 보이게 설정 */
+  z-index: 1000; /* 다른 요소 위에 보이게 설정 */
 }
 
 .delete-popup {
@@ -419,6 +435,58 @@ export default {
   margin: 0;
 }
 
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px; /* 버튼 사이 여백 */
+  margin-top: 10px;
+}
+
+.cancel-button,
+.confirm-button {
+  font-size: 14px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-button {
+  background-color: #e0e0e0; /* 연한 회색 */
+  color: #666;
+}
+
+.confirm-button {
+  background-color: #FFB052; /* 강조 색상 */
+  color: #fff; /* 글자색 흰색 */
+}
+
+.cancel-button:hover {
+  background-color: #d5d5d5; /* 호버 시 색상 변경 */
+}
+
+/* .confirm-button:hover {
+  background-color: #e09b4d;
+} */
+
+.cancel-button,
+.confirm-button {
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cancel-button {
+  background-color: #ddd;
+  color: #333;
+}
+
+.confirm-button {
+  background-color:  #FFB052;
+  color: #fff;
+}
 .notice-list {
   width: 817px;
   height: auto;
@@ -519,8 +587,6 @@ button {
  padding: 2px 4px; /* 배경색과 텍스트 사이 여백 추가 (선택사항) */
 }
 
-
-
 .notice-list {
   width: 817px;
   height: auto;
@@ -586,4 +652,5 @@ td.author-col, td.date-col {
   text-overflow: ellipsis; /* 내용이 넘치면 ... 표시 */
   text-align: center; /* 중앙 정렬 추가 */
 }
+
 </style> 
