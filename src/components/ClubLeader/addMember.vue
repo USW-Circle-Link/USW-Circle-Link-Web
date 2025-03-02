@@ -65,7 +65,7 @@
     <div v-if="isOverlappingMemberListsPopupVisible" class="popup-overlay1">
       <div class="popup">
         <h2>프로필 중복 회원 목록</h2>
-        <p class="confirm-message">아래 목록은 타 동아리에도 소속되어 있는 회원입니다. <br>이후 '중복 회원 추가'를 통해 아래 회원을 추가해주세요.</p>
+        <p class="confirm-message">타 동아리에도 소속되어 있는 프로필 중복 회원이 <span class="red-text1">총 3명</span> 존재해요. <br>이후 '프로필 중복 회원 추가'를 통해 아래 회원을 추가해주세요. <br><span class="red-text1">해당 팝업을 닫는 경우 다시 확인할 수 없으니, <span class="red-text2">반드시 별도로 저장</span>해주세요!</span></p>
         <div class="list-item-container">
           <div v-for="(item, index) in OverlappingMembers" :key="index" class="list-item">
             <div class="name">{{ item.userName }}</div>
@@ -508,7 +508,16 @@ select {
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
   margin-left: 10px;
+  color: #000000;
+}
+
+.popup-overlay1 .red-text1{
   color: #FF3535;
+}
+
+.popup-overlay1 .red-text2{
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .popup-overlay1 .confirm-button{
