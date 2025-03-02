@@ -99,7 +99,7 @@
       <div class="popup">
         <h3>동아리 회원 추가</h3>
         <div class="line3"></div>
-        <p class="popup-message">중복회원이 존재합니다. '중복회원 추가' 페이지로 이동합니다.</p>
+        <p class="popup-message">프로필 중복 회원이 <span class="red-text2">{{this.OverlappingMembers.length}}명</span> 존재해요. <br>'프로필 중복 회원 추가' 페이﻿지로 이동할게요.​</p>
         <button class="confirm-button" @click="DuplicateMemberPage">확인</button>
       </div>
     </div>
@@ -668,7 +668,6 @@ select {
 }
 
 .popup-overlay2 .button-group {
-  display: flex;
   gap: 10px;
   justify-content: flex-end;
 }
@@ -681,7 +680,6 @@ select {
   height: 35px;
   border-radius: 7px;
   cursor: pointer;
-  position: absolute;
   bottom: 20px;
   right: 20px;
   font-size: 12px;
@@ -700,9 +698,14 @@ select {
   height: 35px;
   border-radius: 7px;
   cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 125px;
   font-size: 12px;
   font-weight: 400;
   line-height: 12px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
   text-align: center;
 }
 
