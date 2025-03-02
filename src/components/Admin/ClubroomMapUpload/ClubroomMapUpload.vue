@@ -21,12 +21,12 @@
             />
             <div v-if="floorData.B1.showingIcon" class="icons-container">
               <img
-                src="../../assets/zoom.svg"
+                src="../../../assets/zoom.svg"
                 class="icon zoom-icon"
                 @click="enlargeImage(floorData.B1.imageSrc)"
               />
               <img
-                src="../../assets/remove.svg"
+                src="../../../assets/remove.svg"
                 class="icon remove-icon"
                 @click="markImageForDeletion('B1')"
               />
@@ -68,12 +68,12 @@
               />
               <div v-if="floorData.F1.showingIcon" class="icons-container">
                 <img
-                  src="../../assets/zoom.svg"
+                  src="../../../assets/zoom.svg"
                   class="icon zoom-icon"
                   @click="enlargeImage(floorData.F1.imageSrc)"
                 />
                 <img
-                  src="../../assets/remove.svg"
+                  src="../../../assets/remove.svg"
                   class="icon remove-icon"
                   @click="markImageForDeletion('F1')"
                 />
@@ -113,12 +113,12 @@
               />
               <div v-if="floorData.F2.showingIcon" class="icons-container">
                 <img
-                  src="../../assets/zoom.svg"
+                  src="../../../assets/zoom.svg"
                   class="icon zoom-icon"
                   @click="enlargeImage(floorData.F2.imageSrc)"
                 />
                 <img
-                  src="../../assets/remove.svg"
+                  src="../../../assets/remove.svg"
                   class="icon remove-icon"
                   @click="markImageForDeletion('F2')"
                 />
@@ -147,7 +147,7 @@
     <div v-if="enlargedImage" class="image-modal">
       <div class="image-wrapper">
         <img
-          src="../../assets/remove.svg"
+          src="../../../assets/remove.svg"
           class="remove-icon-modal"
           @click="closeModal"
           alt="Close Modal"
@@ -157,16 +157,24 @@
     </div>
   </div>
 
+  <ClubroomMapUploadPopup
+      v-if="showPopup"
+      :serverMessage="serverMessage"
+      @close="closeResultPopup"
+  />
+
   <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
 import axios from 'axios';
-import store from '../../store/store';
+import store from '../../../store/store';
 import Popup401 from "@/components/Admin/401Popup.vue";
+import ClubroomMapUploadPopup from "@/components/Admin/ClubroomMapUpload/ClubroomMapUploadPopup.vue";
+import AddCategoryPopup from "@/components/Admin/AddCategory/AddCategoryPopup.vue";
 
 export default {
-  components: {Popup401},
+  components: {AddCategoryPopup, ClubroomMapUploadPopup, Popup401},
   data() {
     return {
       floorData: {
@@ -174,6 +182,10 @@ export default {
         F1: { imageSrc: '', originalImageSrc: '', file: null, showingIcon: false },
         F2: { imageSrc: '', originalImageSrc: '', file: null, showingIcon: false },
       },
+
+      showPopup: false,
+      serverMessage: '',
+
       enlargedImage: null, // 확대된 이미지
       show401Popup: false  // 401 팝업
     };
@@ -332,7 +344,9 @@ export default {
           }
         }
 
-        alert('모든 이미지가 성공적으로 저장되었습니다.');
+        this.serverMessage = "동아리 위치 정보가 정상적으로 저장되었습니다.";
+        this.showPopup = true;
+
         await this.fetchImages();
       } catch (error) {
         if (!this.handle401Error(error)) {
@@ -362,6 +376,10 @@ export default {
     showIcons(floorId, status) {
       this.floorData[floorId].showingIcon = status;
     },
+
+    closeResultPopup() {
+      this.showPopup = false
+    }
   },
 };
 </script>
@@ -570,7 +588,7 @@ h3 {
   height: 16px;
   object-fit: contain;
   padding: 7px;
-  background: url('../../assets/hugeicons_image-upload.svg') no-repeat center center;
+  background: url('../../../assets/hugeicons_image-upload.svg') no-repeat center center;
   filter: invert(54%) sepia(1%) saturate(0%) hue-rotate(179deg) brightness(97%) contrast(89%);
 }
 </style>
