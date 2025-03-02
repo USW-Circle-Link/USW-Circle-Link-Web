@@ -3,7 +3,7 @@
     <div class="sections-container">
       <!-- Left Section: Member Requests -->
       <div class="section member-requests">
-        <h2>회원 가입 요청 목록</h2>
+        <h2>비회원 가입 요청 목록</h2>
         <p class="request-count">요청 인원: {{ requestedMembers.length }}명</p>
         <p class="instruction">각각의 목록에서 올바른 회원을 선택해주세요.</p>
 
