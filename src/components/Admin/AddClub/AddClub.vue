@@ -365,9 +365,9 @@ export default {
         this.isActiveClubName = true;
         this.clubNameError = '* 동아리 이름을 입력해 주세요.';
         this.formValidation.clubNameValid = false;
-      } else if (this.clubName.length > 10) {
+      } else if (this.clubName.length > 20) {
         this.isActiveClubName = true;
-        this.clubNameError = '* 동아리 이름은 공백 미포함 10자 이내로 작성해주세요.';
+        this.clubNameError = '* 동아리 이름은 1~20자 이내 한글, 영어로 작성해주세요.';
         this.formValidation.clubNameValid = false;
       } else if (/\s/.test(this.clubName)){
         this.clubNameError = '* 동아리명에는 공백 또는 특수문자를 포함할 수 없습니다.';
