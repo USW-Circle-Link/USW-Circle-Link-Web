@@ -100,7 +100,7 @@ export default {
           trimmedCategory !== "" &&
           !this.categories.includes(trimmedCategory) &&
           !specialCharPattern.test(trimmedCategory) &&
-          trimmedCategory.length <= 20
+          trimmedCategory.length <= 10
       ) {
         try {
           const response = await axios.post(
@@ -136,8 +136,8 @@ export default {
       } else if(specialCharPattern.test(trimmedCategory)){
         this.serverMessage = '카테고리에는 공백 또는 특수문자를 포함할 수 없습니다.'
         this.showPopup = true;
-      } else if(!trimmedCategory.length <= 20) {
-        this.serverMessage = '카테고리는 최대 20자까지 입력 가능합니다.'
+      } else if(!trimmedCategory.length <= 10) {
+        this.serverMessage = '카테고리는 최대 10자까지 입력 가능합니다.'
         this.showPopup = true;
       }
     },
