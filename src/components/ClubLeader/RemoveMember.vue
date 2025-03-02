@@ -114,7 +114,7 @@ export default {
       const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?=null`, {
+        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubUUID}/members?=null`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -150,7 +150,7 @@ export default {
         }));
 
         // DELETE 요청 보내기
-        await axios.delete(`http://15.164.246.244:8080/club-leader/${clubUUID}/members`, {
+        await axios.delete(`https://api.donggurami.net/club-leader/${clubUUID}/members`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
