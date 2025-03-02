@@ -103,7 +103,7 @@ export default {
     async fetchNotice(noticeUUID) {
       try {
         const accessToken = store.state.accessToken;
-        const response = await axios.get(`https://api.donggurami.net/notices/${noticeUUID}`, {
+        const response = await axios.get(`http://15.164.246.244:8080/notices/${noticeUUID}`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -312,7 +312,7 @@ export default {
 
         // API 호출
         const response = await axios.put(
-            `https://api.donggurami.net/notices/${this.noticeUUID}`,
+            `http://15.164.246.244:8080/notices/${this.noticeUUID}`,
             form,
             {
               headers: {
