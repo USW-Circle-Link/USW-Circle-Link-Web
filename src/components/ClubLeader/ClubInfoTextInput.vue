@@ -290,13 +290,8 @@ export default {
 
         const reader = new FileReader();
         reader.onload = (e) => {
-          // 기존의 `index` 위치를 강제적으로 유지하지 않고, 배열을 정리
-          this.images[index].src = e.target.result;
-
-          // 빈 공간이 생기지 않도록 배열을 정리하여 추가
-          this.imagesData = this.images
-            .map((image, i) => image.src ? { src: image.src, file: i === index ? file : this.imagesData[i]?.file } : null)
-            .filter(image => image !== null);
+          this.images[index].src = e.target.result;//미리보기 이미지 설정
+          this.imagesData.push({ src: e.target.result, file });//이미지 데이터 추가
         };
         reader.readAsDataURL(file);
       }
@@ -355,12 +350,18 @@ export default {
 
 
       // 현재 업로드된 이미지가 있는 칸만 추출
+      /*
       let tempOrders = this.images
         .map((image, index) => (image.src ? index : null))
         .filter(index => index !== null);
         
       //  빈 칸을 허용하지 않고 항상 1부터 연속된 숫자로 orders 변환
-      this.orders = tempOrders.map((_, i) => i + 1);
+      this.orders = tempOrders.map((_, i) => i + 1);*/
+
+      // 현재 남아있는 이미지들만 `orders`에 포함
+      this.orders = this.images
+        .map((image, index) => image.src ? index + 1 : null)
+        .filter(index => index !== null); // null 값 제거
 
       // 서버에서 가져온 기존 이미지 목록과 비교하여 삭제된 것만 `deletedOrders`에 포함
       const previousOrders = this.clubData.introPhotos.map((_, index) => index + 1); // 기존 서버 이미지 인덱스
