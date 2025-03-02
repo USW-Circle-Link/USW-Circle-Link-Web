@@ -86,6 +86,15 @@
       </div>
     </div>
 
+    <div v-if="isErrorPopupVisible" class="popup-overlay2">
+      <div class="popup">
+        <h3>동아리 회원 추가</h3>
+        <div class="line3"></div>
+        <p class="popup-message">회원 정보에 문제가 있습니다. 파일 검토 후 다시 시도해 주세요. <br>이름: 한글, 영어 최소 2자<br>학번: 숫자 8자<br>전화번호: 숫자 11자</p>
+        <button class="confirm-button" @click="Error">확인</button>
+      </div>
+    </div>
+
     <div v-if="isOverlappingMembersPopupVisible" class="popup-overlay2">
       <div class="popup">
         <h3>동아리 회원 추가</h3>
@@ -135,6 +144,7 @@ export default {
       isOverlappingMemberListsPopupVisible : false,
       isSelectDepartmentPopupVisible : false,
       isOverlappingMembersPopupVisible: false,
+      isErrorPopupVisible: true,
 
       show401Popup: false,
 
@@ -181,7 +191,7 @@ export default {
 
       try {
         const response = await axios.post(
-            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/import`,
+            `https://api.donggurami.net/club-leader/${clubUUID}/members/import`,
             formData,
             {
               headers: {
@@ -229,6 +239,9 @@ export default {
     SelectDepartment(){
       this.isSelectDepartmentPopupVisible = false;
     },
+    Error(){
+      this.isErrorPopupVisible = false;
+    },
     submitMembers(){
       if(!this.members.some(member => member.major === "")) {
         this.isPopupVisible = true;
@@ -267,7 +280,7 @@ export default {
 
       try {
         const response = await axios.post(
-            `http://15.164.246.244:8080/club-leader/${clubUUID}/members`,
+            `https://api.donggurami.net/club-leader/${clubUUID}/members`,
             requestData,
             {
               headers: {
@@ -292,6 +305,9 @@ export default {
         if (!this.handle401Error(error)) {
           console.error('동아리 정보를 불러오는데 실패했습니다.', error);
           alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
+        if (response.status === 400){
+
         }
       }
     },
