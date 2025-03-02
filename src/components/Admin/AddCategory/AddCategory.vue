@@ -134,13 +134,13 @@ export default {
           }
         }
       } else if (this.categories.includes(trimmedCategory)) {
-        this.serverMessage = '이미 존재하는 카테고리입니다.'
+        this.serverMessage = '이미 존재하는 카테고리입니다.';
         this.showPopup = true;
       } else if(specialCharPattern.test(trimmedCategory)){
-        this.serverMessage = '카테고리에는 공백 또는 특수문자를 포함할 수 없습니다.'
+        this.serverMessage = '카테고리에는 공백 또는 특수문자를 포함할 수 없습니다.';
         this.showPopup = true;
       } else if(!trimmedCategory.length <= 10) {
-        this.errorMsg = '* 카테고리는 최대 10자까지 입력 가능합니다.'
+        this.errorMsg = '* 카테고리는 최대 10자까지 입력 가능합니다.';
       }
     },
     async removeCategory(category, index) {
@@ -168,6 +168,7 @@ export default {
     },
     closeResultPopup() {
       this.showPopup = false
+      this.errorMsg = '';
     }
   },
 };
