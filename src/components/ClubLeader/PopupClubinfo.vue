@@ -542,6 +542,8 @@ export default {
   font-size: 14px;
   color: #333;
   line-height: 1.5;
+  word-break: break-all; /* 숫자도 줄바꿈 처리 */
+  white-space: normal;   /* 공백 유지 */
 }
 
 .location {
