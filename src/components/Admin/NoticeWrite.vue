@@ -140,6 +140,7 @@ export default {
       const maxTitleLength = 200;
       const maxContentLength = 3000;
 
+      
       if (this.notice.noticeTitle.length > maxTitleLength) {
         alert(`공지사항 제목은 최대 ${maxTitleLength}자까지 입력 가능합니다.`);
         return;
@@ -240,6 +241,22 @@ export default {
           this.show401Popup = true;
           return;
         }
+      
+  if (error.response && error.response.status === 400) {
+    const additionalData = error.response.data.additionalData;
+    
+    if (additionalData.noticeTitle) {
+      alert(additionalData.noticeTitle); // 공지사항 제목이 비어 있을 때
+    }
+    
+    if (additionalData.noticeContent) {
+      alert(additionalData.noticeContent); // 공지사항 내용이 비어 있을 때
+    }
+    
+    return;
+  }
+  
+
         // 다른 에러 처리
         console.error('공지사항 제출 실패:', error.response || error.message);
         alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
