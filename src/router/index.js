@@ -166,7 +166,7 @@ const routes = [
             {
                 path: 'clubroom',
                 name: 'clubroom',
-                component: () => import('../components/Admin/ClubroomMapUpload.vue'),
+                component: () => import('../components/Admin/ClubroomMapUpload/ClubroomMapUpload.vue'),
                 props: true,
             },
             {
