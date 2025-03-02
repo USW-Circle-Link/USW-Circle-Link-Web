@@ -136,289 +136,289 @@ export default {
   mounted() {
     this.fetchClubInfo();  // 클럽 정보를 가져옵니다.
   },
-    methods: {
-      // 401 에러 처리를 위한 공통 함수
-      handle401Error(error) {
-        if (error.response && error.response.status === 401) {
-          this.show401Popup = true;
-          return true;
-        }
-        return false;
-      },
-      // 클럽 정보 가져오기
-      async fetchClubInfo() {
-        const clubUUID = store.state.clubUUID;
-        const accessToken = store.state.accessToken;
-
-        try {
-          const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/intro`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          console.log("서버에서 받은 GET 응답 데이터:", response.data);
-
-          //가져온 클럽 데이터를 저장
-          this.clubData = response.data.data;
-          this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
-          // 줄바꿈 처리 수정
-          this.textareaContent = (this.clubData.clubIntro || '')
-              .replace(/\n?<br>\n?/gi, '\n')
-              .replace(/&nbsp;/g, ' ');
-          // 줄바꿈 처리 수정
-          this.textareaRecruitContent = (this.clubData.clubRecruitment || '' || this.textareaRecruitContent)
-              .replace(/\n?<br>\n?/gi, '\n')
-              .replace(/&nbsp;/g, ' ');
-          this.googleFormLink = this.clubData.googleFormUrl || '';
-
-          //  새로운 이미지가 반영되는지 확인
-          console.log("[fetchClubInfo] introPhotos:", this.clubData.introPhotos);
-
-          //  UI가 변경되지 않도록 빈 값 포함하여 처리
-          this.images = Array(5).fill({ src: '' }); // 항상 5개의 슬롯 유지
-
-          // introPhotos를 기존 `this.images` 배열의 적절한 위치에 삽입
-          (this.clubData.introPhotos || []).forEach((url, index) => {
-            if (url) {
-              this.images[index] = { src: url };
-            }
-          });
-
-          console.log(" [fetchClubInfo] UI에 적용할 images:", this.images);
-
-        } catch (error) {
-          if (!this.handle401Error(error)) {
-            console.error('동아리 정보를 불러오는데 실패했습니다.', error);
-            alert('동아리 정보를 불러오는데 실패했습니다.');
-          }
-        }
-        this.updateTextSize();
-        this.updateRecruitTextSize();
-      },
-      navigateTo(routeName) {
-        this.$router.push({name: routeName}).catch(err => {
-          if (err.name !== 'NavigationDuplicated') {
-            throw err;
-          }
-        });
-      },
-      // 이미지 삭제
-      deleteImage(index) {
-        this.pastImages = this.images;//현재 이미지를 임시 저장
-        try {
-          this.images.splice(index, 1, {src: ''});//해당 인덱스의 이미지를 제거
-          this.orders.splice(this.orders.indexOf(index + 1), 1);//순서 정보 업데이트
-          this.deletedOrders.splice(index, 0, index + 1);//삭제 된 순서 저장
-          this.deletedOrders.sort();//순서 정렬
-          this.$forceUpdate();//변경사항 적용 강제
-        } catch (error) {
-          console.error("Error while deleting image:", error);
-        }
-      },
-
-      // 모집중 토글(on/off)
-      async toggleCheckbox() {
-        const accessToken = store.state.accessToken;
-        const clubUUID = store.state.clubUUID;
-        this.isChecked = !this.isChecked;
-        this.$emit('sendData', this.isChecked);
-
-        axios.patch(`http://15.164.246.244:8080/club-leader/${clubUUID}/recruitment`, {
-          key: this.isChecked
-        }, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          }
-        })
-
-            .then(response => {
-              //모집 상태 변경 완료 후 알림
-              if (this.isChecked === true) {
-                //setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 ON]'), 800);
-              } else {
-                //setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 OFF]'), 800);
-              }
-            })
-            .catch(error => console.error('Error:', error));
-      },
-      // 파일 선택 트리거
-      triggerFileInput(index) {
-        const fileInputRef = this.$refs[`fileInput${index}`];
-        if (fileInputRef && fileInputRef[0] && fileInputRef[0].click) {
-          fileInputRef[0].click();//파일 선택 창 열기
-        }
-      },
-      // 파일 변경 처리
-      onFileChange(index, event) {
-        this.images.splice(index, 1, {src: ''});//이미지 초기화
-        if (this.images.filter(image => image.src !== '').length >= 5) {
-          alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
-          return;
-        }
-        const file = event.target.files[0];
-        //파일 확장자 및 크기 검사
-        if (file) {
-          const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-          const fileExtension = file.name.split('.').pop().toLowerCase();
-          const maxFileSize = 10 * 1024 * 1024;
-
-          if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-            this.file.splice(index, 1, file);//파일 추가
-            this.errorMessage = '';
-            this.validFile = true;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              this.images[index].src = e.target.result;//미리보기 이미지 설정
-              this.imagesData.push({src: e.target.result, file});//이미지 데이터 추가
-            };
-            reader.readAsDataURL(file);
-
-            this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
-            this.orders.sort();
-          } else {
-            alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
-            this.errorMessage = '파일 형식이 맞지 않습니다.';
-            this.validFile = false;
-          }
-        }
-      },
-      // 이미지 업로드
-      onImageUpload(index, event) {
-        const file = event.target.files[0];
-        //파일 유효성 검사
-        if (file) {
-          const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-          const fileExtension = file.name.split('.').pop().toLowerCase();
-          const maxFileSize = 10 * 1024 * 1024;
-
-          if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-            this.file.push(file);
-            this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);//삭제 된 순서 제거
-            this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
-            this.orders.sort();
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              this.images.splice(index, 1, {src: e.target.result});
-              this.imagesData.push({src: e.target.result, file});
-            };
-            reader.readAsDataURL(file);
-          } else {
-            alert("파일 형식이 맞지 않습니다.");
-          }
-        }
-      },
-      //전송 확인 팝업 표시
-      showPopup() {
-        this.showConfirmPopup = true;
-      },
-      //전송 확인 팝업 숨김
-      hidePopup() {
-        this.showConfirmPopup = false;
-      },
-      // 정보 저장
-      async saveInfo() {
-        const clubUUID = store.state.clubUUID;
-        const accessToken = store.state.accessToken;
-
-        // if (this.textareaContent === '') {
-        //   alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.");
-        //   return;
-        // }
-        // if (this.googleFormLink === '') {
-        //   alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
-        //   return;
-        // }
-        // if (!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")) {
-        //   alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
-        //   return;
-        // }
-
-        const form = new FormData();
-        const jsonData = {
-          // 줄바꿈을 <br>로 변환
-          clubIntro: this.textareaContent
-              .replace(/ /g, '&nbsp;')
-              .replace(/\n/g, '<br>'),
-          //clubIntro: this.textareaContent,
-          recruitmentStatus: this.isChecked ? 'OPEN' : 'CLOSE',
-          // 줄바꿈을 <br>로 변환
-          clubRecruitment: this.textareaRecruitContent
-              .replace(/ /g, '&nbsp;')
-              .replace(/\n/g, '<br>'),
-
-          googleFormUrl: this.googleFormLink || this.clubData.googleFormUrl,
-          orders: this.orders || this.clubData.orders,
-          deletedOrders: this.deletedOrders
-        };
-        form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], {type: 'application/json'}));
-        //이미지 데이터 폼에 추가
-        this.imagesData.forEach((image, index) => {
-          form.append('introPhotos', image.file);
-        });
-
-        try {
-          const response = await axios.put(
-              `http://15.164.246.244:8080/club-leader/${clubUUID}/intro`,
-              form,
-              {
-                headers: {
-                  'Authorization': `Bearer ${accessToken}`,
-                  'Content-Type': 'multipart/form-data'
-                }
-              }
-          );
-          if (response.data && response.data.data && response.data.data.presignedUrls) {
-            this.presignedUrls = response.data.data.presignedUrls;
-            await this.uploadFiles();//파일 업로드
-          }
-
-          //alert("저장되었습니다!");          //이 창 말고 팝업 뜨게 하믄 되는 겅가 (나중에 주석 지워서 업로드 할 것)                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@
-          this.showPopup();
-          this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
-
-        } catch (error) {
-          this.showPopup(); //테스트용 @@!!!!!!
-          console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
-        }
-      },
-      // 이미지 업로드
-      async uploadFiles() {
-        try {
-          await Promise.all(this.presignedUrls.map(async (photoUrl, index) => {
-            await axios.put(photoUrl, this.imagesData[index].file, {
-              headers: {
-                'Content-Type': this.imagesData[index].file.type,
-              }
-            });
-          }));
-        } catch (error) {
-          console.error("파일 업로드 실패:", error);
-          alert("파일 업로드 실패!");
-        }
-      },
-      updateTextSize() {
-        // 문자 수가 3000자를 초과하는지 확인
-        if (this.textareaContent.length > 3000) {
-          alert("문자 수가 3000자를 초과했습니다.");
-          this.textareaContent = this.textareaContent.slice(0, 3000); // 3000자로 잘라서 저장
-        }
-
-        // 문자 수 업데이트
-        this.textSize = this.textareaContent.length;
-      },
-      updateRecruitTextSize() {
-        // 문자 수가 3000자를 초과하는지 확인
-        if (this.textareaRecruitContent.length > 3000) {
-          alert("문자 수가 3000자를 초과했습니다.");
-          this.textareaRecruitContent = this.textareaRecruitContent.slice(0, 3000); // 3000자로 잘라서 저장
-        }
-
-        // 문자 수 업데이트
-        this.RecruittextSize = this.textareaRecruitContent.length;
+  methods: {
+    // 401 에러 처리를 위한 공통 함수
+    handle401Error(error) {
+      if (error.response && error.response.status === 401) {
+        this.show401Popup = true;
+        return true;
       }
+      return false;
+    },
+    // 클럽 정보 가져오기
+    async fetchClubInfo() {
+      const clubUUID = store.state.clubUUID;
+      const accessToken = store.state.accessToken;
+
+      try {
+        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/intro`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log("서버에서 받은 GET 응답 데이터:", response.data);
+
+        //가져온 클럽 데이터를 저장
+        this.clubData = response.data.data;
+        this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
+        // 줄바꿈 처리 수정
+        this.textareaContent = (this.clubData.clubIntro || '')
+            .replace(/\n?<br>\n?/gi, '\n')
+            .replace(/&nbsp;/g, ' ');
+        // 줄바꿈 처리 수정
+        this.textareaRecruitContent = (this.clubData.clubRecruitment || '' || this.textareaRecruitContent)
+            .replace(/\n?<br>\n?/gi, '\n')
+            .replace(/&nbsp;/g, ' ');
+        this.googleFormLink = this.clubData.googleFormUrl || '';
+
+        //  새로운 이미지가 반영되는지 확인
+        console.log("[fetchClubInfo] introPhotos:", this.clubData.introPhotos);
+
+        //  UI가 변경되지 않도록 빈 값 포함하여 처리
+        this.images = Array(5).fill({ src: '' }); // 항상 5개의 슬롯 유지
+
+        // introPhotos를 기존 `this.images` 배열의 적절한 위치에 삽입
+        (this.clubData.introPhotos || []).forEach((url, index) => {
+          if (url) {
+            this.images[index] = { src: url };
+          }
+        });
+
+        console.log(" [fetchClubInfo] UI에 적용할 images:", this.images);
+
+      } catch (error) {
+        if (!this.handle401Error(error)) {
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
+        }
+      }
+      this.updateTextSize();
+      this.updateRecruitTextSize();
+    },
+    navigateTo(routeName) {
+      this.$router.push({name: routeName}).catch(err => {
+        if (err.name !== 'NavigationDuplicated') {
+          throw err;
+        }
+      });
+    },
+    // 이미지 삭제
+    deleteImage(index) {
+      this.pastImages = this.images;//현재 이미지를 임시 저장
+      try {
+        this.images.splice(index, 1, {src: ''});//해당 인덱스의 이미지를 제거
+        this.orders.splice(this.orders.indexOf(index + 1), 1);//순서 정보 업데이트
+        this.deletedOrders.splice(index, 0, index + 1);//삭제 된 순서 저장
+        this.deletedOrders.sort();//순서 정렬
+        this.$forceUpdate();//변경사항 적용 강제
+      } catch (error) {
+        console.error("Error while deleting image:", error);
+      }
+    },
+
+    // 모집중 토글(on/off)
+    async toggleCheckbox() {
+      const accessToken = store.state.accessToken;
+      const clubUUID = store.state.clubUUID;
+      this.isChecked = !this.isChecked;
+      this.$emit('sendData', this.isChecked);
+
+      axios.patch(`http://15.164.246.244:8080/club-leader/${clubUUID}/recruitment`, {
+        key: this.isChecked
+      }, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      })
+
+          .then(response => {
+            //모집 상태 변경 완료 후 알림
+            if (this.isChecked === true) {
+              //setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 ON]'), 800);
+            } else {
+              //setTimeout(() => alert('동아리 모집 상태 변경 완료 [모집중 OFF]'), 800);
+            }
+          })
+          .catch(error => console.error('Error:', error));
+    },
+    // 파일 선택 트리거
+    triggerFileInput(index) {
+      const fileInputRef = this.$refs[`fileInput${index}`];
+      if (fileInputRef && fileInputRef[0] && fileInputRef[0].click) {
+        fileInputRef[0].click();//파일 선택 창 열기
+      }
+    },
+    // 파일 변경 처리
+    onFileChange(index, event) {
+      this.images.splice(index, 1, {src: ''});//이미지 초기화
+      if (this.images.filter(image => image.src !== '').length >= 5) {
+        alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
+        return;
+      }
+      const file = event.target.files[0];
+      //파일 확장자 및 크기 검사
+      if (file) {
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const maxFileSize = 10 * 1024 * 1024;
+
+        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
+          this.file.splice(index, 1, file);//파일 추가
+          this.errorMessage = '';
+          this.validFile = true;
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.images[index].src = e.target.result;//미리보기 이미지 설정
+            this.imagesData.push({src: e.target.result, file});//이미지 데이터 추가
+          };
+          reader.readAsDataURL(file);
+
+          this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
+          this.orders.sort();
+        } else {
+          alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
+          this.errorMessage = '파일 형식이 맞지 않습니다.';
+          this.validFile = false;
+        }
+      }
+    },
+    // 이미지 업로드
+    onImageUpload(index, event) {
+      const file = event.target.files[0];
+      //파일 유효성 검사
+      if (file) {
+        const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const maxFileSize = 10 * 1024 * 1024;
+
+        if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
+          this.file.push(file);
+          this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);//삭제 된 순서 제거
+          this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
+          this.orders.sort();
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.images.splice(index, 1, {src: e.target.result});
+            this.imagesData.push({src: e.target.result, file});
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("파일 형식이 맞지 않습니다.");
+        }
+      }
+    },
+    //전송 확인 팝업 표시
+    showPopup() {
+      this.showConfirmPopup = true;
+    },
+    //전송 확인 팝업 숨김
+    hidePopup() {
+      this.showConfirmPopup = false;
+    },
+    // 정보 저장
+    async saveInfo() {
+      const clubUUID = store.state.clubUUID;
+      const accessToken = store.state.accessToken;
+
+      // if (this.textareaContent === '') {
+      //   alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.");
+      //   return;
+      // }
+      // if (this.googleFormLink === '') {
+      //   alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
+      //   return;
+      // }
+      // if (!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")) {
+      //   alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
+      //   return;
+      // }
+
+      const form = new FormData();
+      const jsonData = {
+        // 줄바꿈을 <br>로 변환
+        clubIntro: this.textareaContent
+            .replace(/ /g, '&nbsp;')
+            .replace(/\n/g, '<br>'),
+        //clubIntro: this.textareaContent,
+        recruitmentStatus: this.isChecked ? 'OPEN' : 'CLOSE',
+        // 줄바꿈을 <br>로 변환
+        clubRecruitment: this.textareaRecruitContent
+            .replace(/ /g, '&nbsp;')
+            .replace(/\n/g, '<br>'),
+
+        googleFormUrl: this.googleFormLink,
+        orders: this.orders || this.clubData.orders,
+        deletedOrders: this.deletedOrders
+      };
+      form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], {type: 'application/json'}));
+      //이미지 데이터 폼에 추가
+      this.imagesData.forEach((image, index) => {
+        form.append('introPhotos', image.file);
+      });
+
+      try {
+        const response = await axios.put(
+            `http://15.164.246.244:8080/club-leader/${clubUUID}/intro`,
+            form,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data'
+              }
+            }
+        );
+        if (response.data && response.data.data && response.data.data.presignedUrls) {
+          this.presignedUrls = response.data.data.presignedUrls;
+          await this.uploadFiles();//파일 업로드
+        }
+
+        //alert("저장되었습니다!");          //이 창 말고 팝업 뜨게 하믄 되는 겅가 (나중에 주석 지워서 업로드 할 것)                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@
+        this.showPopup();
+        this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
+
+      } catch (error) {
+        this.showPopup(); //테스트용 @@!!!!!!
+        console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
+      }
+    },
+    // 이미지 업로드
+    async uploadFiles() {
+      try {
+        await Promise.all(this.presignedUrls.map(async (photoUrl, index) => {
+          await axios.put(photoUrl, this.imagesData[index].file, {
+            headers: {
+              'Content-Type': this.imagesData[index].file.type,
+            }
+          });
+        }));
+      } catch (error) {
+        console.error("파일 업로드 실패:", error);
+        alert("파일 업로드 실패!");
+      }
+    },
+    updateTextSize() {
+      // 문자 수가 3000자를 초과하는지 확인
+      if (this.textareaContent.length > 3000) {
+        alert("문자 수가 3000자를 초과했습니다.");
+        this.textareaContent = this.textareaContent.slice(0, 3000); // 3000자로 잘라서 저장
+      }
+
+      // 문자 수 업데이트
+      this.textSize = this.textareaContent.length;
+    },
+    updateRecruitTextSize() {
+      // 문자 수가 3000자를 초과하는지 확인
+      if (this.textareaRecruitContent.length > 3000) {
+        alert("문자 수가 3000자를 초과했습니다.");
+        this.textareaRecruitContent = this.textareaRecruitContent.slice(0, 3000); // 3000자로 잘라서 저장
+      }
+
+      // 문자 수 업데이트
+      this.RecruittextSize = this.textareaRecruitContent.length;
     }
+  }
 };
 </script>
 
