@@ -157,7 +157,7 @@ export default {
             'Content-Type': 'application/json'
           }
         });
-        console.log("서버에서 받은 GET 응답 데이터:", response.data);
+        //console.log("서버에서 받은 GET 응답 데이터:", response.data);
 
         //가져온 클럽 데이터를 저장
         this.clubData = response.data.data;
@@ -173,7 +173,7 @@ export default {
         this.googleFormLink = this.clubData.googleFormUrl || '';
 
         //  새로운 이미지가 반영되는지 확인
-        console.log("[fetchClubInfo] introPhotos:", this.clubData.introPhotos);
+        //console.log("[fetchClubInfo] introPhotos:", this.clubData.introPhotos);
 
         //  UI가 변경되지 않도록 빈 값 포함하여 처리
         this.images = Array(5).fill({ src: '' }); // 항상 5개의 슬롯 유지
@@ -185,7 +185,7 @@ export default {
           }
         });
 
-        console.log(" [fetchClubInfo] UI에 적용할 images:", this.images);
+        //console.log(" [fetchClubInfo] UI에 적용할 images:", this.images);
 
       } catch (error) {
         if (!this.handle401Error(error)) {
