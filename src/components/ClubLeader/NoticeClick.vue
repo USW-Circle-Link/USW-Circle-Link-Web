@@ -135,27 +135,35 @@ export default {
       return text ? text.replace(/\n/g, '<br>') : '';
     },
     async fetchNotices() {
-       // ✅ 최소 `size=1`로 설정하여 백엔드 에러 방지
-    const pageSize = Math.max(this.itemsPerPage, 1); // 최소값 보장
-    const currentPage = Math.max(this.currentPage - 1, 0); // 최소값 보장
+  try {
+    const accessToken = store.state.accessToken;
 
-      try {
-        const accessToken = store.state.accessToken;
-        const response = await axios.get(
-            `http://15.164.246.244:8080/notices?page=${this.currentPage }&size=${this.itemsPerPage}`,
-            {
-              headers: { Authorization: `Bearer ${accessToken}` },
-            }
-        );
-        this.notices = response.data.data.content || [];
-        this.totalPages = response.data.data.totalPages || 1;
-        this.totalNotices = response.data.data.totalElements || 1; // 전체 공지사항 수 저장
-      } catch (error) {
-        if (!this.handle401Error(error)) {
-          console.error('Error fetching notices:', error);
-        }
+    
+    const page = Math.max(this.currentPage - 1, 0);
+    const size = this.itemsPerPage;
+
+    const response = await axios.get(
+      `http://15.164.246.244:8080/notices?page=${page}&size=${size}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
       }
-    },
+    );
+
+   
+    if (response.data.data && response.data.data.content) {
+      this.notices = response.data.data.content;
+      this.totalPages = response.data.data.totalPages || 1;
+      this.totalNotices = response.data.data.totalElements || 1;
+    } else {
+      this.notices = []; // 공지사항이 없을 경우 빈 배열
+    }
+  } catch (error) {
+    //console.error(" 공지사항 불러오기 실패:", error);
+    if (!this.handle401Error(error)) {
+      alert("공지사항을 불러오는 데 실패했습니다.");
+    }
+  }
+},
     async fetchNotice(noticeUUID) {
       try {
         const response = await axios.get(`http://15.164.246.244:8080/notices/${noticeUUID}`, {
@@ -346,7 +354,7 @@ export default {
   width: 100%;
   height: 100%; /* 고정된 높이 설정 */
   object-fit: cover; /* 이미지 비율을 유지하면서 잘 맞추어 줍니다 */
-  /*border-radius: 8px;*/
+  border-radius: 8px;
 }
 
 .popup-highlight {
