@@ -59,12 +59,14 @@
             <hr />
             <div class="instaName">
               <div class="icon insta"></div>
-              <a :href="instagramLink" target="_blank">인스타그램</a>
+              <a v-if="instagramLink.length" :href="instagramLink" target="_blank">인스타그램</a>
+              <span v-else>정보 없음</span>
             </div>
             <hr />
             <div class="instaName">
               <div class="icon vector"></div>
-              <a :href="formLink" target="_blank">지원서 링크</a>
+              <a v-if="formLink.length" :href="formLink" target="_blank">지원서 링크</a>
+              <span v-else>정보 없음</span>
             </div>
           </div>
         </div>
@@ -154,12 +156,14 @@ export default {
     },
     instagramLink() {
       // Instagram 링크가 http로 시작하지 않으면 추가
-      const instaUrl = this.data.clubInsta || '#';
+      const instaUrl = this.data.clubInsta || '';
+      if (instaUrl === '') return '';
       return instaUrl.startsWith('http') ? instaUrl : `https://${instaUrl}`;
     },
     formLink() {
       // Google Form 링크가 http로 시작하지 않으면 추가
-      const formUrl = this.data.googleFormUrl || '#';
+      const formUrl = this.data.googleFormUrl || '';
+      if (formUrl === '') return '';
       return formUrl.startsWith('http') ? formUrl : `https://${formUrl}`;
     },
     recruitmentIcon() {
@@ -384,6 +388,7 @@ export default {
   align-items: center;
   gap: 8px;
   font-size: 14px;
+  color: #9a9a9a;
 }
 
 .contact-info-popup .icon {
