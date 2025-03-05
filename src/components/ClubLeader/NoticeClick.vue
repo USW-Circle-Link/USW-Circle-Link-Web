@@ -37,13 +37,7 @@
     <!-- 공지사항 목록 -->
     <div class="notice-list">
       <table>
-        <thead>
-        <tr>
-          <th class="title-col">제목</th>
-          <th class="author-col">작성자</th>
-          <th class="date-col">작성일</th>
-        </tr>
-        </thead>
+        
         <tbody>
         <tr v-for="notice in notices" :key="notice.noticeUUID">
           <td class="title-col">
