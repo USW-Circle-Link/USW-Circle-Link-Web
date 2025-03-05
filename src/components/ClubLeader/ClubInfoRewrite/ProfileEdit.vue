@@ -292,20 +292,32 @@ export default {
     },
 
     validateHashTag(input) {
-      if (!input) return true;  // 빈 값은 유효하다고 처리
+  if (!input) return true;  // 빈 값은 유효
 
-      // 한글 패턴
-      const koreanPattern = /^[가-힣]+$/;
-      // 영문 대문자 패턴 (3자 이하)
-      const upperPattern = /^[A-Z]{1,3}$/;
-      // 영문 소문자 패턴 (6자 이하)
-      const lowerPattern = /^[a-z]{1,6}$/;
+  // 특수문자 포함 여부 검사
+  const specialCharPattern = /[^a-zA-Z가-힣]/;
+  if (specialCharPattern.test(input)) {
+    return false; // 특수문자 포함 시 false 반환
+  }
 
-      // 입력값이 한글이거나 대문자(3자 이하) 또는 소문자(6자 이하)인지 확인
-      return koreanPattern.test(input) ||
-          upperPattern.test(input) ||
-          lowerPattern.test(input);
-    },
+  // 한글 패턴 (1~3자)
+  const koreanPattern = /^[가-힣]{1,3}$/;
+  // 영문 대문자 패턴 (1~3자)
+  const upperPattern = /^[A-Z]{1,3}$/;
+  // 영문 소문자 패턴 (1~6자)
+  const lowerPattern = /^[a-z]{1,6}$/;
+
+  // 섞인 경우 (소문자 + 대문자/한글 → 3자 이하만 허용)
+  const mixedPattern = /^[a-zA-Z가-힣]{1,3}$/;
+
+  return (
+    koreanPattern.test(input) ||
+    upperPattern.test(input) ||
+    lowerPattern.test(input) ||
+    mixedPattern.test(input) // 섞인 경우 최대 3자 제한
+  );
+},
+
     // 전화번호 유효성 검사 메서드 추가
     validatePhoneNumber() {
       // 숫자만 남기고 모든 문자 제거
