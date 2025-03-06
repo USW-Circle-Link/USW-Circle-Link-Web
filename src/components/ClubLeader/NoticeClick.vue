@@ -37,13 +37,7 @@
     <!-- 공지사항 목록 -->
     <div class="notice-list">
       <table>
-        <thead>
-        <tr>
-          <th class="title-col">제목</th>
-          <th class="author-col">작성자</th>
-          <th class="date-col">작성일</th>
-        </tr>
-        </thead>
+        
         <tbody>
         <tr v-for="notice in notices" :key="notice.noticeUUID">
           <td class="title-col">
@@ -138,7 +132,7 @@ export default {
   try {
     const accessToken = store.state.accessToken;
 
-   
+    
     const page = Math.max(this.currentPage - 1, 0);
     const size = this.itemsPerPage;
 
@@ -149,6 +143,7 @@ export default {
       }
     );
 
+   
     if (response.data.data && response.data.data.content) {
       this.notices = response.data.data.content;
       this.totalPages = response.data.data.totalPages || 1;
