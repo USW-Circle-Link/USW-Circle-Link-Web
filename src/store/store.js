@@ -71,11 +71,11 @@ export default createStore({
                 const currentRole = state.role;
 
                 if (currentRole === 'LEADER') {
-                    response = await axios.post('${store.state.apiBaseUrl}/club-leader/refresh-token', {
+                    response = await axios.post(`${state.apiBaseUrl}/club-leader/refresh-token`, {
                         refreshToken: state.refreshToken
                     });
                 } else if (currentRole === 'ADMIN') {
-                    response = await axios.post('${store.state.apiBaseUrl}/admins/refresh-token', {
+                    response = await axios.post(`${state.apiBaseUrl}/admins/refresh-token`, {
                         refreshToken: state.refreshToken
                     });
                 } else {
