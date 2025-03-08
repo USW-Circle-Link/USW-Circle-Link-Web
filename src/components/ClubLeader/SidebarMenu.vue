@@ -355,7 +355,7 @@ router-link{
 
 .menu {
   width: 173px;
-  font-family: Pretendard,serif;
+  font-family: Pretendard;
   font-size: 18px;
   font-weight: 500;
   line-height: 16px;
