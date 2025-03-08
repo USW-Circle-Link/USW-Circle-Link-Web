@@ -136,4 +136,8 @@ body {
     width: 90%;
   }
 }
+
+* {
+  font-family: Pretendard;
+}
 </style>
