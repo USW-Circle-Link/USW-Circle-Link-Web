@@ -355,7 +355,7 @@ export default {
 
       try {
         const response = await axios.patch(
-            `http://15.164.246.244:8080/club-leader/${clubUUID}/members/${memberUUID}/non-member`,
+            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/${memberUUID}/non-member`,
             updateData,
             {
               headers: {
@@ -438,7 +438,7 @@ export default {
       const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/info`, {
+        const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -469,13 +469,13 @@ export default {
 
       try {
         const [regularResponse, nonRegularResponse] = await Promise.all([
-          axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?sort=regular-member`, {
+          axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members?sort=regular-member`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
             }
           }),
-          axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members?sort=non-member`, {
+          axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members?sort=non-member`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
@@ -516,7 +516,7 @@ export default {
       try {
         const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기채
         const clubUUID = store.state.clubUUID; // 저장된 clubUUID 가져오기
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubUUID}/members/export`, {
+        const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/export`, {
           responseType: 'blob', // Blob 형태로 응답을 받기 위해 설정
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가해야 함

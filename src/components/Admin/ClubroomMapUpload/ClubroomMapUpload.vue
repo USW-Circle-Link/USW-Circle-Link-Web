@@ -209,7 +209,7 @@ export default {
         const floorIds = Object.keys(this.floorData);
         const requests = floorIds.map((floorId) =>
             axios
-                .get(`http://15.164.246.244:8080/admin/floor/photo/${floorId}`, {
+                .get(`${store.state.apiBaseUrl}/admin/floor/photo/${floorId}`, {
                   headers: {
                     Authorization: `Bearer ${accessToken}`,
                   },
@@ -287,7 +287,7 @@ export default {
 
           if (!imageSrc && !file && originalImageSrc) {
             try {
-              await axios.delete(`http://15.164.246.244:8080/admin/floor/photo/${floorId}`, {
+              await axios.delete(`${store.state.apiBaseUrl}/admin/floor/photo/${floorId}`, {
                 headers: {
                   Authorization: `Bearer ${accessToken}`,
                 },
@@ -311,7 +311,7 @@ export default {
 
             try {
               const response = await axios.put(
-                  `http://15.164.246.244:8080/admin/floor/photo/${floorId}`,
+                  `${store.state.apiBaseUrl}/admin/floor/photo/${floorId}`,
                   formData,
                   {
                     headers: {

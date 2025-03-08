@@ -3,7 +3,7 @@ import router from './router/index';
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: 'http://15.164.246.244:8080', // 실제 백엔드 URL로 교체
+    baseURL: `${store.state.apiBaseUrl}`, // 실제 백엔드 URL로 교체
     headers: {
         'Content-Type': 'application/json'
     }

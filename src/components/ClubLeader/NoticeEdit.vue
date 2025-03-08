@@ -74,7 +74,7 @@ export default {
     async fetchNotice(id) {
       try {
         const accessToken = store.state.accessToken;
-        const response = await axios.get(`http://15.164.246.244:8080/notices/${id}`, {
+        const response = await axios.get(`${store.state.apiBaseUrl}/notices/${id}`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -218,7 +218,7 @@ export default {
         });
 
         const response = await axios.put(
-          `http://15.164.246.244:8080/notices/${this.id}`,
+          `${store.state.apiBaseUrl}/notices/${this.id}`,
           form,
           {
             headers: {

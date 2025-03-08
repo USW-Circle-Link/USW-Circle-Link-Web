@@ -93,7 +93,7 @@ export default {
       }
     },
     validatePassword() {
-      const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+]{5,20}$/;
+      const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+]{5,20}$/
       if (!passwordPattern.test(this.password)) {
         this.passwordError = '비밀번호는 5~20자 이내의 숫자, 문자, 특수문자만 입력 가능합니다.';
       } else {
@@ -132,7 +132,7 @@ export default {
         adminPw: this.adminPw
       };
       try {
-        await axios.post('http://15.164.246.244:8080/admin/clubs', formData, {
+        await axios.post(`${store.state.apiBaseUrl}/admin/clubs`, formData, {
           headers: {
             'Authorization': `Bearer ${store.state.accessToken}`
           }

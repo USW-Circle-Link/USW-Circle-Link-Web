@@ -65,8 +65,8 @@ export default {
         message: '',//사용자에게 표시 할 알림 메세지
         type: '' // 알림 메시지 타입
       },
-      fetchUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubUUID}/applicants`, // 지원자 명단을 가져오는 서버 URL
-      submitUrl: `http://15.164.246.244:8080/club-leader/${store.state.clubUUID}/applicants/notifications`, // 합/불 결과를 보내는 서버 URL
+      fetchUrl: `${store.state.apiBaseUrl}/club-leader/${store.state.clubUUID}/applicants`, // 지원자 명단을 가져오는 서버 URL
+      submitUrl: `${store.state.apiBaseUrl}/club-leader/${store.state.clubUUID}/applicants/notifications`, // 합/불 결과를 보내는 서버 URL
       show401Popup: false,
     };
   },

@@ -47,7 +47,7 @@ export default {
       const clubId = store.state.clubId; // 저장된 clubId 가져오기
 
       try {
-        const response = await axios.get(`http://15.164.246.244:8080/club-leader/${clubId}/info`, {
+        const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubId}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
             'Content-Type': 'application/json'

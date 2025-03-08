@@ -62,6 +62,7 @@
 import axios from 'axios';
 import UseAgree from "@/components/ClubLeader/policy/UseAgree.vue";
 import FATOU from "@/components/ClubLeader/policy/FA-TOU.vue";
+import store from "@/store/store";
 
 export default {
   name: 'FirstAgree',
@@ -91,7 +92,7 @@ export default {
       try {
         const accessToken = this.$store.state.accessToken;
 
-        await axios.patch('http://15.164.246.244:8080/club-leader/terms/agreement',
+        await axios.patch(`${store.state.apiBaseUrl}/club-leader/terms/agreement`,
             { },
             {
               headers: {

@@ -407,7 +407,7 @@ export default {
       if(this.id !== ''){
         const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
         try {
-          await axios.get(`http://15.164.246.244:8080/admin/clubs/leader/check?leaderAccount=${this.id}`, {
+          await axios.get(`${store.state.apiBaseUrl}/admin/clubs/leader/check?leaderAccount=${this.id}`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
             }
@@ -434,7 +434,7 @@ export default {
       if(this.clubName !== '') {
         const accessToken = store.state.accessToken; // 저장된 accessToken 가져오기
         try {
-          await axios.get(`http://15.164.246.244:8080/admin/clubs/name/check?clubName=${this.clubName}`, {
+          await axios.get(`${store.state.apiBaseUrl}/admin/clubs/name/check?clubName=${this.clubName}`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`, // 헤더에 accessToken 추가
             }
@@ -518,7 +518,7 @@ export default {
       };
 
       try {
-        await axios.post('http://15.164.246.244:8080/admin/clubs', formData, {
+        await axios.post(`${store.state.apiBaseUrl}/admin/clubs`, formData, {
           headers: {
             'Authorization': `Bearer ${store.state.accessToken}`
           }
