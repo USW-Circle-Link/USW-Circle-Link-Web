@@ -8,7 +8,8 @@ export default createStore({
         clubUUID: localStorage.getItem('clubUUID') || 0,
         role: localStorage.getItem('role') || '',
         isAgreedTerms: localStorage.getItem('isAgreedTerms') === 'true' || false,
-        shouldUpdateSidebar: false
+        shouldUpdateSidebar: false,
+        apiBaseUrl: 'http://15.164.246.244:8080'
     },
     mutations: {
         SET_SIDEBAR_UPDATE(state, value) {
@@ -70,11 +71,11 @@ export default createStore({
                 const currentRole = state.role;
 
                 if (currentRole === 'LEADER') {
-                    response = await axios.post('https://api.donggurami.net/club-leader/refresh-token', {
+                    response = await axios.post('${store.state.apiBaseUrl}/club-leader/refresh-token', {
                         refreshToken: state.refreshToken
                     });
                 } else if (currentRole === 'ADMIN') {
-                    response = await axios.post('https://api.donggurami.net/admins/refresh-token', {
+                    response = await axios.post('${store.state.apiBaseUrl}/admins/refresh-token', {
                         refreshToken: state.refreshToken
                     });
                 } else {

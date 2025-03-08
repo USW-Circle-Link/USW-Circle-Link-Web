@@ -103,7 +103,7 @@ export default {
     async fetchNotice(noticeUUID) {
       try {
         const accessToken = store.state.accessToken;
-        const response = await axios.get(`https://api.donggurami.net/notices/${noticeUUID}`, {
+        const response = await axios.get(`${store.state.apiBaseUrl}/notices/${noticeUUID}`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -195,28 +195,6 @@ export default {
       alert('업로드 가능한 최대 파일 크기를 초과했습니다. (개별 파일 10MB, 총 파일 크기 50MB)');
     }
   },
-    // 이미지 수정
-    onImageChange(index, event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    const maxFileSize = 10 * 1024 * 1024;
-
-    if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.noticePhotos[index] = { ...this.noticePhotos[index], src: e.target.result, file };
-
-        // 🔹 파일 입력 필드 초기화 (같은 파일 다시 업로드 가능)
-        event.target.value = "";
-      };
-      reader.readAsDataURL(file);
-    } else {
-      alert('업로드 가능한 최대 파일 크기를 초과했습니다. (개별 파일 10MB, 총 파일 크기 50MB)');
-    }
-  },
 
     editImage(index) {
       const fileInput = this.$refs[`fileInput${index}`];
@@ -226,8 +204,7 @@ export default {
         console.error(`File input not found for index ${index}`);
       }
     }
-    ,
-    onImageChange(index, event) {
+    ,onImageChange(index, event) {
       if (!event || !event.target || !event.target.files) {
         console.error('Invalid event object:', event);
         return;
@@ -312,7 +289,7 @@ export default {
 
         // API 호출
         const response = await axios.put(
-            `https://api.donggurami.net/notices/${this.noticeUUID}`,
+            `${store.state.apiBaseUrl}/notices/${this.noticeUUID}`,
             form,
             {
               headers: {

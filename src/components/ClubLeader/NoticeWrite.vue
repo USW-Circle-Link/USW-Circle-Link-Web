@@ -126,7 +126,7 @@ export default {
           form.append('photos', image.file);
         });
 
-        const response = await axios.post('https://api.donggurami.net/notices', form, {
+        const response = await axios.post(`${store.state.apiBaseUrl}/notices`, form, {
           headers: {
             'Authorization': `Bearer ${store.state.accessToken}`,
             'Content-Type': 'multipart/form-data',

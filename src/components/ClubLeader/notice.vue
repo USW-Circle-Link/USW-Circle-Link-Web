@@ -122,7 +122,7 @@ export default {
       try {
         const accessToken = store.state.accessToken;
         const response = await fetch(
-            `https://api.donggurami.net/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
+            `${store.state.apiBaseUrl}/notices?page=${this.currentPage - 1}&size=${this.itemsPerPage}`,
             {
               method: 'GET',
               headers: {

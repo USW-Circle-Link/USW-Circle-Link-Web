@@ -108,7 +108,7 @@ export default {
     // 클럽 리스트 가져오기
     async fetchClubs() {
       try {
-        const response = await axios.get("https://api.donggurami.net/admin/clubs", {
+        const response = await axios.get(`${store.state.apiBaseUrl}/admin/clubs`, {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
@@ -174,7 +174,7 @@ export default {
         return;
       }
       try {
-        await axios.delete(`https://api.donggurami.net/admin/clubs/${this.clubToDelete}`, {
+        await axios.delete(`${store.state.apiBaseUrl}/admin/clubs/${this.clubToDelete}`, {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },

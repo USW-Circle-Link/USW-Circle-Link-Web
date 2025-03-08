@@ -137,7 +137,7 @@ export default {
     const size = this.itemsPerPage;
 
     const response = await axios.get(
-      `https://api.donggurami.net/notices?page=${page}&size=${size}`,
+      `${store.state.apiBaseUrl}/notices?page=${page}&size=${size}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }
@@ -160,7 +160,7 @@ export default {
 },
     async fetchNotice(noticeUUID) {
       try {
-        const response = await axios.get(`https://api.donggurami.net/notices/${noticeUUID}`, {
+        const response = await axios.get(`${store.state.apiBaseUrl}/notices/${noticeUUID}`, {
           headers: { Authorization: `Bearer ${store.state.accessToken}` },
         });
 
@@ -169,7 +169,7 @@ export default {
 
           // 현재 공지사항의 전체 인덱스 찾기
           const allNoticesResponse = await axios.get(
-              `https://api.donggurami.net/notices?page=0&size=${this.totalNotices}`,
+              `${store.state.apiBaseUrl}/notices?page=0&size=${this.totalNotices}`,
               {
                 headers: { Authorization: `Bearer ${store.state.accessToken}` },
               }
@@ -203,7 +203,7 @@ export default {
     async prevNotice() {
       const prevIndex = (this.currentNoticeIndex - 1 + this.totalNotices) % this.totalNotices;
       const allNoticesResponse = await axios.get(
-          `https://api.donggurami.net/notices?page=0&size=${this.totalNotices}`,
+          `${store.state.apiBaseUrl}/notices?page=0&size=${this.totalNotices}`,
           {
             headers: { Authorization: `Bearer ${store.state.accessToken}` },
           }
@@ -214,7 +214,7 @@ export default {
     async nextNotice() {
       const nextIndex = (this.currentNoticeIndex + 1) % this.totalNotices;
       const allNoticesResponse = await axios.get(
-          `https://api.donggurami.net/notices?page=0&size=${this.totalNotices}`,
+          `${store.state.apiBaseUrl}/notices?page=0&size=${this.totalNotices}`,
           {
             headers: { Authorization: `Bearer ${store.state.accessToken}` },
           }

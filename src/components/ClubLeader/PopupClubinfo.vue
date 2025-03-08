@@ -191,7 +191,7 @@ export default {
 
       try {
         const response = await axios.get(
-            `https://api.donggurami.net/club-leader/${clubUUID}/summary`,
+            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/summary`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,

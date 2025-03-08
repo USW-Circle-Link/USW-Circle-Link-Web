@@ -99,7 +99,7 @@
       <div class="popup">
         <h3>동아리 회원 추가</h3>
         <div class="line3"></div>
-        <p class="popup-message">프로필 중복 회원이 <span class="red-text2">{{this.OverlappingMembers.length}}명</span> 존재해요. <br>'프로필 중복 회원 추가' 페이﻿지로 이동할게요.​</p>
+        <p class="popup-message">프로필 중복 회원이 <span class="red-text2">{{this.OverlappingMembers.length}}명</span> 존재해요. <br>'프로필 중복 회원 추가' 페이지로 이동할게요.</p>
         <button class="confirm-button" @click="DuplicateMemberPage">확인</button>
       </div>
     </div>
@@ -119,7 +119,6 @@
         </div>
       </div>
     </div>
-
   </div>
   <Popup401 v-if="show401Popup" />
 </template>
@@ -191,7 +190,7 @@ export default {
 
       try {
         const response = await axios.post(
-            `https://api.donggurami.net/club-leader/${clubUUID}/members/import`,
+            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/import`,
             formData,
             {
               headers: {
@@ -280,7 +279,7 @@ export default {
 
       try {
         const response = await axios.post(
-            `https://api.donggurami.net/club-leader/${clubUUID}/members`,
+            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members`,
             requestData,
             {
               headers: {

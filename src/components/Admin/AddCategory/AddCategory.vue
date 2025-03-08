@@ -74,7 +74,7 @@ export default {
     },
     async fetchCategory(){
       try {
-        const response = await axios.get("https://api.donggurami.net/admin/clubs/category", {
+        const response = await axios.get(`${store.state.apiBaseUrl}/admin/clubs/category`, {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
@@ -107,7 +107,7 @@ export default {
       ) {
         try {
           const response = await axios.post(
-              "https://api.donggurami.net/admin/clubs/category",
+              `${store.state.apiBaseUrl}/admin/clubs/category`,
               this.categoryName,
               {
                 headers: {
@@ -151,7 +151,7 @@ export default {
       }
 
       try {
-        await axios.delete(`https://api.donggurami.net/admin/clubs/category/${categoryId}`, {
+        await axios.delete(`${store.state.apiBaseUrl}/admin/clubs/category/${categoryId}`, {
           headers: {
             Authorization: `Bearer ${store.state.accessToken}`,
           },

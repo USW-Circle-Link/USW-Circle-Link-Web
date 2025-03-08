@@ -67,8 +67,8 @@ export default {
         message: '',
         type: ''
       },
-      fetchUrl: `https://api.donggurami.net/club-leader/${store.state.clubUUID}/failed-applicants`, // 지원자 명단을 가져오는 서버 URL
-      submitUrl: `https://api.donggurami.net/club-leader/${store.state.clubUUID}/failed-applicants/notifications`, // 합/불 결과를 보내는 서버 URL
+      fetchUrl: `${store.state.apiBaseUrl}/club-leader/${store.state.clubUUID}/failed-applicants`, // 지원자 명단을 가져오는 서버 URL
+      submitUrl: `${store.state.apiBaseUrl}/club-leader/${store.state.clubUUID}/failed-applicants/notifications`, // 합/불 결과를 보내는 서버 URL
       show401Popup: false,
     };
   },

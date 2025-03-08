@@ -116,7 +116,7 @@ export default {
         const accessToken = this.$store.state.accessToken;
 
         // 백엔드 서버에 로그아웃 요청 보내기
-        const response = await axios.post('https://api.donggurami.net/integration/logout', {}, {
+        const response = await axios.post(`${store.state.apiBaseUrl}/integration/logout`, {}, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -139,7 +139,7 @@ export default {
       const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`https://api.donggurami.net/club-leader/${clubUUID}/info`, {
+        const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'

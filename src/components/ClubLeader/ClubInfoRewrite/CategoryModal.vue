@@ -95,7 +95,7 @@ export default {
       this.error = null;
       try {
         const accessToken = store.state.accessToken;
-        const response = await axios.get('https://api.donggurami.net/club-leader/category', {
+        const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/category`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',

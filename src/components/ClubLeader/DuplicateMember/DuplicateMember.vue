@@ -219,7 +219,7 @@ export default {
 
       try {
         const response = await axios.post(
-            `https://api.donggurami.net/club-leader/${clubUUID}/members/duplicate-profiles`,
+            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/duplicate-profiles`,
             data,
             {
               headers: {

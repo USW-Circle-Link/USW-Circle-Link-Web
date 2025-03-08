@@ -76,6 +76,8 @@
 
 <script>
 import axios from 'axios';
+import store from "@/store/store";
+
 
 export default {
   name: "Login",
@@ -130,14 +132,14 @@ export default {
         let response;
         if (this.loginType === "LEADER") {
           // 동아리 관리자 로그인
-          response = await axios.post('https://api.donggurami.net/club-leader/login', {
+          response = await axios.post(`${store.state.apiBaseUrl}/club-leader/login`, {
             leaderAccount: this.id,
             leaderPw: this.password,
             loginType: this.loginType
           });
         } else {
           // 동아리 연합회/개발팀 로그인
-          response = await axios.post('https://api.donggurami.net/admin/login', {
+          response = await axios.post(`${store.state.apiBaseUrl}/admin/login`, {
             adminAccount: this.id,
             adminPw: this.password,
             loginType: this.loginType
