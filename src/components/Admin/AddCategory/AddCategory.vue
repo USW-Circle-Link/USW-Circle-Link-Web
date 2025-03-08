@@ -140,7 +140,7 @@ export default {
         this.serverMessage = '카테고리에는 공백 또는 특수문자를 포함할 수 없습니다.';
         this.showPopup = true;
       } else if(!trimmedCategory.length <= 10) {
-        this.errorMsg = '* 카테고리는 최대 10자까지 입력 가능합니다.';
+        this.errorMsg = '* 카테고리는 공백, 특수문자 제외 1~10자 이내로 작성해주세요.';
       }
     },
     async removeCategory(category, index) {

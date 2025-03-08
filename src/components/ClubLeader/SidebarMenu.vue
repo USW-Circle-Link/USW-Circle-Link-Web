@@ -116,7 +116,7 @@ export default {
         const accessToken = this.$store.state.accessToken;
 
         // 백엔드 서버에 로그아웃 요청 보내기
-        const response = await axios.post(`${store.state.apiBaseUrl}/integration/logout`, {}, {
+        await axios.post(`${store.state.apiBaseUrl}/integration/logout`, {}, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -200,8 +200,8 @@ export default {
   height: 79px;
   flex-shrink: 0;
   border-radius: 50%;
-  margin: 10px 0px 10px 0px;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  margin: 10px 0 10px 0;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .profile-name {
@@ -226,7 +226,7 @@ export default {
   text-align: center;
   line-height: 6px;
   letter-spacing: -0.3px;
-  margin: 0px 0px 12px 0px;
+  margin: 0 0 12px 0;
 }
 
 nav {
@@ -245,7 +245,7 @@ nav li {
   align-items: center;
   align-content: center;
   cursor: pointer;
-  margin: 0px 0px 0px 0px;
+  margin: 0 0 0 0;
   height: 55px;
   z-index: 2;
 }
@@ -260,13 +260,17 @@ nav li {
   margin-bottom: 7px;
 }
 
+.list1 .bottom{
+  pointer-events: none;
+}
+
 .list1 a {
   visibility: hidden;
 }
 
 .list1:hover {
   height: 200px;
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 .list1:hover a {
@@ -371,11 +375,11 @@ nav li:hover .yellowLine {
 }
 
 nav .list2:hover .top {
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 nav .list1:hover .top {
-  box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 nav li .yellowLine {
@@ -386,7 +390,7 @@ nav li .yellowLine {
 nav .icon {
   width: 20px;
   height: 20px;
-  margin: 0px 15px 3.5px 30px;
+  margin: 0 15px 3.5px 30px;
 }
 
 .home {
@@ -444,7 +448,7 @@ nav .icon {
   width: 1px;
   height: 13px;
   background-color: #bbbbbb;
-  margin: 0px 30px;
+  margin: 0 30px;
 }
 
 .footer a:hover {
