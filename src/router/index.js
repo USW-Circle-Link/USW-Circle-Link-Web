@@ -91,11 +91,6 @@ const routes = [
             {
                 path: 'duplicate-member',
                 name: 'duplicate-member',
-                component: () => import('../components/ClubLeader/RemoveMember.vue'),
-            },
-            {
-                path: 'remove-member',
-                name: 'remove-member',
                 component: () => import('../components/ClubLeader/DuplicateMember/DuplicateMember.vue'),
             },
             {
