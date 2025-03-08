@@ -1,6 +1,6 @@
 <template>
-  <div class="title">소속 동아리 리스트</div>
-  <!-- 소속 동아리 리스트 -->
+  <div class="title">동아리 리스트</div>
+  <!-- 동아리 리스트 -->
   <div class="header">
     <div class="header-row">
       <div class="header-item-department">분과</div>
