@@ -277,6 +277,10 @@ nav li {
   visibility: visible;
 }
 
+.list1 a{
+  pointer-events: all;
+}
+
 .list2 {
   width: 240px;
   height: 55px;
