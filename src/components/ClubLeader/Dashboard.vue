@@ -17,7 +17,8 @@
         </div>
         <div class="instaName">
           <div class="icon insta"></div>
-          <a :href="data.clubInsta" target="_blank">인스타그램</a>
+          <a v-if="instagramLink.length" :href="instagramLink" target="_blank">인스타그램</a>
+          <span v-else>정보 없음</span>
         </div>
         <div class="clubroom">
           <div class="icon map"></div>
@@ -267,6 +268,12 @@ export default {
         };
       });
     },
+    instagramLink() {
+      // Instagram 링크가 http로 시작하지 않으면 추가
+      const instaUrl = this.data.clubInsta || '';
+      if (instaUrl === '') return '';
+      return instaUrl.startsWith('http') ? instaUrl : `https://${instaUrl}`;
+    },
     displayedMembers() {
       switch(this.currentTab) {
         case 'alphabetical':
@@ -482,6 +489,8 @@ export default {
             }
           })
         ]);
+
+
 
         // clubMemberId 대신 clubMemberUUID를 사용하도록 매핑 수정
         this.regularMembers = regularResponse.data.data.map(member => ({
@@ -819,6 +828,13 @@ export default {
   line-height: 32px;
   margin: 0;
 }
+
+.instaName span {
+  margin-top: 6px;
+  font-size: 16px;
+  color: #9a9a9a;
+}
+
 .Dashboard{
   width: 886px;
   background: #fff;
