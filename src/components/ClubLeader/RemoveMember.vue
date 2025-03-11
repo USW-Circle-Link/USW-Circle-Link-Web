@@ -23,6 +23,8 @@
       </div>
     </div>
 
+    <!-- Hello, world -->
+     
     <!-- 퇴출 섹션 헤더 -->
     <div class="expulsion-header">
       <span class="selected-count">퇴출 선택 인원 <span class="selected-count-bold">총 {{ selectedMembers.length }}명</span></span>
