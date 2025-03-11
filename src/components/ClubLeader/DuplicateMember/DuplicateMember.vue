@@ -2,7 +2,9 @@
   <div class="duplicate-container">
     <div class="title">
       <h2 class="duplicate-title">프로필 중복 회원 추가</h2>
-      <p class="duplicate-subtitle">동아리 회원을 추가할 때 중복되었던 회원을 추가해주세요.</p>
+      <p class="duplicate-subtitle">
+        동아리 회원을 추가할 때 중복되었던 회원을 추가해주세요.
+      </p>
     </div>
 
     <div class="form-container">
@@ -11,54 +13,61 @@
           <div class="input-group">
             <label>이름</label>
             <input
-                type="text"
-                v-model="name"
-                placeholder="이름 입력"
-                :class="{'error-input': nameError}"
-                @input="validateForm"
+              type="text"
+              v-model="name"
+              placeholder="이름 입력"
+              :class="{ 'error-input': nameError }"
+              @input="validateForm"
             />
           </div>
-
+          <!-- test git merge -->
           <div class="input-group">
             <label>학번</label>
             <input
-                type="text"
-                v-model="studentId"
-                placeholder="숫자 8자리"
-                :class="{'error-input': studentIdError}"
-                @input="validateForm"
+              type="text"
+              v-model="studentId"
+              placeholder="숫자 8자리"
+              :class="{ 'error-input': studentIdError }"
+              @input="validateForm"
             />
           </div>
 
           <div class="input-group phone-number">
             <label>전화번호</label>
             <input
-                type="text"
-                v-model="phoneNumber"
-                placeholder="- 제외 11자리 숫자"
-                :class="{'error-input': phoneNumberError}"
-                @input="validateForm"
+              type="text"
+              v-model="phoneNumber"
+              placeholder="- 제외 11자리 숫자"
+              :class="{ 'error-input': phoneNumberError }"
+              @input="validateForm"
             />
           </div>
 
           <button
-              @click="handleAddMember"
-              class="add-button"
-              :disabled="!isFormValid"
-              :class="{ 'disabled': !isFormValid }"
+            @click="handleAddMember"
+            class="add-button"
+            :disabled="!isFormValid"
+            :class="{ disabled: !isFormValid }"
           >
-            <svg class="add-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-              <path fill="#FFFFFF" d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/>
-            </svg> 동아리 회원 추가
+            <svg
+              class="add-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+            >
+              <path fill="#FFFFFF" d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z" />
+            </svg>
+            동아리 회원 추가
           </button>
         </div>
 
         <p v-if="showError" class="error-text">
-          * 입력 정보를 다시 확인해주세요. (이름: 특수기호 제외, 학번: 8자리 숫자, 전화번호: - 제외 11자리 숫자)
+          * 입력 정보를 다시 확인해주세요. (이름: 특수기호 제외, 학번: 8자리
+          숫자, 전화번호: - 제외 11자리 숫자)
         </p>
       </div>
     </div>
-
 
     <!-- 중복 회원 목록 섹션 수정 -->
     <div v-if="hasOverlappingMembers" class="duplicate-list-section">
@@ -68,16 +77,26 @@
             조회된 프로필 중복 회원 목록
             <span class="member-count">총 {{ overlappingMembersCount }}명</span>
           </h3>
-          <p class="list-subtitle">현재 페이지를 벗어나시면 하단 목록을 다시 확인하실 수 없습니다.</p>
+          <p class="list-subtitle">
+            현재 페이지를 벗어나시면 하단 목록을 다시 확인하실 수 없습니다.
+          </p>
         </div>
       </div>
       <div class="member-list-wrapper">
         <div class="member-list">
-          <div v-for="(member, index) in OverlappingMembers" :key="index" class="member-item">
+          <div
+            v-for="(member, index) in OverlappingMembers"
+            :key="index"
+            class="member-item"
+          >
             <div class="member-info">
               <span class="info-cell name1">{{ member.userName }}</span>
-              <span class="info-cell student-id">{{ member.studentNumber }}</span>
-              <span class="info-cell phone1">{{ formatPhoneNumber(member.userHp) }}</span>
+              <span class="info-cell student-id">{{
+                member.studentNumber
+              }}</span>
+              <span class="info-cell phone1">{{
+                formatPhoneNumber(member.userHp)
+              }}</span>
             </div>
           </div>
         </div>
@@ -86,50 +105,49 @@
 
     <!-- Confirmation Popup -->
     <AddPopup
-        v-if="showPopup"
-        :name="name"
-        :studentId="studentId"
-        :phoneNumber="phoneNumber"
-        @confirm="confirmAdd"
-        @cancel="cancelAdd"
+      v-if="showPopup"
+      :name="name"
+      :studentId="studentId"
+      :phoneNumber="phoneNumber"
+      @confirm="confirmAdd"
+      @cancel="cancelAdd"
     />
 
     <!-- Success/Fail Popup -->
     <SuccessFailPopup
-        v-if="showResultPopup"
-        :isSuccess="isSuccess"
-        :serverMessage="serverMessage"
-        @close="closeResultPopup"
+      v-if="showResultPopup"
+      :isSuccess="isSuccess"
+      :serverMessage="serverMessage"
+      @close="closeResultPopup"
     />
 
     <Popup401 v-if="show401Popup" />
   </div>
 </template>
 
-
 <script>
 import store from '@/store/store';
-import AddPopup from './AddPopup.vue'
-import SuccessFailPopup from './SuccessFailPopup.vue'
-import axios from 'axios'
+import AddPopup from './AddPopup.vue';
+import SuccessFailPopup from './SuccessFailPopup.vue';
+import axios from 'axios';
 import Popup401 from '../401Popup.vue';
 
-import { mapState } from "vuex";
+import { mapState } from 'vuex';
 export default {
   name: 'DuplicateMember',
   components: {
     AddPopup,
     SuccessFailPopup,
-    Popup401
+    Popup401,
   },
   computed: {
-    ...mapState(["OverlappingMembers"]),
+    ...mapState(['OverlappingMembers']),
     hasOverlappingMembers() {
       return this.OverlappingMembers && this.OverlappingMembers.length > 0;
     },
     overlappingMembersCount() {
       return this.OverlappingMembers ? this.OverlappingMembers.length : 0;
-    }
+    },
   },
   data() {
     return {
@@ -147,15 +165,15 @@ export default {
       serverMessage: '',
       DuplicateMember: [],
       show401Popup: false,
-    }
+    };
   },
   mounted() {
     // 새로고침 시 localStorage에서 데이터 불러오기
-    const savedMembers = localStorage.getItem("saveDuplicateMember");
+    const savedMembers = localStorage.getItem('saveDuplicateMember');
     if (savedMembers) {
       this.OverlappingMembers = JSON.parse(savedMembers);
     }
-    console.log("전달받은 회원 데이터:", this.OverlappingMembers);
+    console.log('전달받은 회원 데이터:', this.OverlappingMembers);
   },
   methods: {
     // 401 에러 처리를 위한 공통 함수
@@ -167,51 +185,60 @@ export default {
       return false;
     },
     saveDuplicateMember() {
-      localStorage.setItem("saveDuplicateMember", JSON.stringify(this.OverlappingMembers));
+      localStorage.setItem(
+        'saveDuplicateMember',
+        JSON.stringify(this.OverlappingMembers)
+      );
     },
     validateForm() {
-      const nameValid = /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== ''
-      const studentIdValid = /^\d{8}$/.test(this.studentId)
-      const phoneNumberValid = /^\d{11}$/.test(this.phoneNumber)
+      const nameValid =
+        /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== '';
+      const studentIdValid = /^\d{8}$/.test(this.studentId);
+      const phoneNumberValid = /^\d{11}$/.test(this.phoneNumber);
 
-      this.nameError = (this.name && !nameValid)
-      this.studentIdError = (this.studentId && !studentIdValid)
-      this.phoneNumberError = (this.phoneNumber && !phoneNumberValid)
+      this.nameError = this.name && !nameValid;
+      this.studentIdError = this.studentId && !studentIdValid;
+      this.phoneNumberError = this.phoneNumber && !phoneNumberValid;
 
-      this.showError = this.nameError || this.studentIdError || this.phoneNumberError
-      this.isFormValid = nameValid && studentIdValid && phoneNumberValid
+      this.showError =
+        this.nameError || this.studentIdError || this.phoneNumberError;
+      this.isFormValid = nameValid && studentIdValid && phoneNumberValid;
     },
     handleAddMember() {
       if (this.isFormValid) {
-        this.showPopup = true
+        this.showPopup = true;
       }
     },
     async confirmAdd() {
       try {
-        await this.sendToServer()
-        this.isSuccess = true
-        this.serverMessage = '해당 회원의 추가가 정상적으로 처리되었습니다.'
+        await this.sendToServer();
+        this.isSuccess = true;
+        this.serverMessage = '해당 회원의 추가가 정상적으로 처리되었습니다.';
       } catch (error) {
-        console.error('Error adding member:', error)
-        this.isSuccess = false
+        console.error('Error adding member:', error);
+        this.isSuccess = false;
         // Extract error message from the server response
-        if (error.response && error.response.data && error.response.data.message) {
-          this.serverMessage = error.response.data.message
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          this.serverMessage = error.response.data.message;
         } else {
-          this.serverMessage = '서버 오류가 발생했습니다. 다시 시도해주세요.'
+          this.serverMessage = '서버 오류가 발생했습니다. 다시 시도해주세요.';
         }
       }
-      this.showPopup = false
-      this.showResultPopup = true
+      this.showPopup = false;
+      this.showResultPopup = true;
     },
     cancelAdd() {
-      this.showPopup = false
+      this.showPopup = false;
     },
     async sendToServer() {
       const data = {
         userName: this.name,
         studentNumber: this.studentId,
-        userHp: this.phoneNumber
+        userHp: this.phoneNumber,
       };
 
       const accessToken = store.state.accessToken;
@@ -219,62 +246,65 @@ export default {
 
       try {
         const response = await axios.post(
-            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/duplicate-profiles`,
-            data,
-            {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-              }
-            }
+          `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/duplicate-profiles`,
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          }
         );
         console.log('서버 응답:', response.data);
         return response.data;
       } catch (error) {
         if (error.response && error.response.status === 401) {
           this.show401Popup = true;
-        } else if (error.response && (error.response.status === 400 || error.response.status === 404)) {
+        } else if (
+          error.response &&
+          (error.response.status === 400 || error.response.status === 404)
+        ) {
           this.isSuccess = false;
-          this.serverMessage = error.response.data.message || '요청 처리 중 오류가 발생했습니다.';
+          this.serverMessage =
+            error.response.data.message || '요청 처리 중 오류가 발생했습니다.';
           this.showResultPopup = true;
         }
         throw error;
       }
     },
     closeResultPopup() {
-      this.showResultPopup = false
+      this.showResultPopup = false;
       if (this.isSuccess) {
-        this.resetForm()
+        this.resetForm();
       }
     },
     resetForm() {
-      this.name = ''
-      this.studentId = ''
-      this.phoneNumber = ''
-      this.showError = false
-      this.nameError = false
-      this.studentIdError = false
-      this.phoneNumberError = false
-      this.isFormValid = false
+      this.name = '';
+      this.studentId = '';
+      this.phoneNumber = '';
+      this.showError = false;
+      this.nameError = false;
+      this.studentIdError = false;
+      this.phoneNumberError = false;
+      this.isFormValid = false;
     },
     formatPhoneNumber(phone) {
       if (!phone) return '';
       return phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
 .duplicate-container {
-  width: 830px;  /* form-container와 동일한 너비 */
-  margin: 0 auto;  /* 중앙 정렬 */
+  width: 830px; /* form-container와 동일한 너비 */
+  margin: 0 auto; /* 중앙 정렬 */
 }
 
 .title {
   margin-bottom: 20px;
 }
-
 
 .duplicate-title {
   font-size: 20px;
@@ -283,7 +313,7 @@ export default {
 }
 
 .duplicate-subtitle {
-  color: #FF0000;
+  color: #ff0000;
   font-size: 14px;
   font-style: normal;
   font-weight: 350;
@@ -298,9 +328,9 @@ export default {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   width: 830px;
   border-radius: 8px;
-  margin-top: 20px;  /* title과의 간격 */
-  margin-left: 0;    /* 왼쪽 마진 제거 */
-  margin-right: 0;   /* 오른쪽 마진 제거 */
+  margin-top: 20px; /* title과의 간격 */
+  margin-left: 0; /* 왼쪽 마진 제거 */
+  margin-right: 0; /* 오른쪽 마진 제거 */
   position: relative;
 }
 
@@ -347,14 +377,14 @@ export default {
 }
 
 .error-input {
-  border-color: #FF0000;
+  border-color: #ff0000;
 }
 
 .error-text {
   margin-top: 16px;
   margin-bottom: -5px;
   padding-left: 50px;
-  color: #FF3535;
+  color: #ff3535;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
@@ -363,7 +393,7 @@ export default {
 
 .add-button {
   padding: 16px;
-  background-color: #FFB052;
+  background-color: #ffb052;
   border: none;
   border-radius: 4px;
   color: white;
@@ -431,7 +461,7 @@ export default {
 }
 
 .list-subtitle {
-  color: #FF3535;
+  color: #ff3535;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -443,7 +473,7 @@ export default {
   max-height: 290px;
   overflow-y: auto;
   border-radius: 8px;
-  background: #F0F2F5;
+  background: #f0f2f5;
 }
 
 .member-list {
@@ -453,7 +483,7 @@ export default {
 }
 
 .member-item {
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 8px;
   padding: 10px 0;
 }
@@ -495,11 +525,11 @@ export default {
 }
 
 .member-list-wrapper::-webkit-scrollbar-thumb {
-  background: #CED4DA;
+  background: #ced4da;
   border-radius: 4px;
 }
 
 .member-list-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #ADB5BD;
+  background: #adb5bd;
 }
 </style>
