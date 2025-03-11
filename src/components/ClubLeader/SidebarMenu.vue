@@ -260,6 +260,10 @@ nav li {
   margin-bottom: 7px;
 }
 
+.list1 a{
+  pointer-events: all;
+}
+
 .list1 .bottom{
   pointer-events: none;
 }
