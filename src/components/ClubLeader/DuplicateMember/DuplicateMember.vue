@@ -20,7 +20,7 @@
               @input="validateForm"
             />
           </div>
-          <!-- test git merge -->
+
           <div class="input-group">
             <label>학번</label>
             <input
