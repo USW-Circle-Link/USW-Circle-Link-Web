@@ -4,14 +4,18 @@
     <div id="RemoveMemberDashboard" class="RemoveMemberDashboard">
       <div class="member-list">
         <ul>
-          <li v-for="member in formattedClubMembers" :key="member.clubMemberUUID" class="member-item">
+          <li
+            v-for="member in formattedClubMembers"
+            :key="member.clubMemberUUID"
+            class="member-item"
+          >
             <label class="custom-checkbox">
               <input
-                  type="checkbox"
-                  :checked="selectedMembers.includes(member)"
-                  @change="toggleMemberSelection(member)"
-                  class="hidden-checkbox"
-              >
+                type="checkbox"
+                :checked="selectedMembers.includes(member)"
+                @change="toggleMemberSelection(member)"
+                class="hidden-checkbox"
+              />
               <span class="checkbox-mark"></span>
             </label>
             <span>{{ member.userName }}</span>
@@ -25,11 +29,16 @@
 
     <!-- 퇴출 섹션 헤더 -->
     <div class="expulsion-header">
-      <span class="selected-count">퇴출 선택 인원 <span class="selected-count-bold">총 {{ selectedMembers.length }}명</span></span>
+      <span class="selected-count"
+        >퇴출 선택 인원
+        <span class="selected-count-bold"
+          >총 {{ selectedMembers.length }}명</span
+        ></span
+      >
       <button
-          @click="showExpulsionPopup = true"
-          class="expulsion-button"
-          :disabled="!selectedMembers.length"
+        @click="showExpulsionPopup = true"
+        class="expulsion-button"
+        :disabled="!selectedMembers.length"
       >
         퇴출하기
       </button>
@@ -39,7 +48,11 @@
     <div class="expulsion-section">
       <div class="expulsion-list">
         <ul>
-          <li v-for="member in selectedMembers" :key="member.clubMemberUUID" class="member-item">
+          <li
+            v-for="member in selectedMembers"
+            :key="member.clubMemberUUID"
+            class="member-item"
+          >
             <span>{{ member.userName }}</span>
             <span>{{ member.studentNumber }}</span>
             <span>{{ member.major }}</span>
@@ -56,11 +69,18 @@
         </div>
         <div class="popup-separator1"></div>
         <div class="popup-body1">
-          <p class="popup-message1"><span class="red-text1">총 {{ selectedMembers.length }}명</span>입니다.</p>
+          <p class="popup-message1">
+            <span class="red-text1">총 {{ selectedMembers.length }}명</span
+            >입니다.
+          </p>
           <p class="popup-message1">해당 동아리원들을 퇴출하시겠습니까?</p>
-          <p class="popup-warning1">퇴출 후 되돌릴 수 없으니 신중하게 선택해 주세요.</p>
+          <p class="popup-warning1">
+            퇴출 후 되돌릴 수 없으니 신중하게 선택해 주세요.
+          </p>
         </div>
-        <button @click="showExpulsionPopup = false" class="cancel-button">취소</button>
+        <button @click="showExpulsionPopup = false" class="cancel-button">
+          취소
+        </button>
         <button @click="expelMember" class="expel-button">확인</button>
       </div>
     </div>
@@ -76,7 +96,7 @@ import Popup401 from './401Popup.vue';
 export default {
   name: 'RemoveMemberDashboard',
   components: {
-    Popup401
+    Popup401,
   },
   data() {
     return {
@@ -84,18 +104,18 @@ export default {
       showExpulsionPopup: false,
       selectedMembers: [],
       show401Popup: false, // 401 팝업 상태 추가
-    }
+    };
   },
   computed: {
     formattedClubMembers() {
       if (!this.clubMembers) return [];
-      return this.clubMembers.map(member => {
+      return this.clubMembers.map((member) => {
         return {
           ...member,
-          userHp: member.userHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')
+          userHp: member.userHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'),
         };
       });
-    }
+    },
   },
   mounted() {
     this.fetchData();
@@ -114,12 +134,15 @@ export default {
       const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members?=null`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
+        const response = await axios.get(
+          `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members?=null`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
           }
-        });
+        );
 
         this.clubMembers = response.data.data;
       } catch (error) {
@@ -131,7 +154,9 @@ export default {
     },
 
     toggleMemberSelection(member) {
-      const index = this.selectedMembers.findIndex(m => m.clubMemberUUID === member.clubMemberUUID);
+      const index = this.selectedMembers.findIndex(
+        (m) => m.clubMemberUUID === member.clubMemberUUID
+      );
       if (index === -1) {
         this.selectedMembers.push(member);
       } else {
@@ -145,22 +170,28 @@ export default {
 
       try {
         // 선택된 회원들의 clubMemberUUID 추출하여 요청 데이터 생성
-        const expelData = this.selectedMembers.map(member => ({
-          clubMemberUUID: member.clubMemberUUID
+        const expelData = this.selectedMembers.map((member) => ({
+          clubMemberUUID: member.clubMemberUUID,
         }));
 
         // DELETE 요청 보내기
-        await axios.delete(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          },
-          data: expelData  // DELETE 요청의 body에 데이터 포함
-        });
+        await axios.delete(
+          `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            data: expelData, // DELETE 요청의 body에 데이터 포함
+          }
+        );
 
         // 퇴출된 회원들을 목록에서 제거
         this.clubMembers = this.clubMembers.filter(
-            member => !this.selectedMembers.some(selected => selected.clubMemberUUID === member.clubMemberUUID)
+          (member) =>
+            !this.selectedMembers.some(
+              (selected) => selected.clubMemberUUID === member.clubMemberUUID
+            )
         );
 
         // 선택된 회원 목록 초기화 및 팝업 닫기
@@ -172,8 +203,8 @@ export default {
           alert('동아리 정보를 불러오는데 실패했습니다.');
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -181,9 +212,9 @@ export default {
 .title {
   font-size: 20px;
   font-weight: 600;
-  width: 886px;  /* RemoveMemberDashboard와 동일한 너비 */
-  margin: 0 auto;  /* 중앙 정렬 */
-  padding: 0 20px;  /* 내부 여백 추가 */
+  width: 886px; /* RemoveMemberDashboard와 동일한 너비 */
+  margin: 0 auto; /* 중앙 정렬 */
+  padding: 0 20px; /* 내부 여백 추가 */
 }
 
 .RemoveMemberDashboard {
@@ -210,7 +241,7 @@ export default {
   justify-content: space-between;
   align-items: center; /* 수직 중앙 정렬 */
   padding: 10px 25px;
-  background-color: #F0F2F5;
+  background-color: #f0f2f5;
   border-radius: 10px;
   margin-bottom: 10px;
   height: 32px;
@@ -255,13 +286,13 @@ export default {
 
 /* 체크된 상태 */
 .hidden-checkbox:checked + .checkbox-mark {
-  background-color: #FFB052;
-  border-color: #FFB052;
+  background-color: #ffb052;
+  border-color: #ffb052;
 }
 
 /* 체크 마크 */
 .checkbox-mark:after {
-  content: "";
+  content: '';
   position: absolute;
   display: none;
   left: 3.4px; /* 위치 조정 */
@@ -282,9 +313,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: end;
-  margin: 40px auto 0px auto;  /* margin 중앙 정렬로 수정 */
+  margin: 40px auto 0px auto; /* margin 중앙 정렬로 수정 */
   padding: 0;
-  width: 886px;  /* RemoveMemberDashboard와 동일한 너비 */
+  width: 886px; /* RemoveMemberDashboard와 동일한 너비 */
 }
 
 .selected-count {
@@ -298,8 +329,8 @@ export default {
 }
 
 .expulsion-section {
-  margin: 13px auto 10px auto;  /* margin 중앙 정렬로 수정 */
-  width: 886px;  /* RemoveMemberDashboard와 동일한 너비 */
+  margin: 13px auto 10px auto; /* margin 중앙 정렬로 수정 */
+  width: 886px; /* RemoveMemberDashboard와 동일한 너비 */
   background: #fff;
   border-radius: 8px;
   position: relative;
@@ -392,18 +423,18 @@ export default {
 }
 
 .red-text1 {
-  color: #FF5C5C;
+  color: #ff5c5c;
   font-weight: 600;
 }
 
 .popup-warning1 {
   font-size: 12px;
-  color: #FF5C5C;
+  color: #ff5c5c;
   margin: 4px 0;
 }
 
 .expel-button {
-  background-color: #FFB052;
+  background-color: #ffb052;
   color: white;
   border: none;
   padding: 7px 30px;
