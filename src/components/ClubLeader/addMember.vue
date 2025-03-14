@@ -40,76 +40,81 @@
 
     <!--추가할 회원 리스트-->
     <div v-if="visible && !isOverlappingMemberListsPopupVisible" class="member-list">
-      <div class="member-row" v-for="(member, index) in members" :key="index">
-        <!-- 이름 입력 -->
-        <div class="input-wrapper">
-          <span v-if="editingIndex !== index">{{ member.userName }}</span>
-          <input v-else
-                 v-model="editingMember.userName"
-                 :class="['edit-input', { error: validationErrors.userName }]"
-                 type="text"
-                 placeholder="이름">
-          <div v-if="editingIndex === index && validationErrors.userName"
-               class="validation-error">
-            {{ errorMessages.userName }}
+      <div class="member-list" v-for="(member, index) in members" :key="index">
+        <div class="member-row">
+          <!-- 이름 입력 -->
+          <div class="input-wrapper">
+            <span v-if="editingIndex !== index">{{ member.userName }}</span>
+            <input v-else
+                   v-model="editingMember.userName"
+                   :class="['edit-input', { error: validationErrors.userName }]"
+                   type="text"
+                   placeholder="이름">
+            <div v-if="editingIndex === index && validationErrors.userName"
+                 class="validation-error">
+              {{ errorMessages.userName }}
+            </div>
           </div>
-        </div>
 
-        <!-- 학번 입력 -->
-        <div class="input-wrapper">
-          <span v-if="editingIndex !== index">{{ member.studentNumber }}</span>
-          <input v-else
-                 v-model="editingMember.studentNumber"
-                 :class="['edit-input', 'narrow-input', { error: validationErrors.studentNumber }]"
-                 type="text"
-                 placeholder="학번">
-          <div v-if="editingIndex === index && validationErrors.studentNumber"
-               class="validation-error">
-            {{ errorMessages.studentNumber }}
+          <!-- 학번 입력 -->
+          <div class="input-wrapper">
+            <span v-if="editingIndex !== index">{{ member.studentNumber }}</span>
+            <input v-else
+                   v-model="editingMember.studentNumber"
+                   :class="['edit-input', 'narrow-input', { error: validationErrors.studentNumber }]"
+                   type="text"
+                   placeholder="학번">
+            <div v-if="editingIndex === index && validationErrors.studentNumber"
+                 class="validation-error">
+              {{ errorMessages.studentNumber }}
+            </div>
           </div>
-        </div>
 
-        <!-- 전화번호 입력 -->
-        <div class="input-wrapper">
-          <span v-if="editingIndex !== index">{{ formatPhoneNumber(member.userHp) }}</span>
-          <input v-else
-                 v-model="editingMember.userHp"
-                 :class="['edit-input', 'narrow-input', { error: validationErrors.userHp }]"
-                 type="tel"
-                 placeholder="전화번호">
-          <div v-if="editingIndex === index && validationErrors.userHp"
-               class="validation-error">
-            {{ errorMessages.userHp }}
+          <!-- 전화번호 입력 -->
+          <div class="input-wrapper">
+            <span v-if="editingIndex !== index">{{ formatPhoneNumber(member.userHp) }}</span>
+            <input v-else
+                   v-model="editingMember.userHp"
+                   :class="['edit-input', 'narrow-input', { error: validationErrors.userHp }]"
+                   type="tel"
+                   placeholder="전화번호">
+            <div v-if="editingIndex === index && validationErrors.userHp"
+                 class="validation-error">
+              {{ errorMessages.userHp }}
+            </div>
           </div>
+
+          <!-- 단과대학 선택 -->
+          <select v-model="member.department" @change="onCollegeChange(index)">
+            <option disabled value="">단과대학 선택</option>
+            <option v-for="college in colleges" :key="college.id" :value="college.id">
+              {{ college.name }}
+            </option>
+          </select>
+
+          <!-- 학부(학과) 선택 -->
+          <select v-model="member.major">
+            <option disabled value="">학부(학과) 선택</option>
+            <option v-for="dept in member.departments" :key="dept" :value="dept">
+              {{ dept }}
+            </option>
+          </select>
+          <button
+              v-if="editingIndex !== index"
+              class="edit-btn"
+              @click="startEdit(index)"
+          >
+            수정
+          </button>
+          <button v-if="editingIndex === index"
+                  @click="confirmEdit(index)"
+                  class="save-btn">
+            수정
+          </button>
         </div>
-
-        <!-- 단과대학 선택 -->
-        <select v-model="member.department" @change="onCollegeChange(index)">
-          <option disabled value="">단과대학 선택</option>
-          <option v-for="college in colleges" :key="college.id" :value="college.id">
-            {{ college.name }}
-          </option>
-        </select>
-
-        <!-- 학부(학과) 선택 -->
-        <select v-model="member.major">
-          <option disabled value="">학부(학과) 선택</option>
-          <option v-for="dept in member.departments" :key="dept" :value="dept">
-            {{ dept }}
-          </option>
-        </select>
-        <button
-            v-if="editingIndex !== index"
-            class="edit-btn"
-            @click="startEdit(index)"
-        >
-          수정
-        </button>
-        <button v-if="editingIndex === index"
-                @click="confirmEdit"
-                class="save-btn">
-          수정
-        </button>
+        <div>
+          <p class="errorMessage"> {{ member.errorMessage }}</p>
+        </div>
       </div>
       <button class="addClubMember" @click="submitMembers">완료</button>
     </div>
@@ -216,6 +221,7 @@ export default {
         major: '*단과대/학부(학과)를 선택해주세요.',
         userHp: '*전화번호는 - 제외 11자로 입력해주세요.'
       },
+      errorList: [],
 
       isPopupVisible: false,
       isOverlappingMemberListsPopupVisible : false,
@@ -263,6 +269,26 @@ export default {
     triggerFileInput() {
       this.$refs.fileInput.click();
     },
+    transformErrorObject(errorObj) {
+      const result = {};
+
+      Object.entries(errorObj).forEach(([key, message]) => {
+        // 인덱스 추출 (clubMembersAddFromExcelRequestList[1] 부분에서 숫자만 추출)
+        const match = key.match(/\[(\d+)\]/);
+        if (match) {
+          const index = match[1]; // 인덱스 값 (문자열 형태)
+
+          // 이미 해당 인덱스가 존재하면 메시지 추가
+          if (result[index]) {
+            result[index] += `, ${message}`;
+          } else {
+            result[index] = message;
+          }
+        }
+      });
+
+      return result;
+    },
     // 파일 업로드 처리
     async handleFileUpload(event) {
       const clubUUID = store.state.clubUUID;
@@ -292,7 +318,8 @@ export default {
             ...member,
             department: '', // 원하는 값으로 변경 가능,
             major: '',
-            departments: []
+            departments: [],
+            errorMessage: ''
           };
         });
         console.log(this.members);
@@ -315,6 +342,13 @@ export default {
     startEdit(index) {
       this.editingIndex = index;
 
+      this.validationErrors = {
+        userName: false,
+        studentNumber: false,
+        major: false,
+        userHp: false
+      }
+
       this.editingMember = {
         userName: this.members[index].userName,
         studentNumber: this.members[index].studentNumber,
@@ -323,7 +357,7 @@ export default {
     },
     validateInput() {
       // 이름 검증 - 특수문자 제외
-      this.validationErrors.userName = !/^[가-힣a-zA-Z\s]{5,20}$/.test(this.editingMember.userName);
+      this.validationErrors.userName = !/^[가-힣a-zA-Z\s]{3,20}$/.test(this.editingMember.userName);
 
       // 학번 검증 - 8자리 숫자
       this.validationErrors.studentNumber = !/^\d{8}$/.test(this.editingMember.studentNumber);
@@ -336,10 +370,13 @@ export default {
       return !Object.values(this.validationErrors).some(error => error);
     },
 
-    confirmEdit() {
+    confirmEdit(index) {
       if (this.validateInput()) {
         this.showEditConfirmPopup = true;
       }
+      this.members[index].userName = this.editingMember.userName;
+      this.members[index].studentNumber = this.editingMember.studentNumber;
+      this.members[index].userHp = this.editingMember.userHp;
     },
     cancelEdit() {
       this.showEditConfirmPopup = false;
@@ -347,7 +384,9 @@ export default {
       this.editingMember = null;
     },
     saveEdit() {
-      this.showEditConfirmPopup = false;
+      if (this.validateInput()) {
+        this.showEditConfirmPopup = false;
+      }
       this.editingIndex = -1;
     },
     // 리스트 초기화
@@ -427,11 +466,25 @@ export default {
 
       } catch (error) {
         if (!this.handle401Error(error)) {
-          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
-          alert('동아리 정보를 불러오는데 실패했습니다.');
+          console.error('동아리 회원 정보에 문제가 있습니다.', error);
+          alert('동아리 회원 정보에 문제가 있습니다. 수정 후 다시 업로드 해주세요.');
+          this.isPopupVisible = false;
         }
-        if (error.status === 400){
+        if (error.code === 'ERR_BAD_REQUEST'){
+          console.log(error.response.data.additionalData);
 
+          const errorObj = error.response.data.additionalData;
+
+          console.log(this.transformErrorObject(errorObj));
+
+          // 오류 메시지를 members 객체에 추가
+          this.members.forEach((member, index) => {
+            let errorMessage = this.transformErrorObject(errorObj)[index];  // errors 객체의 인덱스에 맞는 값을 찾기 위해 +1
+            if (errorMessage) {
+              member.errorMessage = errorMessage;
+            }
+          });
+          console.log(this.members);
         }
       }
     },
@@ -562,6 +615,7 @@ p {
 }
 
 .member-list {
+  flex-direction: column;
   margin-top: 20px;
   width: 860px;
 }
@@ -645,6 +699,12 @@ select {
   font-size: 9px;
   color: red;
   align-self: flex-start; /* 왼쪽 정렬 */
+}
+
+.errorMessage{
+  color : red;
+  font-size: 12px;
+  margin-left: 10px;
 }
 
 .addClubMember{
