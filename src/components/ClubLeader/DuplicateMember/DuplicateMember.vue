@@ -133,6 +133,7 @@ import axios from 'axios';
 import Popup401 from '../401Popup.vue';
 
 import { mapState } from 'vuex';
+
 export default {
   name: 'DuplicateMember',
   components: {
@@ -141,6 +142,7 @@ export default {
     Popup401,
   },
   computed: {
+    // 반응형
     ...mapState(['OverlappingMembers']),
     hasOverlappingMembers() {
       return this.OverlappingMembers && this.OverlappingMembers.length > 0;
@@ -149,6 +151,7 @@ export default {
       return this.OverlappingMembers ? this.OverlappingMembers.length : 0;
     },
   },
+
   data() {
     return {
       name: '',
@@ -167,6 +170,7 @@ export default {
       show401Popup: false,
     };
   },
+
   mounted() {
     // 새로고침 시 localStorage에서 데이터 불러오기
     const savedMembers = localStorage.getItem('saveDuplicateMember');
@@ -175,6 +179,7 @@ export default {
     }
     console.log('전달받은 회원 데이터:', this.OverlappingMembers);
   },
+
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
@@ -184,12 +189,14 @@ export default {
       }
       return false;
     },
+
     saveDuplicateMember() {
       localStorage.setItem(
         'saveDuplicateMember',
         JSON.stringify(this.OverlappingMembers)
       );
     },
+
     validateForm() {
       const nameValid =
         /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== '';
@@ -204,11 +211,13 @@ export default {
         this.nameError || this.studentIdError || this.phoneNumberError;
       this.isFormValid = nameValid && studentIdValid && phoneNumberValid;
     },
+
     handleAddMember() {
       if (this.isFormValid) {
         this.showPopup = true;
       }
     },
+
     async confirmAdd() {
       try {
         await this.sendToServer();
@@ -231,9 +240,11 @@ export default {
       this.showPopup = false;
       this.showResultPopup = true;
     },
+
     cancelAdd() {
       this.showPopup = false;
     },
+
     async sendToServer() {
       const data = {
         userName: this.name,
@@ -258,26 +269,37 @@ export default {
         console.log('서버 응답:', response.data);
         return response.data;
       } catch (error) {
-        if (error.response && error.response.status === 401) {
+        if (error.response.code === 401) {
           this.show401Popup = true;
         } else if (
-          error.response &&
-          (error.response.status === 400 || error.response.status === 404)
+          error.response.code === CMEM - 202 || // 에러가 CMEM - 202 거나
+          error.response.code === PFL - 201 // 에러가 PEL - 201 일 때
         ) {
           this.isSuccess = false;
-          this.serverMessage =
-            error.response.data.message || '요청 처리 중 오류가 발생했습니다.';
+
+          if (error.response.code === CMEM - 202) {
+            this.serverMessage =
+              error.response.data.message ||
+              '클럽멤버가 이미 존재합니다. 관리자에게 문의하세요.'; // CMEM - 202 error Message
+          } else if (error.response.code === PFL - 201) {
+            this.serverMessage =
+              error.response.data.message || '프로필이 존재하지 않습니다.'; // PFL - 201 error Message
+          }
+
           this.showResultPopup = true;
         }
+
         throw error;
       }
     },
+
     closeResultPopup() {
       this.showResultPopup = false;
       if (this.isSuccess) {
         this.resetForm();
       }
     },
+
     resetForm() {
       this.name = '';
       this.studentId = '';
@@ -288,6 +310,7 @@ export default {
       this.phoneNumberError = false;
       this.isFormValid = false;
     },
+
     formatPhoneNumber(phone) {
       if (!phone) return '';
       return phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
@@ -303,7 +326,7 @@ export default {
 }
 
 .title {
-  margin-bottom: 20px;
+  margin-bottom: 20px; /* 아래쪽 바깥 여백 */
 }
 
 .duplicate-title {
@@ -321,8 +344,8 @@ export default {
 
 .form-container {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: flex-start; /* 가로 방향 정렬 (왼쪽 정렬) */
+  align-items: flex-start; /* 세로 방향 정렬 (위쪽 정렬) */
   background: #fff;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
