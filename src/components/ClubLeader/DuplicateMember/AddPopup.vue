@@ -32,15 +32,15 @@
 export default {
   name: 'AddPopup',
   props: {
-    name: {
+    name: { /* 이름 팝업 */
       type: String,
       required: true
     },
-    studentId: {
+    studentId: { /* 학번 팝업 */
       type: String,
       required: true
     },
-    phoneNumber: {
+    phoneNumber: { /* 전화번호 팝업 */
       type: String,
       required: true
     }
