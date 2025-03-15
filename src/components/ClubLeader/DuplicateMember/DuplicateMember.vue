@@ -143,11 +143,13 @@ export default {
   },
   computed: {
     // 반응형
-    ...mapState(['OverlappingMembers']),
+    ...mapState(['OverlappingMembers']), //store.js의 OverlappingMembers를 computed속성으로 매핑
     hasOverlappingMembers() {
+      //OverlappingMembers 배열이 존재하고 길이가 1 이상이면 true를 return하는 함수
       return this.OverlappingMembers && this.OverlappingMembers.length > 0;
     },
     overlappingMembersCount() {
+      //OverlappingMembers 배열이 존재하면 길이를 return하고, 없으면 0을 return하는 함수
       return this.OverlappingMembers ? this.OverlappingMembers.length : 0;
     },
   },
