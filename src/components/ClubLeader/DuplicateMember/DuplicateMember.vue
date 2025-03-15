@@ -175,7 +175,7 @@ export default {
 
   mounted() {
     // 새로고침 시 localStorage에서 데이터 불러오기
-    const savedMembers = localStorage.getItem('saveDuplicateMember');
+    const savedMembers = localStorage.getItem('saveDuplicateMember'); //
     if (savedMembers) {
       this.OverlappingMembers = JSON.parse(savedMembers);
     }
@@ -193,9 +193,10 @@ export default {
     },
 
     saveDuplicateMember() {
+      // OverlappingMembers를 localStorage에 저장하는 함수
       localStorage.setItem(
         'saveDuplicateMember',
-        JSON.stringify(this.OverlappingMembers)
+        JSON.stringify(this.OverlappingMembers) // localStorage에 저장하기 위해 배열을 문자열로 변환
       );
     },
 
