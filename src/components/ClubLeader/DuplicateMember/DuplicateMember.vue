@@ -146,11 +146,11 @@ export default {
     ...mapState(['OverlappingMembers']),
     hasOverlappingMembers() {
       //OverlappingMembers 배열이 존재하고 길이가 1 이상이면 true를 return하는 함수
-      return this.OverlappingMembers.length > 0;
+      return this.OverlappingMembers && this.OverlappingMembers.length > 0;
     },
     overlappingMembersCount() {
       //OverlappingMembers 배열이 존재하면 길이를 return하고, 없으면 0을 return하는 함수
-      return this.OverlappingMembers.length;
+      return this.OverlappingMembers ? this.OverlappingMembers.length : 0;
     },
   },
 
