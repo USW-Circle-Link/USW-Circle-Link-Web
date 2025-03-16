@@ -227,6 +227,7 @@ export default {
         await this.sendToServer();
         this.isSuccess = true;
         this.serverMessage = '해당 회원의 추가가 정상적으로 처리되었습니다.';
+        state.OverlappingMembers = [];
       } catch (error) {
         console.error('Error adding member:', error);
         this.isSuccess = false;
@@ -276,18 +277,18 @@ export default {
         if (error.response.code === 401) {
           this.show401Popup = true;
         } else if (
-          error.response.code === CMEM - 202 || // 에러가 CMEM - 202 거나
-          error.response.code === PFL - 201 // 에러가 PEL - 201 일 때
+          error.response.code === 'CMEM-202' || // 에러가 CMEM-202 거나
+          error.response.code === 'PFL-201' // 에러가 PFL-201 일 때
         ) {
           this.isSuccess = false;
 
-          if (error.response.code === CMEM - 202) {
+          if (error.response.code === 'CMEM-202') {
             this.serverMessage =
               error.response.data.message ||
-              '클럽멤버가 이미 존재합니다. 관리자에게 문의하세요.'; // CMEM - 202 error Message
-          } else if (error.response.code === PFL - 201) {
+              '클럽멤버가 이미 존재합니다. 관리자에게 문의하세요.'; // CMEM-202 error Message
+          } else if (error.response.code === 'PFL-201') {
             this.serverMessage =
-              error.response.data.message || '프로필이 존재하지 않습니다.'; // PFL - 201 error Message
+              error.response.data.message || '프로필이 존재하지 않습니다.'; // PFL-201 error Message
           }
 
           this.showResultPopup = true;
