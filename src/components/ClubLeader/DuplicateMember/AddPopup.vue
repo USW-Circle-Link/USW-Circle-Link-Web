@@ -32,16 +32,21 @@
 export default {
   name: 'AddPopup',
   props: {
+    // 이름 팝업
     name: {
-      /* 이름 팝업 */ type: String,
+      type: String,
       required: true,
     },
+
+    // 학번 팝업
     studentId: {
-      /* 학번 팝업 */ type: String,
+      type: String,
       required: true,
     },
+
+    // 전화번호 팝업
     phoneNumber: {
-      /* 전화번호 팝업 */ type: String,
+      type: String,
       required: true,
     },
   },
