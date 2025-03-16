@@ -19,20 +19,21 @@ export default {
   name: 'SuccessFailPopup',
   props: {
     isSuccess: {
+      // 성공 시 True, 실패 시 False
       type: Boolean,
-      required: true
+      required: true, // 필수적으로 부모 컴포넌트로 props 전달
     },
     serverMessage: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     message() {
       return this.serverMessage;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -93,7 +94,7 @@ export default {
 }
 
 .confirm-button {
-  background-color: #FFB052;
+  background-color: #ffb052;
   color: white;
 }
 
@@ -102,7 +103,7 @@ export default {
 }
 
 .message {
-  color: #2F2F2F;
+  color: #2f2f2f;
   font-family: Pretendard;
   font-size: 15px;
   font-style: normal;
