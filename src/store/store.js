@@ -10,6 +10,7 @@ export default createStore({
     isAgreedTerms: localStorage.getItem('isAgreedTerms') === 'true' || false,
     shouldUpdateSidebar: false,
     apiBaseUrl: 'http://15.164.246.244:8080',
+    OverlappingMembers: [],
   },
   mutations: {
     SET_SIDEBAR_UPDATE(state, value) {
