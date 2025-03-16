@@ -201,10 +201,11 @@ export default {
     },
 
     validateForm() {
+      //'동아리 관리자'가 중복 회원 추가 시 기입하는 회원 정보의 양식
       const nameValid =
-        /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== '';
-      const studentIdValid = /^\d{8}$/.test(this.studentId);
-      const phoneNumberValid = /^\d{11}$/.test(this.phoneNumber);
+        /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== ''; //한글, 영어, 공백 허용
+      const studentIdValid = /^\d{8}$/.test(this.studentId); // 8자리 허용
+      const phoneNumberValid = /^\d{11}$/.test(this.phoneNumber); // 11자리 허용
 
       this.nameError = this.name && !nameValid;
       this.studentIdError = this.studentId && !studentIdValid;
