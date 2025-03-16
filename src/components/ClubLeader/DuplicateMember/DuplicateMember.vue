@@ -135,7 +135,7 @@ import Popup401 from '../401Popup.vue';
 import { mapState } from 'vuex';
 
 export default {
-  name: 'DuplicateMember',
+  name: 'DuplicateMember', // 컴포넌트 이름 설정
   components: {
     AddPopup,
     SuccessFailPopup,
@@ -227,7 +227,6 @@ export default {
         await this.sendToServer();
         this.isSuccess = true;
         this.serverMessage = '해당 회원의 추가가 정상적으로 처리되었습니다.';
-        state.OverlappingMembers = [];
       } catch (error) {
         console.error('Error adding member:', error);
         this.isSuccess = false;
@@ -299,6 +298,7 @@ export default {
     },
 
     closeResultPopup() {
+      //
       this.showResultPopup = false;
       if (this.isSuccess) {
         this.resetForm();
@@ -306,6 +306,7 @@ export default {
     },
 
     resetForm() {
+      // 기입하는 칸을 비우고, 모든 에러 상태를 false로 바꾸는 함수
       this.name = '';
       this.studentId = '';
       this.phoneNumber = '';
