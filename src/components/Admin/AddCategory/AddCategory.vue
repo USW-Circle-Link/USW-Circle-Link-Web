@@ -96,8 +96,8 @@ export default {
       }
     },
     async addCategory() {
-      const specialCharPattern = /[!@#$%^&*(),.?":{}|<> ]/;
-
+      const specialCharPattern = /[!@#$%^&*(),.?":{}|<>/'+=-`_']/;
+      const whiteSpacePattern =/\s+/; //중간 공백 체크
       const trimmedCategory = this.categoryName.trim();
       if (
           trimmedCategory !== "" &&
@@ -134,12 +134,9 @@ export default {
           }
         }
       } else if (this.categories.includes(trimmedCategory)) {
-        this.serverMessage = '이미 존재하는 카테고리입니다.';
+        this.serverMessage = '이미 존재하는 카테고리에요.';
         this.showPopup = true;
-      } else if(specialCharPattern.test(trimmedCategory)){
-        this.serverMessage = '카테고리에는 공백 또는 특수문자를 포함할 수 없습니다.';
-        this.showPopup = true;
-      } else if(!trimmedCategory.length <= 10) {
+      }  else if((!trimmedCategory.length <= 10) || whiteSpacePattern.test(trimmedCategory) || specialCharPattern.test(trimmedCategory)) {
         this.errorMsg = '* 카테고리는 공백, 특수문자 제외 1~10자 이내로 작성해주세요.';
       }
     },
