@@ -54,7 +54,7 @@ export default {
   margin-top: 80px;
   font-size: 20px;
   font-weight: 500;
-  line-height: 12px;
+  line-height: 20px;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
 }
