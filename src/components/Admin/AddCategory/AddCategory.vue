@@ -36,8 +36,6 @@
   <Popup401 v-if="show401Popup" />
 </template>
 
-
-
 <script>
 import axios from "axios";
 import store from "@/store/store";
@@ -51,7 +49,7 @@ export default {
       categories: [], // 초기 카테고리 데이터
       categoryName: "", // 새로 추가할 카테고리
       categoryMap: new Map(),
-
+      
       showPopup: false,
       serverMessage: '',
 
@@ -66,12 +64,15 @@ export default {
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
-      if (error.response && error.response.status === 401) {
+      const { code } = error.response?.data || {};
+      
+      if (error.response.status === 401) {
         this.show401Popup = true;
         return true;
       }
       return false;
     },
+    //카테고리 불러오기 
     async fetchCategory(){
       try {
         const response = await axios.get(`${store.state.apiBaseUrl}/admin/clubs/category`, {
@@ -95,15 +96,17 @@ export default {
         }
       }
     },
+    //카테고리 추가
     async addCategory() {
-      const specialCharPattern = /[!@#$%^&*(),.?":{}|<> ]/;
-
+      const specialCharPattern = /[!@#$%^&*(),.?":{}|<>/'+=-`_']/;
+      const whiteSpacePattern =/\s+/; //중간 공백 체크
       const trimmedCategory = this.categoryName.trim();
       if (
           trimmedCategory !== "" &&
           !this.categories.includes(trimmedCategory) &&
           !specialCharPattern.test(trimmedCategory) &&
-          trimmedCategory.length <= 10
+          trimmedCategory.length <= 10 &&
+          !whiteSpacePattern.test(trimmedCategory)
       ) {
         try {
           const response = await axios.post(
@@ -124,7 +127,7 @@ export default {
             this.categories.push(trimmedCategory);
           }
 
-          this.serverMessage = '카테고리가 정상적으로 저장되었습니다.'
+          this.serverMessage = '카테고리가 정상적으로 저장되었어요.'
           this.showPopup = true;
           this.categoryName = "";
 
@@ -134,15 +137,16 @@ export default {
           }
         }
       } else if (this.categories.includes(trimmedCategory)) {
-        this.serverMessage = '이미 존재하는 카테고리입니다.';
+        this.serverMessage = '이미 존재하는 카테고리에요.';
         this.showPopup = true;
-      } else if(specialCharPattern.test(trimmedCategory)){
-        this.serverMessage = '카테고리에는 공백 또는 특수문자를 포함할 수 없습니다.';
+      } else if(specialCharPattern.test(trimmedCategory)  ){
+        this.serverMessage = '카테고리에는 공백 또는 특수문자를 포함할 수 없어요.';
         this.showPopup = true;
-      } else if(!trimmedCategory.length <= 10) {
+      } else if((!trimmedCategory.length <= 10) || whiteSpacePattern.test(trimmedCategory)) {
         this.errorMsg = '* 카테고리는 공백, 특수문자 제외 1~10자 이내로 작성해주세요.';
       }
     },
+    //카테고리 삭제
     async removeCategory(category, index) {
       const categoryId = this.categoryMap.get(category);
       if (!categoryId) {
@@ -158,14 +162,15 @@ export default {
         });
         this.categories.splice(index, 1);
         this.categoryMap.delete(category); // Map에서도 카테고리 제거
-        this.serverMessage = '카테고리가 정상적으로 삭제되었습니다.'
+        this.serverMessage = '카테고리가 정상적으로 삭제되었어요.'
         this.showPopup = true;
       } catch (error) {
-        if (!this.handle401Error(error)) {
+        if (!this.handleErrorCode(error)) {
           console.error('Error removing category:', error);
         }
       }
     },
+
     closeResultPopup() {
       this.showPopup = false
       this.errorMsg = '';
@@ -173,7 +178,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .title {
@@ -203,7 +207,6 @@ h2 {
   flex-wrap: wrap;
   gap: 10px; /* 항목 간 간격 */
   margin-bottom: 150px;
-
 }
 
 .category-item {
