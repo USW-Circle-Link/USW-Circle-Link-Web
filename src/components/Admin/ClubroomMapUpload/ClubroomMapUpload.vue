@@ -5,7 +5,6 @@
   <div class="floor-images-container">
     <!-- 지하 1층 -->
     <div class="floor-section">
-      <h3>지하 1층</h3>
       <div
         class="image-container"
         @mouseover="showIcons('B1', true)"
@@ -32,6 +31,7 @@
               />
             </div>
           </div>
+          <h3>지하 1층</h3>
           <div class="upload-placeholder">
             <button @click="triggerFileInput('B1')" class="upload-button">
               <i class="upload-icon"></i>
@@ -46,13 +46,9 @@
           />
         </div>
       </div>
-    </div>
-
-    <!-- 1층과 2층 -->
-    <div class="floor-section horizontal-layout">
       <!-- 1층 -->
       <div class="floor-container">
-        <h3>1층</h3>
+
         <div
           class="image-container"
           @mouseover="showIcons('F1', true)"
@@ -79,6 +75,7 @@
                 />
               </div>
             </div>
+            <h3>지상 1층</h3>
             <div class="upload-placeholder">
               <button @click="triggerFileInput('F1')" class="upload-button">
                 <i class="upload-icon"></i>
@@ -97,7 +94,6 @@
 
       <!-- 2층 -->
       <div class="floor-container">
-        <h3>2층</h3>
         <div
           class="image-container"
           @mouseover="showIcons('F2', true)"
@@ -124,6 +120,7 @@
                 />
               </div>
             </div>
+            <h3>지상 2층</h3>
             <div class="upload-placeholder">
               <button @click="triggerFileInput('F2')" class="upload-button">
                 <i class="upload-icon"></i>
@@ -140,7 +137,6 @@
         </div>
       </div>
     </div>
-    <div class="line"></div>
     <button @click="saveImages" class="save-button">저장하기</button>
 
     <!-- 확대된 이미지 모달 -->
@@ -403,6 +399,7 @@ export default {
   margin: 10px 0;
   align-self: start;
   text-align: left;
+  display: flex;
 }
 
 .horizontal-layout {
@@ -414,6 +411,10 @@ export default {
 .floor-container {
   flex: 1;
   margin: 0 10px;
+  background-color: white;
+  border-radius: 8px;
+  width : 281.33px;
+  height: 280.33px;
 }
 
 .image-container {
@@ -429,7 +430,7 @@ export default {
   align-items: center;
   overflow: hidden; /* 이미지 넘치는 부분 숨김 */
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 8 0px;
 
   position: relative;
   transition: background-color 0.2s ease;
@@ -481,22 +482,28 @@ export default {
 }
 
 .upload-button {
-    width: 274px;
-    height: 35px;
-    display: flex;
-    flex-shrink: 0;
-    border-radius: 8px;
-    background: #fff;
-    justify-content: center;
-    border: none;
-    align-items: center;
-    align-content: center;
-    margin-right: 60px;
-    cursor: pointer;
+  width: 260px;
+  height: 35px;
+  display: flex;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #fff;
+  justify-content: center;
+  border-width: 1px;
+  border-color: #868686;
+  align-items: center;
+  align-content: center;
+  margin-right: 60px;
+  cursor: pointer;
+  margin: 10px;
 
-    color: #868686;
-    line-height: 18px;
-    font-weight: 500;
+  color: #868686;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+.upload-button :hover {
+  background-color: #e6953e;
 }
 
 .save-button {
@@ -512,8 +519,8 @@ export default {
   line-height: 16px;
   letter-spacing: -0.025em;
   text-align: center;
-  margin-top: 30px;
-  margin-left: 630px; /* 774 -> 630 */
+  margin-top: 200px;
+  margin-left: 800px; 
   margin-bottom: 30px;
   cursor: pointer;
 }
@@ -565,15 +572,11 @@ h2{
   margin-bottom: -5px;
 }
 h3 {
-  font-size: 14px;
+  margin: 10px 0px 15px 10px;
+  font-size: 12px;
+  height: 25px;
 }
-.line {
-  border: 1px solid;
-  width: 735px;
-  color: #d3d3d3;
-  margin-top: 20px;
-  align-self: flex-start;
-}
+
 .remove-icon {
   position: absolute;
   width: 20px;
@@ -581,6 +584,7 @@ h3 {
   top: 10px;
   right: 10px;
   pointer-events: all;
+
 }
 .upload-icon {
   width: 16px;
