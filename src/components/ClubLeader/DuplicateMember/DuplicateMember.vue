@@ -145,11 +145,11 @@ export default {
     // 반응형
     ...mapState(['OverlappingMembers']),
     hasOverlappingMembers() {
-      //OverlappingMembers 배열이 존재하고 길이가 1 이상이면 true를 return하는 함수
+      //OverlappingMembers 배열의 길이가 1 이상이면 true를 return
       return this.OverlappingMembers.length > 0;
     },
     overlappingMembersCount() {
-      //OverlappingMembers 배열이 존재하면 길이를 return하고, 없으면 0을 return하는 함수
+      //OverlappingMembers 배열이 존재하면 길이를 return하고, 없으면 0을 return
       return this.OverlappingMembers.length;
     },
   },
@@ -217,12 +217,14 @@ export default {
     },
 
     handleAddMember() {
+      // 멤버 추가 팝업
       if (this.isFormValid) {
         this.showPopup = true;
       }
     },
 
     async confirmAdd() {
+      // 프로필 중복 회원 추가
       try {
         await this.sendToServer();
         this.isSuccess = true;
@@ -250,12 +252,14 @@ export default {
     },
 
     async sendToServer() {
+      // 서버로 정보 보내기
       const data = {
         userName: this.name,
         studentNumber: this.studentId,
         userHp: this.phoneNumber,
       };
 
+      // 지역변수로 사용하기 때문에 mapState를 사용 x
       const accessToken = store.state.accessToken;
       const clubUUID = store.state.clubUUID;
 
@@ -277,7 +281,8 @@ export default {
           this.show401Popup = true;
         } else if (
           error.response.code === 'CMEM-202' || // 에러가 CMEM-202 거나
-          error.response.code === 'PFL-201' // 에러가 PFL-201 일 때
+          error.response.code === 'PFL-201' || // 에러가 PFL-201 일 때
+          error.response.code === 'INVALID_ARGUMENT'
         ) {
           this.isSuccess = false;
 
@@ -288,6 +293,9 @@ export default {
           } else if (error.response.code === 'PFL-201') {
             this.serverMessage =
               error.response.data.message || '프로필이 존재하지 않습니다.'; // PFL-201 error Message
+          } else if (error.response.code === 'INVALID_ARGUMENT') {
+            this.serverMessage =
+              '<span style="color:red;">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해 주세요.'; // INVALID_ARGUMENT error Message
           }
 
           this.showResultPopup = true;
@@ -298,7 +306,7 @@ export default {
     },
 
     closeResultPopup() {
-      //
+      // 결과 팝업창 닫기
       this.showResultPopup = false;
       if (this.isSuccess) {
         this.resetForm();
