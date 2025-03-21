@@ -35,7 +35,7 @@ export default {
     // 이름 팝업
     name: {
       type: String,
-      required: true,
+      required: true, // 필수적으로 props를 전달받음
     },
 
     // 학번 팝업
