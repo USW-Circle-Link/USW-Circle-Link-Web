@@ -5,7 +5,7 @@
 
       <div class="popup-separator"></div>
 
-      <p class="message">{{ message }}</p>
+      <p class="message" v-html="message"></p>
 
       <div class="button-group">
         <button @click="$emit('close')" class="confirm-button">확인</button>
