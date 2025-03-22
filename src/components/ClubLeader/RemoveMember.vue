@@ -165,9 +165,11 @@ export default {
         (m) => m.clubMemberUUID === member.clubMemberUUID
       );
       if (index === -1) {
-        this.selectedMembers.push(member);
+        // 아직 체크되지 않은 동아리 회원의 경우
+        this.selectedMembers.push(member); // selectedMembers의 배열에 추가
       } else {
-        this.selectedMembers.splice(index, 1);
+        // 이미 체크된 동아리 회원의 경우
+        this.selectedMembers.splice(index, 1); // selectedMembers의 배열에서 삭제
       }
     },
 
