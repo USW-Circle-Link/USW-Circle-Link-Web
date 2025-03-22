@@ -62,7 +62,9 @@
       </div>
     </div>
 
+    <!-- 동아리 회원 퇴출 확인 팝업 -->
     <div class="custom-popup1" v-if="showExpulsionPopup">
+      <!-- 퇴출하기 팝업을 누를 시 -->
       <div class="popup-content1">
         <div class="popup-header1">
           <p class="popup-title1">동아리 회원 퇴출</p>
@@ -95,17 +97,20 @@ import Popup401 from './401Popup.vue';
 
 export default {
   name: 'RemoveMemberDashboard',
+
   components: {
     Popup401,
   },
+
   data() {
     return {
       clubMembers: [],
-      showExpulsionPopup: false,
+      showExpulsionPopup: false, // 팝업 표시 여부를 체크할 Boolean값
       selectedMembers: [],
       show401Popup: false, // 401 팝업 상태 추가
     };
   },
+
   computed: {
     formattedClubMembers() {
       if (!this.clubMembers) return [];
@@ -117,9 +122,11 @@ export default {
       });
     },
   },
+
   mounted() {
     this.fetchData();
   },
+
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
@@ -443,9 +450,9 @@ export default {
   font-weight: 400;
   cursor: pointer;
   position: absolute;
-  bottom: 20px;
+  bottom: 16px;
   right: 20px;
-  line-height: 20px;
+  line-height: 16px;
 }
 
 .cancel-button {
@@ -458,9 +465,9 @@ export default {
   font-weight: 400;
   cursor: pointer;
   position: absolute;
-  bottom: 20px;
+  bottom: 16px;
   right: 120px;
-  line-height: 20px;
+  line-height: 16px;
 }
 
 .expel-button:hover {
