@@ -1,6 +1,8 @@
 <template>
   <div class="popup-overlay">
     <div class="popup">
+      <div class="popup-header">카테고리 설정</div>
+      <hr />
       <p class="confirm-message">{{ message }}</p>
       <button @click="$emit('close')" class="confirm-button">확인</button>
     </div>
@@ -48,15 +50,17 @@ export default {
   text-align: left;
   position: relative;
 }
-
-.confirm-message{
-  text-align: center;
-  margin-top: 80px;
-  font-size: 20px;
+.popup-header {
+  font-size: 18px;
   font-weight: 500;
-  line-height: 12px;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
+  text-align: left;
+}
+hr {
+  border-bottom: 1px solid #d3d3d3;
+}
+.confirm-message{
+  font-size: 16px;
+  text-align: left;
 }
 
 .confirm-button{
