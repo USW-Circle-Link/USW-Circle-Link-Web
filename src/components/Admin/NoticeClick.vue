@@ -19,10 +19,14 @@
         <p class="popup-title">공지사항 삭제</p>
         <div class="popup-divider"></div>
 
-        <p>
-          <span class="popup-highlight">작성된 공지사항을 삭제하시겠습니까?</span><br /><br />
+        
+                <span>
+          작성된 공지사항을 삭제하시겠습니까?<br>
           삭제된 글은 복구할 수 없습니다.
-        </p>
+        </span>
+
+          
+        
         <div class="popup-buttons">
           <button @click="cancelDelete" class="cancel-button">취소</button>
           <button @click="confirmDelete" class="confirm-button">삭제</button>

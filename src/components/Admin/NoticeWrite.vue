@@ -657,7 +657,7 @@ export default {
   margin: 20px 0 20px; /* 상단 마진 추가: margin-top: 20px */
   font-size: 14px;
   text-align: left;
-  color: #666;
+  color: black;
   line-height: 1.4;
 }
 
