@@ -458,15 +458,18 @@ export default {
 }
 
 .edit-button, .delete-button {
+  /* height: 37px;  <-- 주석 처리하거나 삭제 */
   background: #f0f0f0;
   border: none;
   border-radius: 4px;
-  padding: 8px 20px 15px 20px; /* 위 5px, 오른쪽 20px, 아래 15px, 왼쪽 20px */
+  /* 예: 패딩을 적절히 조절 */
+  padding: 8px 16px; 
   margin: 0 5px;
   cursor: pointer;
   font-size: 16px;
-  pointer-events: auto; /* 클릭 이벤트 허용 */
+  pointer-events: auto;
 }
+
 
 .edit-button {
   width: 95px;
