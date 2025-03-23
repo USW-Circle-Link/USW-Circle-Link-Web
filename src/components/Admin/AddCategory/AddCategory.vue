@@ -73,6 +73,7 @@ export default {
       }
       return false;
     },
+    //카테고리 목록 불러오기
     async fetchCategory(){
       try {
         const response = await axios.get(`${store.state.apiBaseUrl}/admin/clubs/category`, {
@@ -96,8 +97,9 @@ export default {
         }
       }
     },
+    //카테고리 추가
     async addCategory() {
-      const specialCharPattern = /[!@#$%^&*(),.?":{}|<>/'+=-`_']/;
+      const specialCharPattern = /[!@#$%^&*(),.?":;{}|<>/'+=-`_']/;
       const whiteSpacePattern =/\s+/; //중간 공백 체크
       const trimmedCategory = this.categoryName.trim();
       if (
@@ -130,9 +132,19 @@ export default {
           this.categoryName = "";
 
         } catch (error) {
-          if (!this.handle401Error(error)) {
-            console.error('Error adding category:', error);
+          console.log('=== 로그인 에러 ===');
+  console.log('에러:', error);
+  console.log('에러 응답:', error.response);
+  console.log('에러 데이터:', error.response?.data);
+  console.log('===================');
+
+          const {code} = error.response?.data || {};
+          console.log('에러코드' , code);
+          if(code === 'INVALID_REQUEST_BODY') {
+            this.serverMessage = '숫자만 입력할 수 없어요.';
+            this.showPopup= true;
           }
+          
         }
       } else if (this.categories.includes(trimmedCategory)) {
         this.serverMessage = '이미 존재하는 카테고리에요.';
@@ -140,7 +152,10 @@ export default {
       }  else if((!trimmedCategory.length <= 10) || whiteSpacePattern.test(trimmedCategory) || specialCharPattern.test(trimmedCategory)) {
         this.errorMsg = '* 카테고리는 공백, 특수문자 제외 1~10자 이내로 작성해주세요.';
       }
+       
+        
     },
+    //카테고리 삭제
     async removeCategory(category, index) {
       const categoryId = this.categoryMap.get(category);
       if (!categoryId) {
