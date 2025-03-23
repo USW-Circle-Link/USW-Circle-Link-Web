@@ -191,9 +191,11 @@ export default {
     await this.fetchImages();
   },
   methods: {
+    
     // 401 에러 처리를 위한 공통 메서드
     handle401Error(error) {
-      if (error.response && error.response.status === 401) {
+      const { code } = error.response?.data || {};
+      if (code === 401 ){
         this.show401Popup = true;
         return true;
       }
@@ -213,7 +215,8 @@ export default {
                   },
                 })
                 .catch((error) => {
-                  if (error.response && error.response.status === 404) {
+                  const { code } = error.response?.data || {};
+                  if (code === 404 || code === "NOT_FOUND") {
                     console.warn(`층 ${floorId}에 대한 이미지를 찾을 수 없습니다.`);
                     return null;
                   }
