@@ -384,9 +384,17 @@ export default {
 
         await this.fetchData();
       } catch (error) {
-        if (error.response) {
-          console.error('Error response data:', error.response.data);
+        const { code } = error.response?.data || {};
+
+        if(code === 'CMEM-201'){
+          alert("클럽멤버가 존재하지 않습니다.");
+        } else if(code === 'PFL-206'){
+          alert("비회원만 수정할 수 있습니다.");
+        } else {
+          alert("예기치 못한 오류가 발생했습니다.\n" +
+              "문제가 계속될 시, 관리자에게 문의해 주세요.");
         }
+
         if (!this.handle401Error(error)) {
           console.error('Error updating member:', error);
         }
@@ -513,6 +521,11 @@ export default {
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('Error fetching data:', error);
+        }
+
+        const { code } = error.response?.data || {};
+        if(code === 'PFL-208'){
+          alert("유효하지 않은 회원 종류입니다.");
         }
       }
     },
