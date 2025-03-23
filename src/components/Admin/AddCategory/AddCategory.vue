@@ -54,7 +54,7 @@ export default {
 
       showPopup: false,
       serverMessage: '',
-
+      serverPopHead: '',
       errorMsg: "",
 
       show401Popup: false  // 401 팝업
@@ -132,17 +132,18 @@ export default {
           this.categoryName = "";
 
         } catch (error) {
-          console.log('=== 로그인 에러 ===');
-  console.log('에러:', error);
-  console.log('에러 응답:', error.response);
-  console.log('에러 데이터:', error.response?.data);
-  console.log('===================');
-
           const {code} = error.response?.data || {};
-          console.log('에러코드' , code);
-          if(code === 'INVALID_REQUEST_BODY') {
+          
+          if(code === 'INVALID_REQUEST_BODY' ) {
             this.serverMessage = '숫자만 입력할 수 없어요.';
             this.showPopup= true;
+          }
+          // 입력검증을 뚫었을 경우
+          else if (code === "INVALID_ARGUMENT"){
+            `
+            <span style="color:red; font-weight:bold;">예기치 못한 오류</span>가 발생했습니다.<br/>
+            문제가 계속될 시, 관리자에게 문의해 주세요.
+            `;     
           }
           
         }
