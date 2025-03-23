@@ -333,7 +333,7 @@ export default {
         this.formValidation.idValid = false;
       } else if (!idPattern.test(this.id)) {
         this.isActiveId = true;
-        this.idError = '* 아이디는 5~20자 이내의 숫자와 문자만 입력 가능합니다.';
+        this.idError = '* 아이디는 5~20자 이내의 영어, 숫자로 작성해주세요.';
         this.formValidation.idValid = false;
       } else {
         this.formValidation.idValid = true;
