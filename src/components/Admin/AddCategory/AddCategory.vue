@@ -66,7 +66,8 @@ export default {
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
-      if (error.response && error.response.status === 401) {
+      const { code } = error.response?.data || {};
+      if (code === 401 || code === 'UNAUTHORIZED') {
         this.show401Popup = true;
         return true;
       }
