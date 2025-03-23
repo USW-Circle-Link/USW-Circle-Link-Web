@@ -37,7 +37,7 @@
           />
           <label for="password-input" class="floating-label">비밀번호</label>
         </div>
-
+        <span class="errorMessage">{{errorMessage}}</span>
         <div class="custom-dropdown"
              @click="toggleDropdown"
              :class="{ 'focused': focusedElement === 'dropdown' }">
@@ -88,10 +88,11 @@ export default {
       loginType: "LEADER",
       error: "",
       selectedOption: '동아리 관리자',
-      options: ['동아리 관리자', '동아리 연합회 / 개발팀'],
+      options: ['동아리 관리자', '동아리 연합회'],
       isOpen: false,
       showFailurePopup: false,
       failureMessage: "",
+      errorMessage: "",
       focusedElement: null,
     };
   },
@@ -109,10 +110,7 @@ export default {
       const sqlKeywords = ["select", "insert", "update", "delete"];
       const regex = new RegExp(sqlKeywords.join("|"), "i");
 
-      if (regex.test(value) || /\s/.test(value)) {
-        return false;
-      }
-      return true;
+      return !(regex.test(value) || /\s/.test(value));
     },
 
     async login() {
@@ -124,7 +122,7 @@ export default {
 
       const loginTypeMap = {
         "동아리 관리자": "LEADER",
-        "동아리 연합회 / 개발팀": "ADMIN"
+        "동아리 연합회": "ADMIN"
       };
       this.loginType = loginTypeMap[this.selectedOption];
 
@@ -155,6 +153,7 @@ export default {
         // console.log('========================');
 
         if (response.data) {
+          // eslint-disable-next-line no-unused-vars
           const { message, data } = response.data;
           const { accessToken, refreshToken, role, clubUUID, isAgreedTerms } = data;
 
@@ -199,17 +198,19 @@ export default {
         const { code } = error.response?.data || {};
 
         if (code === 'USR-211') {
-          this.failureMessage = "아이디 또는 비밀번호가 일치하지 않습니다.";
+          this.errorMessage = "* 아이디 또는 비밀번호가 일치하지 않아요.";
         } else if (code === 'ATTEMPT-503') {
           this.failureMessage = "최대 시도 횟수를 초과했습니다. 1분 후 다시 시도 하세요.";
+          this.showFailurePopup = true;
         }
         else if (code === 'BAD_REQUEST') {
           this.failureMessage = "잘못된 로그인 타입입니다. 다시 시도해주세요.";
+          this.showFailurePopup = true;
         }
         else {
           this.failureMessage = "로그인 중 오류가 발생했습니다. 다시 시도해주세요....";
+          this.showFailurePopup = true;
         }
-        this.showFailurePopup = true;
       }
     }
   },
@@ -361,7 +362,7 @@ export default {
   height: 350px; /* 높이 고정 */
   border-radius: 16px;
   background: #FFF;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 form {
@@ -373,15 +374,14 @@ form {
 
 .custom-dropdown {
   height: 64px;
-  padding: 0 15px;
   background-color: #fff;
   display: flex;
   align-items: center;
   border-radius: 12px;
   border: 1px solid #D7D7D7;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
   font-size: 20px;
-  padding-left: 25px;
+  padding: 0 15px 0 25px;
   margin-bottom: 20px;
 }
 
@@ -427,6 +427,16 @@ input, select {
   color: #9D9D9D; /* input, select 텍스트 색상 회색으로 설정 */
 }
 
+.errorMessage{
+  position: absolute;
+  font-family: Pretendard;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 100%;
+  color: #FF3535;
+  margin-top: 165px;
+}
+
 option {
   color: #888; /* option 텍스트 색상 회색으로 설정 */
 }
@@ -459,7 +469,7 @@ option {
   border-radius: 8px;
   margin-top: 5px;
   background-color: #fff;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   color: #9D9D9D;
   z-index: 1;
   padding: 0; /* 기본 padding 제거 */
@@ -475,24 +485,24 @@ option {
 
 .dropdown-options li:first-child:hover {
   background-color: #ffe6c6;
-  border-radius: 8px 8px 0px 0px;
+  border-radius: 8px 8px 0 0;
 }
 
 .dropdown-options li:last-child:hover {
   background-color: #ffe6c6;
-  border-radius: 0px 0px 8px 8px;
+  border-radius: 0 0 8px 8px;
 }
 
 .dropdown-option-selected:first-child {
   background-color: #ffa726;
   color: white;
-  border-radius: 8px 8px 0px 0px;
+  border-radius: 8px 8px 0 0;
 }
 
 .dropdown-option-selected:last-child {
   background-color: #ffa726;
   color: white;
-  border-radius: 0px 0px 8px 8px;
+  border-radius: 0 0 8px 8px;
 }
 
 .dropdown-option-selected {
@@ -535,7 +545,7 @@ option {
   align-items: center;
   border-radius: 12px;
   border: 1px solid #D7D7D7;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
   margin-bottom: 20px;
 }
 
