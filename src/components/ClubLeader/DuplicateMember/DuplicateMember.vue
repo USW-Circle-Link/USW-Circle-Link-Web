@@ -280,9 +280,9 @@ export default {
         if (error.response.code === 401) {
           this.show401Popup = true;
         } else if (
-          error.response.code === 'CMEM-202' || // 에러가 CMEM-202 거나
-          error.response.code === 'PFL-201' || // 에러가 PFL-201 일 때
-          error.response.code === 'INVALID_ARGUMENT'
+          error.response.code === 'CMEM-202' || // 에러가 CMEM-202 or
+          error.response.code === 'PFL-201' || // 에러가 PFL-201 or
+          error.response.code === 'INVALID_ARGUMENT' // 에러가 INVALID_ARGUMENT 일 때
         ) {
           this.isSuccess = false;
 
