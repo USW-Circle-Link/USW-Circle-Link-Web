@@ -184,11 +184,18 @@ export default {
         this.isPopupVisible = false;
         alert("동아리가 성공적으로 삭제되었습니다.");
       } catch (error) {
+        const { code } = error.response?.data || {};
         if (!this.handle401Error(error)) {
-          console.error('Error updating member:', error);
-        }
-        if(error.response.status === 400){
-          this.adminPwError = "* 비밀번호를 다시 확인해주세요."
+          //console.error('Error updating member:', error);
+          if(code === 'ADM-202'){
+            this.adminPwError = "* 비밀번호를 다시 확인해주세요."
+          } else if(code === 'CLUB-201'){
+            alert("존재하지않는 동아리 입니다.");
+          } else if(code === 'INVALID_UUID_FORMAT'){
+            alert("유효하지 않은 UUID 형식입니다. 올바른 UUID를 입력하세요.");
+          } else {
+            alert("예기치 못한 오류 발생");
+          }
         }
       }
     },
