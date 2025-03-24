@@ -104,7 +104,7 @@
 
     <Popup v-if="showAcceptPopup"
            :visible="showAcceptPopup"
-           title="동아리 회원 가입 요청"
+           title="비회원 가입 요청"
            message="해당 동아리 회원의 가입 요청을 수락하시겠습니까?"
            sub-message="다시 되돌릴 수 없으니 신중하게 선택해주세요."
            @cancel="cancelAccept"
@@ -114,16 +114,34 @@
            message="해당 동아리 회원 가입 요청을 거절하시겠습니까?" subMessage="다시 되돌릴 수 없으니 신중하게 선택해주세요."
            @cancel="cancelRejection" @confirm="confirmRejection"/>
 
-    <Popup v-if="showConfirmationPopup"
-           :visible="showConfirmationPopup"
-           title="동아리 회원 가입 요청"
-           message="회원 가입 요청이 정상적으로 처리되었습니다."
-           :hideCancelButton="true"
-           @confirm="closeConfirmationPopup"/>
+           <div v-if="showConfirmationPopup" class="popup-overlay">
+            <div class="custom-popup">
+              <p class="popup-title">비회원 가입 요청</p>
+              <div class="popup-divider"></div>
+              <p class="popup-message">
+                회원 가입 요청이 정상적으로 처리되었습니다.<br>
+                해당 회원은 타 동아리에도 소속된 회원으로<br>
+                모든 회장의 요청 수락을 받아야 회원 가입이 완료됩니다.
+              </p>
+              <div class="popup-buttons">
+                <button @click="closeConfirmationPopup" class="confirm-button">확인</button>
+              </div>
+            </div>
+          </div>
+
+            <Popup 
+      v-if="ErrorPopup"
+      :visible="ErrorPopup"
+      title="동구라미"
+      :message="errorData"
+      :hideCancelButton="true"
+      @confirm="ErrorPopup = false"
+    />
+
 
     <Popup v-if="showErrorPopup"
            :visible="showErrorPopup"
-           title="동아리 회원 가입 요청"
+           title="비회원 가입 요청"
            :message="`해당 동아리 회원의 정보가 일치하지 않습니다.`"
            :subMessage="`${errorData}`"
            :message2="`을(를) 다시 확인해주세요.`"
@@ -209,11 +227,6 @@ export default {
     },
 
     async fetchData() {
-      console.log("🔍 Vuex 상태 확인:", store.state);
-    console.log("🔍 Access Token:", store.state.accessToken);
-    console.log("🔍 clubUUID:", store.state.clubUUID);
-    console.log("🔍 clubMemberUUID:", store.state.clubMemberUUID);
-    console.log("🔍 clubMemberAccountStatusUUID:", store.state.clubMemberAccountStatusUUID);
 
     const accessToken = store.state.accessToken;
     const clubMemberUUID = store.state.clubMemberUUID; //주석 해제 후 값 가져오기
@@ -338,16 +351,16 @@ export default {
       try {
         const memberId = this.addedMembers[this.editingIndex].clubMemberUUID;
 
-        // Clean phone number before sending
+        
         const cleanedPhone = this.tempEditingMember.phone.replace(/\D/g, '');
 
         const success = await this.updateMemberInfo(memberId, {
           ...this.tempEditingMember,
-          phone: cleanedPhone // Send cleaned phone number to server
+          phone: cleanedPhone 
         });
 
         if (success) {
-          // Store the cleaned phone number in local state
+          
           this.addedMembers[this.editingIndex] = {
             ...this.tempEditingMember,
             phone: cleanedPhone
@@ -499,28 +512,38 @@ export default {
         this.selectedAddedMembers = [];
 
       } catch (error) {
-        if (error.response) {
-          console.error("API 요청 실패:", error.response.data);
+    if (error.response) {
+        console.error("API 요청 실패:", error.response.data);
 
-          if (error.response.status === 401) {
+        const {code}=error.response?.data||{};
+        if (error.response.status === 401) {
             this.show401Popup = true;
-          } else if (error.response.status === 404) {
-            // 404 에러일 때 show404ErrorPopup 표시
+        } else if (code === "CMEM-201") {
             this.show404ErrorPopup = true;
-          } else if (error.response.data.code === "PFL-209") {
-            // PFL-209 에러 코드일 때 showErrorPopup 표시하고 additionalData 설정
+        } else if (code === "PFL-209") {
             this.errorData = error.response.data.additionalData.join(', ');
             this.showErrorPopup = true;
-          } else {
-            // 기타 에러의 경우 일반 에러 팝업 표시
-            this.errorData = '알 수 없는 오류가 발생했습니다.';
+        } else if (code === "INVALID_ARGUMENT") {
+            // "INVALID_ARGUMENT" 에러일 경우
+            this.errorData = "예기치 못한 오류가 발생했습니다.\n문제가 계속될 시, 관리자에게 문의해 주세요.";
+            this.ErrorPopup = true;
+        } else if (code === "PFL-206") {
+            // "INVALID_ARGUMENT" 에러일 경우
+            this.errorData = "비회원만 수정할 수 있습니다.";
+             // Alert 창 띄우기
+              alert(this.errorData);
+            //this.showErrorPopup = true;
+        } 
+         else {
+            this.errorData = "알 수 없는 오류가 발생했습니다.";
             this.showErrorPopup = true;
-          }
-        } else {
-          this.errorData = '네트워크 오류가 발생했습니다.';
-          this.showErrorPopup = true;
         }
-      }
+    } else {
+        this.errorData = "네트워크 오류가 발생했습니다.";
+        this.showErrorPopup = true;
+    }
+}
+
 
       this.showAcceptPopup = false;
       this.saveData();
