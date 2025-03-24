@@ -93,6 +93,18 @@
       </div>
     </div>
 
+    <div v-if="showUnexpectedErrorPopup" class="popup-overlay">
+      <div class="unexpectedPopup">
+        <h2>동구라미</h2>
+        <hr />
+        <p class="confirm-message">
+          <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
+        <div class="unexpectedPopup-buttons">
+          <button @click="hideUnexpectedErrorPopup">확인</button>
+        </div>
+      </div>
+    </div>
+
     <Popup401 v-if="show401Popup" />
   </div>
 </template>
@@ -130,7 +142,8 @@ export default {
       textSize: 0,
       RecruittextSize: 0,
       showConfirmPopup: false,
-      show401Popup: false
+      show401Popup: false,
+      showUnexpectedErrorPopup: false, // 예기치 못한 오류 팝업
     };
   },
   mounted() {
@@ -139,8 +152,9 @@ export default {
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
+      // 에러 응답 O, 상태코드 401인 경우
       if (error.response && error.response.status === 401) {
-        this.show401Popup = true;
+        this.show401Popup = true; //팝업
         return true;
       }
       return false;
@@ -151,53 +165,50 @@ export default {
       const accessToken = store.state.accessToken;
 
       try {
+        // GET요청으로 서버로부터 클럽 정보 받아오기
         const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/intro`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           }
         });
-        console.log("서버에서 받은 GET 응답 데이터:", response.data);
 
         //가져온 클럽 데이터를 저장
         this.clubData = response.data.data;
         this.isChecked = (this.clubData.recruitmentStatus === 'OPEN');
-        // 줄바꿈 처리 수정
+        // 소개글 줄바꿈 처리
         this.textareaContent = (this.clubData.clubIntro || '')
             .replace(/\n?<br>\n?/gi, '\n')
             .replace(/&nbsp;/g, ' ');
-        // 줄바꿈 처리 수정
+        // 모집글 줄바꿈 처리
         this.textareaRecruitContent = (this.clubData.clubRecruitment || '' || this.textareaRecruitContent)
             .replace(/\n?<br>\n?/gi, '\n')
             .replace(/&nbsp;/g, ' ');
         this.googleFormLink = this.clubData.googleFormUrl || '';
 
-        //  새로운 이미지가 반영되는지 확인
-        console.log("[fetchClubInfo] introPhotos:", this.clubData.introPhotos);
+        // 기존 이미지 배열 초기화 (항상 5개 슬롯 유지)
+        this.images = Array(5).fill({ src: '' }); 
 
-        //  UI가 변경되지 않도록 빈 값 포함하여 처리
-        this.images = Array(5).fill({ src: '' }); // 항상 5개의 슬롯 유지
-
-        // introPhotos를 기존 `this.images` 배열의 적절한 위치에 삽입
+        // 서버에서 가져온 introPhotos를 기존 this.images 배열(UI상 이미지)의 적절한 위치에 삽입
         (this.clubData.introPhotos || []).forEach((url, index) => {
           if (url) {
             this.images[index] = { src: url };
           }
         });
 
-        console.log(" [fetchClubInfo] UI에 적용할 images:", this.images);
-
       } catch (error) {
+        // 401에러가 아니면 실패 alert창 
         if (!this.handle401Error(error)) {
-          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
           alert('동아리 정보를 불러오는데 실패했습니다.');
         }
       }
+      // 텍스트 길이 업데이트 
       this.updateTextSize();
       this.updateRecruitTextSize();
     },
     navigateTo(routeName) {
       this.$router.push({name: routeName}).catch(err => {
+        // 동일 경로 이동 시 에러 무시 
         if (err.name !== 'NavigationDuplicated') {
           throw err;
         }
@@ -207,10 +218,10 @@ export default {
     deleteImage(index) {
       this.pastImages = this.images;//현재 이미지를 임시 저장
       try {
-        this.images.splice(index, 1, {src: ''});//해당 인덱스의 이미지를 제거
-        this.orders.splice(this.orders.indexOf(index + 1), 1);//순서 정보 업데이트
-        this.deletedOrders.splice(index, 0, index + 1);//삭제 된 순서 저장
-        this.deletedOrders.sort();//순서 정렬
+        this.images.splice(index, 1, {src: ''}); //해당 인덱스의 이미지를 제거 (빈 값)
+        this.orders.splice(this.orders.indexOf(index + 1), 1); //순서 정보 업데이트 (삭제된 이미지의 순서를 orders에서 제거)
+        this.deletedOrders.splice(index, 0, index + 1); // 삭제된 순서 저장 (삭제된 이미지 순서를 deletedOrders에 추가)
+        this.deletedOrders.sort();// 삭제된 순서 배열 정렬
         this.$forceUpdate();//변경사항 적용 강제
       } catch (error) {
         console.error("Error while deleting image:", error);
@@ -224,8 +235,9 @@ export default {
       this.isChecked = !this.isChecked;
       this.$emit('sendData', this.isChecked);
 
+      // 서버에 PATCH 요청으로 모집 상태 업데이트 
       axios.patch(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/recruitment`, {
-        key: this.isChecked
+        key: this.isChecked // 모집 상태 
       }, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
@@ -245,6 +257,7 @@ export default {
     // 파일 선택 트리거
     triggerFileInput(index) {
       const fileInputRef = this.$refs[`fileInput${index}`];
+      // ref가 정상적으로 존재하고 클릭 가능할 경우 클릭 실행
       if (fileInputRef && fileInputRef[0] && fileInputRef[0].click) {
         fileInputRef[0].click();//파일 선택 창 열기
       }
@@ -256,28 +269,29 @@ export default {
         alert('이미지는 최대 5개까지 업로드할 수 있습니다.');
         return;
       }
-      const file = event.target.files[0];
+      const file = event.target.files[0]; // 파일 객체 가져오기 
       //파일 확장자 및 크기 검사
       if (file) {
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
-        const maxFileSize = 10 * 1024 * 1024;
+        const maxFileSize = 10 * 1024 * 1024; // 10MB
 
         if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-          this.file.splice(index, 1, file);//파일 추가
+          this.file.splice(index, 1, file); // 해당 인덱스에 파일 삽입
           this.errorMessage = '';
           this.validFile = true;
 
           const reader = new FileReader();
           reader.onload = (e) => {
             this.images[index].src = e.target.result;//미리보기 이미지 설정
-            this.imagesData.push({src: e.target.result, file});//이미지 데이터 추가
+            this.imagesData.push({src: e.target.result, file});//이미지 데이터 배열에 추가
           };
           reader.readAsDataURL(file);
 
-          this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
+          this.orders.splice(index, 0, index + 1); //순서 추가 및 정렬
           this.orders.sort();
         } else {
+          // 잘못된 파일 형식, 크기 초과 시 
           alert("파일 형식이 맞지 않습니다. \n10MB 이하 .png, .jpg, .jpeg, .gif, .bmp, .webp, .tiff 형식의 파일을 입력하세요.");
           this.errorMessage = '파일 형식이 맞지 않습니다.';
           this.validFile = false;
@@ -286,7 +300,7 @@ export default {
     },
     // 이미지 업로드
     onImageUpload(index, event) {
-      const file = event.target.files[0];
+      const file = event.target.files[0]; //선택된 파일 
       //파일 유효성 검사
       if (file) {
         const validExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'];
@@ -294,10 +308,11 @@ export default {
         const maxFileSize = 10 * 1024 * 1024;
 
         if (validExtensions.includes(fileExtension) && file.size < maxFileSize) {
-          this.file.push(file);
-          this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1);//삭제 된 순서 제거
-          this.orders.splice(index, 0, index + 1);//순서 추가 및 정렬
+          this.file.push(file); // 파일 리스트에 추가 
+          this.deletedOrders.splice(this.deletedOrders.indexOf(index + 1), 1); //삭제 된 순서에서 제거
+          this.orders.splice(index, 0, index + 1); //순서 추가 및 정렬
           this.orders.sort();
+
           const reader = new FileReader();
           reader.onload = (e) => {
             this.images.splice(index, 1, {src: e.target.result});
@@ -317,25 +332,17 @@ export default {
     hidePopup() {
       this.showConfirmPopup = false;
     },
+    // 예기치 못한 오류 팝업 숨기기
+    hideUnexpectedErrorPopup() {
+      this.showUnexpectedErrorPopup = false;
+    },
     // 정보 저장
     async saveInfo() {
       const clubUUID = store.state.clubUUID;
       const accessToken = store.state.accessToken;
 
-      // if (this.textareaContent === '') {
-      //   alert("소개 모집글 작성 실패. 동아리 소개 입력칸이 비어있습니다.");
-      //   return;
-      // }
-      // if (this.googleFormLink === '') {
-      //   alert("소개 모집글 작성 실패. 구글 폼 링크 입력칸이 비어있습니다.");
-      //   return;
-      // }
-      // if (!this.googleFormLink.includes("https://forms.gle/") && !this.googleFormLink.includes("https://docs.google.com/forms/")) {
-      //   alert("https://forms.gle/ 또는 https://docs.google.com/forms/ 로 시작하는 링크만 입력 할 수 있습니다.");
-      //   return;
-      // }
-
       const form = new FormData();
+      // JSON 데이터를 문자열로 변환하여 Blob으로 추가
       const jsonData = {
         // 줄바꿈을 <br>로 변환
         clubIntro: this.textareaContent
@@ -353,12 +360,14 @@ export default {
         deletedOrders: this.deletedOrders
       };
       form.append('clubIntroRequest', new Blob([JSON.stringify(jsonData)], {type: 'application/json'}));
-      //이미지 데이터 폼에 추가
+      
+      // 이미지 파일을 데이터 폼에 추가
       this.imagesData.forEach((image, index) => {
         form.append('introPhotos', image.file);
       });
 
       try {
+        // PUT 요청으로 서버에 데이터 전송
         const response = await axios.put(
             `${store.state.apiBaseUrl}/club-leader/${clubUUID}/intro`,
             form,
@@ -369,18 +378,31 @@ export default {
               }
             }
         );
+        // 서버가 presigned URL을 응답했다면 이미지 업로드 실행
         if (response.data && response.data.data && response.data.data.presignedUrls) {
           this.presignedUrls = response.data.data.presignedUrls;
           await this.uploadFiles();//파일 업로드
         }
 
-        //alert("저장되었습니다!");          //이 창 말고 팝업 뜨게 하믄 되는 겅가 (나중에 주석 지워서 업로드 할 것)                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@
+        // 저장 완료 후 팝업 표시
         this.showPopup();
         this.$emit('data-saved');//데이터 저장 완료 이벤트 발생
 
       } catch (error) {
-        this.showPopup(); //테스트용 @@!!!!!!
-        console.error("오류가 발생했습니다:", error.response ? error.response.data : error);
+        const errorData = error.response?.data;
+
+        if (errorData?.code === 'CLP-201') {
+          alert('범위를 벗어난 사진 순서 값입니다.');
+          return;
+        }
+        if (errorData?.code === 'MAX_UPLOAD_SIZE_EXCEEDED') {
+          alert('업로드 가능한 최대 파일 크기를 초과했습니다. (개별 파일 10MB, 총 파일 크기 50MB)');
+          return;
+        }
+        if (errorData?.code === 'INVALID_ARGUMENT') {
+          this.showUnexpectedErrorPopup = true;
+          return;
+        }
       }
     },
     // 이미지 업로드
@@ -394,29 +416,26 @@ export default {
           });
         }));
       } catch (error) {
-        console.error("파일 업로드 실패:", error);
         alert("파일 업로드 실패!");
       }
     },
+    // 소개글 텍스트 길이 검사 및 제한
     updateTextSize() {
       // 문자 수가 3000자를 초과하는지 확인
       if (this.textareaContent.length > 3000) {
         alert("문자 수가 3000자를 초과했습니다.");
         this.textareaContent = this.textareaContent.slice(0, 3000); // 3000자로 잘라서 저장
       }
-
-      // 문자 수 업데이트
-      this.textSize = this.textareaContent.length;
+      this.textSize = this.textareaContent.length; // 문자 수 업데이트
     },
+    // 모집글 텍스트 길이 검사 및 제한 
     updateRecruitTextSize() {
       // 문자 수가 3000자를 초과하는지 확인
       if (this.textareaRecruitContent.length > 3000) {
         alert("문자 수가 3000자를 초과했습니다.");
         this.textareaRecruitContent = this.textareaRecruitContent.slice(0, 3000); // 3000자로 잘라서 저장
       }
-
-      // 문자 수 업데이트
-      this.RecruittextSize = this.textareaRecruitContent.length;
+      this.RecruittextSize = this.textareaRecruitContent.length; // 문자 수 업데이트
     }
   }
 };
@@ -675,11 +694,6 @@ label::after {
   font-family: 'Malgun Gothic', sans-serif;
 }
 
-/*
-.GoogleFormLinkInput textarea::placeholder{
-  text-align: center;
-}*/
-
 textarea:focus {
   outline: none; /* 포커스 상태일 때 테두리 제거 */
 }
@@ -706,9 +720,6 @@ button {
   position:absolute;
   bottom: -20px;
   right: 20px;
-
-  /*text-align: right;
-  margin-right: 10px;*/
   font-size: 14px;
 }
 
@@ -768,6 +779,19 @@ textarea::placeholder{
   margin-top: 0;
   text-align: left;
 }
+.unexpectedPopup {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  height: 180px;
+  position: relative;
+}
+.unexpectedPopup h2 {
+  margin-top: 0;
+  text-align: left;
+}
 hr {
   border: none;
   border-top: 1px solid #ccc;
@@ -786,7 +810,20 @@ hr {
   justify-content: flex-end;
   margin-top: 40px;
 }
+.unexpectedPopup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
 .popup-buttons button {
+  width: 80px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+.unexpectedPopup-buttons button {
   width: 80px;
   height: 32px;
   border: none;
@@ -797,5 +834,8 @@ hr {
 .popup-buttons button:first-child {
   background: #ffb052;
   color: white;
+}
+.error-highlight {
+  color: #ff4d4f;
 }
 </style>
