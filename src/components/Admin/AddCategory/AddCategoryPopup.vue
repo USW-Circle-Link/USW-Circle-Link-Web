@@ -3,7 +3,7 @@
     <div class="popup">
       <div class="popup-header">카테고리 설정</div>
       <hr />
-      <p class="confirm-message">{{ message }}</p>
+      <p v-html="message" class="confirm-message"></p>
       <button @click="$emit('close')" class="confirm-button">확인</button>
     </div>
   </div>
