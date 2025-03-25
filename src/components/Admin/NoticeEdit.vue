@@ -15,6 +15,18 @@
       </div>
 
 
+      <div v-if="showUnexpectedErrorPopup" class="popup-overlay">
+      <div class="unexpectedPopup">
+        <h2>동구라미</h2>
+        <hr />
+        <p class="confirm-message">
+          <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
+        <div class="unexpectedPopup-buttons">
+          <button @click="hideUnexpectedErrorPopup">확인</button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="notice">
       <div class="title-container">
         <label for="title-input" class="label">제목</label>
@@ -103,6 +115,7 @@ export default {
       isLoading: false, // 로딩 상태
       show401Popup: false,  // 401 팝업
       showEditPopup: false,  // 수정 완료 팝업 
+      showUnexpectedErrorPopup: false
     };
   },
   methods: {
@@ -227,6 +240,11 @@ export default {
       alert('업로드 가능한 최대 파일 크기를 초과했습니다. (개별 파일 10MB, 총 파일 크기 50MB)');
     }
   },
+
+  // 예기치 못한 오류 팝업 숨기기
+  hideUnexpectedErrorPopup() {
+      this.showUnexpectedErrorPopup = false;
+    },
 
     editImage(index) {
       const fileInput = this.$refs[`fileInput${index}`];

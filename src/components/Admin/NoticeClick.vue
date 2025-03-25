@@ -59,7 +59,17 @@
       </div>
     </div>
 
-
+    <div v-if="showUnexpectedErrorPopup" class="popup-overlay">
+      <div class="unexpectedPopup">
+        <h2>동구라미</h2>
+        <hr />
+        <p class="confirm-message">
+          <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
+        <div class="unexpectedPopup-buttons">
+          <button @click="hideUnexpectedErrorPopup">확인</button>
+        </div>
+      </div>
+    </div>
 
     <div class="actions">
       <button class="edit-button" @click="editNotice">
@@ -148,6 +158,7 @@ export default {
       images: [], // 이미지 배열
       show401Popup: false, // 401 팝업
       totalNotices: 1, // 전체 공지사항 수
+      showUnexpectedErrorPopup: false,
       currentNoticeIndex: 0 // 현재 공지사항의 전체 인덱스
     };
   },
@@ -173,6 +184,10 @@ export default {
       } else {
         sessionStorage.removeItem("reloaded");
       }
+    },
+    // 예기치 못한 오류 팝업 숨기기
+    hideUnexpectedErrorPopup() {
+      this.showUnexpectedErrorPopup = false;
     },
     handle401Error(error) {
       if (error.response && error.response.status === 401) {

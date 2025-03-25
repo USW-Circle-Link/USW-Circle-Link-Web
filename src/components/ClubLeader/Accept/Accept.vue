@@ -128,6 +128,17 @@
               </div>
             </div>
           </div>
+          <div v-if="showUnexpectedErrorPopup" class="popup-overlay">
+      <div class="unexpectedPopup">
+        <h2>동구라미</h2>
+        <hr />
+        <p class="confirm-message">
+          <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
+        <div class="unexpectedPopup-buttons">
+          <button @click="hideUnexpectedErrorPopup">확인</button>
+        </div>
+      </div>
+    </div>
 
             <Popup 
       v-if="ErrorPopup"
@@ -199,6 +210,7 @@ export default {
       errorMessages: [], // 에러 메시지 배열
       selectedAddedMembers: [], // 선택된 회원 관리
       errorMessagesByIndex: {},
+      showUnexpectedErrorPopup: false,
 
       errorData: '', // 400 에러시 additionalData 저장
       completedMemberName: '', // 회원가입 완료된 회원 이름 저장
@@ -380,6 +392,11 @@ export default {
       if (this.editingMember) {
         this.editingMember.department = '';
       }
+    },
+
+    // 예기치 못한 오류 팝업 숨기기
+    hideUnexpectedErrorPopup() {
+      this.showUnexpectedErrorPopup = false;
     },
     saveData() {
       localStorage.setItem("requestedMembers", JSON.stringify(this.requestedMembers));

@@ -42,6 +42,20 @@
 </div>
 
 
+
+<div v-if="showUnexpectedErrorPopup" class="popup-overlay">
+      <div class="unexpectedPopup">
+        <h2>동구라미</h2>
+        <hr />
+        <p class="confirm-message">
+          <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
+        <div class="unexpectedPopup-buttons">
+          <button @click="hideUnexpectedErrorPopup">확인</button>
+        </div>
+      </div>
+    </div>
+
+
       <!-- 내용 입력 영역 -->
       <div class="content-container">
   <div class="textarea-wrapper">
@@ -125,7 +139,8 @@ export default {
       titleError: '', // 제목 오류 메시지
       contentError: '', // 내용 오류 메시지
       titleMaxLength: 200, // 제목 최대 글자 수
-      contentMaxLength: 3000 // 내용 최대 글자 수
+      contentMaxLength: 3000, // 내용 최대 글자 수
+      showUnexpectedErrorPopup: false
     };
   },
   methods: {
@@ -152,6 +167,11 @@ export default {
     deleteImage(index) {
       this.images.splice(index, 1);
       this.$refs[`fileInput${index}`] = null; // 파일 입력 필드 초기화
+    },
+
+    // 예기치 못한 오류 팝업 숨기기
+    hideUnexpectedErrorPopup() {
+      this.showUnexpectedErrorPopup = false;
     },
 
     // 401 에러 공통 처리
