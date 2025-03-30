@@ -216,7 +216,7 @@ export default {
                 })
                 .catch((error) => {
                   const { code } = error.response?.data || {};
-                  if (code === 404 || code === "NOT_FOUND") {
+                  if (code === 404 || code) {
                     console.warn(`층 ${floorId}에 대한 이미지를 찾을 수 없습니다.`);
                     return null;
                   }
