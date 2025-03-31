@@ -52,7 +52,7 @@
       <h3>동아리 삭제</h3>
       <div class="line2"></div>
       <p class="popup-message">'{{ PopupClubName }}'을(를) 삭제하시겠습니까?</p>
-      <input v-model="adminPw" type="password" placeholder="관리자 비밀번호" />
+      <input v-model="adminPw" type="password" placeholder="관리자 비밀번호를 입력해 주세요." />
       <p class="popup-warning">{{ adminPwError }}</p>
       <button class="expel-button" @click="confirmDelete">확인</button>
       <button class="cancel-button" @click="cancelDelete">취소</button>
