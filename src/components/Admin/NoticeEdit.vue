@@ -409,19 +409,22 @@ export default {
 .edit-popup {
   background: #fff;
   padding: 24px;
-  border-radius: 8px;
-  width: 452px; /* 적절한 너비 */
-  height: 182px;
+  border-radius: 12px;
+  max-width: 452px; /* 고정보다 유동적인 max-width */
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* 약간 더 강조 */
   text-align: left;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
+  height: 182px;
 }
+
 
 .popup-title {
   font-size: 18px;
-  
-  margin-bottom: 10px;
+  margin-top: -5px; /* 👈 위로 당기기 */
+  margin-bottom: 5px;
   color: black;
 }
+
 
 .popup-divider {
   border-top: 1px solid #ddd;
@@ -447,7 +450,11 @@ export default {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 80px;
+  height: 32px;
+  margin-top: 20px; /* 👈 직접 아래로 내림 */
 }
+
 
 .notice-write-container {
   width: 100%;

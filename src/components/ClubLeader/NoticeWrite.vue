@@ -183,6 +183,11 @@ export default {
   margin-bottom: 20px;
 }
 
+.title-container {
+  position: relative; /* 글자 수 카운트 위치 잡기 위해 필요 */
+}
+
+
 .label {
   display: block;
   margin-bottom: 5px;

@@ -16,13 +16,13 @@
     <!-- 삭제 팝업창 -->
     <div v-if="showDeletePopup" class="delete-popup-overlay">
       <div class="delete-popup">
-        <p class="popup-title">공지사항 삭제</p>
+        <div class="popup-title">동구라미</div>
         <div class="popup-divider"></div>
 
         
                 <span>
-          작성된 공지사항을 삭제하시겠습니까?<br>
-          삭제된 글은 복구할 수 없습니다.
+          삭제된 글은 복구할 수없어요.<br>
+          그래도 공지사항을 삭제하시겠어요?
         </span>
 
           
@@ -35,17 +35,18 @@
     </div>
 
     
+<div v-if="notice" class="notice-details">
+ 
+  <div class="notice-header-with-line">
+    <div class="notice-header-flex">
+      <span class="notice-title">{{ notice.noticeTitle }}</span>
+      <span class="notice-meta">{{ notice.adminName }} | </span>
+      <span class="notice-date">{{ formattedDate(notice.noticeCreatedAt) }}</span>
+    </div>
+  </div>
 
-    <!-- 공지사항 상세보기 -->
-    <div v-if="notice" class="notice-details">
-      <div class="meta-info">
-        <p>
-          <span class="notice-title">{{ notice.noticeTitle }}</span>
-          <span class="notice-meta">{{ notice.adminName }} | </span>
-          <span class="notice-date"> {{ formattedDate(notice.noticeCreatedAt) }} </span> 
-        </p>
-      </div>
-      <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
+  <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
+</div>
 
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
@@ -134,7 +135,6 @@
         </button>
       </div>
     </div>
-  </div>
 
   <Popup401 v-if="show401Popup" />
 
@@ -418,12 +418,21 @@ export default {
   word-wrap: break-word; /* 🔹 긴 단어 줄바꿈 */
   overflow-wrap: break-word; /* 🔹 단어 단위 줄바꿈 */
   text-overflow: ellipsis; /* 🔹 넘칠 경우 ... 표시 */
-  display: block;
+  
+}
+
+.notice-header-flex {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px; /* 항목 사이 간격 */
+  word-break: break-word;
 }
 
 .notice-meta {
   font-size: 14px;
-  color: black;
+  color: #000;        /* 검정색 */
+  font-weight: 700;   /* 볼드체 */
   margin-left: 10px;
 }
 
@@ -460,6 +469,32 @@ export default {
   border-radius: 8px;
 }
 
+.notice-header-with-line {
+  border-bottom: 1px solid #dcdcdc; /* 얇은 회색 선 */
+  padding-bottom: 8px; /* 선과 텍스트 사이 여백 */
+  margin-bottom: 16px; /* 본문과의 거리 */
+}
+
+.notice-header-flex {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.notice-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+}
+
+/* .notice-meta,
+.notice-date {
+  font-size: 14px;
+  color: #666;
+} */
+
+
 .popup-highlight {
   color: black;
   font-weight: bold;
@@ -471,10 +506,11 @@ export default {
 
 .actions {
   display: flex;
-  justify-content: flex-start; /* 왼쪽으로 정렬 */
-  margin-top: 5px; /* 위에서 여백 추가 */
-  margin-left: 550px; /* 왼쪽 정렬 */
+  justify-content: flex-end;  /* 👉 오른쪽 정렬로 변경 */
+  margin-top: -30px;        /* 👈 버튼과 위 요소 간 거리 */
+  margin-left: 550px;     /* 👈 오른쪽 정렬을 위한 왼쪽 여백 */
 }
+
 
 .edit-button, .delete-button {
   /* height: 37px;  <-- 주석 처리하거나 삭제 */
@@ -523,6 +559,7 @@ export default {
   padding: 24px; /* 내부 여백 */
   border-radius: 8px; /* 둥근 모서리 */
   width: 452px; /* 팝업 너비 */
+  height: 192px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
   text-align: left; /* 텍스트 왼쪽 정렬 */
   display: flex;
@@ -536,39 +573,53 @@ export default {
 }
 
 
+/*  팝업 제목 */
 .popup-title {
-  font-size: 18px;
-  font-weight: bold;
+  font-family: Pretendard;
+  font-weight: 500;
+  font-size: 16px;       /* ✅ 적절한 크기 */
+  line-height: 0px;     /* ✅ 충분한 줄 간격 */
   color: black;
-  margin-bottom: 10px;
+  margin-top: 8px;
 }
 
+
+
+
 .delete-popup p {
-  font-size: 14px;
-  color: #666;
+  font-size: 16px;
+  color: black;
   margin: 0;
 }
+
+
 
 .popup-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 10px; /* 버튼 사이 여백 */
+  gap: 10px;
   margin-top: 10px;
+  padding-bottom: 10px; /* 👈 여유 여백 추가 */
+  box-sizing: border-box;
 }
 
 .cancel-button,
 .confirm-button {
+  width: 80px;
+  height: 32px;
   font-size: 14px;
-  padding: 8px 16px;
+  font-weight: 500;
+  border-radius: 8px;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
+  padding: 0; /* 👈 패딩 제거로 높이 고정 */
 }
 
 .cancel-button {
-  background-color: #e0e0e0; /* 연한 회색 */
-  color: #666;
+  background-color: #e0e0e0;
+  color: #ffffff; /* ✅ 흰색 글씨로 변경 */
 }
+
 
 .confirm-button {
   background-color: #FFB052; /* 강조 색상 */
@@ -583,19 +634,8 @@ export default {
   background-color: #e09b4d;
 } */
 
-.cancel-button,
-.confirm-button {
-  border: none;
-  padding: 8px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
 
-.cancel-button {
-  background-color: #ddd;
-  color: #333;
-}
+
 
 .confirm-button {
   background-color:  #FFB052;

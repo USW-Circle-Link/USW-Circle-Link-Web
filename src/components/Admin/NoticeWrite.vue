@@ -7,21 +7,25 @@
 
     <div v-if="notice">
       <!-- 제목 입력 영역 -->
-      <div class="title-container">
-        <label for="title-input" class="label">제목</label>
-        <input
-          id="title-input"
-          v-model="notice.noticeTitle"
-          @input="limitTitleLength"
-          :class="{ 'input-error': notice.noticeTitle.length >= titleMaxLength }"
-          class="title-input"
-          placeholder="제목을 입력해 주세요. (200자 이내)"
-        />
-        <div class="character-count" :class="{ 'error-text': notice.noticeTitle.length >= titleMaxLength }">
-          {{ notice.noticeTitle.length }} / {{ titleMaxLength }}
-        </div>
-          <span v-if="titleError" class="error-text">{{ titleError }}</span>
-        </div>
+<!-- 제목 입력 영역 -->
+<div class="title-container">
+  <label for="title-input" class="label">제목</label>
+
+  <input
+    id="title-input"
+    v-model="notice.noticeTitle"
+    @input="limitTitleLength"
+    :class="{ 'input-error': notice.noticeTitle.length >= titleMaxLength }"
+    class="title-input"
+    placeholder="제목을 입력해 주세요. (200자 이내)"
+  />
+
+  <div class="title-character-count" :class="{ 'error-text': notice.noticeTitle.length >= titleMaxLength }">
+  {{ notice.noticeTitle.length }} / {{ titleMaxLength }}
+</div>
+
+  <span v-if="titleError" class="error-text">{{ titleError }}</span>
+</div>
 
 
 
@@ -481,6 +485,15 @@ export default {
   color: #999;
   pointer-events: none;
 }
+.title-character-count {
+  position: absolute;
+  top: 55px; /* input 아래 위치 */
+  right: 10px;
+  font-size: 12px;
+  color: #999;
+  pointer-events: none;
+}
+
 
 /* 이미지 업로드 영역 */
 .image-upload-container {
