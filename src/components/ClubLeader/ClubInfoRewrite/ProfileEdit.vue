@@ -42,7 +42,7 @@
                 id="leaderName"
                 v-model="leaderName"
                 :class="['standard-input', { 'error': !isLeaderNameValid && leaderName }]"
-                placeholder="이름을 입력해주세요."
+                placeholder="이름을 입력해주세요. (특수 문자 제외 2~30자)"
                 @input="validateLeaderName"
             />
             <span v-if="!isLeaderNameValid && leaderName" class="error-message">
@@ -104,7 +104,7 @@
                 id="hashTag"
                 v-model="hashTagInput"
                 :class="['standard-input', { 'error': !isHashTagValid && hashTagInput }]"
-                placeholder="해시태그를 입력해주세요. ( # 제외 한글, 대문자 3자, 소문자 6자)"
+                placeholder="해시태그를 입력해주세요. ( # 제외 한글, 영어 대문자 3자, 소문자 6자)"
                 maxlength="25"
                 @keyup.enter="addHashTag"
             />
