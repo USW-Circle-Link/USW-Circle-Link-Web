@@ -184,7 +184,8 @@ export default {
 }
 
 .title-container {
-  position: relative; /* 글자 수 카운트 위치 잡기 위해 필요 */
+  position: relative;
+  min-height: 85px; /* error-text 높이 고려한 값 */
 }
 
 

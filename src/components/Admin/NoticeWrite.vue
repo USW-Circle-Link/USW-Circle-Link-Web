@@ -25,23 +25,19 @@
   {{ notice.noticeTitle.length }} / {{ titleMaxLength }}
 </div>
 
-  <span v-if="titleError" class="error-text">{{ titleError }}</span>
+<span class="error-text" v-show="titleError">{{ titleError }}</span>
+
 </div>
 
 
 
-<!-- 공지사항 저장 성공 시 팝업 -->
 <div v-if="showSuccessPopup" class="popup-overlay">
-  <div class="write-popup">
-    <!-- 제목 (왼쪽 정렬) -->
-    <p class="popup-title">동구라미</p>
-    <!-- 구분선 -->
-    <div class="popup-divider"></div>
-    <!-- 메시지도 왼쪽 정렬 -->
-    <p class="popup-message">공지사항이 정상적으로 작성되었습니다.</p>
-    <!-- 확인 버튼: 오른쪽 정렬 -->
+  <div class="popup">
+    <h2>동구라미</h2>
+    <hr />
+    <p class="confirm-message">공지사항이 정상적으로 저장되었어요.</p>
     <div class="popup-buttons">
-      <button @click="closeSuccessPopup" class="confirm-button">확인</button>
+      <button @click="closeSuccessPopup">확인</button>
     </div>
   </div>
 </div>
@@ -478,18 +474,24 @@ export default {
   resize: none;
   position: relative;
 }
+
+.title-container {
+  position: relative;
+  min-height: 85px; /* error-text 높이 고려한 값 */
+}
+
 .character-count {
   position: absolute;
-  bottom: 10px;
-  right: 15px;
+  bottom: 13px;
+  right: -5px;
   font-size: 12px;
-  color: #999;
+  color: black;
   pointer-events: none;
 }
 .title-character-count {
   position: absolute;
   top: 52px; /* input 아래로 */
-  right: 10px;
+  right: -5px;
   font-size: 12px;
   color: black;
   pointer-events: none;
@@ -619,6 +621,53 @@ textarea:focus {
   cursor: pointer;
   text-align: center;
 }
+
+.popup {
+  position: fixed; /* 고정 위치 */
+  top: 50%;         /* 수직 중앙 */
+  left: 50%;        /* 수평 중앙 */
+  transform: translate(-50%, -50%); /* 정확한 중앙 배치 */
+  
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  height: 180px;
+  z-index: 1001; /* overlay보다 높게 */
+}
+
+.popup h2 {
+  margin-top: 0;
+  text-align: left;
+  font-size: 16px; /* 👈 여기서 줄이세요 (기존 24px → 18px 추천) */
+  font-weight: 500; /* 굵기도 조절 가능 */
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
+.confirm-message {
+  text-align: left;
+}
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 40px;
+}
+.popup-buttons button {
+  width: 80px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 10px;
+  background: #ffb052;
+  color: white;
+}
+
 
 /* 팝업 전체 화면 덮는 반투명 배경 */
 .popup-overlay {
