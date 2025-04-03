@@ -8,7 +8,8 @@
     <div v-if="notice">
       <!-- 제목 입력 영역 -->
 <!-- 제목 입력 영역 -->
-<div class="title-container">
+<div class="title-container" style="position: relative;">
+
   <label for="title-input" class="label">제목</label>
 
   <input
@@ -487,11 +488,20 @@ export default {
 }
 .title-character-count {
   position: absolute;
-  top: 55px; /* input 아래 위치 */
+  top: 52px; /* input 아래로 */
   right: 10px;
   font-size: 12px;
-  color: #999;
+  color: black;
   pointer-events: none;
+}
+
+
+/* 포커스 시 검정 테두리 제거 */
+input:focus,
+textarea:focus {
+  outline: none;
+  border: 1px  white; /* 예: 강조색으로 변경 */
+  
 }
 
 
