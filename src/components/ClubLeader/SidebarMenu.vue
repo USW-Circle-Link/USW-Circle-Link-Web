@@ -113,7 +113,7 @@ export default {
       const path = '/ClubProfile'; // 이동할 경로
       const url = `${path}`; // 상대 경로만 지정
       const windowName = '_blank'; // 새 창
-      const windowFeatures = 'width=750,height=790,resizable=no,scrollbars=no'; // 창 크기, 속성
+      const windowFeatures = 'width=715,height=820,resizable=no,scrollbars=no'; // 창 크기, 속성
       window.open(url, windowName, windowFeatures); // 새 창 열기
     },
     // 로그아웃 처리 함수 

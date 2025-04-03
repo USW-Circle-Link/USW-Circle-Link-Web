@@ -206,8 +206,8 @@ export default {
       localStorage.setItem('accessToken', store.state.accessToken);
 
       // 새 창의 크기와 위치 설정
-      const width = 712;
-      const height = 960;
+      const width = 715;
+      const height = 820;
 
       // clubId만 URL 파라미터로 전달
       window.open(
