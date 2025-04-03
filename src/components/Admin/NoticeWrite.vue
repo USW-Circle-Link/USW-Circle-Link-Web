@@ -250,13 +250,13 @@ export default {
 
       // 🔹 제목과 내용 입력 여부 확인 후 오류 메시지 설정
    if (this.notice.noticeTitle.trim() === "") {
-        this.titleError = "제목을 입력해주세요.";
+        this.titleError = "* 제목을 입력해주세요.";
       } else {
         this.titleError = "";
       }
 
       if (this.notice.noticeContent.trim() === "") {
-        this.contentError = "내용을 입력해주세요.";
+        this.contentError = "* 내용을 입력해주세요.";
       } else {
         this.contentError = "";
       }
@@ -312,7 +312,7 @@ export default {
 
         if (!response || !response.data) {
           console.error('응답 데이터 없음');
-          alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
+        //  alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
           return;
         }
 
@@ -386,7 +386,7 @@ export default {
 
         // 기타 에러
         console.error('공지사항 제출 실패:', error.response || error.message);
-        alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
+      //  alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
       } finally {
         this.isLoading = false;
       }
