@@ -1,6 +1,7 @@
 <template>
   <div class="popup-overlay">
     <div class="popup">
+      <div class="popup-header">동아리 위치 정보 수정</div>
       <p class="confirm-message">{{ message }}</p>
       <button @click="$emit('close')" class="confirm-button">확인</button>
     </div>
@@ -22,7 +23,6 @@ export default {
   }
 }
 </script>
-
 <style scoped>
 .popup-overlay {
   position: fixed;
@@ -45,21 +45,28 @@ export default {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   width: 452px;
   height: 184px;
-  text-align: left;
   position: relative;
+  text-align: left;
 }
 
-.confirm-message{
-  text-align: center;
-  margin-top: 80px;
+.popup-header {
   font-size: 20px;
-  font-weight: 500;
-  line-height: 12px;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
+  font-weight: bold;
+  border-bottom: 1px solid #d3d3d3;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+
 }
 
-.confirm-button{
+.confirm-message {
+  text-align: left;
+  color: #333;
+  margin: 0 0 60px 0;
+  font-weight: bold;
+  font-size : 18px;
+}
+
+.confirm-button {
   background-color: #FFB052;
   color: white;
   border: none;
