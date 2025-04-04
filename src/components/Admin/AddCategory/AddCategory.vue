@@ -135,8 +135,7 @@ export default {
           const {code} = error.response?.data || {};
           
           if(code === 'INVALID_REQUEST_BODY' ) {
-            this.serverMessage = '숫자만 입력할 수 없어요.';
-            this.showPopup= true;
+            this.errorMsg = '* 카테고리는 공백, 특수문자 제외 1~10자 이내로 작성해주세요.';
           }
           // 입력검증을 뚫었을 경우
           else if (code === "INVALID_ARGUMENT"){
