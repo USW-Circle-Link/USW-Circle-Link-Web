@@ -2,7 +2,6 @@
   <div class="popup-overlay">
     <div class="popup">
       <div class="popup-header">카테고리 설정</div>
-      <hr />
       <p v-html="message" class="confirm-message"></p>
       <button @click="$emit('close')" class="confirm-button">확인</button>
     </div>
@@ -54,10 +53,12 @@ export default {
   font-size: 18px;
   font-weight: 500;
   text-align: left;
+  border-bottom: 1px solid #d3d3d3; /* 구분선 추가 */
+  padding-bottom: 8px;
+  margin-bottom: 16px;
 }
-hr {
-  border-bottom: 1px solid #d3d3d3;
-}
+
+
 .confirm-message{
   font-size: 16px;
   text-align: left;
