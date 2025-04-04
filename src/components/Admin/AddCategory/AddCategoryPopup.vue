@@ -50,17 +50,18 @@ export default {
   position: relative;
 }
 .popup-header {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
   text-align: left;
   border-bottom: 1px solid #d3d3d3; /* 구분선 추가 */
   padding-bottom: 8px;
   margin-bottom: 16px;
+  font-weight: bold;
 }
 
 
 .confirm-message{
-  font-size: 16px;
+  font-size: 18px;
   text-align: left;
 }
 
