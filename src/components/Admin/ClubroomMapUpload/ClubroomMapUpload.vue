@@ -3,15 +3,15 @@
   <div class="title">동아리 위치 정보 수정</div>
 
   <div class="floor-images-container">
-    <!-- 지하 1층 -->
     <div class="floor-section">
+      <!-- 지하 1층 -->
+       <div class="floor-container">
       <div
-        class="image-container"
-        @mouseover="showIcons('B1', true)"
-        @mouseleave="showIcons('B1', false)"
-      >
+        class="image-container">
         <div class="image-wrapper">
-          <div class="image-box" :class="{ hovered: floorData.B1.showingIcon }">
+          <div class="image-box" :class="{ hovered: floorData.B1.showingIcon }"
+          @mouseover="showIcons('B1', true)"
+          @mouseleave="showIcons('B1', false)">
             <img
               v-if="floorData.B1.imageSrc"
               :src="floorData.B1.imageSrc"
@@ -29,6 +29,7 @@
                 class="icon remove-icon"
                 @click="markImageForDeletion('B1')"
               />
+              </div>
             </div>
           </div>
           <h3>지하 1층</h3>
@@ -45,17 +46,16 @@
             style="display: none;"
           />
         </div>
-      </div>
+      </div> 
       <!-- 1층 -->
       <div class="floor-container">
 
         <div
-          class="image-container"
-          @mouseover="showIcons('F1', true)"
-          @mouseleave="showIcons('F1', false)"
-        >
+          class="image-container">
           <div class="image-wrapper">
-            <div class="image-box" :class="{ hovered: floorData.F1.showingIcon }">
+            <div class="image-box" :class="{ hovered: floorData.F1.showingIcon }"
+            @mouseover="showIcons('F1', true)"
+            @mouseleave="showIcons('F1', false)">
               <img
                 v-if="floorData.F1.imageSrc"
                 :src="floorData.F1.imageSrc"
@@ -95,12 +95,11 @@
       <!-- 2층 -->
       <div class="floor-container">
         <div
-          class="image-container"
-          @mouseover="showIcons('F2', true)"
-          @mouseleave="showIcons('F2', false)"
-        >
+          class="image-container">
           <div class="image-wrapper">
-            <div class="image-box" :class="{ hovered: floorData.F2.showingIcon }">
+            <div class="image-box" :class="{ hovered: floorData.F2.showingIcon }"
+              @mouseover="showIcons('F2', true)"
+              @mouseleave="showIcons('F2', false)">
               <img
                 v-if="floorData.F2.imageSrc"
                 :src="floorData.F2.imageSrc"
@@ -189,9 +188,11 @@ export default {
     await this.fetchImages();
   },
   methods: {
+    
     // 401 에러 처리를 위한 공통 메서드
     handle401Error(error) {
-      if (error.response && error.response.status === 401) {
+      const { code } = error.response?.data || {};
+      if (code === 401 ){
         this.show401Popup = true;
         return true;
       }
@@ -211,7 +212,8 @@ export default {
                   },
                 })
                 .catch((error) => {
-                  if (error.response && error.response.status === 404) {
+                  const { code } = error.response?.data || {};
+                  if (code === 404 || code === "NOT_FOUND") {
                     console.warn(`층 ${floorId}에 대한 이미지를 찾을 수 없습니다.`);
                     return null;
                   }
@@ -396,6 +398,7 @@ export default {
 }
 
 .floor-section {
+  gap: 10px;
   margin: 10px 0;
   align-self: start;
   text-align: left;
@@ -410,35 +413,37 @@ export default {
 
 .floor-container {
   flex: 1;
-  margin: 0 10px;
   background-color: white;
-  border-radius: 8px;
+  border-radius: 16px;
   width : 281.33px;
   height: 280.33px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .image-container {
   position: relative;
   display: inline-block;
+  border-radius: 16px;
 }
 
 .image-box {
-  width: 280px; /* 고정 너비 */
-  height: 182px; /* 고정 높이 */
+  width: 280px;
+  height: 182px;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; /* 이미지 넘치는 부분 숨김 */
-  border: 1px solid #ddd;
-  border-radius: 8 0px;
-
+  overflow: hidden;
+  border-radius: 16px 16px 0 0; 
   position: relative;
   transition: background-color 0.2s ease;
+  border-bottom: 1px solid #ddd;
 }
 
-.image-container:hover .image-box {
-  background-color: rgba(24, 24, 24, 0.5);
+
+.image-container:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* 괜찮지만 부모가 overflow: hidden 있어야 함 */
 }
+
 
 .floor-image {
   max-width: 100%;
@@ -459,11 +464,13 @@ export default {
   height: 100%;
   top: 0;
   left: 0;
+  border-radius: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
   pointer-events: none;
   cursor: pointer;
+  
 }
 
 .zoom-icon {
@@ -489,8 +496,7 @@ export default {
   border-radius: 8px;
   background: #fff;
   justify-content: center;
-  border-width: 1px;
-  border-color: #868686;
+  BORDER: 1px solid #CFCFCF;
   align-items: center;
   align-content: center;
   margin-right: 60px;
@@ -502,8 +508,14 @@ export default {
   font-weight: 500;
 }
 
-.upload-button :hover {
-  background-color: #e6953e;
+.upload-button:hover {
+  background-color: #FFB052;
+  color: white;
+  border-color: #FFB052;
+}
+
+.upload-button:hover .upload-icon {
+  filter: brightness(0) invert(1); /* 흰색처럼 보이게 */
 }
 
 .save-button {
