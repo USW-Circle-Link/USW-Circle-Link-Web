@@ -7,7 +7,6 @@
       <button class="send-result-btn" @click="showPopup">추가 합격 결과 전송</button>
       <div class="status-boxes">
         <button class="status-box approve-box" @click="setAllApplicantsStatus('PASS')">전체<br>합격</button>
-        <!--<button class="status-box reject-box" @click="setAllApplicantsStatus('FAIL')">전체<br>불합격</button>-->
       </div>
     </div>
     <div class="contents">
@@ -21,11 +20,6 @@
             <label :class="{ checked: applicant.decision === 'PASS' }" @click="toggleDecision(applicant, 'PASS')">
               <span class="check-icon"></span>
             </label>
-            <!--
-            <label :class="{ checked: applicant.decision === 'FAIL' }" @click="toggleDecision(applicant, 'FAIL')">
-              <span>체크</span>
-            </label>
-            -->
           </div>
         </div>
       </div>
@@ -33,7 +27,6 @@
 
     <div v-if="showConfirmPopup" class="popup-overlay">
       <div class="popup">
-        <!--<button class="close-btn" @click="hidePopup">X</button>-->
         <h2>추가 합격 결과 전송</h2>
         <hr>
         <p class="confirm-message">추가 합격 처리를 확정 하시겠습니까?</p>
@@ -46,11 +39,24 @@
     </div>
    
   </div>
+
+  <!-- 예기치 못한 오류 팝업 -->
+  <div v-if="showUnexpectedErrorPopup" class="popup-overlay">
+    <div class="unexpectedPopup">
+      <h2>동구라미</h2>
+      <hr />
+      <p class="confirm-message">
+        <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
+      <div class="unexpectedPopup-buttons">
+        <button @click="hideUnexpectedErrorPopup">확인</button>
+      </div>
+    </div>
+  </div>
   <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
-import axios from 'axios'; // axios를 가져옵니다.
+import axios from 'axios'; // axios를 가져오기
 import store from '@/store/store'; // Vuex에서 상태 가져오기
 import Popup401 from './401Popup.vue'; // 401 팝업 컴포넌트 추가
 
@@ -70,6 +76,7 @@ export default {
       fetchUrl: `${store.state.apiBaseUrl}/club-leader/${store.state.clubUUID}/failed-applicants`, // 지원자 명단을 가져오는 서버 URL
       submitUrl: `${store.state.apiBaseUrl}/club-leader/${store.state.clubUUID}/failed-applicants/notifications`, // 합/불 결과를 보내는 서버 URL
       show401Popup: false,
+      showUnexpectedErrorPopup: false,
     };
   },
   //로드 되면 지원자 목록 가져오기
@@ -79,6 +86,7 @@ export default {
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
+      // 에러 응답 O, 상태코드 401인 경우
       if (error.response && error.response.status === 401) {
         this.show401Popup = true;
         return true;
@@ -96,20 +104,22 @@ export default {
         });
 
         const data = response.data.data;
+        // 응답 데이터가 배열 형태일 경우 처리
         if (data && Array.isArray(data)) {
+          // applicant 데이터를 가공하여 상태 저장  
           this.applicants = data.map(applicant => ({
-            aplictUUID: applicant.aplictUUID,
-            userName: applicant.userName,
-            studentNumber: applicant.studentNumber,
-            major: applicant.major,
-            userHp: applicant.userHp,
-            decision: null,
+            aplictUUID: applicant.aplictUUID, // 지원자 UUID 
+            userName: applicant.userName, // 지원자 이름
+            studentNumber: applicant.studentNumber, // 지원자 학번
+            major: applicant.major, // 지원자 학과 
+            userHp: applicant.userHp, // 지원자 연락처 
+            decision: null, // 합/불 상태 (초기값 null) 
           }));
           this.showNotification('지원자 목록을 성공적으로 가져왔습니다.', 'success');
         }
       } catch (error) {
         if (!this.handle401Error(error)) {
-          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          // 요청 실패 시 
           alert('동아리 정보를 불러오는데 실패했습니다.', 'error');
         }
       }
@@ -121,6 +131,9 @@ export default {
     //팝업 숨김
     hidePopup() {
       this.showConfirmPopup = false;
+    },
+    hideUnexpectedErrorPopup() {
+      this.showUnexpectedErrorPopup = false;
     },
     //팝업 숨기고 결과를 전송하는 메서드 호출
     confirmSendResults() {
@@ -140,13 +153,14 @@ export default {
     },
     // 합/불 결과를 서버에 전송하는 메서드
     async sendResults() {
+      // decision이 없는 지원자가 있는 경우 전송 X
       if (!this.validateResults()) {
         return;
       }
 
       // 결정된 지원자만 필터링
       const selectedApplicants = this.applicants.filter(applicant => applicant.decision !== null);
-
+      // 서버에 보낼 데이터 포맷 정의
       const results = selectedApplicants.map(applicant => ({
         aplictUUID: applicant.aplictUUID,
         aplictStatus: applicant.decision,
@@ -160,17 +174,19 @@ export default {
           },
         });
 
+        // 성공 시 목록 새로고침
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
         await this.fetchApplicants();
-        //window.location.reload();
       } catch (error) {
         if (error.response?.data?.code === "CMEM-202") {
           alert('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
-          //window.location.reload();
         } else if (!this.handle401Error(error)) {
           const errorMessage = error.response?.data?.message || '결과 전송에 실패했습니다.';
           alert(errorMessage, 'error');
-          //window.location.reload();
+        } else if (errorData.code === 'INVALID_ARGUMENT') {
+            this.showUnexpectedErrorPopup = true;
+        } else {
+            alert(errorData.message || '결과 전송에 실패했습니다.', 'error');
         }
       }
     },
@@ -185,7 +201,6 @@ export default {
           applicant.decision = decision;
         }
       } else {
-        console.error("잘못된 상태 값: ", decision);
         alert('잘못된 합격/불합격 상태입니다. 상태는 PASS 또는 FAIL이어야 합니다.', 'error');
       }
     },
@@ -263,14 +278,6 @@ export default {
 .approve-box:hover {
   background-color: #62956d;
 }
-/*
-.reject-box {
-  background-color: #E57373;
-  color: white;
-  font-size: 12px;
-  margin-inline-end: 10px;
-  cursor: pointer;
-}*/
 .send-result-btn {
   width: 180px;
   height: 43px;
@@ -326,11 +333,6 @@ export default {
   color: white;
   cursor: pointer;
 }
-/*
-.buttons-group label.checked:nth-child(2) {
-  background-color: #E57373;
-  cursor: pointer;
-}*/
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -389,25 +391,42 @@ hr {
   background: #ffb052;
   color: white;
 }
-
 .popup-buttons button:last-child:hover {
   background-color: #e6953e; /* Change to a darker shade on hover */
 }
-/*
-.close-btn {
-  position: absolute;
-  top: 20px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  color: black;
-}*/
 .check-icon {
   background: url('../../assets/check-solid.svg') no-repeat center center;
   width: 16px;
   height: 16px;
   filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
+}
+.unexpectedPopup {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  height: 180px;
+  position: relative;
+}
+.unexpectedPopup h2 {
+  margin-top: 0;
+  text-align: left;
+}
+.unexpectedPopup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+.unexpectedPopup-buttons button {
+  width: 80px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+.error-highlight {
+  color: #ff4d4f;
 }
 </style>

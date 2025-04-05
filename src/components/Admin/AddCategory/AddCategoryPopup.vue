@@ -56,7 +56,7 @@ export default {
   text-align: left;
 }
 hr {
-  border-bottom: 1px solid #d3d3d3;
+  //border-bottom: 1px solid #d3d3d3;
 }
 .confirm-message{
   font-size: 16px;

@@ -52,7 +52,7 @@
       <h3>동아리 삭제</h3>
       <div class="line2"></div>
       <p class="popup-message">'{{ PopupClubName }}'을(를) 삭제하시겠습니까?</p>
-      <input v-model="adminPw" type="password" placeholder="관리자 비밀번호" />
+      <input v-model="adminPw" type="password" placeholder="관리자 비밀번호를 입력해 주세요." />
       <p class="popup-warning">{{ adminPwError }}</p>
       <button class="expel-button" @click="confirmDelete">확인</button>
       <button class="cancel-button" @click="cancelDelete">취소</button>
@@ -184,11 +184,18 @@ export default {
         this.isPopupVisible = false;
         alert("동아리가 성공적으로 삭제되었습니다.");
       } catch (error) {
+        const { code } = error.response?.data || {};
         if (!this.handle401Error(error)) {
-          console.error('Error updating member:', error);
-        }
-        if(error.response.status === 400){
-          this.adminPwError = "* 비밀번호를 다시 확인해주세요."
+          //console.error('Error updating member:', error);
+          if(code === 'ADM-202'){
+            this.adminPwError = "* 비밀번호를 다시 확인해주세요."
+          } else if(code === 'CLUB-201'){
+            alert("존재하지않는 동아리 입니다.");
+          } else if(code === 'INVALID_UUID_FORMAT'){
+            alert("유효하지 않은 UUID 형식입니다. 올바른 UUID를 입력하세요.");
+          } else {
+            alert("예기치 못한 오류 발생");
+          }
         }
       }
     },
@@ -199,8 +206,8 @@ export default {
       localStorage.setItem('accessToken', store.state.accessToken);
 
       // 새 창의 크기와 위치 설정
-      const width = 712;
-      const height = 960;
+      const width = 715;
+      const height = 820;
 
       // clubId만 URL 파라미터로 전달
       window.open(

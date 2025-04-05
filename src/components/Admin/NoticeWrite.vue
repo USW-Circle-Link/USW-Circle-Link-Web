@@ -1,29 +1,89 @@
 <template>
   <div class="notice-write-container">
     <h2 class="title">공지사항 작성</h2>
+<p></p>
+    <!-- 401 에러 팝업 -->
+    <Popup401 v-if="show401Popup" />
 
     <div v-if="notice">
-      <div class="title-container">
-        <label for="title-input" class="label">제목</label>
-        <input id="title-input" v-model="notice.noticeTitle" class="title-input" placeholder="제목을 입력해 주세요. (200자 이내)" />
-      </div>
+      <!-- 제목 입력 영역 -->
+<!-- 제목 입력 영역 -->
+<div class="title-container" style="position: relative;">
 
-      <div class="content-container">
-        <!-- <label for="content-input" class="label">내용</label> -->
-        <div class="textarea-wrapper">
-          <textarea
-              id="content-input"
-              v-model="notice.noticeContent"
-              class="content-input"
-              placeholder="내용을 입력해 주세요. 사진은 5장까지 첨부 가능합니다."
-              @input="limitContentLength"
-          ></textarea>
-          <div class="character-count">{{ notice.noticeContent.length }} / 3000</div> <!-- 글자 수 표시 -->
+  <label for="title-input" class="label">제목</label>
+
+  <input
+    id="title-input"
+    v-model="notice.noticeTitle"
+    @input="limitTitleLength"
+    :class="{ 'input-error': notice.noticeTitle.length >= titleMaxLength }"
+    class="title-input"
+    placeholder="제목을 입력해 주세요. (200자 이내)"
+  />
+
+  <div class="title-character-count" :class="{ 'error-text': notice.noticeTitle.length >= titleMaxLength }">
+  {{ notice.noticeTitle.length }} / {{ titleMaxLength }}
+</div>
+
+<span class="error-text" v-show="titleError">{{ titleError }}</span>
+
+</div>
+
+
+
+<div v-if="showSuccessPopup" class="popup-overlay">
+  <div class="popup">
+    <h2>동구라미</h2>
+    <hr />
+    <p class="confirm-message">공지사항이 정상적으로 저장되었어요.</p>
+    <div class="popup-buttons">
+      <button @click="closeSuccessPopup">확인</button>
+    </div>
+  </div>
+</div>
+
+
+
+<div v-if="showUnexpectedErrorPopup" class="popup-overlay">
+      <div class="unexpectedPopup">
+        <h2>동구라미</h2>
+        <hr />
+        <p class="confirm-message">
+          <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
+        <div class="unexpectedPopup-buttons">
+          <button @click="hideUnexpectedErrorPopup">확인</button>
         </div>
       </div>
+    </div>
 
+
+      <!-- 내용 입력 영역 -->
+      <div class="content-container">
+  <div class="textarea-wrapper">
+    
+    <textarea
+  id="content-input"
+  v-model="notice.noticeContent"
+  @input="limitContentLength"
+  :class="{ 'input-error': notice.noticeContent.length >= contentMaxLength }"
+  class="content-input"
+  placeholder="내용을 입력해 주세요. 사진은 5장까지 첨부 가능합니다."
+></textarea>
+<div class="character-count" :class="{ 'error-text': notice.noticeContent.length >= contentMaxLength }">
+  {{ notice.noticeContent.length }} / {{ contentMaxLength }}
+</div>
+
+    <span v-if="contentError" class="error-text">{{ contentError }}</span>
+  </div>
+</div>
+
+      <!-- 이미지 업로드 영역 -->
       <div class="image-upload-container">
-        <div v-for="(image, index) in images" :key="index" class="image-preview">
+        <div
+          v-for="(image, index) in images"
+          :key="index"
+          class="image-preview"
+        >
           <img :src="image.src" alt="Uploaded Image" class="uploaded-image" />
           <div class="edit-icon" @click="editImage(index)">
             <img src="@/assets/penbrush.png" alt="Edit Icon" />
@@ -31,18 +91,29 @@
           <div class="delete-icon" @click="deleteImage(index)">
             &times;
           </div>
-          <input type="file" :ref="'fileInput' + index" @change="onImageChange(index, $event)" style="display: none;" />
-
+          <input
+            type="file"
+            :ref="'fileInput' + index"
+            @change="onImageChange(index, $event)"
+            style="display: none;"
+          />
         </div>
+
+        <!-- 최대 5장 제한 -->
         <div v-if="images.length < 5" class="image-upload">
           <input type="file" @change="onImageUpload" />
-          <div class="plus" @click="$event.target.previousElementSibling.click()">+</div>
+          <div class="plus" @click="$event.target.previousElementSibling.click()">
+            +
+          </div>
         </div>
       </div>
-      <button class="submit-button" @click="submitNotice" :disabled="isLoading"> 완료</button>
+
+      <!-- 완료 버튼 -->
+      <button class="submit-button" @click="submitNotice" :disabled="isLoading">
+        완료
+      </button>
     </div>
   </div>
-  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
@@ -52,22 +123,59 @@ import Popup401 from "@/components/Admin/401Popup.vue";
 
 export default {
   name: 'NoticeWrite',
-  components: {Popup401},
+  components: {
+    Popup401,
+  },
   props: ['noticeUUID'],
   data() {
     return {
-      notice: { noticeTitle: '', noticeContent: '' },
-      images: [], // 이미지 파일 및 미리보기 저장
-      show401Popup: false  // 401 팝업
+      notice: {
+        noticeTitle: '',
+        noticeContent: ''
+      },
+      images: [],             // 이미지 파일 및 미리보기 저장
+      show401Popup: false,    // 401 에러 팝업
+      showSuccessPopup: false, // 공지사항 작성 성공 팝업
+      isLoading: false,       // 로딩 상태 (필요 시 사용)
+      titleError: '', // 제목 오류 메시지
+      contentError: '', // 내용 오류 메시지
+      titleMaxLength: 200, // 제목 최대 글자 수
+      contentMaxLength: 3000, // 내용 최대 글자 수
+      showUnexpectedErrorPopup: false
     };
   },
   methods: {
-    // 이미지 삭제 기능 추가
-    deleteImage(index) {
-    this.images.splice(index, 1);
-    this.$refs[`fileInput${index}`] = null; // 🔹 파일 입력 필드 초기화
+    // 글자수 제한
+    limitTitleLength() {
+    if (this.notice.noticeTitle.length > this.titleMaxLength) {
+      this.notice.noticeTitle = this.notice.noticeTitle.slice(0, this.titleMaxLength);
+    }
   },
-    // 401 에러 처리를 위한 공통 함수
+  limitContentLength() {
+    if (this.notice.noticeContent.length > this.contentMaxLength) {
+      this.notice.noticeContent = this.notice.noticeContent.slice(0, this.contentMaxLength);
+    }
+  },
+
+    // 성공 팝업 닫기
+    closeSuccessPopup() {
+      this.showSuccessPopup = false;
+      // 팝업 닫은 후 공지사항 목록 페이지로 이동
+      this.$router.push({ name: 'Notice' });
+    },
+
+    // 이미지 삭제
+    deleteImage(index) {
+      this.images.splice(index, 1);
+      this.$refs[`fileInput${index}`] = null; // 파일 입력 필드 초기화
+    },
+
+    // 예기치 못한 오류 팝업 숨기기
+    hideUnexpectedErrorPopup() {
+      this.showUnexpectedErrorPopup = false;
+    },
+
+    // 401 에러 공통 처리
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
         this.show401Popup = true;
@@ -75,48 +183,40 @@ export default {
       }
       return false;
     },
+
     // 이미지 업로드
     onImageUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const validExtensions = ['png', 'jpg', 'jpeg'];
-      const fileExtension = file.name.split('.').pop().toLowerCase();
-      const maxFileSize = 10 * 1024 * 1024;
+      const file = event.target.files[0];
+      if (file) {
+        const validExtensions = ['png', 'jpg', 'jpeg'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const maxFileSize = 10 * 1024 * 1024;
 
-      if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.images.push({ src: e.target.result, file });
+        if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.images.push({ src: e.target.result, file });
+            // 파일 입력 필드 초기화 (같은 파일 다시 업로드 가능)
+            event.target.value = "";
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
+        }
+      }
+    },
 
-          // 🔹 파일 입력 필드 초기화 (같은 파일 다시 업로드 가능)
-          event.target.value = "";
-        };
-        reader.readAsDataURL(file);
-      } else {
-        alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
-      }
-    }
-  },
-    editImage(index) {
-      const fileInputs = this.$refs.fileInputs; // 모든 파일 입력 요소 배열
-      if (fileInputs && fileInputs[index]) {
-        fileInputs[index].click(); // 선택한 입력 요소 클릭
-      } else {
-        console.error(`File input not found for index ${index}`);
-      }
-    }
-    ,
+    // 이미지 수정 아이콘 클릭
     editImage(index) {
       this.$refs[`fileInput${index}`][0].click();
     },
 
-    // 이미지 수정
+    // 이미지 수정 실제 처리
     onImageChange(index, event) {
       if (!event || !event.target || !event.target.files) {
         console.error('Invalid event object:', event);
         return;
       }
-
       const file = event.target.files[0];
       if (!file) return;
 
@@ -127,113 +227,120 @@ export default {
       if (validExtensions.includes(fileExtension) && file.size <= maxFileSize) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.images[index] = { ...this.images[index], src: e.target.result, file };
+          this.images[index] = {
+            ...this.images[index],
+            src: e.target.result,
+            file
+          };
         };
         reader.readAsDataURL(file);
       } else {
         alert('파일 형식이 맞지 않거나 크기가 초과되었습니다. (10MB 이하, png/jpg만 허용)');
       }
     },
+
+    // 공지사항 제출
     async submitNotice() {
-
-
       const maxTitleLength = 200;
       const maxContentLength = 3000;
 
-      
-      if (this.notice.noticeTitle.length > maxTitleLength) {
-        alert(`공지사항 제목은 최대 ${maxTitleLength}자까지 입력 가능합니다.`);
-        return;
+      // 🔹 제목과 내용 입력 여부 확인 후 오류 메시지 설정
+   if (this.notice.noticeTitle.trim() === "") {
+        this.titleError = "* 제목을 입력해주세요.";
+      } else {
+        this.titleError = "";
       }
 
-      if (this.notice.noticeContent.length > maxContentLength) {
-        alert(`공지사항 내용은 최대 ${maxContentLength}자까지 입력 가능합니다.`);
-        return;
+      if (this.notice.noticeContent.trim() === "") {
+        this.contentError = "* 내용을 입력해주세요.";
+      } else {
+        this.contentError = "";
       }
+
 
       try {
+        this.isLoading = true;
 
+        // 전송할 데이터 구성
         const form = new FormData();
         const noticeData = {
           noticeTitle: this.notice.noticeTitle,
+          // 공백과 줄바꿈 처리
           noticeContent: this.notice.noticeContent
-              .replace(/ /g, '&nbsp;')
-              .replace(/\n/g, '<br>'),
-          photoOrders: this.images.length > 0 ? this.images.map((_, index) => index + 1) : [],
+            .replace(/ /g, '&nbsp;')
+            .replace(/\n/g, '<br>'),
+          photoOrders: this.images.length > 0
+            ? this.images.map((_, index) => index + 1)
+            : [],
         };
 
-        form.append('request', new Blob([JSON.stringify(noticeData)], { type: 'application/json' }));
+        // request JSON 부분
+        form.append(
+          'request',
+          new Blob([JSON.stringify(noticeData)], { type: 'application/json' })
+        );
 
+        // 사진(파일)들 추가
         if (this.images.length > 0) {
-          this.images.forEach((image, i) => {
-            console.log(`(${i + 1}/${this.images.length})`);
+          this.images.forEach((image) => {
             form.append('photos', image.file);
           });
         }
 
+        // API 요청
+        const response = await axios.post(
+          `${store.state.apiBaseUrl}/notices`,
+          form,
+          {
+            headers: {
+              Authorization: `Bearer ${store.state.accessToken}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
 
-
-        const response = await axios.post(`${store.state.apiBaseUrl}/notices`, form, {
-          headers: {
-            Authorization: `Bearer ${store.state.accessToken}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-
+        // 정상 등록 시
+        if (response.status === 200) {
+          
+          // 팝업 표시
+          this.showSuccessPopup = true;
+        }
 
         if (!response || !response.data) {
           console.error('응답 데이터 없음');
-          alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
+        //  alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
           return;
         }
 
         // 서버 응답 상태 코드 확인
-        if ([401, 400, 422].includes(response.status)) {
+        if ([401].includes(response.status)) {
           let message = '';
 
           if (response.status === 401) {
             message = '인증되지 않은 사용자입니다. 다시 로그인해주세요.';
-            this.$router.push({ name: 'Login' }); // 401 에러 시 로그인 페이지로 이동
-          } else if (response.status === 400) {
-            message = '업로드 가능한 사진 갯수를 초과했습니다.';
-          } else if (response.status === 422) {
-            message = '제목과 내용을 모두 입력해주세요.';
+            this.$router.push({ name: 'Login' });
           }
-
           alert(message);
           return;
         }
 
-
+        // presignedUrls 존재 시, 실제 S3 업로드
         const presignedUrls = response?.data?.data || [];
-
-        // ✅ 만약 Presigned URL이 없으면 바로 공지사항 목록으로 이동
-        if (!Array.isArray(presignedUrls) || presignedUrls.length === 0) {
-
-          alert("공지사항이 성공적으로 등록되었습니다.");
-          this.$router.push({ name: 'Notice' });
-          return;
-        }
-
-
-
-        // ✅ Presigned URL이 있을 경우에만 S3 업로드 실행
-        await Promise.all(
+        if (Array.isArray(presignedUrls) && presignedUrls.length > 0) {
+          await Promise.all(
             presignedUrls.map(async (url, index) => {
               const file = this.images[index].file;
-
               await axios.put(url, file, {
                 headers: { 'Content-Type': file.type },
               });
             })
-        );
+          );
+        }
 
-
-        alert("공지사항이 성공적으로 등록되었습니다.");
-
-        // ✅ 공지사항 목록 페이지로 이동
-        this.$router.push({ name: 'Notice' });
+        // (여기서 팝업 띄우는 로직이 이미 위에서 처리됨)
+        // 또는, 바로 이동시키고 싶다면 아래처럼 작성:
+        // this.showSuccessPopup = true; // -> 팝업 표시
+        // this.$router.push({ name: 'Notice' }); // -> 곧바로 이동
 
       } catch (error) {
         // 401 에러 처리
@@ -241,34 +348,51 @@ export default {
           this.show401Popup = true;
           return;
         }
-      
-  if (error.response && error.response.status === 400) {
-    const additionalData = error.response.data.additionalData;
-    
-    if (additionalData.noticeTitle) {
-      alert(additionalData.noticeTitle); // 공지사항 제목이 비어 있을 때
-    }
-    
-    if (additionalData.noticeContent) {
-      alert(additionalData.noticeContent); // 공지사항 내용이 비어 있을 때
-    }
-    
-    return;
-  }
-  
 
-        // 다른 에러 처리
+        // 400 에러(유효성 실패 등)
+        // if (error.response && error.response.status === 400) {
+        //   const additionalData = error.response.data.additionalData;
+        //   if (additionalData.noticeTitle) {
+        //    // alert(additionalData.noticeTitle);
+        //   }
+        //   if (additionalData.noticeContent) {
+        //     //alert(additionalData.noticeContent);
+        //   }
+        //   return;
+        // }
+
+        const errorCode = error?.response?.data?.code;
+
+        if (errorCode === 'MAX_UPLOAD_SIZE_EXCEEDED') {
+          alert(error.response.data.message);
+          return;
+        }
+
+        if (errorCode === 'INVALID_TITLE_OR_CONTENT') {
+          const additionalData = error.response.data.additionalData || {};
+          if (additionalData.noticeTitle) {
+            this.titleError = additionalData.noticeTitle;
+          }
+          if (additionalData.noticeContent) {
+            this.contentError = additionalData.noticeContent;
+          }
+          return;
+        }
+
+
+        // 기타 에러
         console.error('공지사항 제출 실패:', error.response || error.message);
-        alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
+      //  alert('공지사항 제출에 실패했습니다. 다시 시도해주세요.');
+      } finally {
+        this.isLoading = false;
       }
-    }
+    },
   },
-
 };
 </script>
 
-
 <style scoped>
+/* 전체 컨테이너 */
 .notice-write-container {
   width: 100%;
   min-width: 900px;
@@ -276,101 +400,70 @@ export default {
   padding: 10px;
 }
 
+/* 초과 시 테두리 빨갛게 */
+.input-error {
+  border: 1px solid red !important;
+}
+
+/* 초과 시 글자 수 빨갛게 */
+.error-text {
+  color: red !important;
+  font-size: 14px;
+  
+  margin-top: 5px;
+}
+
+
+
+/* 페이지 제목 */
 .title {
   color: #000000;
   font-size: 25px;
   font-weight: bold;
   margin-bottom: 0px;
   margin-top: -20px;
-  position: relative; /* 상대 위치 설정 */
+  position: relative;
   display: inline-block;
-  z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
+  z-index: 1;
 }
-
-.label {
-  font-size: 18px; /* 글씨 크기를 20px로 변경 */
-  /*  필요 시 굵게 표시 */
-  color: #000000; /* 필요 시 색상 변경 */
-}
-
 .title::after {
   content: '';
   position: absolute;
   left: 0;
-  bottom: 2px; /* 텍스트 아래쪽 위치 조정 */
+  bottom: 2px;
   width: 102.5%;
-
-; /* 노란색 배경 */
-  z-index: -1; /* 텍스트 뒤에 위치하도록 설정 */
-  transform: skew(-12deg); /* 기울기 효과 추가 */
+  z-index: -1;
+  transform: skew(-12deg);
 }
 
-.character-count {
-  text-align: right; /* 글자 수 우측 정렬 */
-  font-size: 14px; /* 글자 크기 */
-  color: #666; /* 글자 색상 */
-  margin-top: 5px; /* 위쪽 여백 */
-}
-
-* {
-  box-sizing: border-box;
-}
-
-.title-container{
-  margin-top:30px ;
-}
-
-.content-container
-{
-  margin-top: 25px; /* 내용 입력 필드 위 여백 추가 */
-}
-
-.image-upload-container {
-  display: flex;
-  align-items: center;
-  width: 866px;
-  height: 153.96px;
-  background-color: white;
-  padding: 15px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-
-  margin-top: 25px;
-}
-
+/* 라벨 스타일 */
 .label {
+  font-size: 18px;
+  color: #000000;
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
 }
 
+/* 제목 입력창 */
 .title-input {
-  margin-top: 10px; /* 위 요소와 간격 */
-  width: 100%; /* 입력창 크기 */
-  padding: 10px; /* 내부 여백 */
-  font-size: 16px; /* 입력창 글씨 크기 */
-  border: 1px solid #ddd; /* 테두리 */
-  border-radius: 5px; /* 모서리 둥글기 */
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
-
-/* 텍스트 영역 wrapper 스타일 */
+/* 내용 입력창 영역 */
+.content-container {
+  margin-top: 25px;
+}
 .textarea-wrapper {
   position: relative;
   display: inline-block;
   width: 100%;
 }
-
-/* 글자 수 카운터 스타일 */
-.character-count {
-  position: absolute;
-  bottom: 10px; /* textarea 내부에서 아래쪽 여백 */
-  right: 15px; /* textarea 내부에서 오른쪽 여백 */
-  font-size: 12px;
-  color: #999;
-  pointer-events: none; /* 클릭 불가 설정 */
-}
-
 .content-input {
   width: 100%;
   height: 382px;
@@ -379,9 +472,42 @@ export default {
   border: 1px solid #ddd;
   border-radius: 5px;
   resize: none;
-  position: relative; /* 카운터 위치 조정을 위해 relative 설정 */
+  position: relative;
 }
 
+.title-container {
+  position: relative;
+  min-height: 85px; /* error-text 높이 고려한 값 */
+}
+
+.character-count {
+  position: absolute;
+  bottom: 13px;
+  right: -5px;
+  font-size: 12px;
+  color: black;
+  pointer-events: none;
+}
+.title-character-count {
+  position: absolute;
+  top: 52px; /* input 아래로 */
+  right: -5px;
+  font-size: 12px;
+  color: black;
+  pointer-events: none;
+}
+
+
+/* 포커스 시 검정 테두리 제거 */
+input:focus,
+textarea:focus {
+  outline: none;
+  border: 1px  white; /* 예: 강조색으로 변경 */
+  
+}
+
+
+/* 이미지 업로드 영역 */
 .image-upload-container {
   display: flex;
   align-items: center;
@@ -392,28 +518,25 @@ export default {
   padding: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
+  margin-top: 25px;
 }
-
 .image-preview {
   position: relative;
   border: 1px solid #ddd;
   border-radius: 5px;
   overflow: hidden;
-  width: 142px; /* 이미지 업로드 후에도 너비를 142px로 고정 */
-  height: 95.88px; /* 이미지 업로드 후에도 높이를 95.88px로 고정 */
+  width: 142px;
+  height: 95.88px;
   flex: 0 0 auto;
   background-color: #ECECEC;
   margin-left: 7px;
 }
-
 .uploaded-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   background: #ECECEC;
-
 }
-
 .edit-icon {
   position: absolute;
   top: 50%;
@@ -424,12 +547,27 @@ export default {
   filter: invert(100%);
   cursor: pointer;
 }
-
 .edit-icon img {
   width: 100%;
   height: 100%;
 }
+.delete-icon {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 30px;
+}
 
+/* + 버튼 */
 .image-upload {
   display: flex;
   justify-content: center;
@@ -444,7 +582,6 @@ export default {
   flex: 0 0 auto;
   margin-left: 7px;
 }
-
 .image-upload input {
   position: absolute;
   width: 100%;
@@ -452,22 +589,6 @@ export default {
   opacity: 0;
   cursor: pointer;
 }
-
-.image-upload span { /* X */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 14px; /* 플러스 기호 크기 */
-  color: #515151; /* 플러스 기호 색상 */
-  font-weight: bold;
-  width: 22px; /* 동그라미 크기 */
-  height: 22px;
-  background-color: white; /* 흰색 배경 */
-  border-radius: 50%; /* 원형 */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-}
-
-
 .plus {
   position: absolute;
   display: flex;
@@ -484,6 +605,7 @@ export default {
   align-items: center;
 }
 
+/* 완료 버튼 */
 .submit-button {
   display: block;
   width: 102.5px;
@@ -500,33 +622,135 @@ export default {
   text-align: center;
 }
 
-.title-input::placeholder,
-.content-input::placeholder,
-.image-upload input::placeholder {
-  font-family: Pretendard;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 14px;
-  letter-spacing: -0.025em;
-  text-align: left;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
+.popup {
+  position: fixed; /* 고정 위치 */
+  top: 50%;         /* 수직 중앙 */
+  left: 50%;        /* 수평 중앙 */
+  transform: translate(-50%, -50%); /* 정확한 중앙 배치 */
+  
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  height: 180px;
+  z-index: 1001; /* overlay보다 높게 */
 }
 
-.delete-icon {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  font-size: 24px;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
+.popup h2 {
+  margin-top: 0;
+  text-align: left;
+  font-size: 16px; /* 👈 여기서 줄이세요 (기존 24px → 18px 추천) */
+  font-weight: 500; /* 굵기도 조절 가능 */
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
+.confirm-message {
+  text-align: left;
+}
+.popup-buttons {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  line-height: 30px;
+  justify-content: flex-end;
+  margin-top: 40px;
+}
+.popup-buttons button {
+  width: 80px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 10px;
+  background: #ffb052;
+  color: white;
+}
+
+
+/* 팝업 전체 화면 덮는 반투명 배경 */
+.popup-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%; 
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+/* 팝업 박스: 452x182 고정 크기, 중앙 정렬 */
+.write-popup {
+  position: absolute;
+  width: 452px;
+  height: 182px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-sizing: border-box;
+  padding: 20px; /* 내부 여백 */
+  
+  display: flex;
+  flex-direction: column; /* 위->아래로 배치 */
+}
+
+/* 제목: 왼쪽 정렬, 폰트 크기/두께 조정 */
+.popup-title {
+  margin: 0;
+  font-size: 16px; /* 필요 시 조정 */
+  font-weight: 700;
+  text-align: left;
+  color: #333;
+}
+
+/* 구분선 */
+.popup-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #ECECEC; /* 연한 회색 */
+  margin: 8px 0;
+}
+
+/* 메시지: 왼쪽 정렬 */
+.popup-message {
+  margin: 0;
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: left;
+  color: #666;
+  line-height: 1.4;
+  /* flex: 1;  // 필요한 경우 버튼을 하단으로 밀고 싶으면 사용 */
+}
+
+/* 버튼 컨테이너: 오른쪽 정렬 */
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* [확인] 버튼 */
+.confirm-button {
+  background-color: #FFB052;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  width: 60px;
+  height: 32px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.popup-message {
+  margin: 20px 0 20px; /* 상단 마진 추가: margin-top: 20px */
+  font-size: 14px;
+  text-align: left;
+  color: black;
+  line-height: 1.4;
 }
 
 </style>

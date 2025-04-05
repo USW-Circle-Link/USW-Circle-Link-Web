@@ -15,18 +15,18 @@
             <input
               type="text"
               v-model="name"
-              placeholder="이름 입력"
+              placeholder="(특수 문자 제외 2~30자)"
               :class="{ 'error-input': nameError }"
               @input="validateForm"
             />
           </div>
-          <!-- test git merge -->
+
           <div class="input-group">
             <label>학번</label>
             <input
               type="text"
               v-model="studentId"
-              placeholder="숫자 8자리"
+              placeholder="(숫자 8자)"
               :class="{ 'error-input': studentIdError }"
               @input="validateForm"
             />
@@ -37,7 +37,7 @@
             <input
               type="text"
               v-model="phoneNumber"
-              placeholder="- 제외 11자리 숫자"
+              placeholder="( - 제외 숫자 11자)"
               :class="{ 'error-input': phoneNumberError }"
               @input="validateForm"
             />
@@ -63,8 +63,8 @@
         </div>
 
         <p v-if="showError" class="error-text">
-          * 입력 정보를 다시 확인해주세요. (이름: 특수기호 제외, 학번: 8자리
-          숫자, 전화번호: - 제외 11자리 숫자)
+          *이름, 학번, 전화번호를 다시 확인해주세요. (이름: 특수 문자 제외
+          2~30자, 학번: 숫자 8자, 전화번호: - 제외 숫자 11자)
         </p>
       </div>
     </div>
@@ -133,22 +133,29 @@ import axios from 'axios';
 import Popup401 from '../401Popup.vue';
 
 import { mapState } from 'vuex';
+import { colleges } from '@/components/departments';
+
 export default {
-  name: 'DuplicateMember',
+  name: 'DuplicateMember', // 컴포넌트 이름 설정
   components: {
     AddPopup,
     SuccessFailPopup,
     Popup401,
   },
+
   computed: {
+    // 반응형
     ...mapState(['OverlappingMembers']),
     hasOverlappingMembers() {
-      return this.OverlappingMembers && this.OverlappingMembers.length > 0;
+      //OverlappingMembers 배열의 길이가 1 이상이면 true를 return
+      return this.OverlappingMembers.length > 0;
     },
     overlappingMembersCount() {
-      return this.OverlappingMembers ? this.OverlappingMembers.length : 0;
+      //OverlappingMembers 배열이 존재하면 길이를 return하고, 없으면 0을 return
+      return this.OverlappingMembers.length;
     },
   },
+
   data() {
     return {
       name: '',
@@ -165,16 +172,19 @@ export default {
       serverMessage: '',
       DuplicateMember: [],
       show401Popup: false,
+      clubName: '',
     };
   },
+
   mounted() {
     // 새로고침 시 localStorage에서 데이터 불러오기
-    const savedMembers = localStorage.getItem('saveDuplicateMember');
+    const savedMembers = localStorage.getItem('saveDuplicateMember'); //
     if (savedMembers) {
       this.OverlappingMembers = JSON.parse(savedMembers);
     }
     console.log('전달받은 회원 데이터:', this.OverlappingMembers);
   },
+
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
@@ -184,17 +194,21 @@ export default {
       }
       return false;
     },
+
     saveDuplicateMember() {
+      // OverlappingMembers를 localStorage에 저장하는 함수
       localStorage.setItem(
         'saveDuplicateMember',
-        JSON.stringify(this.OverlappingMembers)
+        JSON.stringify(this.OverlappingMembers) // localStorage에 저장하기 위해 배열을 문자열로 변환
       );
     },
+
     validateForm() {
+      //'동아리 관리자'가 중복 회원 추가 시 기입하는 회원 정보의 양식
       const nameValid =
-        /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== '';
-      const studentIdValid = /^\d{8}$/.test(this.studentId);
-      const phoneNumberValid = /^\d{11}$/.test(this.phoneNumber);
+        /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== ''; //한글, 영어, 공백 허용
+      const studentIdValid = /^\d{8}$/.test(this.studentId); // 8자리 허용
+      const phoneNumberValid = /^\d{11}$/.test(this.phoneNumber); // 11자리 허용
 
       this.nameError = this.name && !nameValid;
       this.studentIdError = this.studentId && !studentIdValid;
@@ -204,12 +218,16 @@ export default {
         this.nameError || this.studentIdError || this.phoneNumberError;
       this.isFormValid = nameValid && studentIdValid && phoneNumberValid;
     },
+
     handleAddMember() {
+      // 멤버 추가 팝업
       if (this.isFormValid) {
         this.showPopup = true;
       }
     },
+
     async confirmAdd() {
+      // 프로필 중복 회원 추가
       try {
         await this.sendToServer();
         this.isSuccess = true;
@@ -218,29 +236,50 @@ export default {
         console.error('Error adding member:', error);
         this.isSuccess = false;
         // Extract error message from the server response
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          this.serverMessage = error.response.data.message;
-        } else {
+        if (!error.response?.data?.message) {
+          // response의 메세지가 없는 경우
           this.serverMessage = '서버 오류가 발생했습니다. 다시 시도해주세요.';
         }
       }
       this.showPopup = false;
       this.showResultPopup = true;
     },
+
     cancelAdd() {
       this.showPopup = false;
     },
+
+    async getToServer() {
+      // 서버로부터 clubName을 get
+      const accessToken = store.state.accessToken;
+      const clubUUID = store.state.clubUUID;
+
+      try {
+        const response = await axios.get(
+          `${store.state.apiBaseUrl}/club-leader/${clubUUID}/info`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        this.clubName = response.data.data.clubName;
+      } catch {
+        console.log('Failed to retrieve club name from the server.'); // 서버로부터 clubName을 못 받을 경우
+      }
+    },
+
     async sendToServer() {
+      // 서버로 정보 보내기
       const data = {
         userName: this.name,
         studentNumber: this.studentId,
         userHp: this.phoneNumber,
       };
 
+      // 지역변수로 사용하기 때문에 mapState를 사용 x
       const accessToken = store.state.accessToken;
       const clubUUID = store.state.clubUUID;
 
@@ -256,29 +295,54 @@ export default {
           }
         );
         console.log('서버 응답:', response.data);
+
         return response.data;
       } catch (error) {
-        if (error.response && error.response.status === 401) {
+        const errorCode = error.response?.data?.code;
+
+        if (errorCode === 401) {
           this.show401Popup = true;
         } else if (
-          error.response &&
-          (error.response.status === 400 || error.response.status === 404)
+          errorCode === 'CMEM-202' || // 에러가 CMEM-202 or
+          errorCode === 'PFL-201' || // 에러가 PFL-201 or
+          errorCode === 'INVALID_ARGUMENT' // 에러가 INVALID_ARGUMENT 일 때
         ) {
           this.isSuccess = false;
-          this.serverMessage =
-            error.response.data.message || '요청 처리 중 오류가 발생했습니다.';
+
+          if (errorCode === 'CMEM-202') {
+            await this.getToServer(); // Popup에 띄울 동아리 이름 받아오기
+            if (this.clubName) {
+              // 서버로부터 clubName을 성공적으로 받은 경우
+              this.serverMessage = `해당 회원은 이미 '${this.clubName}’에 소속되어 있습니다.`; // CMEM-202 error Message
+            } else {
+              // clubName을 못 받은 경우
+              this.serverMessage = error.response.data.message; // 서버에서 보내주는 메세지를 Popup에 띄움
+            }
+          } else if (errorCode === 'PFL-201') {
+            this.serverMessage =
+              '해당 회원의 정보를 찾을 수 없습니다. 다시 확인해주세요.'; // PFL-201 error Message
+            console.log('message2:', this.serverMessage);
+          } else if (errorCode === 'INVALID_ARGUMENT') {
+            this.serverMessage =
+              '<span style="color:red;">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해 주세요.'; // INVALID_ARGUMENT error Message
+          }
           this.showResultPopup = true;
         }
+
         throw error;
       }
     },
+
     closeResultPopup() {
+      // 결과 팝업창 닫기
       this.showResultPopup = false;
       if (this.isSuccess) {
         this.resetForm();
       }
     },
+
     resetForm() {
+      // 기입하는 칸을 비우고, 모든 에러 상태를 false로 바꾸는 함수
       this.name = '';
       this.studentId = '';
       this.phoneNumber = '';
@@ -288,6 +352,7 @@ export default {
       this.phoneNumberError = false;
       this.isFormValid = false;
     },
+
     formatPhoneNumber(phone) {
       if (!phone) return '';
       return phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
@@ -303,7 +368,7 @@ export default {
 }
 
 .title {
-  margin-bottom: 20px;
+  margin-bottom: 20px; /* 아래쪽 바깥 여백 */
 }
 
 .duplicate-title {
@@ -321,8 +386,8 @@ export default {
 
 .form-container {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: flex-start; /* 가로 방향 정렬 (왼쪽 정렬) */
+  align-items: flex-start; /* 세로 방향 정렬 (위쪽 정렬) */
   background: #fff;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -361,7 +426,7 @@ export default {
 
 .input-group input {
   display: flex;
-  width: 126px;
+  width: 150px;
   height: 42px;
   padding-left: 10px;
   align-items: center;
@@ -369,11 +434,12 @@ export default {
   flex-shrink: 0;
   border: 1px solid #dee2e6;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 12px;
+  font-style: normal;
 }
 
 .input-group.phone-number input {
-  width: 185px;
+  width: 150px;
 }
 
 .error-input {
@@ -381,29 +447,28 @@ export default {
 }
 
 .error-text {
-  margin-top: 16px;
-  margin-bottom: -5px;
-  padding-left: 50px;
   color: #ff3535;
+  font-family: Pretendard;
   font-size: 12px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 300;
   line-height: normal;
 }
 
 .add-button {
-  padding: 16px;
+  display: flex;
+  height: 42px;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
   background-color: #ffb052;
   border: none;
   border-radius: 4px;
   color: white;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  height: 42px;
-  white-space: nowrap;
-  vertical-align: middle;
 }
 
 .add-button:hover {
@@ -448,9 +513,11 @@ export default {
   font-size: 16px;
   font-weight: 600;
   color: #000;
-  margin: 0;
+  font-style: normal;
+  line-height: 12px;
   display: flex;
   align-items: center;
+  letter-spacing: -0.8px;
   gap: 8px;
 }
 

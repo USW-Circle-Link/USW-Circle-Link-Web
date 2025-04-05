@@ -5,7 +5,6 @@
 
       <div class="popup-separator"></div>
 
-
       <div class="info-row">
         <span>이름: {{ name }}</span>
       </div>
@@ -17,11 +16,12 @@
       </div>
       <p class="confirmation-text">해당 회원을 동아리에 추가하시겠습니까?</p>
 
-
       <div class="popup-footer">
         <div class="button-group">
           <button @click="$emit('cancel')" class="cancel-button">취소</button>
+          <!-- cancel Event를 상위 컴포넌트로 전달 -->
           <button @click="$emit('confirm')" class="confirm-button">확인</button>
+          <!-- confirm Event를 상위 컴포넌트로 전달 -->
         </div>
       </div>
     </div>
@@ -32,20 +32,25 @@
 export default {
   name: 'AddPopup',
   props: {
+    // 이름 팝업
     name: {
       type: String,
-      required: true
+      required: true, // 필수적으로 props를 전달받음
     },
+
+    // 학번 팝업
     studentId: {
       type: String,
-      required: true
+      required: true,
     },
+
+    // 전화번호 팝업
     phoneNumber: {
       type: String,
-      required: true
-    }
-  }
-}
+      required: true,
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -107,18 +112,19 @@ export default {
   justify-content: flex-end;
 }
 
-.cancel-button, .confirm-button {
+.cancel-button,
+.confirm-button {
   border: none;
   border-radius: 8px;
   cursor: pointer;
   width: 87px;
   height: 32px;
   font-size: 14px;
-  white-space: nowrap;  /* 텍스트 줄바꿈 방지 */
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
 }
 
 .cancel-button {
-  background-color: #B9B9B9;
+  background-color: #b9b9b9;
   color: #ffffff;
 }
 
@@ -127,7 +133,7 @@ export default {
 }
 
 .confirm-button {
-  background-color: #FFB052;
+  background-color: #ffb052;
   color: white;
 }
 

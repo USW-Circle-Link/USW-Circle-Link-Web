@@ -2,6 +2,33 @@
   <div class="notice-write-container">
     <h2>공지사항 수정</h2>
 
+      <!-- 수정 완료 팝업 -->
+
+      <div v-if="showEditPopup" class="popup-overlay">
+  <div class="popup">
+    <h2>동구라미</h2>
+    <hr />
+    <p class="confirm-message">공지사항이 정상적으로 수정되었어요.</p>
+    <div class="popup-buttons">
+      <button @click="confirmEdit">확인</button>
+
+    </div>
+  </div>
+</div>
+
+
+      <div v-if="showUnexpectedErrorPopup" class="popup-overlay">
+      <div class="unexpectedPopup">
+        <h2>동구라미</h2>
+        <hr />
+        <p class="confirm-message">
+          <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
+        <div class="unexpectedPopup-buttons">
+          <button @click="hideUnexpectedErrorPopup">확인</button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="notice">
       <div class="title-container">
         <label for="title-input" class="label">제목</label>
@@ -88,7 +115,9 @@ export default {
       noticePhotos: [], // { id, src, file, order }
       deletedPhotoIds: [], // 삭제된 사진 ID 저장
       isLoading: false, // 로딩 상태
-      show401Popup: false  // 401 팝업
+      show401Popup: false,  // 401 팝업
+      showEditPopup: false,  // 수정 완료 팝업 
+      showUnexpectedErrorPopup: false
     };
   },
   methods: {
@@ -112,20 +141,29 @@ export default {
 
 
         // 에러 상태 코드 처리
-        if (response.status === 404 || response.status === 413 || response.status === 422) {
-          let message = '';
+        // if (response.status === 404 || response.status === 413 || response.status === 422) {
+        //   let message = '';
 
-          if (response.status === 404) {
-            message = '공지사항이 존재하지 않습니다.';
-          } else if (response.status === 413) {
-            message = '최대 5개의 사진이 업로드 가능합니다.';
-          } else if (response.status === 422) {
-            message = '제목과 내용을 모두 입력해주세요.';
-          }
+        //   if (response.status === 404) {
+        //     message = '공지사항이 존재하지 않습니다.';
+        //   } else if (response.status === 413) {
+        //     message = '최대 5개의 사진이 업로드 가능합니다.';
+        //   } else if (response.status === 422) {
+        //     message = '제목과 내용을 모두 입력해주세요.';
+        //   }
 
-          alert(message);
+        //   alert(message);
+        //   return;
+        // }
+
+        const errorCode = response?.data?.code;
+        const errorMessage = response?.data?.message;
+
+        if (['NOT-201', 'FILE-304', 'MAX_UPLOAD_SIZE_EXCEEDED'].includes(errorCode)) {
+          alert(errorMessage);
           return;
         }
+
 
 
         if (response.data && response.data.data) {
@@ -146,11 +184,20 @@ export default {
               })
           );
         }
-      } catch (error) {
-        if (!this.handle401Error(error)) {
+      }catch (error) {
+          if (this.handle401Error(error)) return;
+
+          const errorCode = error?.response?.data?.code;
+          const errorMessage = error?.response?.data?.message;
+
+          if (['NOT-201', 'FILE-304', 'MAX_UPLOAD_SIZE_EXCEEDED'].includes(errorCode)) {
+            alert(errorMessage);
+            return;
+          }
+
           console.error('Error updating member:', error);
         }
-      }
+
     },
 
     // URL에서 File 객체 생성
@@ -195,6 +242,11 @@ export default {
       alert('업로드 가능한 최대 파일 크기를 초과했습니다. (개별 파일 10MB, 총 파일 크기 50MB)');
     }
   },
+
+  // 예기치 못한 오류 팝업 숨기기
+  hideUnexpectedErrorPopup() {
+      this.showUnexpectedErrorPopup = false;
+    },
 
     editImage(index) {
       const fileInput = this.$refs[`fileInput${index}`];
@@ -248,6 +300,10 @@ export default {
         photo.order = index + 1;
       });
     },
+    confirmEdit() {
+    this.showEditPopup = false;  // 팝업 닫기
+    this.$router.push({ name: 'Notice' });  // 공지사항 목록으로 이동
+  },
 
     // 공지사항 수정 제출
     async submitNotice() {
@@ -313,9 +369,11 @@ export default {
               })
           );
         }
+   
+        // alert('공지사항이 성공적으로 수정되었습니다!');
+        // this.$router.push({ name: 'Notice' });
+        this.showEditPopup = true;  // 수정 완료 팝업 띄우기
 
-        alert('공지사항이 성공적으로 수정되었습니다!');
-        this.$router.push({ name: 'Notice' });
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('Error updating member:', error);
@@ -337,6 +395,69 @@ export default {
 
 
 <style scoped>
+.edit-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.edit-popup {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 452px; /* 고정보다 유동적인 max-width */
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* 약간 더 강조 */
+  text-align: left;
+  height: 182px;
+}
+
+
+.popup-title {
+  font-size: 18px;
+  margin-top: -5px; /* 👈 위로 당기기 */
+  margin-bottom: 5px;
+  color: black;
+}
+
+
+.popup-divider {
+  border-top: 1px solid #ddd;
+  margin: 10px 0;
+}
+
+.popup-message {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end; /* 🔹 버튼 우측 정렬 */
+}
+
+.confirm-button {
+  font-size: 14px;
+  padding: 8px 16px;
+  background-color: #FFB052;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 80px;
+  height: 32px;
+  margin-top: 20px; /* 👈 직접 아래로 내림 */
+}
+
+
 .notice-write-container {
   width: 100%;
   min-width: 900px;
@@ -525,4 +646,117 @@ export default {
 /* .submit-button:hover {
   background-color: #e0a800;
 } */
+
+
+.popup {
+  position: fixed; /* 고정 위치 */
+  top: 50%;         /* 수직 중앙 */
+  left: 50%;        /* 수평 중앙 */
+  transform: translate(-50%, -50%); /* 정확한 중앙 배치 */
+  
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  height: 180px;
+  z-index: 1001; /* overlay보다 높게 */
+}
+
+.popup h2 {
+  margin-top: 0;
+  text-align: left;
+  font-size: 16px; /* 👈 여기서 줄이세요 (기존 24px → 18px 추천) */
+  font-weight: 500; /* 굵기도 조절 가능 */
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
+.confirm-message {
+  text-align: left;
+}
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 40px;
+}
+.popup-buttons button {
+  width: 80px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 10px;
+  background: #ffb052;
+  color: white;
+}
+
+
+/* 팝업 전체 화면 덮는 반투명 배경 */
+.popup-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%; 
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+/* 팝업 박스: 452x182 고정 크기, 중앙 정렬 */
+.write-popup {
+  position: absolute;
+  width: 452px;
+  height: 182px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-sizing: border-box;
+  padding: 20px; /* 내부 여백 */
+  
+  display: flex;
+  flex-direction: column; /* 위->아래로 배치 */
+}
+
+/* 제목: 왼쪽 정렬, 폰트 크기/두께 조정 */
+.popup-title {
+  margin: 0;
+  font-size: 16px; /* 필요 시 조정 */
+  font-weight: 700;
+  text-align: left;
+  color: #333;
+}
+
+/* 구분선 */
+.popup-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #ECECEC; /* 연한 회색 */
+  margin: 8px 0;
+}
+
+/* 메시지: 왼쪽 정렬 */
+.popup-message {
+  margin: 0;
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: left;
+  color: #666;
+  line-height: 1.4;
+  /* flex: 1;  // 필요한 경우 버튼을 하단으로 밀고 싶으면 사용 */
+}
+
+/* 버튼 컨테이너: 오른쪽 정렬 */
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
 </style>

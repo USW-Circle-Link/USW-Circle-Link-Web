@@ -14,34 +14,35 @@
 
 
     <!-- 삭제 팝업창 -->
-    <div v-if="showDeletePopup" class="delete-popup-overlay">
-      <div class="delete-popup">
-        <p class="popup-title">공지사항 삭제</p>
-        <div class="popup-divider"></div>
 
-        <p>
-          <span class="popup-highlight">작성된 공지사항을 삭제하시겠습니까?</span><br /><br />
-          삭제된 글은 복구할 수 없습니다.
-        </p>
-        <div class="popup-buttons">
-          <button @click="cancelDelete" class="cancel-button">취소</button>
-          <button @click="confirmDelete" class="confirm-button">삭제</button>
-        </div>
-      </div>
+<div v-if="showDeletePopup" class="popup-overlay">
+  <div class="popup">
+    <h2>동구라미</h2>
+    <hr />
+    <p class="confirm-message">
+      삭제된 글은 복구할 수 없어요.<br />
+      그래도 공지사항을 삭제하시겠어요?
+    </p>
+    <div class="popup-buttons">
+      <button class="cancel-button" @click="cancelDelete">취소</button>
+      <button class="confirm-button" @click="confirmDelete">확인</button>
     </div>
+  </div>
+</div>
 
     
+<div v-if="notice" class="notice-details">
+ 
+  <div class="notice-header-with-line">
+    <div class="notice-header-flex">
+      <span class="notice-title">{{ notice.noticeTitle }}</span>
+      <span class="notice-meta">{{ notice.adminName }} | </span>
+      <span class="notice-date">{{ formattedDate(notice.noticeCreatedAt) }}</span>
+    </div>
+  </div>
 
-    <!-- 공지사항 상세보기 -->
-    <div v-if="notice" class="notice-details">
-      <div class="meta-info">
-        <p>
-          <span class="notice-title">{{ notice.noticeTitle }}</span>
-          <span class="notice-meta">{{ notice.adminName }} | </span>
-          <span class="notice-date"> {{ formattedDate(notice.noticeCreatedAt) }} </span> 
-        </p>
-      </div>
-      <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
+  <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
+</div>
 
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
@@ -55,7 +56,17 @@
       </div>
     </div>
 
-
+    <div v-if="showUnexpectedErrorPopup" class="popup-overlay">
+      <div class="unexpectedPopup">
+        <h2>동구라미</h2>
+        <hr />
+        <p class="confirm-message">
+          <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
+        <div class="unexpectedPopup-buttons">
+          <button @click="hideUnexpectedErrorPopup">확인</button>
+        </div>
+      </div>
+    </div>
 
     <div class="actions">
       <button class="edit-button" @click="editNotice">
@@ -120,7 +131,6 @@
         </button>
       </div>
     </div>
-  </div>
 
   <Popup401 v-if="show401Popup" />
 
@@ -144,6 +154,7 @@ export default {
       images: [], // 이미지 배열
       show401Popup: false, // 401 팝업
       totalNotices: 1, // 전체 공지사항 수
+      showUnexpectedErrorPopup: false,
       currentNoticeIndex: 0 // 현재 공지사항의 전체 인덱스
     };
   },
@@ -169,6 +180,10 @@ export default {
       } else {
         sessionStorage.removeItem("reloaded");
       }
+    },
+    // 예기치 못한 오류 팝업 숨기기
+    hideUnexpectedErrorPopup() {
+      this.showUnexpectedErrorPopup = false;
     },
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
@@ -399,12 +414,21 @@ export default {
   word-wrap: break-word; /* 🔹 긴 단어 줄바꿈 */
   overflow-wrap: break-word; /* 🔹 단어 단위 줄바꿈 */
   text-overflow: ellipsis; /* 🔹 넘칠 경우 ... 표시 */
-  display: block;
+  
+}
+
+.notice-header-flex {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px; /* 항목 사이 간격 */
+  word-break: break-word;
 }
 
 .notice-meta {
   font-size: 14px;
-  color: black;
+  color: #000;        /* 검정색 */
+  font-weight: 700;   /* 볼드체 */
   margin-left: 10px;
 }
 
@@ -441,6 +465,107 @@ export default {
   border-radius: 8px;
 }
 
+.notice-header-with-line {
+  border-bottom: 1px solid #dcdcdc; /* 얇은 회색 선 */
+  padding-bottom: 8px; /* 선과 텍스트 사이 여백 */
+  margin-bottom: 16px; /* 본문과의 거리 */
+}
+
+.notice-header-flex {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.notice-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+}
+
+/* .notice-meta,
+.notice-date {
+  font-size: 14px;
+  color: #666;
+} */
+
+.popup-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%; 
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  height: 180px;
+  position: relative;
+}
+
+.popup h2 {
+  margin-top: 0;
+  font-size: 18px; /* 제목 크기 줄임 */
+  font-weight: 600;
+  text-align: left;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
+
+.confirm-message {
+  font-size: 14px;
+  text-align: left;
+  color: black;
+  line-height: 1.6;
+  margin: 20px 0;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 40px; /* 원래 20px 또는 40px이었으면 줄이기 */
+  padding-bottom: 0px;
+  gap: 10px;
+}
+
+
+.popup-buttons button {
+  width: 80px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 10px;
+  margin-top: -20px;
+}
+
+.confirm-button {
+  background-color: #FFB052;
+  color: white;
+  font-weight: bold;
+}
+
+.cancel-button {
+  background-color: #E0E0E0;
+  color: white;
+  font-weight: bold;
+}
+
+
 .popup-highlight {
   color: black;
   font-weight: bold;
@@ -452,21 +577,25 @@ export default {
 
 .actions {
   display: flex;
-  justify-content: flex-start; /* 왼쪽으로 정렬 */
-  margin-top: 5px; /* 위에서 여백 추가 */
-  margin-left: 550px; /* 왼쪽 정렬 */
+  justify-content: flex-end;  /* 👉 오른쪽 정렬로 변경 */
+  margin-top: -30px;        /* 👈 버튼과 위 요소 간 거리 */
+  margin-left: 550px;     /* 👈 오른쪽 정렬을 위한 왼쪽 여백 */
 }
 
+
 .edit-button, .delete-button {
+  /* height: 37px;  <-- 주석 처리하거나 삭제 */
   background: #f0f0f0;
   border: none;
   border-radius: 4px;
-  padding: 8px 20px 15px 20px; /* 위 5px, 오른쪽 20px, 아래 15px, 왼쪽 20px */
+  /* 예: 패딩을 적절히 조절 */
+  padding: 8px 16px; 
   margin: 0 5px;
   cursor: pointer;
   font-size: 16px;
-  pointer-events: auto; /* 클릭 이벤트 허용 */
+  pointer-events: auto;
 }
+
 
 .edit-button {
   width: 95px;
@@ -501,6 +630,7 @@ export default {
   padding: 24px; /* 내부 여백 */
   border-radius: 8px; /* 둥근 모서리 */
   width: 452px; /* 팝업 너비 */
+  height: 192px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
   text-align: left; /* 텍스트 왼쪽 정렬 */
   display: flex;
@@ -514,39 +644,53 @@ export default {
 }
 
 
+/*  팝업 제목 */
 .popup-title {
-  font-size: 18px;
-  font-weight: bold;
+  font-family: Pretendard;
+  font-weight: 500;
+  font-size: 16px;       /* ✅ 적절한 크기 */
+  line-height: 0px;     /* ✅ 충분한 줄 간격 */
   color: black;
-  margin-bottom: 10px;
+  margin-top: 8px;
 }
 
+
+
+
 .delete-popup p {
-  font-size: 14px;
-  color: #666;
+  font-size: 16px;
+  color: black;
   margin: 0;
 }
+
+
 
 .popup-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 10px; /* 버튼 사이 여백 */
+  gap: 10px;
   margin-top: 10px;
+  padding-bottom: 10px; /* 👈 여유 여백 추가 */
+  box-sizing: border-box;
 }
 
 .cancel-button,
 .confirm-button {
+  width: 80px;
+  height: 32px;
   font-size: 14px;
-  padding: 8px 16px;
+  font-weight: 500;
+  border-radius: 8px;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
+  padding: 0; /* 👈 패딩 제거로 높이 고정 */
 }
 
 .cancel-button {
-  background-color: #e0e0e0; /* 연한 회색 */
-  color: #666;
+  background-color: #e0e0e0;
+  color: #ffffff; /* ✅ 흰색 글씨로 변경 */
 }
+
 
 .confirm-button {
   background-color: #FFB052; /* 강조 색상 */
@@ -557,23 +701,6 @@ export default {
   background-color: #d5d5d5; /* 호버 시 색상 변경 */
 }
 
-/* .confirm-button:hover {
-  background-color: #e09b4d;
-} */
-
-.cancel-button,
-.confirm-button {
-  border: none;
-  padding: 8px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.cancel-button {
-  background-color: #ddd;
-  color: #333;
-}
 
 .confirm-button {
   background-color:  #FFB052;
@@ -744,5 +871,118 @@ td.author-col, td.date-col {
   text-overflow: ellipsis; /* 내용이 넘치면 ... 표시 */
   text-align: center; /* 중앙 정렬 추가 */
 }
+
+.popup {
+  position: fixed; /* 고정 위치 */
+  top: 50%;         /* 수직 중앙 */
+  left: 50%;        /* 수평 중앙 */
+  transform: translate(-50%, -50%); /* 정확한 중앙 배치 */
+  
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  height: 180px;
+  z-index: 1001; /* overlay보다 높게 */
+}
+
+.popup h2 {
+  margin-top: 0;
+  text-align: left;
+  font-size: 16px; /* 👈 여기서 줄이세요 (기존 24px → 18px 추천) */
+  font-weight: 500; /* 굵기도 조절 가능 */
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
+.confirm-message {
+  text-align: left;
+}
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 40px;
+}
+/* .popup-buttons button {
+  width: 80px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 10px;
+  background: #ffb052;
+  color: white;
+} */
+
+
+/* 팝업 전체 화면 덮는 반투명 배경 */
+.popup-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%; 
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+/* 팝업 박스: 452x182 고정 크기, 중앙 정렬 */
+.write-popup {
+  position: absolute;
+  width: 452px;
+  height: 182px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-sizing: border-box;
+  padding: 20px; /* 내부 여백 */
+  
+  display: flex;
+  flex-direction: column; /* 위->아래로 배치 */
+}
+
+/* 제목: 왼쪽 정렬, 폰트 크기/두께 조정 */
+.popup-title {
+  margin: 0;
+  font-size: 16px; /* 필요 시 조정 */
+  font-weight: 700;
+  text-align: left;
+  color: #333;
+}
+
+/* 구분선 */
+.popup-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #ECECEC; /* 연한 회색 */
+  margin: 8px 0;
+}
+
+/* 메시지: 왼쪽 정렬 */
+.popup-message {
+  margin: 0;
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: left;
+  color: #666;
+  line-height: 1.4;
+  /* flex: 1;  // 필요한 경우 버튼을 하단으로 밀고 싶으면 사용 */
+}
+
+/* 버튼 컨테이너: 오른쪽 정렬 */
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
 
 </style> 
