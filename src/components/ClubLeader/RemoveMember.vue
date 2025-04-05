@@ -75,9 +75,9 @@
             <span class="red-text1">총 {{ selectedMembers.length }}명</span
             >입니다.
           </p>
-          <p class="popup-message1">해당 동아리원들을 퇴출하시겠습니까?</p>
+          <p class="popup-message1">해당 동아리 회원들을 퇴출하시겠습니까?</p>
           <p class="popup-warning1">
-            퇴출 후 되돌릴 수 없으니 신중하게 선택해 주세요.
+            퇴출 후 되돌릴 수 없으니 신중하게 선택해주세요.
           </p>
         </div>
         <button @click="showExpulsionPopup = false" class="cancel-button">
