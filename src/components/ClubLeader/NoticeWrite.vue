@@ -183,6 +183,12 @@ export default {
   margin-bottom: 20px;
 }
 
+.title-container {
+  position: relative;
+  min-height: 85px; /* error-text 높이 고려한 값 */
+}
+
+
 .label {
   display: block;
   margin-bottom: 5px;

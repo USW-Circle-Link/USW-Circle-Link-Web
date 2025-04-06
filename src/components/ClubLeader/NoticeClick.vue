@@ -13,26 +13,32 @@
     </div>
 
     <!-- 공지사항 상세보기 -->
-    <div v-if="notice" class="notice-details">
-      <div class="meta-info">
-        <p>
-          <span class="notice-title">{{ notice.noticeTitle }}</span>
-          <span class="notice-meta">{{ notice.adminName }} | </span>
-          <span class="notice-date"> {{ formattedDate(notice.noticeCreatedAt) }} </span>
-        </p>
-      </div>
-      <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
+<div v-if="notice" class="notice-details">
+  <!-- 제목 + 작성자 + 날짜 -->
+  <div class="meta-row">
+    <span class="notice-title">{{ notice.noticeTitle }}</span>
+    <span class="notice-meta">{{ notice.adminName }} |</span>
+    <span class="notice-date">{{ formattedDate(notice.noticeCreatedAt) }}</span>
+  </div>
 
-      <div class="notice-images" v-if="images.length > 0">
-        <div v-for="(image, index) in images" :key="index" class="image-container">
-          <img
-              :src="image.src"
-              alt="Notice Image"
-              class="notice-image"
-              @error="handleImageError(index)" />
-        </div>
-      </div>
+  <!-- 🔹 제목과 내용 사이 구분선 -->
+  <hr class="notice-divider" />
+
+  <!-- 내용 -->
+  <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
+
+  <!-- 이미지 -->
+  <div class="notice-images" v-if="images.length > 0">
+    <div v-for="(image, index) in images" :key="index" class="image-container">
+      <img
+        :src="image.src"
+        alt="Notice Image"
+        class="notice-image"
+        @error="handleImageError(index)" />
     </div>
+  </div>
+</div>
+
 
     <!-- 공지사항 목록 -->
     <div class="notice-list">
@@ -297,6 +303,20 @@ export default {
   top: -50px; /* 위로 올리기 */
 }
 
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.notice-divider {
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
+
 
 .notice-title {
   color: #333;
@@ -314,9 +334,11 @@ export default {
 
 .notice-meta {
   font-size: 14px;
-  color: black;
+  color: #000;        /* 검정색 */
+  font-weight: 700;   /* 볼드체 */
   margin-left: 10px;
 }
+
 
 .notice-date {
   font-size: 14px;

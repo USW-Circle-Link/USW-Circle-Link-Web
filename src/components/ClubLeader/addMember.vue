@@ -3,7 +3,14 @@
     <!-- 제목 -->
     <div class="title-row">
       <h2>엑셀 파일로 추가할 동아리 회원 정보</h2>
-      <button class="download-btn" @click="downloadExcel">엑셀 양식 다운로드</button>
+      <button class="download-btn" @click="downloadExcel">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 15.2379V3.21289" stroke="#545454" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"/>
+          <path d="M7.375 10.9941L11.341 14.9601C11.5164 15.1337 11.7532 15.231 12 15.231C12.2468 15.231 12.4836 15.1337 12.659 14.9601L16.625 10.9941" stroke="#545454" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2.75 13.8496V18.4746C2.75 19.0881 2.99369 19.6764 3.42746 20.1101C3.86123 20.5439 4.44955 20.7876 5.063 20.7876H18.937C19.5504 20.7876 20.1388 20.5439 20.5725 20.1101C21.0063 19.6764 21.25 19.0881 21.25 18.4746V13.8496" stroke="#545454" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        양식 다운로드
+      </button>
       <button class="upload-btn" @click="triggerFileInput">
         <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0_4830_14361)">
@@ -15,7 +22,7 @@
             </clipPath>
           </defs>
         </svg>
-        엑셀 파일 업로드
+        파일 업로드
         <input type="file" ref="fileInput" @change="handleFileUpload" hidden />
       </button>
     </div>
@@ -25,11 +32,11 @@
         <div class="info-section-col">
           <p>추가 회원: {{ members.length }}명</p>
           <p class="warning-text">
-            동아리 회원 추가의 경우, 오타가 없는지 꼼꼼하게 확인해주세요.
+            양식을 다운로드하여 회원 정보를 입력한 후 , 업로드해 주세요. <br> 업로드 시, 오타가 없는지 꼼꼼하게 확인해주세요.
           </p>
         </div>
         <div>
-          <button class="clear-btn" @click="clearList">
+          <button v-if="visible && !isOverlappingMemberListsPopupVisible" class="clear-btn" @click="clearList">
             <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14 3.25H11.25V2.5C11.25 2.16848 11.1183 1.85054 10.8839 1.61612C10.6495 1.3817 10.3315 1.25 10 1.25H7C6.66848 1.25 6.35054 1.3817 6.11612 1.61612C5.8817 1.85054 5.75 2.16848 5.75 2.5V3.25H3C2.9337 3.25 2.87011 3.27634 2.82322 3.32322C2.77634 3.37011 2.75 3.4337 2.75 3.5C2.75 3.5663 2.77634 3.62989 2.82322 3.67678C2.87011 3.72366 2.9337 3.75 3 3.75H3.75V13C3.75 13.1989 3.82902 13.3897 3.96967 13.5303C4.11032 13.671 4.30109 13.75 4.5 13.75H12.5C12.6989 13.75 12.8897 13.671 13.0303 13.5303C13.171 13.3897 13.25 13.1989 13.25 13V3.75H14C14.0663 3.75 14.1299 3.72366 14.1768 3.67678C14.2237 3.62989 14.25 3.5663 14.25 3.5C14.25 3.4337 14.2237 3.37011 14.1768 3.32322C14.1299 3.27634 14.0663 3.25 14 3.25ZM6.25 2.5C6.25 2.30109 6.32902 2.11032 6.46967 1.96967C6.61032 1.82902 6.80109 1.75 7 1.75H10C10.1989 1.75 10.3897 1.82902 10.5303 1.96967C10.671 2.11032 10.75 2.30109 10.75 2.5V3.25H6.25V2.5ZM12.75 13C12.75 13.0663 12.7237 13.1299 12.6768 13.1768C12.6299 13.2237 12.5663 13.25 12.5 13.25H4.5C4.4337 13.25 4.37011 13.2237 4.32322 13.1768C4.27634 13.1299 4.25 13.0663 4.25 13V3.75H12.75V13ZM7.25 6.5V10.5C7.25 10.5663 7.22366 10.6299 7.17678 10.6768C7.12989 10.7237 7.0663 10.75 7 10.75C6.9337 10.75 6.87011 10.7237 6.82322 10.6768C6.77634 10.6299 6.75 10.5663 6.75 10.5V6.5C6.75 6.4337 6.77634 6.37011 6.82322 6.32322C6.87011 6.27634 6.9337 6.25 7 6.25C7.0663 6.25 7.12989 6.27634 7.17678 6.32322C7.22366 6.37011 7.25 6.4337 7.25 6.5ZM10.25 6.5V10.5C10.25 10.5663 10.2237 10.6299 10.1768 10.6768C10.1299 10.7237 10.0663 10.75 10 10.75C9.9337 10.75 9.87011 10.7237 9.82322 10.6768C9.77634 10.6299 9.75 10.5663 9.75 10.5V6.5C9.75 6.4337 9.77634 6.37011 9.82322 6.32322C9.87011 6.27634 9.9337 6.25 10 6.25C10.0663 6.25 10.1299 6.27634 10.1768 6.32322C10.2237 6.37011 10.25 6.4337 10.25 6.5Z" fill="#969696"/>
             </svg>
@@ -41,7 +48,13 @@
     <!--추가할 회원 리스트-->
     <div v-if="visible && !isOverlappingMemberListsPopupVisible" class="member-list">
       <div class="member-list" v-for="(member, index) in members" :key="index">
-        <div class="member-row">
+        <div class="member-row"
+             :class="{
+                'editing': editingIndex === index,
+                'has-error': editingIndex === index &&
+                  (validationErrors.userName || validationErrors.studentNumber ||
+                   validationErrors.major || validationErrors.userHp)
+              }">
           <!-- 이름 입력 -->
           <div class="input-wrapper">
             <span v-if="editingIndex !== index">{{ member.userName }}</span>
@@ -50,10 +63,6 @@
                    :class="['edit-input', { error: validationErrors.userName }]"
                    type="text"
                    placeholder="이름">
-            <div v-if="editingIndex === index && validationErrors.userName"
-                 class="validation-error">
-              {{ errorMessages.userName }}
-            </div>
           </div>
 
           <!-- 학번 입력 -->
@@ -64,10 +73,6 @@
                    :class="['edit-input', 'narrow-input', { error: validationErrors.studentNumber }]"
                    type="text"
                    placeholder="학번">
-            <div v-if="editingIndex === index && validationErrors.studentNumber"
-                 class="validation-error">
-              {{ errorMessages.studentNumber }}
-            </div>
           </div>
 
           <!-- 전화번호 입력 -->
@@ -78,10 +83,6 @@
                    :class="['edit-input', 'narrow-input', { error: validationErrors.userHp }]"
                    type="tel"
                    placeholder="전화번호">
-            <div v-if="editingIndex === index && validationErrors.userHp"
-                 class="validation-error">
-              {{ errorMessages.userHp }}
-            </div>
           </div>
 
           <!-- 단과대학 선택 -->
@@ -113,7 +114,20 @@
           </button>
         </div>
         <div>
-          <p class="errorMessage"> {{ member.errorMessage }}</p>
+          <p class="errorMessage">{{member.errorMessage}}</p>
+        </div>
+        <div v-if="editingIndex === index"
+             class="validation-error"
+             :class="{
+                'editing': editingIndex === index,
+                'has-error': editingIndex === index &&
+                  (validationErrors.userName || validationErrors.studentNumber ||
+                   validationErrors.major || validationErrors.userHp)
+              }">
+          <p v-if="validationErrors.userName">{{ errorMessages.userName }}</p>
+          <p v-if="validationErrors.studentNumber">{{ errorMessages.studentNumber }}</p>
+          <p v-if="validationErrors.userHp">{{ errorMessages.userHp }}</p>
+          <p v-if="validationErrors.major">{{ errorMessages.major }}</p>
         </div>
       </div>
       <button class="addClubMember" @click="submitMembers">완료</button>
@@ -331,7 +345,11 @@ export default {
           this.isOverlappingMemberListsPopupVisible = true;
         }
       } catch (error) {
+        const { code } = error.response?.data || {};
         if (!this.handle401Error(error)) {
+          if(code === 'FILE-308'){
+            alert('업로드 가능한 갯수를 초과했습니다.');
+          }
           console.error('동아리 정보를 불러오는데 실패했습니다.', error);
           alert('동아리 정보를 불러오는데 실패했습니다.');
         }
@@ -355,7 +373,7 @@ export default {
         userHp: this.members[index].userHp,
       };
     },
-    validateInput() {
+    validateInput(index) {
       // 이름 검증 - 특수문자 제외
       this.validationErrors.userName = !/^[가-힣a-zA-Z\s]{3,20}$/.test(this.editingMember.userName);
 
@@ -366,12 +384,14 @@ export default {
       const phoneNumber = this.editingMember.userHp.replace(/-/g, '');
       this.validationErrors.userHp = !/^\d{11}$/.test(phoneNumber);
 
+      this.validationErrors.major = this.members[index].major === "";
+
       // 하나라도 에러가 있으면 false 반환
       return !Object.values(this.validationErrors).some(error => error);
     },
 
     confirmEdit(index) {
-      if (this.validateInput()) {
+      if (this.validateInput(index)) {
         this.showEditConfirmPopup = true;
       }
       this.members[index].userName = this.editingMember.userName;
@@ -384,9 +404,7 @@ export default {
       this.editingMember = null;
     },
     saveEdit() {
-      if (this.validateInput()) {
-        this.showEditConfirmPopup = false;
-      }
+      this.showEditConfirmPopup = false;
       this.editingIndex = -1;
     },
     // 리스트 초기화
@@ -468,6 +486,13 @@ export default {
         if (!this.handle401Error(error)) {
           console.error('동아리 회원 정보에 문제가 있습니다.', error);
           alert('동아리 회원 정보에 문제가 있습니다. 수정 후 다시 업로드 해주세요.');
+          this.validationErrors = {
+            userName: false,
+            studentNumber: false,
+            major: false,
+            userHp: false
+          }
+          this.editingIndex = -1;
           this.isPopupVisible = false;
         }
         if (error.code === 'ERR_BAD_REQUEST'){
@@ -536,7 +561,6 @@ h2 {
 
 
 .info-section {
-  margin-top: 20px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -555,18 +579,18 @@ p {
 .warning-text {
   color: #ff4d4f; /* 빨간색 경고 메시지 */
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .upload-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #1D6F42; /* 녹색 버튼 */
+  background-color: #3F9560; /* 녹색 버튼 */
   color: #FFFFFF;
   border: none;
   width: 156px;
-  height: 37px;
+  height: 44px;
   border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
@@ -577,20 +601,22 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #FFB052;
-  color: #FFFFFF;
-  border: none;
+  background-color: #FAFAFA;
+  color: #545454;
   width: 156px;
-  height: 37px;
+  height: 44px;
   border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   margin-left: 230px;
+  font-family: Pretendard;
+  line-height: 100%;
+  border: 1px solid #C9C9C9
 }
 
 .download-btn:hover {
-  background-color: #f49421;
+  background-color: #C9C9C9;
 }
 
 .upload-btn:hover {
@@ -604,6 +630,7 @@ p {
   background-color: #FFF; /* 회색 버튼 */
   color: #969696;
   padding: 10px 15px;
+  margin-top: 20px;
   border: 1px solid #969696;
   border-radius: 4px;
   font-size: 14px;
@@ -615,8 +642,9 @@ p {
 }
 
 .member-list {
+  display: flex;
   flex-direction: column;
-  margin-top: 20px;
+  margin-top: 10px;
   width: 860px;
 }
 
@@ -625,9 +653,21 @@ p {
   align-items: center;
   justify-content: space-between;
   background-color: #fff;
+  margin-bottom: 5px;
   padding: 10px;
-  margin-bottom: 15px;
   border-radius: 8px;
+}
+
+.member-row.editing{
+  padding: 8.5px;
+  background-color: white;
+  border: 1.5px solid #FFB052;
+}
+
+.member-row.editing.has-error{
+  padding: 8.5px;
+  border: 1.5px solid #ff0000;
+  background-color: rgba(255, 0, 0, 0.1);
 }
 
 .member-row span {
@@ -693,18 +733,30 @@ select {
   background-color: #c66f04;
 }
 
-.validation-error {
+.validation-error.editing{
   position: absolute;
+}
+
+.validation-error.editing.has-error{
+  position: relative;
+}
+
+.validation-error p{
   white-space: nowrap; /* 줄바꿈 방지 */
-  font-size: 9px;
-  color: red;
+  color: #FF3535;
   align-self: flex-start; /* 왼쪽 정렬 */
+  font-family: Pretendard;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 70%;
 }
 
 .errorMessage{
+  position: absolute;
   color : red;
   font-size: 12px;
   margin-left: 10px;
+  margin-top: 0;
 }
 
 .addClubMember{
@@ -887,16 +939,6 @@ select {
   font-weight: bold;
   color: black;
   margin: 0;
-}
-
-.popup-overlay2 .line2{
-  border-bottom: 1px solid #d3d3d3;
-  margin: 10px 0;
-}
-
-.line2 {
-  border-bottom: 1px solid #d3d3d3;
-  margin: 10px 0;
 }
 
 .line3 {

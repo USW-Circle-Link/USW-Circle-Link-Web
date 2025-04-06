@@ -333,7 +333,7 @@ export default {
         this.formValidation.idValid = false;
       } else if (!idPattern.test(this.id)) {
         this.isActiveId = true;
-        this.idError = '* 아이디는 5~20자 이내의 숫자와 문자만 입력 가능합니다.';
+        this.idError = '* 아이디는 5~20자 이내의 영어, 숫자로 작성해주세요.';
         this.formValidation.idValid = false;
       } else {
         this.formValidation.idValid = true;
@@ -416,13 +416,14 @@ export default {
           this.showPopup = true;
           this.DuplicateCheckId = true;
         } catch (error) {
+          const { code } = error.response?.data || {};
           if (!this.handle401Error(error)) {
-            console.error('Error updating member:', error);
-          }
-          if (error.response.status === 422) {
-            this.isActiveId = true;
-            this.idError = '* 이미 존재하는 아이디입니다.';
-            this.DuplicateCheckId = false;
+            //console.error('Error updating member:', error);
+            if (code === 'CLDR-203') {
+              this.isActiveId = true;
+              this.idError = '* 이미 존재하는 아이디입니다.';
+              this.DuplicateCheckId = false;
+            }
           }
         }
       } else {
@@ -443,13 +444,14 @@ export default {
           this.showPopup = true;
           this.DuplicateCheckClubName = true;
         } catch (error) {
+          const { code } = error.response?.data || {};
           if (!this.handle401Error(error)) {
-            console.error('Error updating member:', error);
-          }
-          if (error.response.status === 409) {
-            this.isActiveClubName = true;
-            this.clubNameError = '* 이미 존재하는 동아리 이름입니다.';
-            this.DuplicateCheckClubName = false;
+            //console.error('Error updating member:', error);
+            if (code === 'CLUB-203') {
+              this.isActiveClubName = true;
+              this.clubNameError = '* 이미 존재하는 동아리 이름입니다.';
+              this.DuplicateCheckClubName = false;
+            }
           }
         }
       } else {
@@ -528,14 +530,23 @@ export default {
         this.clearForm(); // 입력 폼 초기화
         this.AddClubPopupVisible = false;  // 팝업창 닫기
       } catch (error) {
-        if (error.response) {
+        const { code } = error.response?.data || {};
           if (!this.handle401Error(error)) {
-            console.error('Error updating member:', error);
+            //console.error('Error updating member:', error);
+            if (code === 'ADM-202') {
+              this.adminPwError = '* 비밀번호를 다시 확인해주세요.';
+            } else if (code === 'CLDR-202'){
+              this.confirmPasswordError = '* 비밀번호가 일치하지 않습니다.';
+            } else if(code === 'CLDR-203'){
+              this.idError = '* 이미 존재하는 아이디입니다.';
+            } else if(code === 'CLUB-203'){
+              this.clubNameError = '* 이미 존재하는 동아리 이름입니다.';
+            } else if(code === 'BAD_REQUEST'){
+              alert("학부 값은 필수입니다.");
+            } else if(code === 'INVALID_ARGUMENT'){
+              alert("예기치 못한 오류");
+            }
           }
-          if (error.response.status === 400) {
-            this.adminPwError = '* 비밀번호를 다시 확인해주세요.';
-          }
-        }
       }
     },
     closeResultPopup(newMessage, index) {

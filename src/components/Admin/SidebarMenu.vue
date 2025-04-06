@@ -66,21 +66,22 @@ export default {
   data(){
     return{
       clubname: '운영팀', // 동연회/개발팀 프로필 이름
-      selectedLink: '', //선택 중이라면 노란색으로 (footer)
+      selectedLink: '', //선택된 메뉴라면 노란색으로 (footer)
     }
   },
 
   methods: {
     // 함수 실행 시 routeName의 컴포넌트로 이동
     navigateTo(routeName) {
-      this.selectedLink = routeName;
+      this.selectedLink = routeName; // 선택된 메뉴 
       this.$router.push({ name: routeName }).catch(err => {
+        // 동일한 경로로 이동할 경우 오류 무시
         if (err.name !== 'NavigationDuplicated') {
           throw err;
         }
       });
     },
-    // 로그아웃
+    // 로그아웃 처리 함수
     async logout() {
       try {
         const accessToken = this.$store.state.accessToken;
@@ -94,10 +95,9 @@ export default {
         });
 
         this.$store.dispatch('logout'); // 로컬 스토어에서 사용자 정보 제거
-
         this.$router.push({ name: 'login' }); // 로그인 페이지로 화면 이동
+
       } catch (error) {
-        console.error('로그아웃 오류:', error);
         alert('로그아웃 처리 중 오류가 발생했습니다.'); // 오류가 발생해도 일단 로컬에서는 로그아웃 처리
         this.$store.dispatch('logout');
         this.$router.push({ name: 'login' });

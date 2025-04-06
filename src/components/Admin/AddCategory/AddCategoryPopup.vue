@@ -58,7 +58,6 @@ export default {
   font-weight: bold;
 }
 
-
 .confirm-message{
   font-size: 16px;
   text-align: left;

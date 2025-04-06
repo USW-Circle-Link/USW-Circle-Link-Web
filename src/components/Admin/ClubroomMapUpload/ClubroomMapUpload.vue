@@ -425,8 +425,13 @@ export default {
 }
 
 .image-box {
+<<<<<<< HEAD
   width: 100%;
   height: 100%;
+=======
+  width: 280px;
+  height: 182px;
+>>>>>>> 28fe4ab682eb9f3034c72c203e3853dcb28d1434
   display: flex;
   justify-content: center;
   align-items: center;
@@ -435,7 +440,10 @@ export default {
   position: relative;
   transition: background-color 0.2s ease;
   border-bottom: 1px solid #ddd;
+<<<<<<< HEAD
   object-fit: cover;
+=======
+>>>>>>> 28fe4ab682eb9f3034c72c203e3853dcb28d1434
 }
 
 

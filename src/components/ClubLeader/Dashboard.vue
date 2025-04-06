@@ -44,7 +44,11 @@
         <p class="p2">현재 회원 : {{totalMemberCount}} 명</p>
       </div>
       <button @click="sheetDownload" class="spreadsheets">
-        <img v-if="!isLoading" alt="" src="../../assets/spreadsheets.png" oncontextmenu="return false;" />
+        <svg v-if="!isLoading" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 15.2379V3.21289" stroke="#545454" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"/>
+          <path d="M7.375 10.9941L11.341 14.9601C11.5164 15.1337 11.7532 15.231 12 15.231C12.2468 15.231 12.4836 15.1337 12.659 14.9601L16.625 10.9941" stroke="#545454" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2.75 13.8496V18.4746C2.75 19.0881 2.99369 19.6764 3.42746 20.1101C3.86123 20.5439 4.44955 20.7876 5.063 20.7876H18.937C19.5504 20.7876 20.1388 20.5439 20.5725 20.1101C21.0063 19.6764 21.25 19.0881 21.25 18.4746V13.8496" stroke="#545454" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
         <span v-if="isLoading" class="loading-icon"></span>
         <p>{{ isLoading ? "다운로드 중" : "회원 명단 다운로드" }}</p>
       </button>
@@ -88,7 +92,7 @@
                      type="text"
                      placeholder="이름">
               <div v-if="editingIndex === index && validationErrors.userName"
-                   class="validation-error">
+                   class="validation-error-userName">
                 {{ errorMessages.userName }}
               </div>
             </div>
@@ -102,7 +106,7 @@
                      type="text"
                      placeholder="학번">
               <div v-if="editingIndex === index && validationErrors.studentNumber"
-                   class="validation-error">
+                   class="validation-error-studentNumber">
                 {{ errorMessages.studentNumber }}
               </div>
             </div>
@@ -132,7 +136,7 @@
                 </select>
               </div>
               <div v-if="editingIndex === index && validationErrors.major"
-                   class="validation-error">
+                   class="validation-error-major">
                 {{ errorMessages.major }}
               </div>
             </div>
@@ -146,7 +150,7 @@
                      type="tel"
                      placeholder="전화번호">
               <div v-if="editingIndex === index && validationErrors.userHp"
-                   class="validation-error">
+                   class="validation-error-userHp">
                 {{ errorMessages.userHp }}
               </div>
             </div>
@@ -220,10 +224,10 @@ export default {
         userHp: false
       },
       errorMessages: {
-        userName: '* 이름(특수 기호 제외 문자)을 입력해주세요.',
-        studentNumber: '* 학번(8자리 숫자)을 입력해주세요.',
+        userName: '* 이름(특수 문자 제외 2~30자)을 입력해주세요.',
+        studentNumber: '* 학번(숫자 8자)을 입력해주세요.',
         major: '* 학과를 선택해주세요.',
-        userHp: '* -제외 11자리 숫자를 입력해주세요.'
+        userHp: '* 전화번호(-제외 11자리 숫자)를 입력해주세요.'
       },
       data: {},
       imageSrc: '', // 이미지를 저장할 변수 추가
@@ -380,9 +384,17 @@ export default {
 
         await this.fetchData();
       } catch (error) {
-        if (error.response) {
-          console.error('Error response data:', error.response.data);
+        const { code } = error.response?.data || {};
+
+        if(code === 'CMEM-201'){
+          alert("클럽멤버가 존재하지 않습니다.");
+        } else if(code === 'PFL-206'){
+          alert("비회원만 수정할 수 있습니다.");
+        } else {
+          alert("예기치 못한 오류가 발생했습니다.\n" +
+              "문제가 계속될 시, 관리자에게 문의해 주세요.");
         }
+
         if (!this.handle401Error(error)) {
           console.error('Error updating member:', error);
         }
@@ -509,6 +521,11 @@ export default {
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('Error fetching data:', error);
+        }
+
+        const { code } = error.response?.data || {};
+        if(code === 'PFL-208'){
+          alert("유효하지 않은 회원 종류입니다.");
         }
       }
     },
@@ -827,6 +844,17 @@ export default {
   text-align: center;
   line-height: 32px;
   margin: 0;
+  text-decoration: none;
+  color: #38A2FF;
+}
+
+.instaName a:hover{
+  font-size: 16px;
+  text-align: center;
+  line-height: 32px;
+  margin: 0;
+  text-decoration: none;
+  color: #1d71be;
 }
 
 .instaName span {
@@ -884,35 +912,29 @@ export default {
 }
 
 .spreadsheets{
-  width: 180px;
-  height: 60px;
   display: flex;
-  flex-shrink: 0;
-  border-radius: 8px;
-  background: #7FB08C;
-  justify-content: center;
-  border: none;
+  flex-direction: row;
   align-items: center;
-  align-content: center;
-  margin-right: 10px;
-  cursor: pointer;
+  width: 182px;
+  height: 44px;
+  margin-right: 16px;
+  border-radius: 4px;
+  padding: 10px;
+  gap: 10px;
+  background-color: #FAFAFA;
+  border: 1px solid #C9C9C9;
 }
 
 .spreadsheets:hover {
-  background-color: #6a9b7a; /* Change to your desired hover color */
+  background-color: #C9C9C9; /* Change to your desired hover color */
 }
 
 .spreadsheets p{
+  font-family: Pretendard;
+  font-weight: 500;
   font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.05em;
-  text-align: left;
-  color: #FFFFFF;
-  margin-bottom: 13px;
-}
-
-.spreadsheets img{
-  margin-right: 9px;
+  line-height: 16px;
+  color: #545454;
 }
 
 .loading-icon {
@@ -996,6 +1018,7 @@ td:last-child{
 }
 
 .member-item.editing.has-error {
+  margin-bottom: 25px;
   border: 1.5px solid #ff0000;
   background-color: rgba(255, 0, 0, 0.1);
 }
@@ -1003,21 +1026,54 @@ td:last-child{
 .edit-input.error {
   border-color: #ff0000;
   background-color: rgba(255, 0, 0, 0.1);
-  margin-top: 0px;
+  margin-top: 0;
 }
 
 .edit-select.error {
   border-color: #ff0000;
   background-color: rgba(255, 0, 0, 0.1);
-  margin-top: 18px;
+  //margin-top: 18px;
 }
 
-.validation-error {
+.validation-error-userName {
+  display: flex;
   position: absolute;
   white-space: nowrap; /* 줄바꿈 방지 */
   font-size: 12px;
   color: red;
-  margin-top: 10px; /* 입력 필드와 간격 */
+  margin-top: 15px; /* 입력 필드와 간격 */
+  align-self: flex-start; /* 왼쪽 정렬 */
+}
+
+.validation-error-studentNumber {
+  display: flex;
+  position: absolute;
+  white-space: nowrap; /* 줄바꿈 방지 */
+  font-size: 12px;
+  color: red;
+  margin-top: 15px; /* 입력 필드와 간격 */
+  margin-left: 50px;  /* 이름 에러 문구와 간격 */
+  align-self: flex-start; /* 왼쪽 정렬 */
+}
+
+.validation-error-userHp {
+  display: flex;
+  position: absolute;
+  white-space: nowrap; /* 줄바꿈 방지 */
+  font-size: 12px;
+  color: red;
+  margin-top: 15px; /* 입력 필드와 간격 */
+  align-self: flex-start; /* 왼쪽 정렬 */
+}
+
+.validation-error-major {
+  display: flex;
+  position: absolute;
+  white-space: nowrap; /* 줄바꿈 방지 */
+  font-size: 12px;
+  color: red;
+  margin-top: 15px; /* 입력 필드와 간격 */
+  margin-left: 100px;
   align-self: flex-start; /* 왼쪽 정렬 */
 }
 
