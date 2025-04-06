@@ -50,20 +50,18 @@ export default {
 }
 
 .popup-header {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
   border-bottom: 1px solid #d3d3d3;
   padding-bottom: 12px;
   margin-bottom: 20px;
-
 }
 
 .confirm-message {
   text-align: left;
   color: #333;
   margin: 0 0 60px 0;
-  font-weight: bold;
-  font-size : 18px;
+  font-size : 16px;
 }
 
 .confirm-button {
