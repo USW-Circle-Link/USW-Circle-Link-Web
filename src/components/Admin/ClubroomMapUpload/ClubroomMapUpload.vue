@@ -5,14 +5,13 @@
   <div class="floor-images-container">
     <div class="floor-section">
       <!-- 지하 1층 -->
-      <div class="floor-container">
+       <div class="floor-container">
       <div
-        class="image-container"
-        @mouseover="showIcons('B1', true)"
-        @mouseleave="showIcons('B1', false)"
-      >
+        class="image-container">
         <div class="image-wrapper">
-          <div class="image-box" :class="{ hovered: floorData.B1.showingIcon }">
+          <div class="image-box" :class="{ hovered: floorData.B1.showingIcon }"
+          @mouseover="showIcons('B1', true)"
+          @mouseleave="showIcons('B1', false)">
             <img
               v-if="floorData.B1.imageSrc"
               :src="floorData.B1.imageSrc"
@@ -47,17 +46,16 @@
             style="display: none;"
           />
         </div>
-      </div>
+      </div> 
       <!-- 1층 -->
       <div class="floor-container">
 
         <div
-          class="image-container"
-          @mouseover="showIcons('F1', true)"
-          @mouseleave="showIcons('F1', false)"
-        >
+          class="image-container">
           <div class="image-wrapper">
-            <div class="image-box" :class="{ hovered: floorData.F1.showingIcon }">
+            <div class="image-box" :class="{ hovered: floorData.F1.showingIcon }"
+            @mouseover="showIcons('F1', true)"
+            @mouseleave="showIcons('F1', false)">
               <img
                 v-if="floorData.F1.imageSrc"
                 :src="floorData.F1.imageSrc"
@@ -97,12 +95,11 @@
       <!-- 2층 -->
       <div class="floor-container">
         <div
-          class="image-container"
-          @mouseover="showIcons('F2', true)"
-          @mouseleave="showIcons('F2', false)"
-        >
+          class="image-container">
           <div class="image-wrapper">
-            <div class="image-box" :class="{ hovered: floorData.F2.showingIcon }">
+            <div class="image-box" :class="{ hovered: floorData.F2.showingIcon }"
+              @mouseover="showIcons('F2', true)"
+              @mouseleave="showIcons('F2', false)">
               <img
                 v-if="floorData.F2.imageSrc"
                 :src="floorData.F2.imageSrc"
@@ -143,7 +140,6 @@
 
     <!-- 확대된 이미지 모달 -->
     <div v-if="enlargedImage" class="image-modal">
-      <div class="image-wrapper">
         <img
           src="../../../assets/remove.svg"
           class="remove-icon-modal"
@@ -153,7 +149,6 @@
         <img :src="enlargedImage" alt="Enlarged Image" class="enlarged-image" />
       </div>
     </div>
-  </div>
 
   <ClubroomMapUploadPopup
       v-if="showPopup"
@@ -430,8 +425,8 @@ export default {
 }
 
 .image-box {
-  width: 280px;
-  height: 182px;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -440,6 +435,7 @@ export default {
   position: relative;
   transition: background-color 0.2s ease;
   border-bottom: 1px solid #ddd;
+  object-fit: cover;
 }
 
 
@@ -473,6 +469,7 @@ export default {
   align-items: center;
   pointer-events: none;
   cursor: pointer;
+  
 }
 
 .zoom-icon {
@@ -558,6 +555,8 @@ export default {
 }
 
 .image-wrapper {
+  width: 100%;
+  height: 100%;
   position: relative;
   justify-content: center;
   align-items: center;
@@ -568,8 +567,9 @@ export default {
   max-height: 55%;*/
   max-width: 700px;
   max-height: 400px;
-  margin-top: 55px;
+  display: block;
   object-fit: contain;
+  
 }
 
 .remove-icon-modal {
