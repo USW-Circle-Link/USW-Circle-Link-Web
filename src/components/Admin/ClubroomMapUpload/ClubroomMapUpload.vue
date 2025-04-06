@@ -576,8 +576,8 @@ export default {
   position: absolute;
   width: 30px; 
   height: 30px;
-  top: 10px;
-  right: 0px;
+  top: 210px;
+  right: 660px;
   cursor: pointer;
 }
 h2{
@@ -598,7 +598,6 @@ h3 {
   top: 10px;
   right: 10px;
   pointer-events: all;
-
 }
 .upload-icon {
   width: 16px;
