@@ -25,7 +25,7 @@
           <li class="list3" @click="navigateTo('AddClub')">
             <div class="top">
               <i class="icon check"></i>
-              <p class="menu">동아리 추가</p>
+              <p class="menu">동아리 관리</p>
               <div class="yellowLine"></div>
             </div>
           </li>
