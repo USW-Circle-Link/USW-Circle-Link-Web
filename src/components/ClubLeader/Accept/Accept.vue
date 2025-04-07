@@ -3,7 +3,7 @@
     <div class="sections-container">
       <!-- Left Section: Member Requests -->
       <div class="section member-requests">
-        <h2>비회원 가입 요청 목록</h2>
+        <h2>비회원 가입 요청 목록</h2> 
         <p class="request-count">요청 인원: {{ requestedMembers.length }}명</p>
         <p class="instruction">각각의 목록에서 올바른 회원을 선택해주세요.</p>
 
@@ -99,28 +99,28 @@
 
     <!-- Popups -->
     <Popup v-if="showEditPopup" :visible="showEditPopup" title="동아리 회원 수정"
-           message="해당 동아리 회원을 수정하시겠습니까?"
-           @cancel="cancelEditPopup" @confirm="confirmEditPopup"/>
+            message="해당 동아리 회원을 수정하시겠습니까?"
+            @cancel="cancelEditPopup" @confirm="confirmEditPopup"/>
 
     <Popup v-if="showAcceptPopup"
-           :visible="showAcceptPopup"
-           title="비회원 가입 요청"
-           message="해당 동아리 회원의 가입 요청을 수락하시겠습니까?"
-           sub-message="다시 되돌릴 수 없으니 신중하게 선택해주세요."
-           @cancel="cancelAccept"
-           @confirm="confirmAccept"/>
+            :visible="showAcceptPopup"
+            title="비회원 가입 요청"
+            message="해당 동아리 회원의 가입 요청을 수락하시겠습니까?"
+            subMessage="다시 되돌릴 수 없으니 신중하게 선택해주세요."
+            @cancel="cancelAccept"
+            @confirm="confirmAccept"/>
 
     <Popup v-if="showRejectionPopup" :visible="showRejectionPopup" title="동아리 회원 가입 요청"
-           message="해당 동아리 회원 가입 요청을 거절하시겠습니까?" subMessage="다시 되돌릴 수 없으니 신중하게 선택해주세요."
-           @cancel="cancelRejection" @confirm="confirmRejection"/>
+            message="해당 동아리 회원 가입 요청을 거절하시겠습니까?" subMessage="다시 되돌릴 수 없으니 신중하게 선택해주세요."
+            @cancel="cancelRejection" @confirm="confirmRejection"/>
 
-           <div v-if="showConfirmationPopup" class="popup-overlay">
+            <div v-if="showConfirmationPopup" class="popup-overlay">
             <div class="custom-popup">
               <p class="popup-title">비회원 가입 요청</p>
               <div class="popup-divider"></div>
               <p class="popup-message">
                 회원 가입 요청이 정상적으로 처리되었습니다.<br>
-                해당 회원은 타 동아리에도 소속된 회원으로<br>
+                해당 회원은 타 동아리에도 소속된 회원으로,<br>
                 모든 회장의 요청 수락을 받아야 회원 가입이 완료됩니다.
               </p>
               <div class="popup-buttons">
@@ -151,28 +151,28 @@
 
 
     <Popup v-if="showErrorPopup"
-           :visible="showErrorPopup"
-           title="비회원 가입 요청"
-           :message="`해당 동아리 회원의 정보가 일치하지 않습니다.`"
-           :subMessage="`${errorData}`"
-           :message2="`을(를) 다시 확인해주세요.`"
-           :hideCancelButton="true"
-           @confirm="closeErrorPopup"/>
+            :visible="showErrorPopup"
+            title="비회원 가입 요청"
+            :message="`해당 동아리 회원의 정보가 일치하지 않습니다.`"
+            :subMessage="`${errorData}`"
+            :message2="`을(를) 다시 확인해주세요.`"
+            :hideCancelButton="true"
+            @confirm="closeErrorPopup"/>
 
     <Popup v-if="show404ErrorPopup"
-           :visible="show404ErrorPopup"
-           title="동아리 회원 가입 요청"
-           message="해당 동아리 회원은 존재하지 않습니다. 다시 한 번 확인해주세요."
-           :hideCancelButton="true"
-           @confirm="close404ErrorPopup"/>
+          :visible="show404ErrorPopup"
+            title="동아리 회원 가입 요청"
+            message="해당 동아리 회원은 존재하지 않습니다. 다시 한 번 확인해주세요."
+            :hideCancelButton="true"
+            @confirm="close404ErrorPopup"/>
 
     <Popup v-if="realCompletePopup"
-           :visible="realCompletePopup"
-           title="동아리 회원 가입 요청"
-           :message="`회원 가입 요청이 정상적으로 처리되었습니다.`"
-           :message2="`${completedMemberName} 동아리 회원에게 회원 가입 완료 소식을 전달해주세요.`"
-           :hideCancelButton="true"
-           @confirm="closerealCompletePopup"/>
+            :visible="realCompletePopup"
+            title="동아리 회원 가입 요청"
+            :message="`회원 가입 요청이 정상적으로 처리되었습니다.`"
+            :message2="`'${completedMemberName}' 동아리 회원에게 회원 가입 완료 소식을 전달해주세요.`"
+            :hideCancelButton="true"
+            @confirm="closerealCompletePopup"/>
 
     <Popup401 v-if="show401Popup" />
   </div>
@@ -241,8 +241,8 @@ export default {
     async fetchData() {
 
     const accessToken = store.state.accessToken;
-    const clubMemberUUID = store.state.clubMemberUUID; //주석 해제 후 값 가져오기
-    const clubMemberAccountStatusUUID = store.state.clubMemberAccountStatusUUID;
+    //const clubMemberUUID = store.state.clubMemberUUID; //주석 해제 후 값 가져오기
+   // const clubMemberAccountStatusUUID = store.state.clubMemberAccountStatusUUID;
     const clubUUID = store.state.clubUUID;
     try {
         // Vuex 상태값 확인
@@ -550,8 +550,7 @@ export default {
              // Alert 창 띄우기
               alert(this.errorData);
             //this.showErrorPopup = true;
-        } 
-         else {
+        } else {
             this.errorData = "알 수 없는 오류가 발생했습니다.";
             this.showErrorPopup = true;
         }
@@ -600,7 +599,7 @@ export default {
       this.errorMessagesByIndex = {}; // Clear any existing error messages
     },
 
-    saveEdit(index) {
+    saveEdit() {
       if (this.validateInput()) {
         this.tempEditingMember = { ...this.editingMember }; // 임시 저장
         this.showEditPopup = true;
@@ -619,10 +618,6 @@ export default {
         this.errorMessagesByIndex[this.editingIndex].push('* 학번(8자리 숫자)을 입력해주세요.');
         isValid = false;
       }
-      if (!this.editingMember.college) {
-        this.errorMessagesByIndex[this.editingIndex].push('* 단과대를 선택해주세요.');
-        isValid = false;
-      }
       if (!this.editingMember.department) {
         this.errorMessagesByIndex[this.editingIndex].push('* 학과를 선택해주세요.');
         isValid = false;
@@ -631,7 +626,7 @@ export default {
       // New phone validation logic
       const cleanedPhone = this.editingMember.phone.replace(/\D/g, '');
       if (!cleanedPhone || cleanedPhone.length !== 11) {
-        this.errorMessagesByIndex[this.editingIndex].push('* 전화번호(11자리 숫자)를 입력해주세요.');
+        this.errorMessagesByIndex[this.editingIndex].push('* 전화번호(-제외 11자리 숫자)를 입력해주세요.');
         isValid = false;
       } else {
         // Store the cleaned phone number if it's valid
@@ -795,7 +790,7 @@ export default {
   }
 }
 
-.request-list{}
+
 .added-member-list {
   display: flex;
   flex-direction: column;
