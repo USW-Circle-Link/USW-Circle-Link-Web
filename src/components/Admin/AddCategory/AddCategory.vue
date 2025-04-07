@@ -54,7 +54,7 @@ export default {
 
       showPopup: false,
       serverMessage: '',
-
+      serverPopHead: '',
       errorMsg: "",
 
       show401Popup: false  // 401 팝업
@@ -66,12 +66,14 @@ export default {
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
-      if (error.response && error.response.status === 401) {
+      const { code } = error.response?.data || {};
+      if (code === 401 || code === 'UNAUTHORIZED') {
         this.show401Popup = true;
         return true;
       }
       return false;
     },
+    //카테고리 목록 불러오기
     async fetchCategory(){
       try {
         const response = await axios.get(`${store.state.apiBaseUrl}/admin/clubs/category`, {
@@ -95,9 +97,10 @@ export default {
         }
       }
     },
+    //카테고리 추가
     async addCategory() {
-      const specialCharPattern = /[!@#$%^&*(),.?":{}|<> ]/;
-
+      const specialCharPattern = /[!@#$%^&*(),.?":;{}|<>/'+=-`_']/;
+      const whiteSpacePattern =/\s+/; //중간 공백 체크
       const trimmedCategory = this.categoryName.trim();
       if (
           trimmedCategory !== "" &&
@@ -129,20 +132,30 @@ export default {
           this.categoryName = "";
 
         } catch (error) {
-          if (!this.handle401Error(error)) {
-            console.error('Error adding category:', error);
+          const {code} = error.response?.data || {};
+          
+          if(code === 'INVALID_REQUEST_BODY' ) {
+            this.errorMsg = '* 카테고리는 공백, 특수문자 제외 1~10자 이내로 작성해주세요.';
           }
+          // 입력검증을 뚫었을 경우
+          else if (code === "INVALID_ARGUMENT"){
+            `
+            <span style="color:red; font-weight:bold;">예기치 못한 오류</span>가 발생했습니다.<br/>
+            문제가 계속될 시, 관리자에게 문의해 주세요.
+            `;     
+          }
+          
         }
       } else if (this.categories.includes(trimmedCategory)) {
-        this.serverMessage = '이미 존재하는 카테고리입니다.';
+        this.serverMessage = '이미 존재하는 카테고리에요.';
         this.showPopup = true;
-      } else if(specialCharPattern.test(trimmedCategory)){
-        this.serverMessage = '카테고리에는 공백 또는 특수문자를 포함할 수 없습니다.';
-        this.showPopup = true;
-      } else if(!trimmedCategory.length <= 10) {
+      }  else if((!trimmedCategory.length <= 10) || whiteSpacePattern.test(trimmedCategory) || specialCharPattern.test(trimmedCategory)) {
         this.errorMsg = '* 카테고리는 공백, 특수문자 제외 1~10자 이내로 작성해주세요.';
       }
+       
+        
     },
+    //카테고리 삭제
     async removeCategory(category, index) {
       const categoryId = this.categoryMap.get(category);
       if (!categoryId) {

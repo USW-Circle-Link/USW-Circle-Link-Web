@@ -2,7 +2,7 @@
   <div class="club-profile">
     <div class="content-container">
       <div class="header-section">
-
+        <!-- 창닫기 -->
         <button @click="closeProfile" class="close-button">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M19.1491 18.3524C19.2044 18.4039 19.2487 18.466 19.2794 18.535C19.3102 18.604 19.3267 18.6785 19.328 18.754C19.3294 18.8295 19.3155 18.9045 19.2872 18.9746C19.2589 19.0446 19.2168 19.1082 19.1634 19.1617C19.11 19.2151 19.0463 19.2572 18.9763 19.2855C18.9063 19.3138 18.8312 19.3277 18.7557 19.3263C18.6802 19.325 18.6057 19.3085 18.5367 19.2777C18.4677 19.247 18.4056 19.2027 18.3541 19.1474L12.0016 12.7958L5.64909 19.1474C5.54246 19.2467 5.40143 19.3008 5.2557 19.2983C5.10998 19.2957 4.97094 19.2367 4.86788 19.1336C4.76482 19.0305 4.70578 18.8915 4.70321 18.7458C4.70064 18.6001 4.75473 18.459 4.85409 18.3524L11.2057 11.9999L4.85409 5.64739C4.75473 5.54075 4.70064 5.39972 4.70321 5.25399C4.70578 5.10827 4.76482 4.96923 4.86788 4.86617C4.97094 4.76311 5.10998 4.70407 5.2557 4.7015C5.40143 4.69893 5.54246 4.75302 5.64909 4.85238L12.0016 11.2039L18.3541 4.85238C18.4607 4.75302 18.6018 4.69893 18.7475 4.7015C18.8932 4.70407 19.0323 4.76311 19.1353 4.86617C19.2384 4.96923 19.2974 5.10827 19.3 5.25399C19.3025 5.39972 19.2485 5.54075 19.1491 5.64739L12.7975 11.9999L19.1491 18.3524Z" fill="black"/>
@@ -19,18 +19,22 @@
         <img :src="mainPhoto" alt="Flag Logo" class="logo with-border" oncontextmenu="return false;" />
         <div class="Info">
           <div class="club-details">
+            <!-- 동아리 이름 -->
             <p class="clubname"><strong>{{ data.clubName }}</strong></p>
+            <!-- 동아리 회장 이름 -->
             <p class="clubleader"><span class="leader-label">동아리 회장</span> <span class="leader-name">{{ displayLeaderName }}</span></p>
+            <!-- 카테고리 -->
             <div class="clubroom">
               <div class="icon category"></div>
               <p class="room">카테고리 | {{formattedCategory}} </p>
             </div>
+            <!-- 해시태그 -->
             <div class="hashtags">
               <span v-for="tag in data.clubHashtag" :key="tag" class="hashtag">#{{ tag }}</span>
             </div>
           </div>
         </div>
-
+        <!-- 동아리 정보 -->
         <div class="more-options">
           <button @click="toggleContactInfo" class="dots-button">
             <span></span>
@@ -185,6 +189,7 @@ export default {
     console.log("해시태그 데이터:", this.data.clubCategories);
   },
   methods: {
+    // 이미지 슬라이드
     async pageLoadFunction() {
       const accessToken = store.state.accessToken;
       const clubUUID = store.state.clubUUID;
@@ -215,6 +220,7 @@ export default {
         const introPhotosPromises = this.data.introPhotos.map(async (url) => {
           try {
             const response = await axios.get(url, { responseType: "blob" });
+            // 정상적으로 응답
             if (response.status === 200) {
               return URL.createObjectURL(response.data);
             }
@@ -227,7 +233,7 @@ export default {
         const introPhotosResults = await Promise.allSettled(
             introPhotosPromises
         );
-
+        
         this.images = introPhotosResults
             .filter((result) => result.status === "fulfilled" && result.value)
             .map((result) => result.value);
@@ -435,12 +441,6 @@ export default {
   height: 16px;
 }
 
-.status-text {
-  font-size: 14px;
-  font-weight: 600;
-  color: #767676;
-}
-
 .tabs-container {
   width: 100%;
   display: flex;
@@ -533,7 +533,7 @@ export default {
 /* 탭 내용 */
 .tab-content {
   width: 100%;
-  padding: 24px;
+  padding: 5px 10px;
   background-color: #fff;
   border: 1px solid #C3C3C3;
   border-radius: 0 8px 8px 8px;
@@ -545,6 +545,7 @@ export default {
 
 .description {
   font-size: 14px;
+  padding: 10px;
   color: #333;
   line-height: 1.5;
   word-break: break-all; /* 숫자도 줄바꿈 처리 */
