@@ -20,9 +20,9 @@
             </div>
             <div class="bottom">
               <a @click.prevent="navigateTo('addMember')">· 동아리 회원 추가</a>
-              <a @click.prevent="navigateTo('duplicate-member')">· 중복 회원 추가</a>
+              <a @click.prevent="navigateTo('duplicate-member')">· 프로필 중복 회원 추가</a>
               <a @click.prevent="navigateTo('remove-member')">· 회원 퇴출</a>
-              <a @click.prevent="navigateTo('Accept')">· 비회원 가입 요청 목록</a>
+              <a @click.prevent="navigateTo('Accept')">· 비회원 가입 요청 관리</a>
             </div>
           </li>
           <li class="list1">
@@ -33,8 +33,8 @@
             </div>
             <div class="bottom">
               <a @click.prevent="navigateTo('profileedit')">· 동아리 정보 수정</a>
-              <a @click="openNewWindow1">· 동아리 소개/모집글</a>
-              <a @click="navigateTo('intro')">· 동아리 소개/모집글작성</a>
+              <a @click="openNewWindow1">· 동아리 소개/모집 글</a>
+              <a @click="navigateTo('intro')">· 동아리 소개/모집 글 작성</a>
               <a @click="navigateTo('passer-management')">· 지원자 합격/불합격 처리</a>
               <a @click="navigateTo('morepass')">· 지원자 추가 합격 처리</a>
             </div>
@@ -54,9 +54,9 @@
       <div class="line1"></div>
       <div class="footer">
         <div class="links">
-          <a @click.prevent="navigateTo('TermsOfUse')" :class="{ selected: selectedLink === 'TermsOfUse' }">이용약관</a>
+          <a @click.prevent="navigateTo('TermsOfUse')" :class="{ selected: selectedLink === 'TermsOfUse' }" style="font-weight: 500;">이용약관</a>
           <div class="line2"></div>
-          <a @click.prevent="navigateTo('privacy_policy')" :class="{ selected: selectedLink === 'privacy_policy', 'bold-text': true }">개인정보 처리방침</a>
+          <a @click.prevent="navigateTo('privacy_policy')" :class="{ selected: selectedLink === 'privacy_policy'}" style="font-weight: 500;">개인정보 처리방침</a>
         </div>
         <a @click.prevent="logout">로그아웃</a>
       </div>
@@ -450,6 +450,7 @@ nav .icon {
   color: #686868;
   text-decoration: none;
   cursor: pointer;
+
 }
 
 .footer a.selected {
