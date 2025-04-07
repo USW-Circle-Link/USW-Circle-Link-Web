@@ -70,19 +70,26 @@ export default {
 
 .popup {
   position: relative;
-  width: 451px;
+  width: 431px;
   height: 152px;
   background: #fff;
   border-radius: 8px;
-  padding: 10px 20px 24px;
+  padding: 10px 10px 20px 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  
+
 }
 
 .popup-title {
   color: #2F2F2F;
   font-size: 16px;
   font-weight: 500;
-}
+  font-family: Pretendard;
+  font-style: normal;
+  line-height: 12px;
+  margin: 10px;
+  margin-left: 7px;
+  }
 
 .popup-divider {
   border-top: 1px solid #ddd;
@@ -95,6 +102,7 @@ export default {
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+  margin: 20px 10px 10px 7px;
 }
 
 .popup-message2 {
@@ -103,6 +111,8 @@ export default {
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+  margin: 20px 10px 10px 7px;
+
 }
 
 .popup-sub-message {
