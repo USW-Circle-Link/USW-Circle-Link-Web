@@ -442,7 +442,7 @@ export default {
   color: #000000;
   display: block;
   margin-bottom: 5px;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 /* 제목 입력창 */
@@ -459,11 +459,13 @@ export default {
 .content-container {
   margin-top: 25px;
 }
+
 .textarea-wrapper {
   position: relative;
   display: inline-block;
   width: 100%;
 }
+
 .content-input {
   width: 100%;
   height: 382px;
@@ -482,15 +484,18 @@ export default {
 
 .character-count {
   position: absolute;
-  bottom: 13px;
-  right: -5px;
+  bottom: 10px; 
+  right: -10px;
   font-size: 12px;
   color: black;
-  pointer-events: none;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 5px;
+  border-radius: 3px;
 }
+
 .title-character-count {
   position: absolute;
-  top: 52px; /* input 아래로 */
+  top: 52px;
   right: -5px;
   font-size: 12px;
   color: black;
@@ -502,8 +507,15 @@ export default {
 input:focus,
 textarea:focus {
   outline: none;
-  border: 1px  white; /* 예: 강조색으로 변경 */
-  
+  border: 1px solid #ddd; /* 기존 그대로 유지 */
+  box-shadow: none;
+  transform: none;
+}
+
+input,
+textarea {
+  transition: none !important;
+  transform: none !important;
 }
 
 
