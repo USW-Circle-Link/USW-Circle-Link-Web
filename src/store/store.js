@@ -9,7 +9,8 @@ export default createStore({
         role: localStorage.getItem('role') || '',
         isAgreedTerms: localStorage.getItem('isAgreedTerms') === 'true' || false,
         shouldUpdateSidebar: false,
-        apiBaseUrl: 'https://api.donggurami.net/'
+        apiBaseUrl: 'https://api.donggurami.net'
+        
     },
     mutations: {
         SET_SIDEBAR_UPDATE(state, value) {
