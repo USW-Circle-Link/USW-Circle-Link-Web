@@ -29,17 +29,16 @@ export default {
     };
   },
   mounted() {
-    this.checkWindowSize();
+    this.checkWindowSize(); // 꼭 호출!
     window.addEventListener('resize', this.checkWindowSize);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.checkWindowSize);
   },
   methods: {
     checkWindowSize() {
       this.windowWidth = window.innerWidth;
-      // 화면 너비가 1200px 미만이면 사이드바를 자동으로 숨김
-      // 겹침을 방지하기 위해 더 일찍 사이드바를 숨김
+      // 화면 너비가 1300px 미만이면 사이드바를 자동으로 숨김
       if (this.windowWidth < 1300) {
         this.showSidebar = false;
       } else {
