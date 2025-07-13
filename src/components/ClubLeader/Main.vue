@@ -32,7 +32,7 @@ export default {
     this.checkWindowSize();
     window.addEventListener('resize', this.checkWindowSize);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.checkWindowSize);
   },
   methods: {
