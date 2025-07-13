@@ -67,12 +67,13 @@
 <script>
 import store from "@/store/store";
 import axios from "axios";
+import profileImg from '@/assets/profile.png';
 
 export default {
   name: 'SidebarMenu',
   data() {
     return {
-      imageSrc: require('@/assets/profile.png'), // 기본 프로필 
+      imageSrc: profileImg, // 기본 프로필 
       data: '', // 동아리 정보 
       department: '', // 학과 정보 
       selectedLink: '', //선택된 메뉴라면 노란색으로 (footer)
