@@ -10,15 +10,34 @@
       <h1 class="title clickable" @click="navigateTo('clublist')">동구라미</h1>
       <!--    <NotificationButton/>-->
     </div>
+    <!-- 햄버거 메뉴 버튼 (반응형에서만 표시) -->
+    <div class="hamburger-menu" @click="toggleSidebar">
+      <svg v-if="!isMenuOpen" xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3">
+        <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
+      </svg>
+      <svg v-else xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3">
+        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+      </svg>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   name: 'Headbar',
+  data() {
+    return {
+      isMenuOpen: false
+    };
+  },
   methods: {
     navigateTo(route) {
       this.$router.push({ name: route });
+    },
+    toggleSidebar() {
+      this.isMenuOpen = !this.isMenuOpen;
+      // 부모 컴포넌트(Main.vue)에 사이드바 토글 이벤트 전달
+      this.$emit('toggle-sidebar', this.isMenuOpen);
     }
   }
 };
@@ -31,6 +50,7 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 86px;
   background: #fff;
   box-shadow: 0px 2.5px 0px 0px rgba(0, 0, 0, 0.13);
@@ -67,6 +87,24 @@ export default {
 
 .clickable {
   cursor: pointer;
+}
+
+/* 햄버거 메뉴 스타일 */
+.hamburger-menu {
+  display: none;
+  cursor: pointer;
+  padding: 10px;
+  margin-right: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger-menu svg {
+  transition: fill 0.3s ease;
+}
+
+.hamburger-menu:hover svg {
+  fill: #FFC01D;
 }
 
 /* 반응형 스타일 */
@@ -112,13 +150,31 @@ export default {
   }
 }
 
+@media (max-width: 1300px) {
+  .hamburger-menu {
+    display: flex;
+  }
+  
+  .header-content {
+    margin-left: 20px;
+  }
+}
+
 @media (max-width: 768px) {
+  .hamburger-menu {
+    display: flex;
+  }
+  
   .header-content {
     margin-left: 20px;
   }
 }
 
 @media (max-width: 576px) {
+  .hamburger-menu {
+    display: flex;
+  }
+  
   .header-content {
     margin-left: 10px;
   }

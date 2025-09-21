@@ -119,7 +119,7 @@ export default {
       }
     },
     async fetchNotices() {
-       // ✅ 최소 `size=1`로 설정하여 백엔드 에러 방지
+       //최소 `size=1`로 설정하여 백엔드 에러 방지
     const pageSize = Math.max(this.itemsPerPage, 1); // 최소값 보장
     const currentPage = Math.max(this.currentPage - 1, 0); // 최소값 보장
 
@@ -212,6 +212,7 @@ export default {
 
 .container {
   display: flex;
+  min-width: 390px;
 }
 
 .contents {

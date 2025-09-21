@@ -9,7 +9,7 @@ export default createStore({
     role: localStorage.getItem('role') || '',
     isAgreedTerms: localStorage.getItem('isAgreedTerms') === 'true' || false,
     shouldUpdateSidebar: false,
-    apiBaseUrl: 'http://15.164.246.244:8080',
+    apiBaseUrl: 'https://api.donggurami.net',
     OverlappingMembers: [],
   },
   mutations: {

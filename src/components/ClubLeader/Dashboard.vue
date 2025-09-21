@@ -286,9 +286,9 @@ export default {
           const allMembers = [...this.regularMembers, ...this.nonRegularMembers];
           return allMembers.sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
         case 'nonMember':
-          return this.nonRegularMembers.sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
+          return [...this.nonRegularMembers].sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
         case 'member':
-          return this.regularMembers.sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
+          return [...this.regularMembers].sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
         default:
           return [];
       }
@@ -1032,7 +1032,7 @@ td:last-child{
 .edit-select.error {
   border-color: #ff0000;
   background-color: rgba(255, 0, 0, 0.1);
-  //margin-top: 18px;
+  /*margin-top: 18px;
 }
 
 .validation-error-userName {

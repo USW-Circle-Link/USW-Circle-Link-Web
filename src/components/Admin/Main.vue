@@ -1,6 +1,6 @@
 <template>
   <div id="main">
-    <HeadBar />
+    <HeadBar ref="headbar" @toggle-sidebar="handleSidebarToggle" />
     <div class="main-content" :class="{ 'sidebar-hidden': !showSidebar }">
       <transition name="slide">
         <SidebarMenu v-if="showSidebar" class="sidebar" />
@@ -9,6 +9,8 @@
         <router-view />
       </div>
     </div>
+    <!-- 모바일 사이드바 오버레이 -->
+    <div v-if="showSidebar && windowWidth < 1300" class="sidebar-overlay" @click="closeSidebar"></div>
   </div>
 </template>
 
@@ -29,21 +31,31 @@ export default {
     };
   },
   mounted() {
-    this.checkWindowSize();
+    this.checkWindowSize(); // 꼭 호출!
     window.addEventListener('resize', this.checkWindowSize);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.checkWindowSize);
   },
   methods: {
     checkWindowSize() {
       this.windowWidth = window.innerWidth;
-      // 화면 너비가 1200px 미만이면 사이드바를 자동으로 숨김
-      // 겹침을 방지하기 위해 더 일찍 사이드바를 숨김
+      // 화면 너비가 1300px 미만이면 사이드바를 자동으로 숨김
       if (this.windowWidth < 1300) {
         this.showSidebar = false;
       } else {
         this.showSidebar = true;
+      }
+    },
+    handleSidebarToggle(isOpen) {
+      // 햄버거 메뉴에서 전달받은 상태로 사이드바 토글
+      this.showSidebar = isOpen;
+    },
+    closeSidebar() {
+      this.showSidebar = false;
+      // 헤더의 햄버거 메뉴 상태도 초기화
+      if (this.$refs.headbar) {
+        this.$refs.headbar.isMenuOpen = false;
       }
     }
   }
@@ -60,6 +72,7 @@ body {
   margin: 0;
   padding: 0;
   background: #F0F2F5;
+  min-width: 390px;
 }
 
 .main-content{
@@ -76,9 +89,10 @@ body {
   overflow: auto;
   margin-left: 10%;
   width: 25%;
-  height: 100%;
+  height: 73%;
+  top: 86px;
   transition: all 0.3s;
-  z-index: 10;
+  z-index: 1000;
 }
 
 .sidebar-content::-webkit-scrollbar {
@@ -114,6 +128,17 @@ body {
   transform: translateX(-100%);
 }
 
+/* 모바일 사이드바 오버레이 */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
 /* 반응형 스타일 */
 @media (max-width: 1400px) {
   .sidebar {
@@ -122,6 +147,27 @@ body {
 
   .content {
     margin-left: 32%;
+  }
+}
+
+@media (max-width: 1300px) {
+  .sidebar {
+    width: 240px;
+    margin-left: 0;
+    left: 0;
+    top: 86px;
+    height: calc(100vh - 86px);
+    background-color: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .main-content {
+    min-width: auto;
+  }
+
+  .full-width {
+    margin-left: 5% !important;
+    width: 90%;
   }
 }
 
