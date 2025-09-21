@@ -110,6 +110,7 @@ export default {
 /* 전체 컨테이너 설정 */
 .container {
   display: flex;
+  min-width: 390px;
 }
 
 /* 콘텐츠 영역 설정 */

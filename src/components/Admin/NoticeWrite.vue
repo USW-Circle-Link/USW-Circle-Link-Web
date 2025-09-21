@@ -395,7 +395,7 @@ export default {
 /* 전체 컨테이너 */
 .notice-write-container {
   width: 100%;
-  min-width: 900px;
+  min-width: 390px;
   margin: 0 auto;
   padding: 10px;
 }
