@@ -468,4 +468,91 @@ nav .icon {
 .footer a:hover {
   text-decoration: underline;
 }
+
+/* 모바일 반응형 스타일 추가 */
+@media (max-width: 1300px) {
+  .sidebar {
+    width: 240px;
+    height: 100%;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+  }
+  
+  .sidebar-content {
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  .profile {
+    margin-bottom: 30px;
+  }
+  
+  .profile-img {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .profile-info h2 {
+    font-size: 20px;
+  }
+  
+  nav {
+    min-height: 300px;
+  }
+  
+  nav li {
+    height: 50px;
+  }
+  
+  .menu {
+    font-size: 16px;
+  }
+  
+  .bottom a {
+    font-size: 11px;
+    margin: 8px 0 0 50px;
+  }
+  
+  .footer-container {
+    position: sticky;
+    bottom: 0;
+    background-color: #fff;
+    margin-top: auto;
+    padding-top: 10px;
+    flex-shrink: 0;
+  }
+  
+  .footer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    font-size: 12px !important;
+    padding-left: 30px !important;
+    padding-bottom: 15px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .footer .links {
+    display: flex !important;
+    justify-content: center !important;
+    margin: 10px 0 17px 0 !important;
+  }
+  
+  .footer a {
+    color: #686868 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .footer a.bold-text {
+    font-weight: 800 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
 </style>
