@@ -1,4 +1,3 @@
-
 <template>
   <div class="container">
     <!-- 제목 -->
@@ -515,287 +514,336 @@ export default {
 
 
 <style scoped>
-/* ===== 컨테이너 ===== */
-.container{
-  width: clamp(340px, 92vw, 1120px);
+/* ===== CSS 변수 및 기본 설정 ===== */
+.container {
+  /* [수정] 고정 너비 제거 -> 유연한 너비로 변경 */
+  width: 90%;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: clamp(12px, 2vw, 20px);
+  padding: 24px;
+  box-sizing: border-box;
+
+  --brand-color: #FFB052;
+  --brand-color-dark: #f49421;
+  --green-color: #3F9560;
+  --green-color-dark: #14532d;
+  --text-color: #333;
+  --error-color: #ff4d4f;
+  --gray-color: #969696;
+  --border-color: #e0e0e0;
 }
 
-/* ===== 타이틀 행 ===== */
-.title-row{
-  display: grid;
-  grid-template-columns: 1fr auto auto; /* 제목 / 다운로드 / 업로드 */
+/* ===== 상단 타이틀 및 버튼 영역 ===== */
+.title-row {
+  display: flex;
+  flex-wrap: wrap; /* 화면이 좁아지면 버튼이 아래로 내려감 */
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 24px;
 }
-h2{
+h2 {
   margin: 0;
-  color: var(--text, #333);
+  font-size: clamp(20px, 2.2vw, 24px); /* 화면 크기에 따라 폰트 크기 조절 */
   font-weight: 600;
-  font-size: clamp(18px, 2.2vw, 22px);
+  color: var(--text-color);
 }
-svg{ margin-right: 8px; }
-
-/* 버튼 공통 */
-.download-btn,
-.upload-btn,
-.clear-btn{
+.title-row .buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.download-btn, .upload-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 6px;
-  border: 0;
-  margin: 0 0 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  box-sizing: border-box;
-  line-height: 1;
-}
-
-.buttons{
-  
-}
-
-/* 색상 — 요구사항: 다운로드=헤더(브랜드), 업로드=초록 */
-.download-btn{
-  background: var(--brand, #FFB052);
-  color: #fff;
-}
-.download-btn:hover{ background: var(--brand-2, #f49421); }
-
-.upload-btn{
-  background: #1D6F42;
-  color: #fff;
-}
-.upload-btn:hover{ background: #14532d; }
-
-.clear-btn{
-  background: #fff;
-  color: #969696;
-  border: 1px solid #969696;
-}
-.clear-btn:hover{ background: #ececec; }
-
-/* ===== 정보 섹션 ===== */
-.info-section{
-  margin-top: 12px;
-  display: grid;
-  grid-template-columns: 1fr auto;  /* 좌: 텍스트 / 우: 비우기 */
-  align-items: center;
-  gap: 12px;
-}
-.info-section-col{ display: flex; flex-direction: column; }
-p{ margin: 8px 0; font-size: clamp(14px, 1.6vw, 16px); font-weight: 500; }
-.warning-text{ color: #ff4d4f; font-size: clamp(12px, 1.5vw, 14px); }
-
-/* ===== 멤버 리스트 ===== */
-.member-list{
-  display: grid;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.member-row{
-  display: grid;
-  align-items: center;
-  gap: 10px;
-  background: #fff;
-  border-radius: 8px;
-  padding: 10px;
-  /* 데스크톱: 이름/학번/전화/단과/학과/버튼 */
-  grid-template-columns: 1.1fr 0.8fr 0.9fr 1fr 1fr auto;
-}
-
-.member-row span{ text-align: center; }
-
-.input-wrapper{ position: relative; width: 100%; text-align: center; }
-.edit-input{
-  width: 100%;
-  max-width: 140px;
-  padding: 6px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  text-align: center;
-}
-.narrow-input{ max-width: 120px; }
-
-select{
-  width: 100%;
-  max-width: 180px;
-  padding: 6px 8px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-}
-
-.edit-btn, .save-btn{
-  background: var(--accent, #FFB052);
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-.save-btn{ background: var(--accent-2, #f49421); }
-.edit-btn:hover{ background: var(--accent-2, #f49421); }
-.save-btn:hover{ background: #c66f04; }
-
-.validation-error{
-  position: absolute;
-  left: 50%; transform: translateX(-50%);
-  white-space: nowrap;
-  font-size: 11px;
-  color: #ff2e2e;
-  margin-top: 4px;
-}
-
-.errorMessage{
-  color: #ff2e2e;
-  font-size: 12px;
-  margin: 6px 10px 0;
-}
-
-/* 완료 버튼 */
-.addClubMember{
-  justify-self: end;
-  background: var(--accent, #FFB052);
-  color: #fff;
-  border: 0;
-  border-radius: 6px;
   height: 42px;
   padding: 0 16px;
-  font-size: 15px;
-  margin-top: 18px;
+  border-radius: 6px;
+  border: 0;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+  flex-grow: 1; /* [추가] 모바일에서 공간을 채우도록 함 */
+}
+.download-btn {
+  background-color: #FAFAFA;
+  color: #545454;
+  border: 1px solid #C9C9C9;
+}
+.download-btn:hover { background-color: #f0f0f0; }
+.upload-btn { background-color: var(--green-color); color: #fff; }
+.upload-btn:hover { background-color: var(--green-color-dark); }
+svg { margin-right: 8px; }
+
+/* ===== 정보 및 비우기 버튼 영역 ===== */
+.info-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+.info-section-col p { margin: 4px 0; }
+.warning-text { color: var(--error-color); font-size: 14px; }
+.clear-btn {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fff;
+  color: var(--gray-color);
+  border: 1px solid var(--gray-color);
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
 }
-.addClubMember:hover{ background: #e69a3e; }
+.clear-btn:hover { background-color: #f0f0f0; }
 
-/* ===== 팝업 공통 ===== */
-.popup-overlay1,
-.popup-overlay2{
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: grid; place-items: center;
-  z-index: 1000;
-}
-.popup-overlay1 .popup,
-.popup-overlay2 .popup{
-  width: min(92vw, 840px);
-  background: #fff;
-  padding: clamp(16px, 2vw, 20px);
+/* ===== 회원 목록 ===== */
+.member-list { margin-top: 24px; }
+.member-list-items {
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  margin-bottom: 12px;
+  background-color: #fff;
+}
+.member-row {
+  display: grid;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color:#fff;
+  border-radius: 8px;
+  /* --- 데스크톱 레이아웃 (기본) --- */
+  grid-template-columns: 1.1fr 0.9fr 1fr 1fr 1fr auto;
+  grid-template-areas: "name id phone college major actions";
+}
+.member-row.editing { border: 1.5px solid var(--brand-color); margin: -1.5px; }
+
+/* [핵심] nth-of-type 선택자를 사용해 각 필드를 grid-area에 할당
+  이 방식은 HTML 구조에 의존적이므로 주의가 필요합니다.
+*/
+.member-row .input-wrapper:nth-of-type(1) { grid-area: name; }
+.member-row .input-wrapper:nth-of-type(2) { grid-area: id; }
+.member-row .input-wrapper:nth-of-type(3) { grid-area: phone; }
+.member-row select:nth-of-type(1) { grid-area: college; }
+.member-row select:nth-of-type(2) { grid-area: major; }
+.member-row .edit-btn, .member-row .save-btn { grid-area: actions; justify-self: end; }
+
+/* 회원 정보 필드 스타일 */
+.input-wrapper, select { text-align: center; }
+.edit-input, select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+select { text-align: left; }
+.edit-btn, .save-btn {
+  background-color: var(--brand-color);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.edit-btn:hover, .save-btn:hover { background-color: var(--brand-color-dark); }
+
+/* 에러 메시지 스타일 */
+.server-error-message, .client-error-message {
+  font-size: 12px;
+  color: var(--error-color);
+  padding: 0 12px 12px;
+}
+.client-error-message p { margin: 4px 0; }
+.edit-input.error { border-color: var(--error-color); }
+
+/* 완료 버튼 */
+.addClubMember {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  height: 44px;
+  margin: 32px 0 0 auto; /* 오른쪽 정렬 */
+  background-color: var(--brand-color);
+  border: none;
+  border-radius: 6px;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.addClubMember:hover { background-color: var(--brand-color-dark); }
+
+/* ===== 팝업 공통 스타일 ===== */
+.popup-overlay2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  flex-direction: column;
+}
+
+.popup-overlay2 .popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 452px;
+  height: 184px;
   text-align: left;
   position: relative;
 }
-.popup-overlay2 .popup{ width: min(92vw, 452px); height: auto; }
 
-.popup-overlay1 .popup h2,
-.popup-overlay2 .popup h3{
-  margin: 0 0 10px 0;
-  font-size: clamp(16px, 1.8vw, 18px);
-  font-weight: 600;
+.popup-overlay2 .confirm-message{
+  text-align: center;
+  margin-top: 80px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 12px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+
 }
-.list-item-container{ margin-top: 12px; max-height: 320px; overflow-y: auto; }
-.list-item{
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  align-items: center;
-  border: 1.2px solid red;
-  border-radius: 10px;
-  padding: 12px;
+
+.popup-overlay2 .confirm-button{
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.popup-overlay2 .confirm-button:hover {
+  background-color: #e69a3e; /* Slightly darker orange */
+}
+
+.popup-overlay2 .popup h3 {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  margin: 0;
+}
+
+.line3 {
+  border-bottom: 1px solid #d3d3d3;
   margin: 10px 0;
 }
-.name,.id,.Phone{ text-align: center; font-size: 14px; }
 
-.popup-overlay1 .confirm-message{ font-size: 14px; margin: 8px 0; }
-.red-text1{ color: #FF3535; }
-.red-text2{ color: #FF5C5C; font-weight: 600; }
+.popup-overlay2 .popup-message {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #2F2F2F;
+  margin-top: 30px;
+}
 
-.popup-overlay1 .confirm-button,
+.popup-overlay2 .popup-message-red{
+  line-height: 12px;
+  color: #FF5C5C;
+}
+
+.popup-overlay2 .button-group {
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 .popup-overlay2 .confirm-button{
-  background: var(--accent, #FFB052);
-  color: #fff; border: 0; border-radius: 7px; cursor: pointer;
-  height: 40px; padding: 0 20px;
-  position: absolute; right: 20px; bottom: 20px;
-  font-weight: 600; font-size: 14px;
-}
-.popup-overlay1 .confirm-button:hover,
-.popup-overlay2 .confirm-button:hover{ background: var(--accent-2, #f49421); }
-
-.cancel-button{
-  background: #B9B9B9; color: #fff; border: 0; border-radius: 7px; cursor: pointer;
-  height: 40px; padding: 0 20px;
-  position: absolute; right: 120px; bottom: 20px;
-  font-weight: 600; font-size: 14px;
-}
-.cancel-button:hover{ background: #7a7a7a; }
-
-.line2,.line3{ border-bottom: 1px solid #d3d3d3; margin: 10px 0; }
-.popup-overlay2 .popup-message{ font-size: 16px; line-height: 1.4; color:#2F2F2F; }
-
-/* ===== 브레이크포인트 ===== */
-/* ≤1024px: 타이틀 줄바꿈 허용 */
-@media (max-width: 1024px){
-  .title-row{ grid-template-columns: 1fr auto; grid-auto-rows: auto; grid-auto-flow: row; }
-  .upload-btn{ justify-self: end; }
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  width: 90px;
+  height: 35px;
+  border-radius: 7px;
+  cursor: pointer;
+  bottom: 20px;
+  right: 20px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 12px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  text-align: center;
 }
 
-/* ≤768px: 멤버 행 2열 재배치 */
-@media (max-width: 768px){
-  .info-section{ grid-template-columns: 1fr; }
-  .title-row{ grid-template-columns: 1fr; }
-  .download-btn{ width: 100%; }
-  .upload-btn{ width: 100%; }
+.cancel-button {
+  background-color: #B9B9B9;
+  color: #FFFFFF;
+  border: none;
+  width: 90px;
+  height: 35px;
+  border-radius: 7px;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 125px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 12px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  text-align: center;
+}
 
-  .member-row{
-    grid-template-columns: 1fr 1fr;  /* 기본 2열 */
-    grid-auto-rows: auto;
-    row-gap: 8px;
+.cancel-button:hover {
+  background-color: #7a7a7a;
+}
+
+/* (이하 팝업 스타일은 기존과 동일) */
+.validation-error{ color: red;}
+
+/* ===== 반응형: 태블릿 (992px 이하) ===== */
+@media (max-width: 992px) {
+  .member-row {
+    grid-template-columns: 1fr 1fr; /* 2열 구조로 변경 */
+    grid-template-areas:
+      "name    name"
+      "id      phone"
+      "college major"
+      ".       actions"; /* 수정 버튼 오른쪽 하단 배치 */
   }
-  .actions{
-    justify-self: end; /* 두 버튼 묶음을 오른쪽으로 */
-  }
-  /* 1) 이름 전체폭 */
-  .member-row .input-wrapper:nth-of-type(1){ grid-column: 1 / -1; }
-  /* 2) 학번 / 3) 전화 */
-  .member-row .input-wrapper:nth-of-type(2){ grid-column: 1 / 2; }
-  .member-row .input-wrapper:nth-of-type(3){ grid-column: 2 / 3; }
-  /* 4) 단과 / 5) 학과 */
-  .member-row select:nth-of-type(1){ grid-column: 1 / 2; }
-  .member-row select:nth-of-type(2){ grid-column: 2 / 3; }
-  /* 6) 버튼 */
-  .member-row .edit-btn,
-  .member-row .save-btn{ grid-column: 2 / 3; justify-self: end; }
-}
-/* ≤600px: 버튼 풀폭, 입력 크기 축소 */
-@media (max-width: 600px){
-  
-  .download-btn, .upload-btn, .clear-btn{ width: 100%; }
-  .info-section{ gap: 8px; }
-  .edit-input{ font-size: 13px; max-width: 120px; }
-  select{ max-width: 160px; }
-  .addClubMember{ width: 100%; justify-self: stretch; }
 }
 
-/* ≤400px: 완전 스택 */
-@media (max-width: 400px){
+/* ===== 반응형: 모바일 (600px 이하) ===== */
+@media (max-width: 600px) {
+  .container { padding: 16px; }
+  .title-row { flex-direction: column; align-items: stretch; }
   
-  .member-row{ grid-template-columns: 1fr; }
-  .member-row .input-wrapper,
-  .member-row select,
-  .member-row .edit-btn,
-  .member-row .save-btn{ grid-column: 1 / -1; }
-  .member-row .edit-btn,
-  .member-row .save-btn{ justify-self: stretch; }
+  .member-row {
+    grid-template-columns: 1fr; /* 1열 구조로 변경 */
+    grid-template-areas:
+      "name" "id" "phone" "college" "major" "actions";
+  }
+  .member-row .input-wrapper, .member-row select { text-align: left; }
+  .member-row .edit-input, .member-row span { text-align: left; }
+
+  /* 모든 버튼 오른쪽 정렬 */
+  .member-row .edit-btn, .member-row .save-btn { 
+    justify-self: stretch; /* 1열일 때 버튼을 꽉 채움 */
+    width: 100%; 
+  }
+
+  .addClubMember {
+    max-width: none; /* 최대 너비 제한 해제 */
+  }
 }
+
 </style>
-
-
