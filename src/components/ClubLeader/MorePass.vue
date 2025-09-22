@@ -208,206 +208,231 @@ export default {
 </script>
 
 <style scoped>
-.MainBox {
-  width: 886px;
-  display: flex;
-  flex-direction: column;
+/* ====== Layout base ====== */
+.MainBox{
+  width: clamp(340px, 60vw, 960px); /* 최소 340px, 보통은 화면의 60%, 최대 960px */
+  margin: 0 auto 30px;
   background: #fff;
-  margin-bottom: 30px;
   border-radius: 8px;
-  padding: 20px;
-}
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.common {
-  color: #000;
-  font-family: Pretendard;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 24px;
-  letter-spacing: -0.6px;
-}
-.status-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-}
-.status-boxes {
-  display: flex;
-  align-items: center;
-}
-.status-box {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 55px;
-  height: 43px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-left: 8px;
-  background-color: #f7f7f7;
-}
-.approve-box {
-  background-color: #7FB08C;
-  font-size: 12px;
-  color: white;
-  cursor: pointer;
-  margin-inline-end: 10px;
+  padding: clamp(14px, 2vw, 24px);
 }
 
-.approve-box:hover {
-  background-color: #62956d;
-}
-/*
-.reject-box {
-  background-color: #E57373;
-  color: white;
-  font-size: 12px;
-  margin-inline-end: 10px;
-  cursor: pointer;
-}*/
-.send-result-btn {
-  width: 180px;
-  height: 43px;
-  border-radius: 8px;
-  background-color: #000;
-  color: white;
-  cursor: pointer;
-}
-.contents {
-  display: flex;
-  flex-direction: column;
-}
-.applicant-list {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-  overflow-y: auto;
-  max-height: 500px; /* 필요에 따라 조정 */
-  flex: 1;
-}
-.applicant-item {
+/* ====== Header ====== */
+.header{
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f7f7f7;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
 }
-.applicant-item p {
+.common{
+  color: var(--text, #000);
+  font-weight: 600;
+  letter-spacing: -0.6px;
+  line-height: 1.2;
+  margin: 0;
+  font-size: clamp(18px, 2.1vw, 24px); /* 유동 폰트 */
+}
+
+/* ====== Actions (좌:전송버튼 / 우:상태박스) ====== */
+.status-actions{
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;          /* 한 줄에 안 들어가면 줄 바꿈 */
+  column-gap: 12px;
+  row-gap: 10px;
+  width: 100%;
+}
+.send-result-btn{
+  justify-self: start;
+  min-width: 140px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius, 8px);
+  background: var(--text, #000);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0 var(--space-4, 16px);
+  flex: 1 1 220px;
+}
+.send-result-btn:focus-visible{ outline: 2px solid var(--accent, #FFB052); outline-offset: 2px; }
+
+.status-boxes{
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+.status-box{
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 56px;
+  height: 40px;
+  padding: 4px 10px;
+  border-radius: var(--radius, 8px);
+  border: 1px solid #ddd;
+  background: var(--muted, #f2f4f6);
+  font-size: 12px;
+  line-height: 1.1;
+}
+.approve-box{
+  background: var(--brand, #7FB08C);
+  color: #fff;
+  border-color: transparent;
+  cursor: pointer;
+}
+.approve-box:hover{ background: var(--brand-2, #6a9b7a); }
+
+/* ====== Contents / 리스트 래퍼 ====== */
+.contents{
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.applicant-list{
+  display: grid;
+  grid-auto-rows: minmax(48px, auto);
+  gap: var(--space-3, 12px);
+  margin-top: var(--space-3, 12px);
+  max-height: 60vh;           /* 화면 높이에 비례 */
+  overflow-y: auto;
+  padding-right: 2px;         /* 스크롤바 여백 */
+}
+
+/* ====== Item (그리드 기반) ====== */
+.applicant-item{
+  display: grid;
+  align-items: center;
+  gap: var(--space-3, 12px);
+  background: var(--muted, #f2f4f6);
+  border-radius: 10px;
+  padding: 10px;
+  /* 데스크톱: 이름 / 학번 / 학과 / 전화 / 버튼 */
+  grid-template-columns: 1.2fr 0.9fr 1.4fr 1fr auto;
+}
+.applicant-item p{
   margin: 0;
   text-align: center;
-  flex: 1;
+  font-size: 14px;
+  color: var(--text, #000);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.buttons-group {
-  display: flex;
+.buttons-group{
+  display: inline-flex;
   align-items: center;
   gap: 9px;
-  margin-left: 5px;
+  justify-self: end;
 }
-.buttons-group label {
-  display: flex;
+.buttons-group label{
+  display: inline-flex;
   justify-content: center;
   align-items: center;
-  width: 55px;
-  height: 43px;
-  border-radius: 8px;
+  width: 56px;
+  height: 40px;
+  border-radius: var(--radius, 8px);
   cursor: pointer;
-  background-color: #eee;
+  background: #eee;
+  border: 1px solid #e3e3e3;
 }
-.buttons-group label.checked {
-  background-color: #7FB08C;
-  color: white;
-  cursor: pointer;
+.buttons-group label.checked{
+  background: var(--brand, #7FB08C);
+  border-color: transparent;
+  color: #fff;
 }
-/*
-.buttons-group label.checked:nth-child(2) {
-  background-color: #E57373;
-  cursor: pointer;
-}*/
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.popup {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 500px;
-  position: relative;
-}
-.popup h2 {
-  margin-top: 0;
-  text-align: left;
-}
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 10px 0;
-}
-.confirm-message {
-  text-align: left;
-}
-.notice-message {
-  text-align: left;
-  font-size: 12px;
-  color: gray;
-}
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-.popup-buttons button {
-  width: 80px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 10px;
-}
-.popup-buttons button:first-child {
-  background: #cecece;
-  color: white;
-}
-.popup-buttons button:last-child {
-  background: #ffb052;
-  color: white;
+.check-icon{
+  background: url('../../assets/check-solid.svg') no-repeat center center / 16px 16px;
+  width: 16px; height: 16px;
+  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
 }
 
-.popup-buttons button:last-child:hover {
-  background-color: #e6953e; /* Change to a darker shade on hover */
+/* ====== Popup ====== */
+.popup-overlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: grid; place-items: center;
+  z-index: 1000;
 }
-/*
-.close-btn {
-  position: absolute;
-  top: 20px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  color: black;
-}*/
-.check-icon {
-  background: url('../../assets/check-solid.svg') no-repeat center center;
-  width: 16px;
-  height: 16px;
-  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
+.popup{
+  width: min(92vw, 520px);    /* 반응형 폭 */
+  background: #fff;
+  border-radius: var(--radius, 8px);
+  padding: clamp(16px, 2vw, 24px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+.popup h2{
+  margin: 0 0 10px 0;
+  text-align: left;
+  font-size: clamp(16px, 1.8vw, 18px);
+}
+hr{ border: 0; border-top: 1px solid #d9d9d9; margin: 10px 0; }
+.confirm-message{ text-align: left; margin: 8px 0; }
+.notice-message{
+  text-align: left; font-size: 12px; color: var(--text-3, #767676); margin: 0;
+}
+.popup-buttons{
+  display: flex; justify-content: flex-end; gap: var(--space-2, 8px);
+  margin-top: var(--space-4, 16px);
+}
+.popup-buttons button{
+  min-width: 88px; height: 36px;
+  border: none; border-radius: 8px; cursor: pointer;
+  font-weight: 600;
+}
+.popup-buttons button:first-child{ background: #cecece; color: #fff; }
+.popup-buttons button:last-child{ background: var(--accent, #FFB052); color: #fff; }
+.popup-buttons button:last-child:hover{ background: var(--accent-2, #f49421); }
+
+/* ====== Breakpoints ====== */
+/* ≤1024px: 레이아웃 여유 축소, 버튼 조금 작게 */
+@media (max-width: 1024px){
+  .send-result-btn{ height: 42px; }
+  .status-box{ height: 38px; min-width: 52px; }
+  .buttons-group label{ height: 38px; width: 52px; }
+}
+
+/* ≤768px: 리스트 행을 3줄 레이아웃으로 재배치 */
+@media (max-width: 768px){
+  /* 액션: 전송버튼은 좌측, 상태버튼은 우측 그대로 */
+  .status-actions{ grid-template-columns: 1fr auto; }
+
+  /* 아이템: 2열 그리드 + 행 재배치 */
+  .applicant-item{
+    grid-template-columns: 1fr 1fr;  /* 기본 2열 */
+    grid-auto-rows: auto;
+    row-gap: var(--space-2, 8px);
+  }
+  /* 1) 이름: 한 줄 전체 */
+  .applicant-item p:nth-of-type(1){ grid-column: 1 / -1; text-align: left; padding-left: 4px; }
+  /* 2) 학번(좌) 3) 학과(우) */
+  .applicant-item p:nth-of-type(2){ grid-column: 1 / 2; }
+  .applicant-item p:nth-of-type(3){ grid-column: 2 / 3; }
+  /* 4) 전화(좌) 5) 버튼(우) */
+  .applicant-item p:nth-of-type(4){ grid-column: 1 / 2; }
+  .buttons-group{ grid-column: 2 / 3; justify-self: end; }
+}
+
+/* ≤600px: 폰 크기 최적화(패딩/폰트/버튼 폭) */
+@media (max-width: 600px){
+  .MainBox{ padding: var(--space-4, 16px); }
+  .send-result-btn{ width: 100%; justify-self: stretch; }  /* 전송 버튼 풀폭 */
+  .status-actions{ grid-template-columns: 1fr; }
+  .status-boxes{ justify-content: flex-end; }
+
+  .applicant-list{ max-height: 58vh; }
+  .applicant-item{ padding: 8px; gap: var(--space-2, 8px); }
+  .applicant-item p{ font-size: 13px; }
+  .buttons-group label{ width: 50px; height: 36px; }
+}
+
+/* ≤400px: 완전 스택 + 터치 여백 확보 */
+@media (max-width: 400px){
+  .status-boxes{ justify-content: stretch; }
+  .status-box{ flex: 1 1 auto; }
+  .applicant-item{
+    grid-template-columns: 1fr;   /* 세로 스택 */
+  }
+  .applicant-item p{ grid-column: 1 / -1; text-align: left; }
+  .buttons-group{ grid-column: 1 / -1; justify-self: stretch; justify-content: flex-end; }
 }
 </style>
