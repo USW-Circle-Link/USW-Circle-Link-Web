@@ -1,8 +1,10 @@
+
 <template>
   <div class="container">
     <!-- 제목 -->
     <div class="title-row">
       <h2>엑셀 파일로 추가할 동아리 회원 정보</h2>
+      <div class="buttons">
       <button class="download-btn" @click="downloadExcel">엑셀 양식 다운로드</button>
       <button class="upload-btn" @click="triggerFileInput">
         <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -18,6 +20,7 @@
         엑셀 파일 업로드
         <input type="file" ref="fileInput" @change="handleFileUpload" hidden />
       </button>
+      </div>
     </div>
 
     <!-- 정보 및 버튼 섹션 -->
@@ -510,457 +513,289 @@ export default {
 </script>
 
 
+
 <style scoped>
-.container {
-  width: 860px;
+/* ===== 컨테이너 ===== */
+.container{
+  width: clamp(340px, 92vw, 1120px);
   margin: 0 auto;
+  padding: clamp(12px, 2vw, 20px);
 }
 
+/* ===== 타이틀 행 ===== */
 .title-row{
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto auto; /* 제목 / 다운로드 / 업로드 */
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
 }
-
-svg{
-  margin-right: 10px;
-}
-
-h2 {
-  font-size: 20px;
-  margin-bottom: 30px;
-  color: #333;
+h2{
+  margin: 0;
+  color: var(--text, #333);
   font-weight: 600;
+  font-size: clamp(18px, 2.2vw, 22px);
 }
+svg{ margin-right: 8px; }
 
-
-
-.info-section {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.info-section-col {
-  flex-direction: column;
-}
-
-p {
-  font-size: 16px;
-  margin: 10px 0;
-  font-weight: 500;
-}
-
-.warning-text {
-  color: #ff4d4f; /* 빨간색 경고 메시지 */
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.upload-btn {
-  display: flex;
+/* 버튼 공통 */
+.download-btn,
+.upload-btn,
+.clear-btn{
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #1D6F42; /* 녹색 버튼 */
-  color: #FFFFFF;
-  border: none;
-  width: 156px;
-  height: 37px;
-  border-radius: 4px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 0;
+  margin: 0 0 10px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
+.buttons{
+  
+}
+
+/* 색상 — 요구사항: 다운로드=헤더(브랜드), 업로드=초록 */
 .download-btn{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #FFB052;
-  color: #FFFFFF;
-  border: none;
-  width: 156px;
-  height: 37px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-left: 230px;
+  background: var(--brand, #FFB052);
+  color: #fff;
 }
+.download-btn:hover{ background: var(--brand-2, #f49421); }
 
-.download-btn:hover {
-  background-color: #f49421;
+.upload-btn{
+  background: #1D6F42;
+  color: #fff;
 }
+.upload-btn:hover{ background: #14532d; }
 
-.upload-btn:hover {
-  background-color: #14532d;
-}
-
-.clear-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #FFF; /* 회색 버튼 */
+.clear-btn{
+  background: #fff;
   color: #969696;
-  padding: 10px 15px;
   border: 1px solid #969696;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
 }
+.clear-btn:hover{ background: #ececec; }
 
-.clear-btn:hover {
-  background-color: #ececec;
-}
-
-.member-list {
-  flex-direction: column;
-  margin-top: 20px;
-  width: 860px;
-}
-
-.member-row {
-  display: flex;
+/* ===== 정보 섹션 ===== */
+.info-section{
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;  /* 좌: 텍스트 / 우: 비우기 */
   align-items: center;
-  justify-content: space-between;
-  background-color: #fff;
-  padding: 10px;
-  margin-bottom: 15px;
+  gap: 12px;
+}
+.info-section-col{ display: flex; flex-direction: column; }
+p{ margin: 8px 0; font-size: clamp(14px, 1.6vw, 16px); font-weight: 500; }
+.warning-text{ color: #ff4d4f; font-size: clamp(12px, 1.5vw, 14px); }
+
+/* ===== 멤버 리스트 ===== */
+.member-list{
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.member-row{
+  display: grid;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
   border-radius: 8px;
+  padding: 10px;
+  /* 데스크톱: 이름/학번/전화/단과/학과/버튼 */
+  grid-template-columns: 1.1fr 0.8fr 0.9fr 1fr 1fr auto;
 }
 
-.member-row span {
-  text-align: center;
-}
+.member-row span{ text-align: center; }
 
-.input-wrapper {
-  position: relative;
+.input-wrapper{ position: relative; width: 100%; text-align: center; }
+.edit-input{
   width: 100%;
-  flex: 1;
-  text-align: center;
-}
-
-.edit-input {
-  flex: 1;
-  padding: 5px;
+  max-width: 140px;
+  padding: 6px 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 14px;
   text-align: center;
-  width: 100px;
 }
+.narrow-input{ max-width: 120px; }
 
-/* 학번과 전화번호 입력칸을 위한 새로운 클래스 */
-.narrow-input {
-  max-width: 110px; /* 더 좁은 너비 설정 */
-  width: 110px;
-}
-
-select {
-  width: 160px;
-  padding: 5px;
+select{
+  width: 100%;
+  max-width: 180px;
+  padding: 6px 8px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
-  margin-left: 20px;
 }
 
-.edit-btn {
-  background-color: #FFB052;
+.edit-btn, .save-btn{
+  background: var(--accent, #FFB052);
   border: none;
-  border-radius: 5px;
-  color: white;
-  padding: 8px 13px;
+  border-radius: 6px;
+  color: #fff;
+  padding: 8px 12px;
   cursor: pointer;
-  margin-left: 20px;
 }
+.save-btn{ background: var(--accent-2, #f49421); }
+.edit-btn:hover{ background: var(--accent-2, #f49421); }
+.save-btn:hover{ background: #c66f04; }
 
-.save-btn {
-  background-color: #f49421;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  padding: 8px 13px;
-  cursor: pointer;
-  margin-left: 20px;
-}
-
-.edit-btn:hover {
-  background-color: #f49421;
-}
-
-.save-btn:hover {
-  background-color: #c66f04;
-}
-
-.validation-error {
+.validation-error{
   position: absolute;
-  white-space: nowrap; /* 줄바꿈 방지 */
-  font-size: 9px;
-  color: red;
-  align-self: flex-start; /* 왼쪽 정렬 */
+  left: 50%; transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  color: #ff2e2e;
+  margin-top: 4px;
 }
 
 .errorMessage{
-  color : red;
+  color: #ff2e2e;
   font-size: 12px;
-  margin-left: 10px;
+  margin: 6px 10px 0;
 }
 
+/* 완료 버튼 */
 .addClubMember{
-  width: 160px;
-  height: 40px;
-  margin-left: 700px;
-  margin-top: 100px;
-  background-color: #FFB052;
-  border: none;
-  border-radius: 4px;
-  color: #FFFFFF;
-  font-size: 16px;
+  justify-self: end;
+  background: var(--accent, #FFB052);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  height: 42px;
+  padding: 0 16px;
+  font-size: 15px;
+  margin-top: 18px;
+  cursor: pointer;
 }
+.addClubMember:hover{ background: #e69a3e; }
 
-.addClubMember:hover {
-  background-color: #e69a3e; /* Slightly darker orange */
-}
-
-/* Popup Overlay and Popup Window */
-.popup-overlay1 {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* ===== 팝업 공통 ===== */
+.popup-overlay1,
+.popup-overlay2{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: grid; place-items: center;
   z-index: 1000;
-  flex-direction: column;
 }
-
-.popup-overlay1 .popup {
-  background-color: white;
-  padding: 20px;
+.popup-overlay1 .popup,
+.popup-overlay2 .popup{
+  width: min(92vw, 840px);
+  background: #fff;
+  padding: clamp(16px, 2vw, 20px);
   border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 840px;
-  height: 402px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
   text-align: left;
   position: relative;
-  margin-left: 300px;
 }
+.popup-overlay2 .popup{ width: min(92vw, 452px); height: auto; }
 
-.popup-overlay1 .confirm-message{
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16.71px;
-  text-align: left;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-  margin-left: 10px;
-  color: #000000;
-}
-
-.popup-overlay1 .red-text1{
-  color: #FF3535;
-}
-
-.popup-overlay1 .red-text2{
-  font-size: 15px;
+.popup-overlay1 .popup h2,
+.popup-overlay2 .popup h3{
+  margin: 0 0 10px 0;
+  font-size: clamp(16px, 1.8vw, 18px);
   font-weight: 600;
 }
-
-.popup-overlay1 .confirm-button{
-  background-color: #FFB052;
-  color: white;
-  border: none;
-  width: 124px;
-  height: 40px;
-  border-radius: 7px;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 14.32px;
-  text-align: center;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-}
-
-.popup-overlay1 .confirm-button:hover {
-  background-color: #e69a3e; /* Slightly darker orange */
-}
-
-.popup-overlay1 .popup h2 {
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 12px;
-  letter-spacing: -0.05em;
-  text-align: left;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-  margin-top: 20px;
-  margin-left: 10px;
-}
-
-.list-item-container{
-  margin-top: 20px;
-  height: 220px;
-  overflow-y: auto; /* 수직 스크롤 활성화 */
-}
-
-.list-item {
-  display: flex;
-  justify-content: space-between;
+.list-item-container{ margin-top: 12px; max-height: 320px; overflow-y: auto; }
+.list-item{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
   align-items: center;
   border: 1.2px solid red;
   border-radius: 10px;
-  padding: 15px;
+  padding: 12px;
   margin: 10px 0;
-  background-color: #fff;
 }
+.name,.id,.Phone{ text-align: center; font-size: 14px; }
 
-.name, .id, .Phone {
-  flex: 1;
-  text-align: center;
-  font-size: 16px;
-}
+.popup-overlay1 .confirm-message{ font-size: 14px; margin: 8px 0; }
+.red-text1{ color: #FF3535; }
+.red-text2{ color: #FF5C5C; font-weight: 600; }
 
-.popup-overlay2 {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  flex-direction: column;
-}
-
-.popup-overlay2 .popup {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 452px;
-  height: 184px;
-  text-align: left;
-  position: relative;
-}
-
-.popup-overlay2 .confirm-message{
-  text-align: center;
-  margin-top: 80px;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 12px;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-
-}
-
+.popup-overlay1 .confirm-button,
 .popup-overlay2 .confirm-button{
-  background-color: #FFB052;
-  color: white;
-  border: none;
-  padding: 7px 30px;
-  border-radius: 7px;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
+  background: var(--accent, #FFB052);
+  color: #fff; border: 0; border-radius: 7px; cursor: pointer;
+  height: 40px; padding: 0 20px;
+  position: absolute; right: 20px; bottom: 20px;
+  font-weight: 600; font-size: 14px;
+}
+.popup-overlay1 .confirm-button:hover,
+.popup-overlay2 .confirm-button:hover{ background: var(--accent-2, #f49421); }
+
+.cancel-button{
+  background: #B9B9B9; color: #fff; border: 0; border-radius: 7px; cursor: pointer;
+  height: 40px; padding: 0 20px;
+  position: absolute; right: 120px; bottom: 20px;
+  font-weight: 600; font-size: 14px;
+}
+.cancel-button:hover{ background: #7a7a7a; }
+
+.line2,.line3{ border-bottom: 1px solid #d3d3d3; margin: 10px 0; }
+.popup-overlay2 .popup-message{ font-size: 16px; line-height: 1.4; color:#2F2F2F; }
+
+/* ===== 브레이크포인트 ===== */
+/* ≤1024px: 타이틀 줄바꿈 허용 */
+@media (max-width: 1024px){
+  .title-row{ grid-template-columns: 1fr auto; grid-auto-rows: auto; grid-auto-flow: row; }
+  .upload-btn{ justify-self: end; }
 }
 
-.popup-overlay2 .confirm-button:hover {
-  background-color: #e69a3e; /* Slightly darker orange */
+/* ≤768px: 멤버 행 2열 재배치 */
+@media (max-width: 768px){
+  .info-section{ grid-template-columns: 1fr; }
+  .title-row{ grid-template-columns: 1fr; }
+  .download-btn{ width: 100%; }
+  .upload-btn{ width: 100%; }
+
+  .member-row{
+    grid-template-columns: 1fr 1fr;  /* 기본 2열 */
+    grid-auto-rows: auto;
+    row-gap: 8px;
+  }
+  .actions{
+    justify-self: end; /* 두 버튼 묶음을 오른쪽으로 */
+  }
+  /* 1) 이름 전체폭 */
+  .member-row .input-wrapper:nth-of-type(1){ grid-column: 1 / -1; }
+  /* 2) 학번 / 3) 전화 */
+  .member-row .input-wrapper:nth-of-type(2){ grid-column: 1 / 2; }
+  .member-row .input-wrapper:nth-of-type(3){ grid-column: 2 / 3; }
+  /* 4) 단과 / 5) 학과 */
+  .member-row select:nth-of-type(1){ grid-column: 1 / 2; }
+  .member-row select:nth-of-type(2){ grid-column: 2 / 3; }
+  /* 6) 버튼 */
+  .member-row .edit-btn,
+  .member-row .save-btn{ grid-column: 2 / 3; justify-self: end; }
+}
+/* ≤600px: 버튼 풀폭, 입력 크기 축소 */
+@media (max-width: 600px){
+  
+  .download-btn, .upload-btn, .clear-btn{ width: 100%; }
+  .info-section{ gap: 8px; }
+  .edit-input{ font-size: 13px; max-width: 120px; }
+  select{ max-width: 160px; }
+  .addClubMember{ width: 100%; justify-self: stretch; }
 }
 
-.popup-overlay2 .popup h3 {
-  font-size: 18px;
-  font-weight: bold;
-  color: black;
-  margin: 0;
+/* ≤400px: 완전 스택 */
+@media (max-width: 400px){
+  
+  .member-row{ grid-template-columns: 1fr; }
+  .member-row .input-wrapper,
+  .member-row select,
+  .member-row .edit-btn,
+  .member-row .save-btn{ grid-column: 1 / -1; }
+  .member-row .edit-btn,
+  .member-row .save-btn{ justify-self: stretch; }
 }
-
-.popup-overlay2 .line2{
-  border-bottom: 1px solid #d3d3d3;
-  margin: 10px 0;
-}
-
-.line2 {
-  border-bottom: 1px solid #d3d3d3;
-  margin: 10px 0;
-}
-
-.line3 {
-  border-bottom: 1px solid #d3d3d3;
-  margin: 10px 0;
-}
-
-.popup-overlay2 .popup-message {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.3;
-  color: #2F2F2F;
-  margin-top: 30px;
-}
-
-.popup-overlay2 .popup-message-red{
-  line-height: 12px;
-  color: #FF5C5C;
-}
-
-.popup-overlay2 .button-group {
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.popup-overlay2 .confirm-button{
-  background-color: #FFB052;
-  color: white;
-  border: none;
-  width: 90px;
-  height: 35px;
-  border-radius: 7px;
-  cursor: pointer;
-  bottom: 20px;
-  right: 20px;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 12px;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-  text-align: center;
-}
-
-.cancel-button {
-  background-color: #B9B9B9;
-  color: #FFFFFF;
-  border: none;
-  width: 90px;
-  height: 35px;
-  border-radius: 7px;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 125px;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 12px;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-  text-align: center;
-}
-
-.cancel-button:hover {
-  background-color: #7a7a7a;
-}
-
 </style>
+
+
