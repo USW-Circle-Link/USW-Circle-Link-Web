@@ -222,201 +222,160 @@ export default {
 
 
 <style scoped>
-.MainBox {
-  width: 886px;
-  display: flex;
-  flex-direction: column;
+/* ===== 컨테이너 ===== */
+.MainBox{
+  width: clamp(340px, 92vw, 1120px);
+  margin: 0 auto 30px;
   background: #fff;
-  margin-bottom: 30px;
   border-radius: 8px;
-  padding: 20px;
-}
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.common {
-  color: #000;
-  font-family: Pretendard;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 24px;
-  letter-spacing: -0.6px;
-}
-.status-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-}
-.status-boxes {
-  display: flex;
-  align-items: center;
-}
-.status-box {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 55px;
-  height: 43px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-left: 8px;
-  background-color: #f7f7f7;
-}
-.approve-box {
-  background-color: #7FB08C;
-  font-size: 12px;
-  color: white;
-  cursor: pointer;
-}
-.reject-box {
-  background-color: #E57373;
-  color: white;
-  font-size: 12px;
-  margin-inline-end: 10px;
-  cursor: pointer;
+  padding: clamp(16px, 2vw, 24px);
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 12px;
 }
 
-.approve-box:hover {
-  background-color: #62956d;
+/* ===== 헤더 ===== */
+.header{ display:flex; justify-content: space-between; align-items: center; }
+.common{
+  color:#000; letter-spacing:-0.6px; margin:0;
+  font-weight:600; line-height:1.2;
+  font-size: clamp(18px, 2.1vw, 24px);
 }
 
-.reject-box:hover {
-  background-color: #cd5353;
-}
-.send-result-btn {
-  width: 140px;
-  height: 43px;
-  border-radius: 8px;
-  background-color: #000;
-  color: white;
-  cursor: pointer;
-}
-.contents {
-  display: flex;
-  flex-direction: column;
-}
-.applicant-list {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-  overflow-y: auto;
-  max-height: 500px; /* 필요에 따라 조정 */
-  flex: 1;
-}
-.applicant-item {
-  display: flex;
-  justify-content: space-between;
+/* ===== 액션 영역 ===== */
+.status-actions{
+  display: grid;
+  grid-template-columns: 1fr auto; /* 좌: 전송버튼 / 우: 전체합격·불합격 */
   align-items: center;
-  background: #f7f7f7;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
+  gap: 12px;
 }
-.applicant-item p {
-  margin: 0;
-  text-align: center;
-  flex: 1;
+.send-result-btn{
+  justify-self: start;
+  min-width: 160px; height: 44px;
+  border-radius: 8px; border:0;
+  background:#000; color:#fff; cursor:pointer; font-weight:600;
+  padding: 0 16px;
 }
-.buttons-group {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-left: 5px;
+.send-result-btn:focus-visible{ outline:2px solid #ffb052; outline-offset:2px; }
+
+.status-boxes{ display:inline-flex; align-items:center; gap: 8px; }
+.status-box{
+  display:inline-flex; justify-content:center; align-items:center;
+  min-width: 64px; height: 40px; padding: 4px 10px;
+  border:1px solid #ddd; border-radius:8px; background:#f7f7f7;
+  font-size:12px; line-height:1.1; text-align:center; cursor:pointer;
 }
-.buttons-group label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 55px;
-  height: 43px;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: #eee;
+.approve-box{ background:#7FB08C; color:#fff; border-color:transparent; }
+.approve-box:hover{ background:#62956d; }
+.reject-box{ background:#E57373; color:#fff; border-color:transparent; }
+.reject-box:hover{ background:#cd5353; }
+
+/* ===== 본문/리스트 ===== */
+.contents{ display:grid; grid-template-rows:1fr; }
+
+.applicant-list{
+  display:grid; gap:12px; margin-top: 12px;
+  max-height: 60vh; overflow-y:auto; padding-right: 2px;
 }
-.buttons-group label.checked {
-  background-color: #7FB08C;
-  color: white;
+
+/* 행: 이름 / 학번 / 학과 / 전화 / 토글 */
+.applicant-item{
+  display:grid; align-items:center; gap:10px;
+  background:#f7f7f7; border-radius:8px; padding:10px;
+  grid-template-columns: 1.2fr 0.9fr 1.4fr 1fr auto;
 }
-.buttons-group label.checked:nth-child(2) {
-  background-color: #E57373;
+.applicant-item p{
+  margin:0; text-align:center; font-size:14px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+.buttons-group{ display:inline-flex; align-items:center; gap:9px; justify-self:end; }
+.buttons-group label{
+  display:inline-flex; justify-content:center; align-items:center;
+  width:55px; height:40px; border-radius:8px; cursor:pointer;
+  background:#eee;
 }
-.popup {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 500px;
-  position: relative;
-}
-.popup h2 {
-  margin-top: 0;
-  text-align: left;
-}
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 10px 0;
-}
-.confirm-message {
-  text-align: left;
-}
-.notice-message {
-  text-align: left;
-  font-size: 12px;
-  color: gray;
-}
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-.popup-buttons button {
-  width: 80px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 10px;
-}
-.popup-buttons button:first-child {
-  background: #cecece;
-  color: white;
-}
-.popup-buttons button:last-child {
-  background: #ffb052;
-  color: white;
-}
-/*
-.close-btn {
-  position: absolute;
-  top: 20px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  color: black;
-}*/
-.check-icon {
-  background: url('../../assets/check-solid.svg') no-repeat center center;
-  width: 16px;
-  height: 16px;
+.buttons-group label.checked{ background:#7FB08C; color:#fff; }
+.buttons-group label.checked:nth-child(2){ background:#E57373; }
+.check-icon{
+  background:url('../../assets/check-solid.svg') no-repeat center/16px 16px;
+  width:16px; height:16px;
   filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
+}
+
+/* ===== 팝업 ===== */
+.popup-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,0.5);
+  display:grid; place-items:center; z-index:1000;
+}
+.popup{
+  width: min(92vw, 520px); background:#fff;
+  padding: clamp(16px, 2vw, 24px);
+  border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.15);
+  position:relative; text-align:left;
+}
+.popup h2{ margin:0 0 10px 0; }
+hr{ border:0; border-top:1px solid #ccc; margin:10px 0; }
+.confirm-message{ text-align:left; }
+.notice-message{ text-align:left; font-size:12px; color:gray; }
+.popup-buttons{ display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+.popup-buttons button{
+  min-width:84px; height:34px; border:0; border-radius:8px; cursor:pointer; font-weight:600;
+}
+.popup-buttons button:first-child{ background:#cecece; color:#fff; }
+.popup-buttons button:last-child{ background:#ffb052; color:#fff; }
+
+/* ===== 브레이크포인트 ===== */
+/* ≤1024px: 버튼 살짝 축소 */
+@media (max-width: 1024px){
+  .send-result-btn{ height:42px; }
+  .status-box{ height:38px; min-width: 60px; }
+  .buttons-group label{ height:38px; width:52px; }
+}
+
+/* ≤768px: 리스트 2열 재배치 */
+@media (max-width: 768px){
+  .status-actions{ grid-template-columns: 1fr auto; }
+  .applicant-item{
+    grid-template-columns: 1fr 1fr;   /* 2열 */
+    grid-auto-rows: auto; row-gap:8px;
+  }
+  /* 1) 이름: 전체폭 */
+  .applicant-item p:nth-of-type(1){ grid-column:1 / -1; text-align:left; padding-left:4px; }
+  /* 2) 학번(좌) 3) 학과(우) */
+  .applicant-item p:nth-of-type(2){ grid-column:1 / 2; }
+  .applicant-item p:nth-of-type(3){ grid-column:2 / 3; }
+  /* 4) 전화(좌) 5) 버튼(우) */
+  .applicant-item p:nth-of-type(4){ grid-column:1 / 2; }
+  .buttons-group{ grid-column:2 / 3; justify-self:end; }
+}
+@media (max-width: 1024px){
+  .status-actions{
+    grid-template-columns: 1fr;   /* 1열로 전환 → 아래 줄에 상태 버튼 묶음 */
+    row-gap: 10px;
+  }
+  .send-result-btn{
+    width: 100%;
+    justify-self: stretch;        /* 전송 버튼은 첫 줄 가득 */
+  }
+  .status-boxes{
+    justify-self: end;            /* 두 버튼은 둘이 함께 오른쪽 정렬 */
+  }
+}
+/* ≤600px: 액션 스택 + 버튼 풀폭 */
+@media (max-width: 1200px){
+  .status-actions{ grid-template-columns: 1fr; }
+  .send-result-btn{ width:100%; justify-self:stretch; }
+  .status-boxes{ justify-content:flex-end; }
+
+  .applicant-item{ padding:8px; gap:8px; }
+  .applicant-item p{ font-size:13px; }
+  .buttons-group label{ width:50px; height:36px; }
+}
+
+/* ≤400px: 완전 스택 */
+@media (max-width: 400px){
+  .applicant-item{ grid-template-columns:1fr; }
+  .applicant-item p{ grid-column:1 / -1; text-align:left; }
+  .buttons-group{ grid-column:1 / -1; justify-self:stretch; justify-content:flex-end; }
 }
 </style>
