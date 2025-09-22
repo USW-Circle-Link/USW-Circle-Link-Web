@@ -424,378 +424,206 @@ export default {
 
 
 <style scoped>
-.warning-text {
-  font-size: 14px;
-  font-weight: 400;
-  color: #656565;
-}
+/* ===== 기본 타이포 ===== */
+.warning-text{ font-size: clamp(12px, 1.5vw, 14px); font-weight: 400; color:#656565; }
+h2{ font-size: clamp(18px, 2.2vw, 24px); }
 
-.whole-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* center로 변경 */
-  width: 886px; /* 컨테이너 너비 지정 */
-  margin: 0 auto; /* 중앙 정렬을 위해 추가 */
+/* ===== 컨테이너 ===== */
+.whole-container{
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto auto auto auto; /* 섹션 순서 유지 */
+  gap: 10px;
+  width: clamp(340px, 92vw, 1120px);
+  margin: 0 auto;
+  padding: 0 clamp(12px, 2vw, 20px);
 }
-
 .whole-container h2{
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 18px;
-  letter-spacing: -0.025em;
-  text-align: left;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-
+  font-weight: 600; line-height: 1.3; letter-spacing: -0.025em; margin: 0;
 }
 
-.preserve-whitespace {
-  white-space: pre-wrap;
-}
-
-.image-upload-container {
-  display: flex;
-  align-items: center;
-  width: 866px;
-  height: 153.96px;
-  background-color: white;
-  padding: 5px;
-  margin: auto;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  justify-content: space-around;
-}
-
-h2{
-  font-size: 24px;
-}
-
-.image-preview {
-  position: relative;
-  border-radius: 5px;
-  overflow: hidden;
-  width: 141px;
-  height: 95px;
-  flex: 0 0 auto;
-}
-
-.uploaded-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.delete-icon {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  font-size: 24px;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  line-height: 30px;
-}
-
-.edit-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 30px;
-  height: 30px;
-  filter: invert(100%);
-  cursor: pointer;
-}
-
-.edit-icon img {
-  width: 100%;
-  height: 100%;
-}
-
-.image-upload {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 138px;
-  height: 92px;
-  border: 2px solid #ddd;
-  background: #ececec;
-  border-radius: 5px;
-  cursor: pointer;
-  position: relative;
-  flex: 0 0 auto;
-}
-
-.image-upload input {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.image-upload span {
-  font-size: 24px;
-  color: #ddd;
-}
-
-.ClubTextInput{
-  width: 886px;
-  height: 262px;
-  border-radius: 8px;
-  background-color: #ffffff;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ClubTextInput textarea{
-  width: 846px;
-  height: 222px;
-  padding: 0 20px;
-  text-align: left;
-  border: none;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-  resize: none;
-  white-space: pre-wrap;
-  font-family: 'Malgun Gothic', sans-serif;
-}
-
-/* 모집중 X일 때 */
-.RecruitToggleOff{
-  background-color: #e5e5e5 !important; /* 회색 배경*/
-  color: #a9a9a9; /* 회색 텍스트 */
-  cursor: not-allowed; /* 마우스 입력 불가 */
-  border-style: solid;
-  border-width: 1px;
-  border-color: #999999
-}
-
-.ClubTextInput textarea.RecruitToggleOff {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-
-}
-
-textarea:focus {
-  outline: none; /* 포커스 상태일 때 테두리 제거 */
-}
-
+/* ===== 섹션 헤더 공통 ===== */
 .head{
-  display: flex;
-  width: 886px;
-  align-items: baseline;
-  justify-content: space-between;
-  white-space: nowrap; /* 줄바꿈 방지 */
-}
-
-.head h2{
-  margin-top: 30px;
-}
-
-.head p{
-  font-size: 18px;
-  font-weight: 500;
-  margin-top: 21px;
-
-  white-space: nowrap; /* 줄바꿈 방지 */
-}
-
-.empty{
-  width: 641px;
-}
-
-label {
-  display: block;
-  position: relative;
-  width: 50px;
-  height: 22px;
-  background: #d3d3d3;
-  border-radius: 60px;
-  transition: background 0.4s;
-  cursor: pointer;
-}
-
-label::after {
-  content: "";
-  position: absolute;
-  left: 4px;
-  top: 50%;
-  width: 14px;
-  height: 14px;
-  border-radius: 100%;
-  background-color: #fff;
-  transform: translateY(-50%);
-  box-shadow: 1px 3px 4px rgba(0,0,0,0.1);
-  transition: all 0.4s;
-}
-
-#chk1:checked + label {
-  background-color: #FFB052;
-}
-
-#chk1:checked + label::after {
-  left: calc(100% - 18px);
-}
-
-.head input{
-  visibility: hidden;
-  width: 1px;
-}
-
-.GoogleFormLinkInput{
-  width: 886px;
-  height: 40px;
-  border-radius: 8px;
-  background-color: #ffffff;
-  margin: 0 auto;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto; /* 좌: 제목 / 우: 보조텍스트 또는 컨트롤 */
   align-items: center;
-  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+.head .warning-text{ justify-self: end; text-align: right; }
+.head h2{ margin-top: 16px; }
+.empty{ display: none; } /* 고정폭 밀어내기 요소 제거로 가려짐 방지 */
+.head p{ font-size: clamp(14px, 1.8vw, 18px); font-weight: 500; margin: 0; }
+
+/* 모집 섹션 헤더(제목 + "모집 중" + 토글) */
+.ClubRecruitHeader .head{
+  grid-template-columns: 1fr auto auto auto; /* h2 | (empty) | p | 토글 */
+  column-gap: 12px;
 }
 
-.GoogleFormLinkInput textarea{
-  width: 846px;
-  height: 20px;
-  padding: 0 20px;
-  text-align: left;
-  border: none;
-  resize: none;
-  font-size: 14px;
-  color: #333;
-  font-family: 'Malgun Gothic', sans-serif;
+/* ===== 이미지 업로드 영역 ===== */
+.image-upload-container{
+  width: 100%;
+  background:#fff;
+  padding: 8px;
+  margin: 0;
+  box-shadow: 0 0 5px rgba(0,0,0,.08);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  align-items: start;
 }
-
-/*
-.GoogleFormLinkInput textarea::placeholder{
-  text-align: center;
-}*/
-
-textarea:focus {
-  outline: none; /* 포커스 상태일 때 테두리 제거 */
-}
-
-button {
-  width: 112px;
-  height: 48px;
-  background: #FFB052;
-  border: none;
-  border-radius: 4px;
-  color: #ffffff;
-  line-height: 16px;
-  letter-spacing: -0.025em;
-  text-align: center;
-  margin-top: 35px;
-  margin-left: 774px;
-  margin-bottom: 30px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 16px;
-}
-
-.textSize{
-  position:absolute;
-  bottom: -20px;
-  right: 20px;
-
-  /*text-align: right;
-  margin-right: 10px;*/
-  font-size: 14px;
-}
-
-.textarea-container {
+.image-preview,
+.image-upload{
   position: relative;
   width: 100%;
-  height: auto;
+  aspect-ratio: 16/10;          /* 고정 높이 제거, 비율 유지 */
+  border-radius: 6px;
+  overflow: hidden;
+  background:#ececec;
 }
-
-textarea::placeholder{
-  font-size: 14px;
+.uploaded-image{ width:100%; height:100%; object-fit:cover; }
+.image-upload{
+  display: flex; align-items:center; justify-content:center;
+  border: 2px solid #ddd; cursor:pointer;
 }
-
-.plus {
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 25px;
-  height: 25px;
-  background: hsla(0,0%,100%,.7);
-  border-radius: 50%;
-  border: 2px solid #ddd;
-  box-shadow: 0 0 1px rgba(0,0,0,.1);
-  color: #696969;
+.image-upload input{
+  position:absolute; inset:0; opacity:0; cursor:pointer;
 }
-
-.plus img {
-  width: 15px; /* 이미지 크기 조정 */
-  height: 15px;
-  object-fit: contain;
+.plus{
+  position:absolute; display:flex; justify-content:center; align-items:center;
+  width:26px; height:26px; background:hsla(0,0%,100%,.7);
+  border-radius:50%; border:2px solid #ddd; box-shadow:0 0 1px rgba(0,0,0,.1);
+  color:#696969;
 }
-
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+.plus img{ width:15px; height:15px; object-fit:contain; }
+.delete-icon{
+  position:absolute; top:4px; right:4px; font-size:22px; color:#fff; cursor:pointer;
+  width:28px; height:28px; display:flex; justify-content:center; align-items:center;
+  line-height:28px; border-radius:50%; background:rgba(0,0,0,.35);
 }
+.edit-icon{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:30px; height:30px; filter:invert(100%); cursor:pointer;
+}
+.edit-icon img{ width:100%; height:100%; }
 
-.popup {
-  background: white;
-  padding: 20px;
+/* ===== 텍스트 입력 공통 ===== */
+.ClubTextInput,
+.GoogleFormLinkInput{
+  width: 100%;
+  background:#fff;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 500px;
-  height: 180px;
-  position: relative;
+  margin: 0;
+  display: grid;
+  align-items: center;
+  justify-items: stretch;
+  padding: 12px;
 }
-.popup h2 {
-  margin-top: 0;
-  text-align: left;
-}
-hr {
+.ClubTextInput{ min-height: 220px; }
+.GoogleFormLinkInput{ min-height: 48px; }
+
+.ClubTextInput textarea,
+.GoogleFormLinkInput textarea{
+  width: 100%;
+  min-height: 20px;
+  padding: 10px 16px;
   border: none;
-  border-top: 1px solid #ccc;
-  margin: 10px 0;
+  font-size: 14px; line-height: 1.5; color:#333;
+  resize: none; white-space: pre-wrap;
+  font-family: 'Malgun Gothic', sans-serif;
+  background: transparent;
 }
-.confirm-message {
-  text-align: left;
+textarea:focus{ outline: none; }
+
+.preserve-whitespace{ white-space: pre-wrap; }
+
+/* 모집 OFF 상태 */
+.RecruitToggleOff{
+  background:#e5e5e5 !important; color:#a9a9a9; cursor:not-allowed;
+  border:1px solid #999;
 }
-.notice-message {
-  text-align: left;
-  font-size: 12px;
-  color: gray;
+.ClubTextInput textarea.RecruitToggleOff{ color:#333; }
+
+/* 글자수 표시 */
+.textarea-container{ position: relative; width: 100%; height: 100%; }
+.textSize{
+  position:absolute; bottom:-20px; right: 16px;
+  font-size: 13px; color:#656565;
 }
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 40px;
+textarea::placeholder{ font-size: 14px; color:#9e9e9e; }
+
+/* ===== 토글 스위치 ===== */
+label{
+  display:block; position:relative; width:50px; height:22px;
+  background:#d3d3d3; border-radius:60px; transition: background .3s; cursor:pointer;
 }
-.popup-buttons button {
-  width: 80px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 10px;
+label::after{
+  content:""; position:absolute; left:4px; top:50%; width:14px; height:14px; border-radius:50%;
+  background:#fff; transform:translateY(-50%); box-shadow:1px 3px 4px rgba(0,0,0,.1);
+  transition: all .3s;
 }
-.popup-buttons button:first-child {
-  background: #ffb052;
-  color: white;
+#chk1:checked + label{ background:#FFB052; }
+#chk1:checked + label::after{ left: calc(100% - 18px); }
+.head input{ visibility:hidden; width:1px; }
+
+/* ===== 저장 버튼 ===== */
+button{
+  justify-self: end;              /* 오른쪽 정렬 (고정 마진 제거) */
+  width: auto;
+  min-width: 112px;
+  height: 48px;
+  background:#FFB052; border:none; border-radius:6px;
+  color:#fff; font-weight:700; font-size:16px; line-height:16px;
+  letter-spacing:-0.025em; text-align:center; cursor:pointer;
+  margin: 8px 0 30px 0;           /* 상하 여백만 */
+}
+button:hover{ background:#e69a3e; }
+
+/* ===== 팝업 ===== */
+.popup-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.5);
+  display:grid; place-items:center; z-index:1000;
+}
+.popup{
+  width: min(92vw, 520px);
+  background:#fff; padding: clamp(16px, 2vw, 24px);
+  border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,.15);
+  position:relative;
+}
+.popup h2{ margin:0 0 10px 0; text-align:left; }
+hr{ border:0; border-top:1px solid #ccc; margin:10px 0; }
+.confirm-message{ text-align:left; }
+.notice-message{ text-align:left; font-size:12px; color:gray; }
+.popup-buttons{ display:flex; justify-content:flex-end; gap:10px; margin-top: 24px; }
+.popup-buttons button{
+  width: auto; min-width: 90px; height: 36px; border:none; border-radius:8px; cursor:pointer; margin:0;
+  font-weight: 600; font-size: 14px;
+}
+.popup-buttons button:first-child{ background:#ffb052; color:#fff; }
+
+/* ===== 반응형 브레이크포인트 ===== */
+/* 태블릿: 헤더를 1열로 쌓고 경고문은 다음 줄로 */
+@media (max-width: 1500px){
+  .head{ grid-template-columns: 1fr; }
+  .head .warning-text{ justify-self: start; text-align: left; }
+}
+
+/* 768px 이하: 레이아웃 간격/패딩 축소, 버튼은 풀폭 가능 */
+@media (max-width: 768px){
+  .image-upload-container{ grid-template-columns: repeat(3, 1fr); }
+  .ClubTextInput{ min-height: 200px; }
+  button{ width: 100%; justify-self: stretch; }  /* 저장 버튼 가려짐 방지 */
+}
+
+/* 600px 이하: 이미지 그리드 2열, 입력 영역 더 컴팩트 */
+@media (max-width: 600px){
+  .image-upload-container{ grid-template-columns: repeat(2, 1fr); }
+  .textSize{ right: 8px; font-size: 12px; }
+}
+
+/* 400px 이하: 이미지 1열, 요소 간 여백 최소화 */
+@media (max-width: 400px){
+  .image-upload-container{ grid-template-columns: 1fr; }
 }
 </style>
