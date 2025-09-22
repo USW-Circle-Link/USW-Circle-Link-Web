@@ -1115,5 +1115,34 @@ export default {
     margin-bottom: 30px; /* 반응형에서는 간격을 줄임 (기존 69px에서 변경) */
   }
 }
+/* 추가적인 작은 화면 대응 미디어 쿼리 */
+@media (max-width: 768px) {
+  .sections-container {
+    padding: 0 15px; /* 모바일에서 패딩 감소 */
+    gap: 40px; /* 간격도 조금 줄임 */
+  }
+  
+  .request-item-container,
+  .added-member-container {
+    width: calc(100% - 10px); /* 여백을 위한 약간의 공간 확보 */
+  }
+}
 
+/* 매우 작은 화면 대응 */
+@media (max-width: 480px) {
+  .sections-container {
+    padding: 0 10px; /* 최소 패딩 */
+  }
+}/* 메인 컨테이너: 좌우 섹션을 담는 최상위 컨테이너 */
+.sections-container {
+  display: flex; /* Flexbox 레이아웃 사용 */
+  justify-content: space-between; /* 좌우 섹션 사이 공간 균등 분배 */
+  gap: 15px; /* 섹션 사이 간격 */
+  max-width: 1200px; /* 최대 너비 제한 */
+  position: relative;
+  height: 100%;
+  padding: 0 20px; /* 좌우 패딩으로 여백 확보 */
+  margin: 0 auto; /* 가운데 정렬 */
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
+}
 </style>
