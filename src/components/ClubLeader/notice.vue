@@ -5,47 +5,61 @@
       <div class="notices">
         <table>
           <thead>
-          <tr>
-            <th class="title-column">제목</th>
-            <th class="author-column">작성자</th>
-            <th class="date-column">작성일</th>
-          </tr>
+            <tr>
+              <th class="title-column">제목</th>
+              <th class="author-column">작성자</th>
+              <th class="date-column">작성일</th>
+            </tr>
           </thead>
           <tbody>
-          <tr v-if="notices.length === 0">
-            <td colspan="3">공지사항이 없습니다.</td>
-          </tr>
-          <tr v-for="notice in notices" :key="notice.noticeUUID">
-            <td class="title-column">
-              <button @click="goToNotice(notice.noticeUUID, notice.adminName)" class="title-button">
-                {{ notice.noticeTitle }}
-              </button>
-            </td>
-            <td class="author-column">{{ notice.adminName }}</td>
-            <td class="date-column">{{ new Date(notice.noticeCreatedAt).toLocaleDateString('ko-KR') }}</td>
-          </tr>
+            <tr v-if="notices.length === 0">
+              <td colspan="3">공지사항이 없습니다.</td>
+            </tr>
+            <tr v-for="notice in notices" :key="notice.noticeUUID">
+              <td class="title-column">
+                <button @click="goToNotice(notice.noticeUUID, notice.adminName)" class="title-button">
+                  {{ notice.noticeTitle }}
+                </button>
+              </td>
+              <td class="author-column">{{ notice.adminName }}</td>
+              <td class="date-column">{{ new Date(notice.noticeCreatedAt).toLocaleDateString('ko-KR') }}</td>
+            </tr>
           </tbody>
         </table>
+
+        <div class="notice-cards">
+          <div v-if="notices.length === 0" class="no-notices-card">
+            공지사항이 없습니다.
+          </div>
+          <div v-for="notice in notices" :key="notice.noticeUUID" class="notice-card" @click="goToNotice(notice.noticeUUID, notice.adminName)">
+            <div class="card-title">{{ notice.noticeTitle }}</div>
+            <div class="card-meta">
+              <span class="card-author">{{ notice.adminName }}</span>
+              <span class="card-date">{{ new Date(notice.noticeCreatedAt).toLocaleDateString('ko-KR') }}</span>
+            </div>
+          </div>
+        </div>
+
         <div class="pagination">
           <button
-              @click="prevPageGroup"
-              :disabled="!showPrevGroup"
-              class="arrow-button"
+            @click="prevPageGroup"
+            :disabled="!showPrevGroup"
+            class="arrow-button"
           >
             <img src="@/assets/left.png" alt="Previous" />
           </button>
           <button
-              v-for="page in totalPagesArray"
-              :key="page"
-              @click="changePage(page)"
-              :class="{ active: currentPage === page }"
+            v-for="page in totalPagesArray"
+            :key="page"
+            @click="changePage(page)"
+            :class="{ active: currentPage === page }"
           >
             {{ page }}
           </button>
           <button
-              @click="nextPageGroup"
-              :disabled="!showNextGroup"
-              class="arrow-button"
+            @click="nextPageGroup"
+            :disabled="!showNextGroup"
+            class="arrow-button"
           >
             <img src="@/assets/rigth.png" alt="Next" />
           </button>
@@ -71,7 +85,7 @@ export default {
       itemsPerPage: 12,
       totalPages: 1,
       show401Popup: false,
-      pageGroupSize: 5  // 페이지 그룹 크기 추가
+      pageGroupSize: 5
     };
   },
   computed: {
@@ -151,12 +165,8 @@ export default {
       }
     },
     goToNotice(noticeUUID) {
-      const currentPath = this.$route.path;
-      if (currentPath.startsWith('/main')) {
-        this.$router.push({ name: 'NoticeClick', params: { noticeUUID: noticeUUID } });
-      } else {
-        this.$router.push({ name: 'NoticeClick', params: { noticeUUID: noticeUUID } });
-      }
+      // 라우팅 로직은 기존과 동일하게 유지
+      this.$router.push({ name: 'NoticeClick', params: { noticeUUID: noticeUUID } });
     },
     changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
@@ -192,30 +202,31 @@ export default {
 </script>
 
 <style scoped>
-.title {
-  color: black;
-  font-size: 25px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  position: relative;
-  display: inline-block;
-  z-index: 1;
-}
-
+/* 공통 및 데스크톱 스타일 */
 * {
   box-sizing: border-box;
 }
 
 .container {
   display: flex;
+  justify-content: center; /* 콘텐츠를 중앙에 배치 */
+  padding: 0 15px; /* 좌우 여백 추가 */
 }
 
 .contents {
-  flex: 1;
+  width: 100%;
+  max-width: 820px; /* 최대 너비 설정 */
+}
+
+.title {
+  color: black;
+  font-size: 25px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .notices {
-  width: 820px;
+  width: 100%; /* 부모 요소에 맞춰 너비 조정 */
   height: auto;
   border-radius: 10px;
   background-color: #fff;
@@ -229,48 +240,43 @@ table {
   table-layout: fixed;
 }
 
-.title-column {
-  width: 60%;
-}
-
-.author-column {
-  width: 20%;
-}
-
-.date-column {
-  width: 20%;
-}
+.title-column { width: 60%; }
+.author-column { width: 20%; }
+.date-column { width: 20%; }
 
 th {
   padding: 10px;
   border-bottom: 2px solid #ddd;
   text-align: center;
-  background-color: white;
-  font-family: Pretendard;
+  font-family: Pretendard, sans-serif;
   font-size: 20px;
   font-weight: 700;
-  line-height: 23.87px;
   color: #393939;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 td {
   padding: 10px;
   border-bottom: 1px solid #ddd;
   text-align: center;
-  background-color: white;
   word-wrap: break-word;
   vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 제목 셀은 줄바꿈이 필요할 수 있으므로 nowrap 해제 */
+td.title-column {
+  white-space: normal;
+  text-align: left; /* 제목은 좌측 정렬이 가독성이 좋음 */
 }
 
 .title-button {
   width: 100%;
-  text-align: center;
-  white-space: normal;
+  text-align: left;
   line-height: 1.4;
   padding: 5px 0;
+  white-space: normal;
 }
 
 button {
@@ -278,6 +284,7 @@ button {
   border: none;
   cursor: pointer;
   font-size: 16px;
+  font-family: inherit;
 }
 
 button:hover {
@@ -291,10 +298,6 @@ button:hover {
   align-items: center;
 }
 
-.pagination .arrow-button {
-  opacity: 1;
-}
-
 .pagination .arrow-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -306,8 +309,6 @@ button:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: none;
-  cursor: pointer;
   margin: 0 5px;
   padding: 5px;
   transition: all 0.3s ease;
@@ -315,6 +316,7 @@ button:hover {
 
 .pagination button.active {
   color: #FFC700;
+  font-weight: bold;
   transform: scale(1.2);
 }
 
@@ -325,5 +327,66 @@ button:hover {
 
 h2 {
   margin-top: -15px;
+}
+
+/* 모바일 카드 뷰 스타일 (초기에는 숨김) */
+.notice-cards {
+  display: none;
+}
+
+/* 반응형 디자인: 화면 너비 768px 이하 */
+@media (max-width: 768px) {
+  .notices {
+    padding: 15px;
+  }
+  
+  /* 테이블 숨기기 */
+  table {
+    display: none;
+  }
+
+  /* 카드 목록 보이기 */
+  .notice-cards {
+    display: block;
+  }
+  
+  .notice-card {
+    padding: 15px 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+  }
+
+  .notice-card:last-child {
+    border-bottom: none;
+  }
+  
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #777;
+  }
+  
+  .no-notices-card {
+    padding: 20px;
+    text-align: center;
+    color: #888;
+  }
+  
+  .title {
+    font-size: 22px;
+  }
+
+  /* 페이지네이션 버튼 간격 조정 */
+  .pagination button {
+    margin: 0 2px;
+  }
 }
 </style>
