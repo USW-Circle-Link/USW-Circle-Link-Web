@@ -209,265 +209,178 @@ export default {
 </script>
 
 <style>
-.title {
-  font-size: 20px;
-  font-weight: 600;
-  width: 886px; /* RemoveMemberDashboard와 동일한 너비 */
-  margin: 0 auto; /* 중앙 정렬 */
-  padding: 0 20px; /* 내부 여백 추가 */
-}
 
-.RemoveMemberDashboard {
-  width: 896px;
-  background: #fff;
-  border-radius: 8px;
-  align-items: center;
-  align-content: flex-start;
-  text-align: center;
-  height: 450px;
-  overflow-y: auto;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  margin: 20px auto 0 auto;
-}
 
-.member-list ul {
-  width: 858px;
-  padding-left: 15px;
-  list-style: none;
-}
-
-.member-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center; /* 수직 중앙 정렬 */
-  padding: 10px 25px;
-  background-color: #f0f2f5;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  height: 32px;
-}
-
-.member-item span {
+/* ===== 공통 컨테이너: 고정폭 제거, 유동폭 적용 ===== */
+/* 전체 페이지 컨테이너 */
+.content {
   flex: 1;
-  text-align: center;
+  min-width: 0;
+  padding: 0 16px; /* ← 좌우 동일 여백 */
+  box-sizing: border-box;
+}
+.title,
+.RemoveMemberDashboard,
+.expulsion-header,
+.expulsion-section {
+  max-width: 1200px;           /* 늘릴 수 있는 최대폭 */
+  width: min(100%, 1200px);    /* 화면에 맞게 넓이 채우기 */
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.title { font-size:20px; font-weight:600; padding: 0 16px; }
+
+/* 카드(회원 목록) */
+.RemoveMemberDashboard {
+  background:#fff;
+  border-radius: 12px;
+  text-align:center;
+  height: 450px;
+  overflow-y:auto;
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  margin: 20px auto 0;
+  padding: 8px 12px;
 }
 
-.custom-checkbox {
-  position: relative;
-  display: inline-flex; /* flex로 변경하여 정렬 개선 */
-  align-items: center; /* 수직 중앙 정렬 */
-  width: 18px; /* 크기 감소 */
-  height: 18px; /* 크기 감소 */
-  margin-right: 15px;
-  cursor: pointer;
+/* ul 폭 고정 제거 -> 부모에 맞춰 늘어남 */
+.member-list ul,
+.expulsion-list ul {
+  list-style:none;
+  padding:0;
+  margin:0;
+  width: 100%;
 }
 
-.hidden-checkbox {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
+/* 리스트 아이템을 그리드로(칼럼은 넓이에 따라 자동 적응) */
+.member-item {
+  display:grid;
+  grid-template-columns: auto 1.2fr 0.9fr 1fr 1fr; /* 체크 + 이름 + 학번 + 전공 + 연락처 */
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  background:#f0f2f5;
+  border-radius:10px;
+  margin:10px 0;
+  min-height:42px;
+  box-sizing:border-box;
+}
+.member-item span {
+  text-align:left;
+  font-size:14px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
-.checkbox-mark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 15px;
-  height: 15px;
-  background-color: white;
-  border: 2px solid #767676;
-  border-radius: 4px;
-}
-
-/* 체크되지 않은 상태 호버 효과 */
-.custom-checkbox:hover .checkbox-mark {
-  border-color: #999;
-}
-
-/* 체크된 상태 */
-.hidden-checkbox:checked + .checkbox-mark {
-  background-color: #ffb052;
-  border-color: #ffb052;
-}
-
-/* 체크 마크 */
-.checkbox-mark:after {
-  content: '';
-  position: absolute;
-  display: none;
-  left: 3.4px; /* 위치 조정 */
-  bottom: 3.5px;
-  width: 6px; /* 너비 증가 */
-  height: 10px;
-  border: solid white;
-  border-width: 0 2.5px 2.5px 0; /* 테두리 두께 증가 */
-  transform: rotate(45deg);
-}
-
-/* 체크된 상태일 때 체크 마크 표시 */
-.hidden-checkbox:checked + .checkbox-mark:after {
-  display: block;
-}
-
+/* 선택 인원 헤더 */
 .expulsion-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  margin: 40px auto 0px auto; /* margin 중앙 정렬로 수정 */
-  padding: 0;
-  width: 886px; /* RemoveMemberDashboard와 동일한 너비 */
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  padding: 0 16px;
+  margin: 24px auto 0;
 }
-
-.selected-count {
-  font-weight: 500;
-  margin-right: 10px; /* Adjust the margin as needed */
-}
-
-.selected-count-bold {
-  font-weight: 300;
-  margin-left: 5px; /* Adjust the margin as needed */
-}
+.selected-count { font-weight:500; font-size:14px; }
+.selected-count-bold { font-weight:600; margin-left:6px; }
 
 .expulsion-section {
-  margin: 13px auto 10px auto; /* margin 중앙 정렬로 수정 */
-  width: 886px; /* RemoveMemberDashboard와 동일한 너비 */
-  background: #fff;
-  border-radius: 8px;
-  position: relative;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
-  margin-bottom: 10px;
+  margin: 12px auto 10px;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 0 4px rgba(0,0,0,.25);
+  padding: 8px 12px;
+}
+.expulsion-list { height:200px; overflow-y:auto; }
+
+/* 퇴출 목록(체크박스 없음) */
+.expulsion-list .member-item {
+  grid-template-columns: 1.2fr 0.9fr 1fr 1fr;
 }
 
-.expulsion-list {
-  height: 200px;
-  overflow-y: auto;
+/* 체크박스 */
+.custom-checkbox{position:relative;display:inline-flex;align-items:center;width:18px;height:18px;cursor:pointer;}
+.hidden-checkbox{position:absolute;opacity:0;cursor:pointer;}
+.checkbox-mark{position:absolute;top:0;left:0;width:18px;height:18px;background:#fff;border:2px solid #767676;border-radius:4px;}
+.custom-checkbox:hover .checkbox-mark{border-color:#999;}
+.hidden-checkbox:checked + .checkbox-mark{background:#ffb052;border-color:#ffb052;}
+.checkbox-mark:after{content:'';position:absolute;display:none;left:5px;bottom:3px;width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);}
+.hidden-checkbox:checked + .checkbox-mark:after{display:block;}
+
+.expulsion-button{background:#ff6b6b;color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:14px;}
+.expulsion-button:hover{background:#e55a5a;}
+.expulsion-button:disabled{background:#ccc;cursor:not-allowed;}
+
+.custom-popup1{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;justify-content:center;align-items:center;z-index:999;padding:16px;box-sizing:border-box;}
+.popup-content1{background:#fff;padding:20px;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,.2);width:min(520px,100%);max-width:520px;text-align:left;position:relative;box-sizing:border-box;}
+.popup-header1{margin-bottom:8px;}
+.popup-title1{font-size:18px;font-weight:700;margin:0;color:#000;}
+.popup-separator1{border-bottom:1px solid #d3d3d3;margin:10px 0;}
+.popup-body1{margin:18px 0 28px;}
+.popup-message1{font-size:15px;color:#333;margin:4px 0;}
+.red-text1{color:#ff5c5c;font-weight:700;}
+.popup-warning1{font-size:12px;color:#ff5c5c;margin:6px 0 0;}
+.expel-button,.cancel-button{border:none;color:#fff;cursor:pointer;padding:8px 22px;border-radius:8px;font-size:15px;}
+.expel-button{background:#ffb052;position:absolute;bottom:16px;right:16px;}
+.cancel-button{background:#ccc;position:absolute;bottom:16px;right:112px;}
+.expel-button:hover{background:#e6953e;}
+.cancel-button:hover{background:#999;}
+
+/* ===== 반응형 ===== */
+@media (max-width: 992px){
+  .member-item{grid-template-columns:auto 1.4fr 0.8fr 0.9fr 1fr;}
+  .expulsion-list .member-item{grid-template-columns:1.4fr 0.8fr 0.9fr 1fr;}
+}
+@media (max-width: 768px){
+  .expulsion-header{flex-direction:column;align-items:flex-start;gap:10px;}
+  .member-item{
+    grid-template-columns:auto 1fr 1fr;
+    grid-template-areas:
+      "check name phone"
+      "check student major";
+    row-gap:6px;
+  }
+  .member-item .custom-checkbox{grid-area:check;align-self:flex-start;margin-top:2px;}
+  .member-item span:nth-of-type(1){grid-area:name;}
+  .member-item span:nth-of-type(2){grid-area:student;}
+  .member-item span:nth-of-type(3){grid-area:major;}
+  .member-item span:nth-of-type(4){grid-area:phone;justify-self:end;text-align:right;}
+
+  .expulsion-list .member-item{
+    grid-template-columns:1fr 1fr;
+    grid-template-areas:
+      "name phone"
+      "student major";
+  }
+  .expulsion-list .member-item span:nth-of-type(1){grid-area:name;}
+  .expulsion-list .member-item span:nth-of-type(2){grid-area:student;}
+  .expulsion-list .member-item span:nth-of-type(3){grid-area:major;}
+  .expulsion-list .member-item span:nth-of-type(4){grid-area:phone;text-align:right;}
+}
+@media (max-width: 560px){
+  .member-item{
+    grid-template-columns:auto 1fr;
+    grid-template-areas:
+      "check name"
+      "check phone"
+      "check student"
+      "check major";
+  }
+  .expulsion-list .member-item{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "name"
+      "phone"
+      "student"
+      "major";
+  }
+  .expulsion-button{width:100%;}
+}
+@media (max-width: 400px){
+  .RemoveMemberDashboard{padding:8px;}
+  .member-item{padding:8px 10px;}
+  .member-item span{font-size:13px;}
+  .popup-content1{width:100%;padding:16px;}
+  .expel-button,.cancel-button{padding:8px 16px;font-size:14px;}
 }
 
-.expulsion-list ul {
-  list-style: none;
-  padding-left: 15px;
-  width: 858px;
-}
-
-.expulsion-button {
-  background-color: #ff6b6b;
-  color: white;
-  border: none;
-  padding: 6px 18px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 14px;
-}
-
-.expulsion-button:hover {
-  background-color: #e55a5a; /* Darker shade of the original color */
-}
-
-.expulsion-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.custom-popup1 {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.popup-content1 {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 420px;
-  height: 152px;
-  text-align: left;
-  position: relative;
-}
-
-.popup-header1 {
-  margin-bottom: 10px;
-}
-
-.popup-title1 {
-  font-size: 18px;
-  font-weight: bold;
-  color: black;
-  margin: 0;
-}
-
-.popup-separator1 {
-  border-bottom: 1px solid #d3d3d3;
-  margin: 10px 0;
-}
-
-.popup-body1 {
-  margin-bottom: 0px;
-  margin-top: 22px;
-}
-
-.popup-message1 {
-  font-size: 15px;
-  color: #333333;
-  margin: 2px 0;
-}
-
-.red-text1 {
-  color: #ff5c5c;
-  font-weight: 600;
-}
-
-.popup-warning1 {
-  font-size: 12px;
-  color: #ff5c5c;
-  margin: 4px 0;
-}
-
-.expel-button {
-  background-color: #ffb052;
-  color: white;
-  border: none;
-  padding: 7px 30px;
-  border-radius: 7px;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  line-height: 20px;
-}
-
-.cancel-button {
-  background-color: #cccccc;
-  color: white;
-  border: none;
-  padding: 7px 30px;
-  border-radius: 7px;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 120px;
-  line-height: 20px;
-}
-
-.expel-button:hover {
-  background-color: #e6953e;
-}
-
-.cancel-button:hover {
-  background-color: #999999;
-}
 </style>
