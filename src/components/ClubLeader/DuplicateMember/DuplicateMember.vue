@@ -297,239 +297,177 @@ export default {
 </script>
 
 <style scoped>
+/* ===== 공통 컨테이너: 고정폭 제거 + 유동폭 ===== */
 .duplicate-container {
-  width: 830px; /* form-container와 동일한 너비 */
-  margin: 0 auto; /* 중앙 정렬 */
+  max-width: 1200px;
+  width: min(100%, 1200px);
+  margin: 0 auto;
+  padding: 0 16px; /* 좌우 여백 */
+  box-sizing: border-box;
 }
 
-.title {
-  margin-bottom: 20px;
-}
-
-.duplicate-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
+.title { margin-bottom: 20px; }
+.duplicate-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
 .duplicate-subtitle {
-  color: #ff0000;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 350;
+  color: #ff0000; font-size: 14px; font-weight: 350;
 }
 
+/* ===== 폼 카드 ===== */
 .form-container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
   background: #fff;
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 830px;
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
   border-radius: 8px;
-  margin-top: 20px; /* title과의 간격 */
-  margin-left: 0; /* 왼쪽 마진 제거 */
-  margin-right: 0; /* 오른쪽 마진 제거 */
+  margin-top: 20px;
   position: relative;
+  width: 100%;            /* 고정폭 제거 */
+  box-sizing: border-box;
 }
 
+.form-content-wrapper { display: flex; flex-direction: column; align-items: flex-start; }
+
+/* 입력 그룹 배치: 큰 화면은 가로, 작은 화면은 세로 */
 .form-content {
   display: flex;
-  align-items: flex-start;
+  flex-wrap: wrap;
   gap: 15px;
-  padding-left: 5px;
+  align-items: center;
 }
 
-.form-content-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-left: 0;
-}
-
+/* 라벨 + 인풋 묶음 */
 .input-group {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr; /* 라벨 고정 + 인풋 유동 */
   align-items: center;
   gap: 8px;
+  min-width: 220px;
 }
 
-.input-group label {
-  white-space: nowrap;
-  font-weight: 500;
-}
+.input-group label { white-space: nowrap; font-weight: 500; }
 
 .input-group input {
-  display: flex;
-  width: 126px;
+  width: clamp(160px, 22vw, 260px); /* 화면에 따라 유동 */
   height: 42px;
   padding-left: 10px;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
   border: 1px solid #dee2e6;
   border-radius: 4px;
   font-size: 14px;
+  box-sizing: border-box;
 }
 
-.input-group.phone-number input {
-  width: 185px;
-}
+.input-group.phone-number input { width: clamp(185px, 26vw, 320px); }
 
-.error-input {
-  border-color: #ff0000;
-}
+.error-input { border-color: #ff0000; }
 
 .error-text {
-  margin-top: 16px;
-  margin-bottom: -5px;
-  padding-left: 50px;
-  color: #ff3535;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
+  margin-top: 16px; margin-bottom: -5px; padding-left: 2px;
+  color: #ff3535; font-size: 12px; font-weight: 400;
 }
 
+/* 추가 버튼 */
 .add-button {
-  padding: 16px;
-  background-color: #ffb052;
-  border: none;
-  border-radius: 4px;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  height: 42px;
+  padding: 0 16px;
+  background: #ffb052;
+  border: none; border-radius: 4px; color: #fff;
+  font-size: 14px; cursor: pointer;
+  display: inline-flex; align-items: center; height: 42px;
   white-space: nowrap;
-  vertical-align: middle;
 }
+.add-button:hover { background: #e6953e; border-color: #f39a30; border-width: 1.5px; }
+.add-button.disabled { opacity: .5; cursor: not-allowed; }
+.add-icon { margin-right: 5px; transform: translateY(-1px); }
 
-.add-button:hover {
-  background-color: #e6953e; /* Change the background color on hover */
-  border-color: #f39a30;
-  border-width: 1.5px;
-}
-
-.add-button.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.add-button.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.add-icon {
-  vertical-align: middle;
-  margin-right: 5px;
-  margin-left: -4px;
-  transform: translateY(-1px);
-}
-
+/* ===== 중복 목록 섹션 ===== */
 .duplicate-list-section {
-  margin-top: 145px;
-  width: 873px;
+  margin-top: 32px;       /* 고정 145px 삭제 */
+  width: 100%;
 }
 
-.duplicate-list-header {
-  margin-bottom: 10px;
-}
-
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 26px;
-}
+.duplicate-list-header { margin-bottom: 10px; }
+.header-content { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
 
 .duplicate-list-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #000;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-size: 16px; font-weight: 600; color: #000;
+  margin: 0; display: flex; align-items: center; gap: 8px;
 }
-
-.member-count {
-  font-size: 14px;
-  color: #666;
-  font-weight: normal;
-}
+.member-count { font-size: 14px; color: #666; font-weight: 400; }
 
 .list-subtitle {
-  color: #ff3535;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  letter-spacing: -0.35px;
-  align-items: center;
+  color: #ff3535; font-size: 14px; font-weight: 400; letter-spacing: -0.35px;
 }
 
 .member-list-wrapper {
-  max-height: 290px;
-  overflow-y: auto;
-  border-radius: 8px;
-  background: #f0f2f5;
+  max-height: 290px; overflow-y: auto;
+  border-radius: 8px; background: #f0f2f5;
 }
 
-.member-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.member-item {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 10px 0;
-}
-
+/* 리스트 아이템: 큰 화면은 가로 정렬, 좁아지면 자동 줄바꿈 */
+.member-list { display: flex; flex-direction: column; gap: 8px; }
+.member-item { background: #fff; border-radius: 8px; padding: 10px 0; }
 .member-info {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;       /* 이름 / 학번 / 전화 */
+  gap: 12px;
   align-items: center;
   padding: 0 14px;
-  height: 24px;
+  min-height: 24px;
 }
 
 .info-cell {
-  flex: 1;
-  text-align: center;
-  color: #000;
-  font-size: 14px;
+  color: #000; font-size: 14px; text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-.info-cell.name1 {
-  flex: 0 0 260px;
+/* 기존 고정폭(260px) 제거 -> 유동 */
+.info-cell.name1    { min-width: 140px; }
+.info-cell.student-id,
+.info-cell.phone1   { min-width: 140px; }
+
+/* 스크롤바 */
+.member-list-wrapper::-webkit-scrollbar { width: 8px; }
+.member-list-wrapper::-webkit-scrollbar-track { background: transparent; }
+.member-list-wrapper::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 4px; }
+.member-list-wrapper::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
+
+/* ===== 브레이크포인트 ===== */
+/* 1024↓: 버튼을 다음 줄로 밀어도 자연스럽게 */
+@media (max-width: 1024px) {
+  .form-content {
+    grid-auto-flow: row;              /* 입력칸들이 줄바꿈 */
+    grid-auto-rows: max-content;
+  }
 }
 
-.info-cell.student-id {
-  flex: 0 0 260px;
+/* 768↓: 입력그룹을 세로 스택, 목록은 2열 카드처럼 */
+@media (max-width: 768px) {
+  .input-group {
+    grid-template-columns: 1fr;       /* 라벨 위, 인풋 아래 */
+  }
+  .input-group input { width: 100%; }
+  .add-button { width: 100%; justify-content: center; }
+
+  .member-info {
+    grid-template-columns: 1fr 1fr;   /* 이름/전화 한 줄, 학번 아래 */
+    grid-template-areas:
+      "name1 phone1"
+      "student-id student-id";
+  }
+  .info-cell.name1      { grid-area: name1; }
+  .info-cell.phone1     { grid-area: phone1; text-align: right; }
+  .info-cell.student-id { grid-area: student-id; }
 }
 
-.info-cell.phone1 {
-  flex: 0 0 260px;
+/* 480↓: 완전 세로 스택 */
+@media (max-width: 480px) {
+  .member-info {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "name1"
+      "student-id"
+      "phone1";
+    row-gap: 4px;
+  }
+  .info-cell { text-align: left; }
 }
 
-/* 스크롤바 스타일링 */
-.member-list-wrapper::-webkit-scrollbar {
-  width: 8px;
-}
-
-.member-list-wrapper::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.member-list-wrapper::-webkit-scrollbar-thumb {
-  background: #ced4da;
-  border-radius: 4px;
-}
-
-.member-list-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #adb5bd;
-}
 </style>
