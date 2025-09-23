@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <!-- 제목 -->
     <div class="title-row">
       <h2>엑셀 파일로 추가할 동아리 회원 정보</h2>
       <div class="buttons">
@@ -22,7 +21,6 @@
       </div>
     </div>
 
-    <!-- 정보 및 버튼 섹션 -->
     <div class="info-section">
         <div class="info-section-col">
           <p>추가 회원: {{ members.length }}명</p>
@@ -33,18 +31,16 @@
         <div>
           <button class="clear-btn" @click="clearList">
             <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 3.25H11.25V2.5C11.25 2.16848 11.1183 1.85054 10.8839 1.61612C10.6495 1.3817 10.3315 1.25 10 1.25H7C6.66848 1.25 6.35054 1.3817 6.11612 1.61612C5.8817 1.85054 5.75 2.16848 5.75 2.5V3.25H3C2.9337 3.25 2.87011 3.27634 2.82322 3.32322C2.77634 3.37011 2.75 3.4337 2.75 3.5C2.75 3.5663 2.77634 3.62989 2.82322 3.67678C2.87011 3.72366 2.9337 3.75 3 3.75H3.75V13C3.75 13.1989 3.82902 13.3897 3.96967 13.5303C4.11032 13.671 4.30109 13.75 4.5 13.75H12.5C12.6989 13.75 12.8897 13.671 13.0303 13.5303C13.171 13.3897 13.25 13.1989 13.25 13V3.75H14C14.0663 3.75 14.1299 3.72366 14.1768 3.67678C14.2237 3.62989 14.25 3.5663 14.25 3.5C14.25 3.4337 14.2237 3.37011 14.1768 3.32322C14.1299 3.27634 14.0663 3.25 14 3.25ZM6.25 2.5C6.25 2.30109 6.32902 2.11032 6.46967 1.96967C6.61032 1.82902 6.80109 1.75 7 1.75H10C10.1989 1.75 10.3897 1.82902 10.5303 1.96967C10.671 2.11032 10.75 2.30109 10.75 2.5V3.25H6.25V2.5ZM12.75 13C12.75 13.0663 12.7237 13.1299 12.6768 13.1768C12.6299 13.2237 12.5663 13.25 12.5 13.25H4.5C4.4337 13.25 4.37011 13.2237 4.32322 13.1768C4.27634 13.1299 4.25 13.0663 4.25 13V3.75H12.75V13ZM7.25 6.5V10.5C7.25 10.5663 7.22366 10.6299 7.17678 10.6768C7.12989 10.7237 7.0663 10.75 7 10.75C6.9337 10.75 6.87011 10.7237 6.82322 10.6768C6.77634 10.6299 6.75 10.5663 6.75 10.5V6.5C6.75 6.4337 6.77634 6.37011 6.82322 6.32322C6.87011 6.27634 6.9337 6.25 7 6.25C7.0663 6.25 7.12989 6.27634 7.17678 6.32322C7.22366 6.37011 7.25 6.4337 7.25 6.5ZM10.25 6.5V10.5C10.25 10.5663 10.2237 10.6299 10.1768 10.6768C10.1299 10.7237 10.0663 10.75 10 10.75C9.9337 10.75 9.87011 10.7237 9.82322 10.6768C9.77634 10.6299 9.75 10.5663 9.75 10.5V6.5C9.75 6.4337 9.77634 6.37011 9.82322 6.32322C9.87011 6.27634 9.9337 6.25 10 6.25C10.0663 6.25 10.1299 6.27634 10.1768 6.32322C10.2237 6.37011 10.25 6.4337 10.25 6.5Z" fill="#969696"/>
+              <path d="M14 3.25H11.25V2.5C11.25 2.16848 11.1183 1.85054 10.8839 1.61612C10.6495 1.3817 10.3315 1.25 10 1.25H7C6.66848 1.25 6.35054 1.3817 6.11612 1.61612C5.8817 1.85054 5.75 2.16848 5.75 2.5V3.25H3C2.9337 3.25 2.87011 3.27634 2.82322 3.32322C2.77634 3.37011 2.75 3.4337 2.75 3.5C2.75 3.5663 2.77634 3.62989 2.82322 3.67678C2.87011 3.72366 2.9337 3.75 3 3.75H3.75V13C3.75 13.1989 3.82902 13.3897 3.96967 13.5303C4.11032 13.671 4.30109 13.75 4.5 13.75H12.5C12.6989 13.75 12.8897 13.671 13.0303 13.5303C13.171 13.3897 13.25 13.1989 13.25 13V3.75H14C14.0663 3.75 14.1299 3.72366 14.1768 3.67678C14.2237 3.62989 14.25 3.5663 14.25 3.5C14.25 3.4337 14.2237 3.37011 14.1768 3.32322C14.1299 3.27634 14.0663 3.25 14 3.25ZM6.25 2.5C6.25 2.30109 6.32902 2.11032 6.46967 1.96967C6.61032 1.82902 6.80109 1.75 7 1.75H10C10.1989 1.75 10.3897 1.82902 10.5303 1.96967C10.671 2.11032 10.75 2.30109 10.75 2.5V3.25H6.25V2.5ZM12.75 13C12.75 13.0663 12.7237 13.1299 12.6768 13.1768C12.6299 13.2237 12.5663 13.25 12.5 13.25H4.5C4.4337 13.25 4.37011 13.2237 4.32322 13.1768C4.27634 13.1299 4.25 13.0663 4.25 13V3.75H12.75V13ZM7.25 6.5V10.5C7.25 10.5663 7.22366 10.6299 7.17678 10.6768C7.12989 10.7237 7.0663 10.75 7 10.75C6.9337 10.75 6.87011 10.7237 6.82322 10.6768C6.77634 10.6299 6.75 10.5663 6.75 10.5V6.5C6.75 6.4337 6.77634 6.37011 6.82322 6.32322C6.87011 6.27634 6.9337 6.25 7 6.25C7.0663 6.25 7.12989 6.27634 7.17678 6.32322C7.2237 6.37011 7.25 6.4337 7.25 6.5ZM10.25 6.5V10.5C10.25 10.5663 10.2237 10.6299 10.1768 10.6768C10.1299 10.7237 10.0663 10.75 10 10.75C9.9337 10.75 9.87011 10.7237 9.82322 10.6768C9.77634 10.6299 9.75 10.5663 9.75 10.5V6.5C9.75 6.4337 9.77634 6.37011 9.82322 6.32322C9.87011 6.27634 9.9337 6.25 10 6.25C10.0663 6.25 10.1299 6.27634 10.1768 6.32322C10.2237 6.37011 10.25 6.4337 10.25 6.5Z" fill="#969696"/>
             </svg>
             비우기
           </button>
         </div>
     </div>
 
-    <!--추가할 회원 리스트-->
     <div v-if="visible && !isOverlappingMemberListsPopupVisible" class="member-list">
       <div class="member-list" v-for="(member, index) in members" :key="index">
         <div class="member-row">
-          <!-- 이름 입력 -->
           <div class="input-wrapper">
             <span v-if="editingIndex !== index">{{ member.userName }}</span>
             <input v-else
@@ -58,7 +54,6 @@
             </div>
           </div>
 
-          <!-- 학번 입력 -->
           <div class="input-wrapper">
             <span v-if="editingIndex !== index">{{ member.studentNumber }}</span>
             <input v-else
@@ -72,7 +67,6 @@
             </div>
           </div>
 
-          <!-- 전화번호 입력 -->
           <div class="input-wrapper">
             <span v-if="editingIndex !== index">{{ formatPhoneNumber(member.userHp) }}</span>
             <input v-else
@@ -86,7 +80,6 @@
             </div>
           </div>
 
-          <!-- 단과대학 선택 -->
           <select v-model="member.department" @change="onCollegeChange(index)">
             <option disabled value="">단과대학 선택</option>
             <option v-for="college in colleges" :key="college.id" :value="college.id">
@@ -94,7 +87,6 @@
             </option>
           </select>
 
-          <!-- 학부(학과) 선택 -->
           <select v-model="member.major">
             <option disabled value="">학부(학과) 선택</option>
             <option v-for="dept in member.departments" :key="dept" :value="dept">
@@ -123,17 +115,19 @@
 
 
     <div v-if="isOverlappingMemberListsPopupVisible" class="popup-overlay1">
-      <div class="popup">
-        <h2>프로필 중복 회원 목록</h2>
-        <p class="confirm-message">타 동아리에도 소속되어 있는 프로필 중복 회원이 <span class="red-text1">총 {{OverlappingMembers.length}}명</span> 존재해요. <br>이후 '프로필 중복 회원 추가'를 통해 아래 회원을 추가해주세요. <br><span class="red-text1">해당 팝업을 닫는 경우 다시 확인할 수 없으니, <span class="red-text2">반드시 별도로 저장</span>해주세요!</span></p>
-        <div class="list-item-container">
-          <div v-for="(item, index) in OverlappingMembers" :key="index" class="list-item">
-            <div class="name">{{ item.userName }}</div>
-            <div class="id">{{ item.studentNumber }}</div>
-            <div class="Phone">{{ formatPhoneNumber(item.userHp) }}</div>
+      <div class="popup-container">
+        <div class="popup-content">
+          <h2>프로필 중복 회원 목록</h2>
+          <p class="confirm-message">타 동아리에도 소속되어 있는 프로필 중복 회원이 <span class="red-text1">총 {{OverlappingMembers.length}}명</span> 존재해요. <br>이후 '프로필 중복 회원 추가'를 통해 아래 회원을 추가해주세요. <br><span class="red-text1">해당 팝업을 닫는 경우 다시 확인할 수 없으니, <span class="red-text2">반드시 별도로 저장</span>해주세요!</span></p>
+          <div class="list-item-container">
+            <div v-for="(item, index) in OverlappingMembers" :key="index" class="list-item">
+              <div class="name">{{ item.userName }}</div>
+              <div class="id">{{ item.studentNumber }}</div>
+              <div class="Phone">{{ formatPhoneNumber(item.userHp) }}</div>
+            </div>
           </div>
+          <button class="confirm-button" @click="Delete">확인</button>
         </div>
-        <button class="confirm-button" @click="Delete">확인</button>
       </div>
     </div>
 
@@ -396,10 +390,11 @@ export default {
       this.members = [];
     },
     Delete(){
-      if(this.members.length === 0 ){
+      this.isOverlappingMemberListsPopupVisible = false;
+      if(this.members.length === 0){
+        // 중복 회원만 존재할 경우, '프로필 중복 회원 추가' 페이지로 이동 안내 팝업을 띄웁니다.
         this.isOverlappingMembersPopupVisible = true;
       }
-      this.isOverlappingMemberListsPopupVisible = false;
     },
     SelectDepartment(){
       this.isSelectDepartmentPopupVisible = false;
@@ -682,6 +677,112 @@ select { text-align: left; }
 .addClubMember:hover { background-color: var(--brand-color-dark); }
 
 /* ===== 팝업 공통 스타일 ===== */
+.popup-overlay1 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  flex-direction: column;
+}
+
+.popup-container {
+  background-color: #f3f3f3;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  position: relative;
+}
+
+.popup-content h2 {
+  color: black;
+  font-size: 24px;
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+.popup-content .confirm-message {
+  color: black;
+  font-size: 14px;
+  text-align: center;
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+.popup-content .red-text1 {
+  color: #FF5C5C;
+  font-weight: bold;
+}
+
+.popup-content .red-text2 {
+  color: #FF5C5C;
+  font-weight: bold;
+}
+
+.list-item-container {
+  max-height: 200px; /* 스크롤을 위한 최대 높이 설정 */
+  overflow-y: auto; /* 내용이 넘칠 경우 스크롤바 표시 */
+  margin-bottom: 20px;
+  padding-right: 10px;
+}
+
+.list-item-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list-item-container::-webkit-scrollbar-thumb {
+  background-color: #969696;
+  border-radius: 4px;
+}
+
+.list-item {
+  background-color: #FFFFFF;
+  border: 1px solid #ff9e9e;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #414141;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.list-item .name, .list-item .id, .list-item .Phone {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.confirm-button {
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  width: 100px;
+  height: 40px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  display: block;
+  margin: 0 auto;
+}
+
+.confirm-button:hover {
+  background-color: #e69a3e;
+}
+
 .popup-overlay2 {
   position: fixed;
   top: 0;
@@ -815,10 +916,10 @@ select { text-align: left; }
   .member-row {
     grid-template-columns: 1fr 1fr; /* 2열 구조로 변경 */
     grid-template-areas:
-      "name    name"
-      "id      phone"
+      "name    name"
+      "id      phone"
       "college major"
-      ".       actions"; /* 수정 버튼 오른쪽 하단 배치 */
+      ".       actions"; /* 수정 버튼 오른쪽 하단 배치 */
   }
 }
 
