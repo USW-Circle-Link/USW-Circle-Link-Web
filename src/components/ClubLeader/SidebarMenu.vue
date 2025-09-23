@@ -181,11 +181,28 @@ export default {
   box-sizing: border-box;
   border-radius: 16px;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
 }
+
+/* Hide scrollbar for Webkit browsers */
+.sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
 
 .sidebar-content {
   flex: 1;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+/* Hide scrollbar for Webkit browsers */
+.sidebar-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .profile {
