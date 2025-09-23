@@ -209,6 +209,7 @@ export default {
 
 .container {
   display: flex;
+  width: 90%;
   justify-content: center; /* 콘텐츠를 중앙에 배치 */
   padding: 0 15px; /* 좌우 여백 추가 */
 }
