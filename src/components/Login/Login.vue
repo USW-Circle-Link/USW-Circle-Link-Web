@@ -572,5 +572,71 @@ option {
   border-color: #FFB052;
   box-shadow: 0 0 0 1px #FFB052;
 }
-
+@media (max-width: 600px) {
+  .login-container {
+    min-width: 390px;
+    padding: 12px 0;
+  }
+  .header {
+    max-width: 98vw;
+    margin-bottom: 22px;
+  }
+  .subtitle {
+    font-size: 1.15rem;
+    margin-bottom: 22px;
+  }
+  .logo {
+    height: 44px;
+    margin-top: 0;
+  }
+  .logo-text {
+    font-size: 2.1rem;
+    height: 48px;
+    line-height: 48px;
+  }
+  .login-box {
+    padding: 16px;
+    border-radius: 11px;
+    max-width: 95vw;
+    height: auto;
+    min-width: 0;
+  }
+  .input-group,
+  .custom-dropdown {
+    height: 44px;
+    font-size: 1rem;
+    border-radius: 9px;
+    margin-bottom: 13px;
+    padding: 0 8px;
+  }
+  .input-group input,
+  .custom-dropdown,
+  .dropdown-selected {
+    font-size: 1rem;
+    padding-left: 10px;
+  }
+  .floating-label {
+    left: 32px;
+    font-size: 1rem;
+  }
+  .input-group.focused .floating-label,
+  .input-group.has-value .floating-label {
+    top: 18%;
+    font-size: 0.82rem;
+  }
+  .login-button {
+    height: 48px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    margin-top: 15px;
+  }
+  .popup-content {
+    width: 90vw;
+    min-width: 260px;
+    max-width: 390px;
+    padding: 16px;
+    margin-top: 14vw;
+    height: auto;
+  }
+}
 </style>

@@ -296,178 +296,207 @@ export default {
 };
 </script>
 
+
 <style scoped>
-/* ===== 공통 컨테이너: 고정폭 제거 + 유동폭 ===== */
+/* ===== 전체 컨테이너 ===== */
 .duplicate-container {
   max-width: 1200px;
-  width: min(100%, 1200px);
+  width: 90%;
   margin: 0 auto;
-  padding: 0 16px; /* 좌우 여백 */
+  padding: 24px;
   box-sizing: border-box;
+  --brand-color: #ffb052;
+  --brand-color-dark: #e6953e;
+  --text-color-primary: #333;
+  --text-color-secondary: #666;
+  --error-color: #ff3535;
+  --border-color: #dee2e6;
+  --bg-light: #f0f2f5;
+  --bg-white: #fff;
 }
 
-.title { margin-bottom: 20px; }
-.duplicate-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+/* ===== 상단 타이틀 ===== */
+.title {
+  margin-bottom: 32px;
+}
+.duplicate-title {
+  font-size: clamp(20px, 2.5vw, 24px); /* 화면 크기에 따라 폰트 크기 조절 */
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--text-color-primary);
+}
 .duplicate-subtitle {
-  color: #ff0000; font-size: 14px; font-weight: 350;
+  color: var(--text-color-secondary);
+  font-size: 15px;
+  margin: 0;
 }
 
-/* ===== 폼 카드 ===== */
+/* ===== 입력 폼 카드 ===== */
 .form-container {
-  background: #fff;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  background: var(--bg-white);
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
   border-radius: 8px;
-  margin-top: 20px;
-  position: relative;
-  width: 100%;            /* 고정폭 제거 */
-  box-sizing: border-box;
 }
-
-.form-content-wrapper { display: flex; flex-direction: column; align-items: flex-start; }
-
-/* 입력 그룹 배치: 큰 화면은 가로, 작은 화면은 세로 */
 .form-content {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  align-items: center;
+  display: flex; /* Flexbox로 변경하여 유연성 확보 */
+  flex-wrap: wrap; /* 화면이 작아지면 자동으로 줄바꿈 */
+  gap: 16px;
+  align-items: flex-end; /* 하단 정렬 */
 }
-
-/* 라벨 + 인풋 묶음 */
 .input-group {
-  display: grid;
-  grid-template-columns: auto 1fr; /* 라벨 고정 + 인풋 유동 */
-  align-items: center;
-  gap: 8px;
-  min-width: 220px;
+  display: flex;
+  flex-direction: column; /* 라벨과 인풋을 세로로 배치 */
+  gap: 6px;
+  flex-grow: 1; /* 가능한 공간을 차지하도록 함 */
 }
-
-.input-group label { white-space: nowrap; font-weight: 500; }
-
-.input-group input {
-  width: clamp(160px, 22vw, 260px); /* 화면에 따라 유동 */
-  height: 42px;
-  padding-left: 10px;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
+.input-group label {
+  font-weight: 500;
   font-size: 14px;
+  color: var(--text-color-primary);
+  text-align: left;
+}
+.input-group input {
+  width: 100%; /* 부모 요소에 너비를 맞춤 */
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 15px;
   box-sizing: border-box;
 }
-
-.input-group.phone-number input { width: clamp(185px, 26vw, 320px); }
-
-.error-input { border-color: #ff0000; }
-
+.error-input {
+  border-color: var(--error-color);
+}
 .error-text {
-  margin-top: 16px; margin-bottom: -5px; padding-left: 2px;
-  color: #ff3535; font-size: 12px; font-weight: 400;
+  margin-top: 12px;
+  color: var(--error-color);
+  font-size: 13px;
 }
 
 /* 추가 버튼 */
 .add-button {
-  padding: 0 16px;
-  background: #ffb052;
-  border: none; border-radius: 4px; color: #fff;
-  font-size: 14px; cursor: pointer;
-  display: inline-flex; align-items: center; height: 42px;
+  height: 42px;
+  padding: 0 20px;
+  background: var(--brand-color);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+.add-button:hover { background: var(--brand-color-dark); }
+.add-button.disabled { opacity: .5; cursor: not-allowed; }
+.add-icon { margin-right: 6px; }
+
+/* ===== 중복 회원 목록 ===== */
+.duplicate-list-section {
+  margin-top: 40px;
+}
+.duplicate-list-header {
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.duplicate-list-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.member-count {
+  font-size: 16px;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+}
+.list-subtitle {
+  color: var(--error-color);
+  font-size: 14px;
+  margin: 0;
+}
+.member-list-wrapper {
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--bg-light);
+  border-radius: 8px;
+  padding: 8px;
+}
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.member-item {
+  background: var(--bg-white);
+  border-radius: 6px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   white-space: nowrap;
 }
-.add-button:hover { background: #e6953e; border-color: #f39a30; border-width: 1.5px; }
-.add-button.disabled { opacity: .5; cursor: not-allowed; }
-.add-icon { margin-right: 5px; transform: translateY(-1px); }
-
-/* ===== 중복 목록 섹션 ===== */
-.duplicate-list-section {
-  margin-top: 32px;       /* 고정 145px 삭제 */
-  width: 100%;
-}
-
-.duplicate-list-header { margin-bottom: 10px; }
-.header-content { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
-
-.duplicate-list-title {
-  font-size: 16px; font-weight: 600; color: #000;
-  margin: 0; display: flex; align-items: center; gap: 8px;
-}
-.member-count { font-size: 14px; color: #666; font-weight: 400; }
-
-.list-subtitle {
-  color: #ff3535; font-size: 14px; font-weight: 400; letter-spacing: -0.35px;
-}
-
-.member-list-wrapper {
-  max-height: 290px; overflow-y: auto;
-  border-radius: 8px; background: #f0f2f5;
-}
-
-/* 리스트 아이템: 큰 화면은 가로 정렬, 좁아지면 자동 줄바꿈 */
-.member-list { display: flex; flex-direction: column; gap: 8px; }
-.member-item { background: #fff; border-radius: 8px; padding: 10px 0; }
 .member-info {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;       /* 이름 / 학번 / 전화 */
-  gap: 12px;
+  grid-template-columns: 1fr 1fr 1fr; /* 3열 구조 유지 */
+  gap: 16px;
   align-items: center;
-  padding: 0 14px;
-  min-height: 24px;
 }
-
 .info-cell {
-  color: #000; font-size: 14px; text-align: center;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--text-color-primary);
+  font-size: 15px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.info-cell.name1 {
+  text-align: left; /* 이름은 왼쪽 정렬 */
+  font-weight: 500;
 }
 
-/* 기존 고정폭(260px) 제거 -> 유동 */
-.info-cell.name1    { min-width: 140px; }
-.info-cell.student-id,
-.info-cell.phone1   { min-width: 140px; }
-
-/* 스크롤바 */
-.member-list-wrapper::-webkit-scrollbar { width: 8px; }
-.member-list-wrapper::-webkit-scrollbar-track { background: transparent; }
-.member-list-wrapper::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 4px; }
-.member-list-wrapper::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
-
-/* ===== 브레이크포인트 ===== */
-/* 1024↓: 버튼을 다음 줄로 밀어도 자연스럽게 */
-@media (max-width: 1024px) {
-  .form-content {
-    grid-auto-flow: row;              /* 입력칸들이 줄바꿈 */
-    grid-auto-rows: max-content;
-  }
-}
-
-/* 768↓: 입력그룹을 세로 스택, 목록은 2열 카드처럼 */
+/* ===== 반응형: 태블릿 (768px 이하) ===== */
 @media (max-width: 768px) {
-  .input-group {
-    grid-template-columns: 1fr;       /* 라벨 위, 인풋 아래 */
+  .form-content {
+    flex-direction: column; /* 세로로 쌓기 */
+    align-items: stretch; /* 전체 너비 사용 */
   }
-  .input-group input { width: 100%; }
-  .add-button { width: 100%; justify-content: center; }
-
+  .add-button {
+    width: 100%;
+    justify-content: center;
+  }
   .member-info {
-    grid-template-columns: 1fr 1fr;   /* 이름/전화 한 줄, 학번 아래 */
+    grid-template-columns: 1fr 1fr; /* 2열 구조로 변경 */
     grid-template-areas:
-      "name1 phone1"
+      "name1     phone1"
       "student-id student-id";
   }
-  .info-cell.name1      { grid-area: name1; }
-  .info-cell.phone1     { grid-area: phone1; text-align: right; }
-  .info-cell.student-id { grid-area: student-id; }
+  .info-cell.name1 { grid-area: name1; }
+  .info-cell.student-id { grid-area: student-id; text-align: left; color: var(--text-color-secondary); }
+  .info-cell.phone1 { grid-area: phone1; text-align: right; }
 }
 
-/* 480↓: 완전 세로 스택 */
+/* ===== 반응형: 모바일 (480px 이하) ===== */
 @media (max-width: 480px) {
+  .duplicate-container { padding: 16px; }
   .member-info {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* 1열 구조로 변경 */
     grid-template-areas:
       "name1"
       "student-id"
       "phone1";
-    row-gap: 4px;
+    gap: 6px;
   }
-  .info-cell { text-align: left; }
+  .info-cell {
+    text-align: left; /* 모든 정보 왼쪽 정렬 */
+  }
+  .info-cell.phone1 { text-align: left; }
 }
-
 </style>

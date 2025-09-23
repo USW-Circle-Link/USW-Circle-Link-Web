@@ -222,160 +222,188 @@ export default {
 
 
 <style scoped>
-/* ===== 컨테이너 ===== */
-.MainBox{
-  width: clamp(340px, 92vw, 1120px);
+
+/* ===== 전체 컨테이너 ===== */
+.MainBox {
+  width: 100%;
+  max-width: 1120px;
   margin: 0 auto 30px;
   background: #fff;
   border-radius: 8px;
-  padding: clamp(16px, 2vw, 24px);
-  display: grid;
-  grid-template-rows: auto auto 1fr;
-  gap: 12px;
+  padding: clamp(16px, 3vw, 32px); /* 화면 크기에 따라 패딩 조절 */
+  box-sizing: border-box;
+  --brand-color: #ffb052;
+  --approve-color: #7FB08C;
+  --approve-color-dark: #62956d;
+  --reject-color: #E57373;
+  --reject-color-dark: #cd5353;
+  --text-color: #000;
+  --light-text-color: #555;
+  --bg-color: #f7f7f7;
+  --border-color: #ddd;
 }
 
 /* ===== 헤더 ===== */
-.header{ display:flex; justify-content: space-between; align-items: center; }
-.common{
-  color:#000; letter-spacing:-0.6px; margin:0;
-  font-weight:600; line-height:1.2;
-  font-size: clamp(18px, 2.1vw, 24px);
+.header {
+  margin-bottom: 24px;
+}
+.common {
+  color: var(--text-color);
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(20px, 2.2vw, 24px);
 }
 
-/* ===== 액션 영역 ===== */
-.status-actions{
-  display: grid;
-  grid-template-columns: 1fr auto; /* 좌: 전송버튼 / 우: 전체합격·불합격 */
+/* ===== 액션 영역 (버튼) ===== */
+.status-actions {
+  display: flex; /* Flexbox로 변경 */
+  flex-wrap: wrap; /* 화면이 작아지면 줄바꿈 */
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
-.send-result-btn{
-  justify-self: start;
-  min-width: 160px; height: 44px;
-  border-radius: 8px; border:0;
-  background:#000; color:#fff; cursor:pointer; font-weight:600;
-  padding: 0 16px;
+.send-result-btn {
+  /* [수정] flex-grow를 이용해 유연한 너비 차지 */
+  flex-grow: 1;
+  min-width: 200px;
+  height: 48px;
+  border-radius: 8px;
+  border: 0;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: background-color 0.2s;
 }
-.send-result-btn:focus-visible{ outline:2px solid #ffb052; outline-offset:2px; }
+.send-result-btn:hover { background-color: #333; }
 
-.status-boxes{ display:inline-flex; align-items:center; gap: 8px; }
-.status-box{
-  display:inline-flex; justify-content:center; align-items:center;
-  min-width: 64px; height: 40px; padding: 4px 10px;
-  border:1px solid #ddd; border-radius:8px; background:#f7f7f7;
-  font-size:12px; line-height:1.1; text-align:center; cursor:pointer;
+.status-boxes {
+  display: inline-flex;
+  gap: 8px;
 }
-.approve-box{ background:#7FB08C; color:#fff; border-color:transparent; }
-.approve-box:hover{ background:#62956d; }
-.reject-box{ background:#E57373; color:#fff; border-color:transparent; }
-.reject-box:hover{ background:#cd5353; }
+.status-box {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 70px;
+  height: 42px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  color: #fff;
+  transition: background-color 0.2s;
+}
+.approve-box { background: var(--approve-color); }
+.approve-box:hover { background: var(--approve-color-dark); }
+.reject-box { background: var(--reject-color); }
+.reject-box:hover { background: var(--reject-color-dark); }
 
 /* ===== 본문/리스트 ===== */
-.contents{ display:grid; grid-template-rows:1fr; }
-
-.applicant-list{
-  display:grid; gap:12px; margin-top: 12px;
-  max-height: 60vh; overflow-y:auto; padding-right: 2px;
+.contents {
+  margin-top: 24px;
 }
-
-/* 행: 이름 / 학번 / 학과 / 전화 / 토글 */
-.applicant-item{
-  display:grid; align-items:center; gap:10px;
-  background:#f7f7f7; border-radius:8px; padding:10px;
-  grid-template-columns: 1.2fr 0.9fr 1.4fr 1fr auto;
+.applicant-list {
+  display: grid;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 4px; /* 스크롤바 공간 */
 }
-.applicant-item p{
-  margin:0; text-align:center; font-size:14px;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+.applicant-item {
+  display: grid;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-color);
+  border-radius: 8px;
+  padding: 12px;
+  /* 데스크톱 그리드 레이아웃 */
+  grid-template-columns: 1.2fr 1fr 1.4fr 1.1fr auto;
 }
-.buttons-group{ display:inline-flex; align-items:center; gap:9px; justify-self:end; }
-.buttons-group label{
-  display:inline-flex; justify-content:center; align-items:center;
-  width:55px; height:40px; border-radius:8px; cursor:pointer;
-  background:#eee;
+.applicant-item p {
+  margin: 0;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
-.buttons-group label.checked{ background:#7FB08C; color:#fff; }
-.buttons-group label.checked:nth-child(2){ background:#E57373; }
-.check-icon{
-  background:url('../../assets/check-solid.svg') no-repeat center/16px 16px;
-  width:16px; height:16px;
-  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
+/* 첫 번째 p 태그(이름)는 왼쪽 정렬 */
+.applicant-item p:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+.buttons-group {
+  display: inline-flex;
+  gap: 8px;
+  justify-self: end;
+}
+.buttons-group label {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 55px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #eee;
+  transition: background-color 0.2s;
+}
+.buttons-group label.checked { background: var(--approve-color); }
+.buttons-group label.checked:nth-of-type(2) { background: var(--reject-color); }
+.check-icon {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>') no-repeat center/16px 16px;
+  width: 16px;
+  height: 16px;
 }
 
 /* ===== 팝업 ===== */
-.popup-overlay{
-  position:fixed; inset:0; background:rgba(0,0,0,0.5);
-  display:grid; place-items:center; z-index:1000;
+.popup-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  display: grid; place-items: center; z-index: 1000; padding: 16px;
 }
-.popup{
-  width: min(92vw, 520px); background:#fff;
-  padding: clamp(16px, 2vw, 24px);
-  border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.15);
-  position:relative; text-align:left;
+.popup {
+  width: 100%; max-width: 480px; background: #fff;
+  padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
-.popup h2{ margin:0 0 10px 0; }
-hr{ border:0; border-top:1px solid #ccc; margin:10px 0; }
-.confirm-message{ text-align:left; }
-.notice-message{ text-align:left; font-size:12px; color:gray; }
-.popup-buttons{ display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
-.popup-buttons button{
-  min-width:84px; height:34px; border:0; border-radius:8px; cursor:pointer; font-weight:600;
+.popup h2 { margin: 0 0 16px; }
+hr { border: 0; border-top: 1px solid var(--border-color); margin: 16px 0; }
+.confirm-message { font-weight: 500; }
+.notice-message { font-size: 13px; color: var(--light-text-color); }
+.popup-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.popup-buttons button {
+  min-width: 90px; height: 40px; border: 0; border-radius: 8px;
+  cursor: pointer; font-weight: 500; font-size: 14px;
 }
-.popup-buttons button:first-child{ background:#cecece; color:#fff; }
-.popup-buttons button:last-child{ background:#ffb052; color:#fff; }
+.popup-buttons button:first-child { background: #B9B9B9; color: #fff; }
+.popup-buttons button:last-child { background: var(--brand-color); color: #fff; }
 
-/* ===== 브레이크포인트 ===== */
-/* ≤1024px: 버튼 살짝 축소 */
-@media (max-width: 1024px){
-  .send-result-btn{ height:42px; }
-  .status-box{ height:38px; min-width: 60px; }
-  .buttons-group label{ height:38px; width:52px; }
-}
-
-/* ≤768px: 리스트 2열 재배치 */
-@media (max-width: 768px){
-  .status-actions{ grid-template-columns: 1fr auto; }
-  .applicant-item{
-    grid-template-columns: 1fr 1fr;   /* 2열 */
-    grid-auto-rows: auto; row-gap:8px;
+/* ===== 반응형: 태블릿 (768px 이하) ===== */
+@media (max-width: 768px) {
+  .applicant-item {
+    grid-template-columns: 1fr 1fr; /* 2열 구조로 변경 */
+    row-gap: 12px;
   }
-  /* 1) 이름: 전체폭 */
-  .applicant-item p:nth-of-type(1){ grid-column:1 / -1; text-align:left; padding-left:4px; }
-  /* 2) 학번(좌) 3) 학과(우) */
-  .applicant-item p:nth-of-type(2){ grid-column:1 / 2; }
-  .applicant-item p:nth-of-type(3){ grid-column:2 / 3; }
-  /* 4) 전화(좌) 5) 버튼(우) */
-  .applicant-item p:nth-of-type(4){ grid-column:1 / 2; }
-  .buttons-group{ grid-column:2 / 3; justify-self:end; }
-}
-@media (max-width: 1024px){
-  .status-actions{
-    grid-template-columns: 1fr;   /* 1열로 전환 → 아래 줄에 상태 버튼 묶음 */
-    row-gap: 10px;
-  }
-  .send-result-btn{
-    width: 100%;
-    justify-self: stretch;        /* 전송 버튼은 첫 줄 가득 */
-  }
-  .status-boxes{
-    justify-self: end;            /* 두 버튼은 둘이 함께 오른쪽 정렬 */
-  }
-}
-/* ≤600px: 액션 스택 + 버튼 풀폭 */
-@media (max-width: 1200px){
-  .status-actions{ grid-template-columns: 1fr; }
-  .send-result-btn{ width:100%; justify-self:stretch; }
-  .status-boxes{ justify-content:flex-end; }
-
-  .applicant-item{ padding:8px; gap:8px; }
-  .applicant-item p{ font-size:13px; }
-  .buttons-group label{ width:50px; height:36px; }
+  /* Grid 레이아웃 재배치 (nth-of-type 사용) */
+  .applicant-item p:nth-of-type(1) { grid-column: 1 / -1; text-align: left; }
+  .applicant-item p:nth-of-type(2), .applicant-item p:nth-of-type(4) { text-align: left; }
+  .applicant-item p:nth-of-type(3) { text-align: right; }
+  .buttons-group { grid-column: 2 / 3; }
 }
 
-/* ≤400px: 완전 스택 */
-@media (max-width: 400px){
-  .applicant-item{ grid-template-columns:1fr; }
-  .applicant-item p{ grid-column:1 / -1; text-align:left; }
-  .buttons-group{ grid-column:1 / -1; justify-self:stretch; justify-content:flex-end; }
+/* ===== 반응형: 모바일 (500px 이하) ===== */
+@media (max-width: 500px) {
+  .status-actions { flex-direction: column; align-items: stretch; }
+  .applicant-item {
+    grid-template-columns: 1fr; /* 1열 구조로 변경 */
+  }
+  /* Grid 레이아웃 재배치 (1열) */
+  .applicant-item p { grid-column: 1 / -1; text-align: left; }
+  .applicant-item p:nth-of-type(3) { text-align: left; }
+  .buttons-group { grid-column: 1 / -1; justify-self: stretch; }
+  .buttons-group label { flex-grow: 1; }
 }
 </style>
