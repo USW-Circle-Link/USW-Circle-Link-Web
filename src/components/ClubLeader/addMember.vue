@@ -854,7 +854,7 @@ select { text-align: left; }
   font-weight: 500;
   line-height: 1.3;
   color: #2F2F2F;
-  margin-top: 30px;
+  margin-top: 7px;
 }
 
 .popup-overlay2 .popup-message-red{
