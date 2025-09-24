@@ -248,20 +248,22 @@ export default {
   box-sizing: border-box;
 }
 
+/* 수정 후 CSS */
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 15px; /* 상하, 좌우 패딩 */
-  margin: 20px auto 40px;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 15% 0% 20px; /* 좌우 패딩을 %로 설정 */
+    margin: 20px auto 40px; /* 마진을 auto로 설정해 중앙 정렬 */
+    max-width: 817px; /* 컨텐츠 최대 너비 설정 */
+    width: 100%;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  max-width: 817px; /* 상세/목록 너비와 맞춤 */
+  max-width: 800px; /* 상세/목록 너비와 맞춤 */
   margin-bottom: 20px;
 }
 
