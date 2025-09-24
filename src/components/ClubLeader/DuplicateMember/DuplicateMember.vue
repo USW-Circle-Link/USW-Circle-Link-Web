@@ -63,7 +63,7 @@
         </div>
 
         <p v-if="showError" class="error-text">
-          * 입력 정보를 다시 확인해주세요. (이름: 특수기호 제외, 학번: 8자리
+          * 입력 정보를 다시 확인해주세요. (이름:숫자 특수기호 제외, 학번: 8자리
           숫자, 전화번호: - 제외 11자리 숫자)
         </p>
       </div>
@@ -302,7 +302,7 @@ export default {
 .duplicate-container {
   max-width: 1200px;
   width: 90%;
-  margin: 0 auto;
+  margin: 0 10% 10% 0;
   padding: 24px;
   box-sizing: border-box;
   --brand-color: #ffb052;
