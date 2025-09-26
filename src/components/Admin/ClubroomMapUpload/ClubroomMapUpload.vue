@@ -5,12 +5,12 @@
   <div class="floor-images-container">
     <!-- 지하 1층 -->
     <div class="floor-section">
-      <div
-        class="image-container"
-        @mouseover="showIcons('B1', true)"
-        @mouseleave="showIcons('B1', false)"
-      >
-        <div class="image-wrapper">
+      <div class="image-wrapper">
+        <div
+          class="image-container"
+          @mouseover="showIcons('B1', true)"
+          @mouseleave="showIcons('B1', false)"
+        >
           <div class="image-box" :class="{ hovered: floorData.B1.showingIcon }">
             <img
               v-if="floorData.B1.imageSrc"
@@ -48,13 +48,12 @@
       </div>
       <!-- 1층 -->
       <div class="floor-container">
-
-        <div
-          class="image-container"
-          @mouseover="showIcons('F1', true)"
-          @mouseleave="showIcons('F1', false)"
-        >
-          <div class="image-wrapper">
+        <div class="image-wrapper">
+          <div
+            class="image-container"
+            @mouseover="showIcons('F1', true)"
+            @mouseleave="showIcons('F1', false)"
+          >
             <div class="image-box" :class="{ hovered: floorData.F1.showingIcon }">
               <img
                 v-if="floorData.F1.imageSrc"
@@ -94,12 +93,12 @@
 
       <!-- 2층 -->
       <div class="floor-container">
-        <div
-          class="image-container"
-          @mouseover="showIcons('F2', true)"
-          @mouseleave="showIcons('F2', false)"
-        >
-          <div class="image-wrapper">
+        <div class="image-wrapper">
+          <div
+            class="image-container"
+            @mouseover="showIcons('F2', true)"
+            @mouseleave="showIcons('F2', false)"
+          >
             <div class="image-box" :class="{ hovered: floorData.F2.showingIcon }">
               <img
                 v-if="floorData.F2.imageSrc"
@@ -137,7 +136,9 @@
         </div>
       </div>
     </div>
-    <button @click="saveImages" class="save-button">저장하기</button>
+  </div>
+  
+  <button @click="saveImages" class="save-button">저장하기</button>
 
     <!-- 확대된 이미지 모달 -->
     <div v-if="enlargedImage" class="image-modal">
@@ -151,7 +152,6 @@
         <img :src="enlargedImage" alt="Enlarged Image" class="enlarged-image" />
       </div>
     </div>
-  </div>
 
   <ClubroomMapUploadPopup
       v-if="showPopup"
@@ -391,17 +391,28 @@ export default {
 
 .floor-images-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
   min-width: 390px;
   overflow-x: hidden;
+  gap: 20px;
 }
 
 .floor-section {
   margin: 10px 0;
-  align-self: start;
   text-align: left;
   display: flex;
+  flex-wrap: wrap; /* 줄바꿈 허용 */
+  justify-content: flex-start;
+  flex: 1 1 auto; /* 유연한 크기 조정 */
+  min-width: 200px; /* 최소 너비 줄임 */
+  max-width: 100%; /* 최대 너비 제한 */
+}
+
+.floor-section h3 {
+  flex: 0 0 100%; /* 한 줄 전체 차지 */
 }
 
 .horizontal-layout {
@@ -425,7 +436,9 @@ export default {
 }
 
 .image-box {
-  width: 280px; /* 고정 너비 */
+  width: 100%;
+  max-width: 280px; /* 최대 너비 제한 */
+  min-width: 200px; /* 최소 너비 보장 */
   height: 182px; /* 고정 높이 */
   display: flex;
   justify-content: center;
@@ -521,9 +534,8 @@ export default {
   line-height: 16px;
   letter-spacing: -0.025em;
   text-align: center;
-  margin-top: 200px;
-  margin-left: 800px; 
-  margin-bottom: 30px;
+  margin: 30px auto;
+  display: block;
   cursor: pointer;
 }
 
@@ -595,5 +607,34 @@ h3 {
   padding: 7px;
   background: url('../../../assets/hugeicons_image-upload.svg') no-repeat center center;
   filter: invert(54%) sepia(1%) saturate(0%) hue-rotate(179deg) brightness(97%) contrast(89%);
+}
+
+/* 반응형 미디어 쿼리 */
+@media (max-width: 768px) {
+  .floor-images-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .floor-section {
+    width: 100%;
+    max-width: 400px;
+    justify-content: center;
+  }
+  
+  .image-box {
+    max-width: 100%;
+    min-width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floor-section {
+    min-width: 150px;
+  }
+  
+  .image-box {
+    min-width: 200px;
+  }
 }
 </style>
