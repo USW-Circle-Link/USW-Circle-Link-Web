@@ -188,8 +188,10 @@ export default {
 
 .container {
   width: 890px;
+  min-width: 390px;
   margin: 0 auto;
   padding: 10px;
+  overflow-x: hidden;
 }
 
 h2 {

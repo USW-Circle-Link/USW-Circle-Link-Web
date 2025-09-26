@@ -48,6 +48,7 @@ export default {
 
 .header {
   width: 100%;
+  min-width: 390px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -60,6 +61,7 @@ export default {
   left: 0;
   right: 0;
   z-index: 500;
+  overflow-x: hidden;
 }
 
 .header-content {

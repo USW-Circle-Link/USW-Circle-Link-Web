@@ -111,6 +111,7 @@ export default {
 <style scoped>
 .sidebar {
   width: 240px;
+  min-width: 390px;
   height: 73%;
   color: #000;
   display: flex;
@@ -119,6 +120,7 @@ export default {
   box-sizing: border-box;
   border-radius: 16px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-content {

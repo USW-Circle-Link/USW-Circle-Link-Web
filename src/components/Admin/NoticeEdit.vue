@@ -463,6 +463,7 @@ export default {
   min-width: 390px;
   margin: 0 auto;
   padding: 10px;
+  overflow-x: hidden;
 }
 
 * {

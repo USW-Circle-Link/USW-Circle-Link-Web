@@ -309,6 +309,7 @@ export default {
   min-height: 100vh;
   background-color: #f0f0f0;
   width: 100%;
+  min-width: 390px;
   box-sizing: border-box;
   overflow: hidden;
 }

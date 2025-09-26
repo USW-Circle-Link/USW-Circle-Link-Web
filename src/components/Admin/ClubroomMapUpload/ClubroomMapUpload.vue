@@ -393,6 +393,8 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: 390px;
+  overflow-x: hidden;
 }
 
 .floor-section {
@@ -568,7 +570,7 @@ export default {
 }
 h2{
   align-self: start;
-  margin-top: -15px;
+  margin-top: 20px;
   margin-bottom: -5px;
 }
 h3 {

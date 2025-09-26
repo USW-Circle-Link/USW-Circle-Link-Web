@@ -213,6 +213,7 @@ export default {
 .container {
   display: flex;
   min-width: 390px;
+  overflow-x: hidden;
 }
 
 .contents {

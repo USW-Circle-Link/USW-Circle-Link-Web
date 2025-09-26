@@ -715,6 +715,9 @@ hr {
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  overflow-x: hidden;
 }
 
 table {
@@ -815,6 +818,9 @@ button {
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  overflow-x: hidden;
 }
 
 table {

@@ -229,6 +229,7 @@ body {
   margin: 0;
   padding: 20px;
   min-width: 390px;
+  overflow-x: hidden;
 }
 
 .container {

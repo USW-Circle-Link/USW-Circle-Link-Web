@@ -73,6 +73,7 @@ body {
   padding: 0;
   background: #F0F2F5;
   min-width: 390px;
+  overflow-x: hidden;
 }
 
 .main-content{
