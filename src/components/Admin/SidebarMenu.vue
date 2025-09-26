@@ -112,13 +112,12 @@ export default {
 .sidebar {
   width: 240px;
   min-width: 390px;
-  height: 73%;
+  height: 600px;
   color: #000;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
-  border-radius: 16px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -323,7 +322,7 @@ nav .icon {
 }
 
 .line1 {
-  width: 100%;
+  width: 70%;
   height: 1px;
   background-color: #999999;
   margin-bottom: 10px;
@@ -374,10 +373,7 @@ nav .icon {
   .sidebar {
     width: 240px;
     height: 100%;
-    background-color: #fff;
     padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    border-radius: 0;
   }
   
   .sidebar-content {

@@ -10,7 +10,7 @@
       <h1 class="title clickable" @click="navigateTo('clublist')">동구라미</h1>
       <!--    <NotificationButton/>-->
     </div>
-    <!-- 햄버거 메뉴 버튼 (반응형에서만 표시) -->
+    <!-- 햄버거 메뉴 버튼 (1150px 이하에서만 표시) -->
     <div class="hamburger-menu" @click="toggleSidebar">
       <svg v-if="!isMenuOpen" xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3">
         <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
@@ -60,7 +60,7 @@ export default {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 500;
+  z-index: 1001;
   overflow-x: hidden;
 }
 
@@ -152,7 +152,7 @@ export default {
   }
 }
 
-@media (max-width: 1300px) {
+@media (max-width: 1150px) {
   .hamburger-menu {
     display: flex;
   }

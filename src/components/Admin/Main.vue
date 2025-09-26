@@ -1,7 +1,7 @@
 <template>
   <div id="main">
     <HeadBar ref="headbar" @toggle-sidebar="handleSidebarToggle" />
-    <div class="main-content" :class="{ 'sidebar-hidden': !showSidebar }">
+    <div class="main-content">
       <transition name="slide">
         <SidebarMenu v-if="showSidebar" class="sidebar" />
       </transition>
@@ -10,7 +10,7 @@
       </div>
     </div>
     <!-- 모바일 사이드바 오버레이 -->
-    <div v-if="showSidebar && windowWidth < 1300" class="sidebar-overlay" @click="closeSidebar"></div>
+    <div v-if="showSidebar && windowWidth <= 1150" class="sidebar-overlay" @click="closeSidebar"></div>
   </div>
 </template>
 
@@ -31,7 +31,7 @@ export default {
     };
   },
   mounted() {
-    this.checkWindowSize(); // 꼭 호출!
+    this.checkWindowSize();
     window.addEventListener('resize', this.checkWindowSize);
   },
   beforeUnmount() {
@@ -40,8 +40,8 @@ export default {
   methods: {
     checkWindowSize() {
       this.windowWidth = window.innerWidth;
-      // 화면 너비가 1300px 미만이면 사이드바를 자동으로 숨김
-      if (this.windowWidth < 1300) {
+      // 화면 너비가 1150px 이하면 사이드바를 자동으로 숨김
+      if (this.windowWidth <= 1150) {
         this.showSidebar = false;
       } else {
         this.showSidebar = true;
@@ -80,19 +80,18 @@ body {
   padding-top: 140px;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  transition: all 0.3s;
+  width: 100%;
 }
 
 .sidebar{
-  display: flex;
   position: fixed;
-  overflow: auto;
-  margin-left: 10%;
-  width: 25%;
-  height: 73%;
   top: 86px;
-  transition: all 0.3s;
+  left: 0;
+  display: flex;
+  overflow: auto;
+  width: 240px;
+  min-width: 240px;
+  height: calc(100vh - 86px);
   z-index: 1000;
 }
 
@@ -106,19 +105,25 @@ body {
 }
 
 .content{
-  flex-direction: column;
+  flex: 1;
   display: flex;
-  margin-left: 35%;
-  transition: all 0.3s;
+  flex-direction: column;
+  padding: 20px;
+  margin-left: 240px;
+  transition: margin-left 0.3s;
 }
 
 .full-width {
-  margin-left: 10% !important;
-  width: 80%;
+  margin-left: 0;
 }
 
-.sidebar-hidden {
-  min-width: auto;
+/* 390px 이하에서 content full-width를 380px로 설정 */
+@media (max-width: 390px) {
+  .content.full-width {
+    width: 380px;
+    max-width: 380px;
+    margin: 0 auto;
+  }
 }
 
 /* 슬라이드 효과 */
@@ -143,43 +148,27 @@ body {
 /* 반응형 스타일 */
 @media (max-width: 1400px) {
   .sidebar {
-    width: 22%;
+    width: 240px;
   }
-
+  
   .content {
-    margin-left: 32%;
+    margin-left: 240px;
   }
 }
 
-@media (max-width: 1300px) {
+@media (max-width: 1150px) {
   .sidebar {
     width: 240px;
-    margin-left: 0;
-    left: 0;
-    top: 86px;
-    height: calc(100vh - 86px);
     background-color: #fff;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   }
   
-  .main-content {
-    min-width: auto;
+  .content {
+    margin-left: 0;
   }
-
+  
   .full-width {
-    margin-left: 5% !important;
-    width: 90%;
-  }
-}
-
-@media (max-width: 1200px) {
-  .main-content {
-    min-width: auto;
-  }
-
-  .full-width {
-    margin-left: 5% !important;
-    width: 90%;
+    margin-left: 0;
   }
 }
 
