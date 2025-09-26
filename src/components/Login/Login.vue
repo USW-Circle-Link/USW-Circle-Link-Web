@@ -324,7 +324,7 @@ export default {
   margin-bottom: 40px;
   text-align: center;
   color: #9D9D9D;
-  font-size: 32px;
+  font-size: clamp(20px, 4vw, 32px);
   font-style: normal;
   font-weight: 400;
   line-height: 14px; /* 43.75% */
