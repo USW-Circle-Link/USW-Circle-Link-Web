@@ -612,7 +612,7 @@ export default {
 }
 
 .form-container {
-  width: 860px;
+  width: 95%;
   padding: 20px;
   background-color: #ffffff;
   border-radius: 8px;
@@ -656,15 +656,16 @@ h2 {
 }
 
 .DuplicateCheckbtn{
-  width: 80px;
+  width: clamp(60px, 12vw, 80px);
   height: 35px;
   position: absolute;
-  right: 50px;
+  right: clamp(10px, 8vw, 50px);
   top: 6px;
   border-radius: 5px;
   border: none;
   background-color: #FFB052;
   color: white;
+  font-size: clamp(10px, 2vw, 14px);
 }
 
 .DuplicateCheckbtn:hover{
@@ -682,6 +683,25 @@ h2 {
   font-size: 14px;
   color: #5A5A5A;
   align-items: center;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 600px) {
+  .club-room-btn {
+    width: 40%;
+  }
+}
+
+@media (max-width: 480px) {
+  .club-room-btn {
+    width: 60%;
+  }
+}
+
+@media (max-width: 390px) {
+  .club-room-btn {
+    width: 80%;
+  }
 }
 
 .club-room-btn:hover {
@@ -708,13 +728,14 @@ h2 {
 }
 
 .from-input {
-  width: 70%;
+  width: clamp(65%, 14vw, 70%);
   align-items: center;
   margin-bottom: 10px;
   border: 1.5px solid #e7e7e7;
   border-radius: 5px;
   padding: 15px 20px 15px 20px;
   background-color: #fff;
+  font-size: 13px;
 }
 
 .from-input::placeholder{
@@ -727,6 +748,13 @@ label {
   display: block;
   margin-bottom: 5px;
   color: #555;
+}
+
+@media (max-width: 390px) {
+  label {
+    width: 17%;
+    font-size: 9px;
+  }
 }
 
 .warning{
@@ -1057,12 +1085,12 @@ label {
 }
 
 .room-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  overflow-x: auto; 
+  white-space: nowrap;
 }
 
 .room-button {
+  display: inline-block;
   padding: 10px 8px;
   border: 1px solid #E0E0E0;
   border-radius: 4px;
@@ -1075,6 +1103,7 @@ label {
   line-height: 12px; /* 85.714% */
   transition: all 0.2s ease;
   width: 68px;
+  margin-right: 8px;
 }
 
 .room-button.active {

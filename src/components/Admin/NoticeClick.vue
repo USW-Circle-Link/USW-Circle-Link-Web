@@ -578,9 +578,9 @@ hr {
 
 .actions {
   display: flex;
-  justify-content: flex-end;  /* 👉 오른쪽 정렬로 변경 */
-  margin-top: -30px;        /* 👈 버튼과 위 요소 간 거리 */
-  margin-left: 550px;     /* 👈 오른쪽 정렬을 위한 왼쪽 여백 */
+  justify-content: center;  /* 가운데 정렬로 변경 */
+  margin-top: -30px;        /* 버튼과 위 요소 간 거리 */
+  margin-left: 0;           /* 왼쪽 여백 제거 */
 }
 
 
@@ -708,13 +708,14 @@ hr {
   color: #fff;
 }
 .notice-list {
-  width: 817px;
+  width: 100%;
+  max-width: 817px;
   height: auto;
   background-color: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
+  margin: 20px auto 0 auto;
   display: flex;
   justify-content: center;
   overflow-x: hidden;

@@ -449,9 +449,9 @@ export default {
 /* 제목 입력창 */
 .title-input {
   margin-top: 10px;
-  width: 100%;
+  width: 95%;
   padding: 10px;
-  font-size: 16px;
+  font-size: clamp(14px, 2.5vw, 16px);
   border: 1px solid #ddd;
   border-radius: 5px;
 }
@@ -466,10 +466,10 @@ export default {
   width: 100%;
 }
 .content-input {
-  width: 100%;
+  width: 95%;
   height: 382px;
   padding: 10px;
-  font-size: 16px;
+  font-size: clamp(14px, 2.5vw, 16px);
   border: 1px solid #ddd;
   border-radius: 5px;
   resize: none;
@@ -488,6 +488,31 @@ export default {
   font-size: 12px;
   color: black;
   pointer-events: none;
+  transition: right 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .character-count {
+    right: 0px;
+  }
+}
+
+@media (max-width: 600px) {
+  .character-count {
+    right: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .character-count {
+    right: 7px;
+  }
+}
+
+@media (max-width: 390px) {
+  .character-count {
+    right: 12px;
+  }
 }
 .title-character-count {
   position: absolute;
@@ -496,6 +521,31 @@ export default {
   font-size: 12px;
   color: black;
   pointer-events: none;
+  transition: right 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .title-character-count {
+    right: 0px;
+  }
+}
+
+@media (max-width: 600px) {
+  .title-character-count {
+    right: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-character-count {
+    right: 5px;
+  }
+}
+
+@media (max-width: 390px) {
+  .title-character-count {
+    right: 10px;
+  }
 }
 
 
