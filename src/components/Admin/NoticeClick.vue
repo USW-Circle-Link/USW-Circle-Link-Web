@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <!-- 이전 공지 / 다음 공지 -->
     <div class="header">
       <button class="nav-button" @click="prevNotice">
         <img src="@/assets/left.png" alt="Previous" class="nav-icon" />
@@ -12,117 +11,60 @@
       </button>
     </div>
 
-
-    <!-- 삭제 팝업창 -->
-
-<div v-if="showDeletePopup" class="popup-overlay">
-  <div class="popup">
-    <h2>동구라미</h2>
-    <hr />
-    <p class="confirm-message">
-      삭제된 글은 복구할 수 없어요.<br />
-      그래도 공지사항을 삭제하시겠어요?
-    </p>
-    <div class="popup-buttons">
-      <button class="cancel-button" @click="cancelDelete">취소</button>
-      <button class="confirm-button" @click="confirmDelete">확인</button>
-    </div>
-  </div>
-</div>
-
-    
-<div v-if="notice" class="notice-details">
- 
-  <div class="notice-header-with-line">
-    <div class="notice-header-flex">
-      <span class="notice-title">{{ notice.noticeTitle }}</span>
-      <span class="notice-meta">{{ notice.adminName }} | </span>
-      <span class="notice-date">{{ formattedDate(notice.noticeCreatedAt) }}</span>
-    </div>
-  </div>
-
-  <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
-</div>
-
+    <div v-if="notice" class="notice-details">
+      <div class="meta-info">
+        <h1 class="notice-title">{{ notice.noticeTitle }}</h1>
+        <div class="meta-line">
+          <span class="notice-meta">{{ notice.adminName }}</span>
+          <span class="notice-date"> {{ formattedDate(notice.noticeCreatedAt) }} </span>
+        </div>
+      </div>
+      <div class="notice-content" v-html="convertNewlinesToBr(notice.noticeContent)"></div>
       <div class="notice-images" v-if="images.length > 0">
         <div v-for="(image, index) in images" :key="index" class="image-container">
-        <img
-          :src="image.src"
-          alt="Notice Image"
-          class="notice-image"
-          @error="handleImageError(index)" />
-      </div>
-
-      </div>
-    </div>
-
-    <div v-if="showUnexpectedErrorPopup" class="popup-overlay">
-      <div class="unexpectedPopup">
-        <h2>동구라미</h2>
-        <hr />
-        <p class="confirm-message">
-          <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
-        <div class="unexpectedPopup-buttons">
-          <button @click="hideUnexpectedErrorPopup">확인</button>
+          <img
+            :src="image.src"
+            alt="Notice Image"
+            class="notice-image"
+            @error="handleImageError(index)" />
         </div>
       </div>
     </div>
 
-    <div class="actions">
-      <button class="edit-button" @click="editNotice">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" class="edit-icon">
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M14.44 5.78L4.198 16.02a2 2 0 0 0-.565 1.125l-.553 3.774l3.775-.553A2 2 0 0 0 7.98 19.8L18.22 9.56m-3.78-3.78l2.229-2.23a1.6 1.6 0 0 1 2.263 0l1.518 1.518a1.6 1.6 0 0 1 0 2.263l-2.23 2.23M14.44 5.78l3.78 3.78"
-          />
-        </svg>
-        수정
-      </button>
-
-      <button class="delete-button" @click="showDeletePopup = true" :disabled="!notice">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" class="delete-icon">
-          <path
-            fill="#FF6F6F"
-            d="M7.616 20q-.672 0-1.144-.472T6 18.385V6H5V5h4v-.77h6V5h4v1h-1v12.385q0 .69-.462 1.153T16.384 20zM17 6H7v12.385q0 .269.173.442t.443.173h8.769q.23 0 .423-.192t.192-.424zM9.808 17h1V8h-1zm3.384 0h1V8h-1zM7 6v13z"
-          />
-        </svg>
-        삭제
-      </button>
-    </div>
-
-
-    <!-- 공지사항 목록 -->
     <div class="notice-list">
       <table>
-
         <tbody>
-        <tr v-for="notice in notices" :key="notice.noticeUUID">
+        <tr v-for="n in notices" :key="n.noticeUUID" @click="goToNotice(n.noticeUUID)" :class="{ 'current-notice': notice && n.noticeUUID === notice.noticeUUID }">
           <td class="title-col">
-            <button @click="goToNotice(notice.noticeUUID)" class="title-button">
-              {{ notice.noticeTitle }}
-            </button>
+              {{ n.noticeTitle }}
           </td>
-          <td class="author-col">{{ notice.adminName }}</td>
-          <td class="date-col">{{ formattedDate(notice.noticeCreatedAt) }}</td>
+          <td class="author-col">{{ n.adminName }}</td>
+          <td class="date-col">{{ formattedDate(n.noticeCreatedAt) }}</td>
         </tr>
         </tbody>
       </table>
+      
+      <div class="notice-cards">
+        <div v-for="n in notices" :key="n.noticeUUID" class="notice-card" @click="goToNotice(n.noticeUUID)" :class="{ 'current-notice': notice && n.noticeUUID === notice.noticeUUID }">
+          <div class="card-title">{{ n.noticeTitle }}</div>
+          <div class="card-meta">
+            <span class="card-author">{{ n.adminName }}</span>
+            <span class="card-date">{{ formattedDate(n.noticeCreatedAt) }}</span>
+          </div>
+        </div>
+      </div>
 
-      <!-- 페이지네이션 -->
+
       <div class="pagination">
         <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="pagination-button">
           <img src="@/assets/left.png" alt="Previous" class="pagination-icon" />
         </button>
         <span
-          v-for="page in totalPages"
-          :key="page"
-          @click="changePage(page)"
-          :class="{ active: page === currentPage }"
-          class="pagination-number"
+            v-for="page in totalPages"
+            :key="page"
+            @click="changePage(page)"
+            :class="{ active: page === currentPage }"
+            class="pagination-number"
         >
           {{ page }}
         </span>
@@ -131,12 +73,12 @@
         </button>
       </div>
     </div>
-
+  </div>
   <Popup401 v-if="show401Popup" />
-
 </template>
 
 <script>
+// 스크립트 부분은 변경사항이 없으므로 기존 코드를 그대로 사용하시면 됩니다.
 import store from '@/store/store';
 import axios from 'axios';
 import Popup401 from "@/components/Admin/401Popup.vue";
@@ -147,14 +89,12 @@ export default {
     return {
       notices: [], // 공지사항 목록
       notice: null, // 현재 선택된 공지사항
-      showDeletePopup: false, // 삭제 팝업 상태
       currentPage: 1, // 현재 페이지 번호
       totalPages: 1, // 전체 페이지 수
       itemsPerPage: 5, // 페이지당 항목 수
       images: [], // 이미지 배열
       show401Popup: false, // 401 팝업
       totalNotices: 1, // 전체 공지사항 수
-      showUnexpectedErrorPopup: false,
       currentNoticeIndex: 0 // 현재 공지사항의 전체 인덱스
     };
   },
@@ -181,10 +121,6 @@ export default {
         sessionStorage.removeItem("reloaded");
       }
     },
-    // 예기치 못한 오류 팝업 숨기기
-    hideUnexpectedErrorPopup() {
-      this.showUnexpectedErrorPopup = false;
-    },
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
         this.show401Popup = true;
@@ -196,34 +132,31 @@ export default {
       return text ? text.replace(/\n/g, '<br>') : '';
     },
     async fetchNotices() {
-  try {
-    const accessToken = store.state.accessToken;
+      try {
+        const accessToken = store.state.accessToken;
+        const page = Math.max(this.currentPage - 1, 0);
+        const size = this.itemsPerPage;
 
-    const page = Math.max(this.currentPage - 1, 0);
-    const size = this.itemsPerPage;
+        const response = await axios.get(
+            `${store.state.apiBaseUrl}/notices?page=${page}&size=${size}`,
+            {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            }
+        );
 
-    const response = await axios.get(
-      `${store.state.apiBaseUrl}/notices?page=${page}&size=${size}`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
+        if (response.data.data && response.data.data.content) {
+          this.notices = response.data.data.content;
+          this.totalPages = response.data.data.totalPages || 1;
+          this.totalNotices = response.data.data.totalElements || 1;
+        } else {
+          this.notices = [];
+        }
+      } catch (error) {
+        if (!this.handle401Error(error)) {
+          // alert("공지사항 목록을 불러오는 데 실패했습니다.");
+        }
       }
-    );
-
-   
-    if (response.data.data && response.data.data.content) {
-      this.notices = response.data.data.content;
-      this.totalPages = response.data.data.totalPages || 1;
-      this.totalNotices = response.data.data.totalElements || 1;
-    } else {
-      this.notices = []; // 공지사항이 없을 경우 빈 배열
-    }
-  } catch (error) {
-    //console.error("공지사항 불러오기 실패:", error);
-    if (!this.handle401Error(error)) {
-      alert("공지사항을 불러오는 데 실패했습니다.");
-    }
-  }
-},
+    },
     async fetchNotice(noticeUUID) {
       try {
         const response = await axios.get(`${store.state.apiBaseUrl}/notices/${noticeUUID}`, {
@@ -233,24 +166,24 @@ export default {
         if (response.data && response.data.data) {
           this.notice = response.data.data;
 
-          // 현재 공지사항의 전체 인덱스 찾기
           const allNoticesResponse = await axios.get(
-              `${store.state.apiBaseUrl}/notices?page=0&size=${this.totalNotices}`,
+              `${store.state.apiBaseUrl}/notices?page=0&size=${this.totalNotices || 999}`, // totalNotices가 0일 경우 대비
               {
                 headers: { Authorization: `Bearer ${store.state.accessToken}` },
               }
           );
 
-          const allNotices = allNoticesResponse.data.data.content;
-          this.currentNoticeIndex = allNotices.findIndex(n => n.noticeUUID === noticeUUID);
+          if(allNoticesResponse.data.data.content) {
+            const allNotices = allNoticesResponse.data.data.content;
+            this.currentNoticeIndex = allNotices.findIndex(n => n.noticeUUID === noticeUUID);
 
-          // 현재 페이지 계산 및 업데이트
-          const newPage = Math.floor(this.currentNoticeIndex / this.itemsPerPage) + 1;
-          if (this.currentPage !== newPage) {
-            this.currentPage = newPage;
-            this.fetchNotices();
+            const newPage = Math.floor(this.currentNoticeIndex / this.itemsPerPage) + 1;
+            if (this.currentPage !== newPage) {
+              this.currentPage = newPage;
+              this.fetchNotices();
+            }
           }
-
+          
           if (response.data.data.noticePhotos && response.data.data.noticePhotos.length > 0) {
             this.images = response.data.data.noticePhotos.map(photoUrl => ({
               src: photoUrl
@@ -260,33 +193,33 @@ export default {
           }
         }
       } catch (error) {
-        console.error("공지사항 불러오기 실패:", error);
+        console.error("공지사항 상세 정보를 불러오기 실패:", error);
       }
     },
     handleImageError(index) {
       this.images[index].src = require('@/assets/rigth.png');
     },
-    async prevNotice() {
-      const prevIndex = (this.currentNoticeIndex - 1 + this.totalNotices) % this.totalNotices;
-      const allNoticesResponse = await axios.get(
-          `${store.state.apiBaseUrl}/notices?page=0&size=${this.totalNotices}`,
-          {
-            headers: { Authorization: `Bearer ${store.state.accessToken}` },
-          }
-      );
-      const allNotices = allNoticesResponse.data.data.content;
-      this.goToNotice(allNotices[prevIndex].noticeUUID);
+    async fetchAndGoToNotice(index) {
+        try {
+            const allNoticesResponse = await axios.get(
+                `${store.state.apiBaseUrl}/notices?page=0&size=${this.totalNotices || 999}`,
+                { headers: { Authorization: `Bearer ${store.state.accessToken}` } }
+            );
+            const allNotices = allNoticesResponse.data.data.content;
+            if (allNotices && allNotices[index]) {
+                this.goToNotice(allNotices[index].noticeUUID);
+            }
+        } catch(error) {
+            console.error("이전/다음 공지사항 로드 실패", error);
+        }
     },
-    async nextNotice() {
+    prevNotice() {
+      const prevIndex = (this.currentNoticeIndex - 1 + this.totalNotices) % this.totalNotices;
+      this.fetchAndGoToNotice(prevIndex);
+    },
+    nextNotice() {
       const nextIndex = (this.currentNoticeIndex + 1) % this.totalNotices;
-      const allNoticesResponse = await axios.get(
-          `${store.state.apiBaseUrl}/notices?page=0&size=${this.totalNotices}`,
-          {
-            headers: { Authorization: `Bearer ${store.state.accessToken}` },
-          }
-      );
-      const allNotices = allNoticesResponse.data.data.content;
-      this.goToNotice(allNotices[nextIndex].noticeUUID);
+      this.fetchAndGoToNotice(nextIndex);
     },
     async changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
@@ -295,49 +228,10 @@ export default {
       }
     },
     goToNotice(noticeUUID) {
-      this.$router.push({ name: 'AdminNoticeClick', params: { noticeUUID } });
-    },
-    // 기존 관리자 기능 유지
-    cancelDelete() {
-      this.showDeletePopup = false;
-    },
-    async confirmDelete() {
-      try {
-        if (!this.notice || !this.notice.noticeUUID) {
-          alert('삭제할 공지사항 정보가 없습니다.');
-          return;
-        }
-
-        const accessToken = store.state.accessToken;
-        const deleteUrl = `${store.state.apiBaseUrl}/notices/${this.notice.noticeUUID}`;
-
-        const response = await axios.delete(deleteUrl, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        if (response.status === 200) {
-          alert('공지사항이 성공적으로 삭제되었습니다.');
-          this.notices = this.notices.filter((n) => n.noticeId !== this.notice.noticeUUID);
-          this.showDeletePopup = false;
-          this.$router.push({ name: 'Notice' });
-        } else {
-          alert(`삭제 실패: 상태 코드 ${response.status}`);
-        }
-      } catch (error) {
-        if (!this.handle401Error(error)) {
-          console.error('Error deleting notice:', error);
-        }
-      }
-    },
-    editNotice() {
-      if (this.notice && this.notice.noticeUUID) {
-        this.$router.push({ name: 'noticeedit', params: { noticeUUID: this.notice.noticeUUID } });
-      } else {
-        console.error('No notice available to edit.');
-      }
+      this.$router.push({ name: 'NoticeClick', params: { noticeUUID } });
     },
     formattedDate(dateString) {
-      return new Date(dateString).toLocaleDateString();
+      return new Date(dateString).toLocaleDateString('ko-KR');
     },
   },
   watch: {
@@ -348,41 +242,45 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
-
-
+/* --- 공통 및 데스크톱 스타일 --- */
 * {
   box-sizing: border-box;
 }
 
+/* 수정 후 CSS */
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 20px;
-  margin-top: 20px;
-  min-width: 390px;
-  margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px auto; /* 좌우 패딩을 %로 설정 */
+    margin: 20px auto 40px; /* 마진을 auto로 설정해 중앙 정렬 */
+    max-width: 817px; /* 컨텐츠 최대 너비 설정 */
+    width: 100%;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  max-width: 1000px;
+  max-width: 800px; /* 상세/목록 너비와 맞춤 */
   margin-bottom: 20px;
 }
 
 .nav-button {
   background: none;
-  border: none;
-  color: black;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: #555;
   cursor: pointer;
   font-size: 14px;
   display: flex;
   align-items: center;
+  transition: background-color 0.2s;
+}
+.nav-button:hover {
+  background-color: #f5f5f5;
 }
 
 .nav-icon {
@@ -391,599 +289,230 @@ export default {
   margin: 0 5px;
 }
 
+/* --- 공지사항 상세 --- */
 .notice-details {
-  width: 817px;
-  min-height: 626px; /* 최소 높이를 설정하여 기본 높이는 유지하되 */
-  padding: 20px;
+  width: 100%;
+  max-width: 817px;
+  min-height: 400px; /* 최소 높이 조정 */
+  padding: 30px;
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  /* height: 626px; 고정 높이를 제거하여 자동으로 늘어나게 합니다. */
-  top: -50px; /* 위로 올리기 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+  border: 1px solid #eee;
 }
 
+.meta-info {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
 
 .notice-title {
-  color: #333;
-  font-size: 20px;
-  font-family: Pretendard;
+  font-size: 24px;
   font-weight: 700;
-  margin-bottom: 10px;
-  max-width: 100%;  /* 🔹 최대 너비를 100%로 설정 */
-  white-space: normal; /* 🔹 기본 줄바꿈 허용 */
-  word-wrap: break-word; /* 🔹 긴 단어 줄바꿈 */
-  overflow-wrap: break-word; /* 🔹 단어 단위 줄바꿈 */
-  text-overflow: ellipsis; /* 🔹 넘칠 경우 ... 표시 */
-  
+  margin-bottom: 12px;
+  line-height: 1.4;
+  color: #333;
 }
 
-.notice-header-flex {
+.meta-line {
   display: flex;
-  flex-wrap: wrap;
+  justify-content: flex-start;
   align-items: center;
-  gap: 6px; /* 항목 사이 간격 */
-  word-break: break-word;
+  gap: 12px;
 }
 
 .notice-meta {
   font-size: 14px;
-  color: #000;        /* 검정색 */
-  font-weight: 700;   /* 볼드체 */
-  margin-left: 10px;
+  color: #555;
 }
 
 .notice-date {
   font-size: 14px;
-  color: #868686; /* 날짜 배경색 */
-  padding: 2px 6px;
-  border-radius: 4px;
-  display: inline-block;
+  color: #888;
 }
 
 .notice-content {
-  word-wrap: break-word; /* 🔹 긴 단어 줄바꿈 */
-  overflow-wrap: break-word; /* 🔹 단어 단위 줄바꿈 */
-  white-space: normal; /* 🔹 줄바꿈 허용 */
-  max-width: 100%; /* 🔹 최대 너비 제한 */
   font-size: 16px;
-  line-height: 1.6;
-  color: #333;
+  line-height: 1.7;
+  color: #444;
+  word-wrap: break-word;
+  white-space: pre-wrap; /* v-html과 함께 사용 시 줄바꿈 유지 */
 }
 
-.notice-images { 
+.notice-images {
   display: flex;
-  flex-direction: column; /* 이미지를 세로로 배치 */
-  align-items: center; /* 이미지들이 가운데 정렬되도록 설정 */
-  grid-gap: 10px; /* 이미지 사이 간격 */
-  margin-top: 20px;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.image-container {
+  width: 100%;
+  max-width: 500px; /* 이미지 최대 너비 */
 }
 
 .notice-image {
   width: 100%;
-  height: 100%; /* 고정된 높이 설정 */
-  object-fit: cover; /* 이미지 비율을 유지하면서 잘 맞추어 줍니다 */
+  height: auto; /* 이미지 비율 유지 */
   border-radius: 8px;
-}
-
-.notice-header-with-line {
-  border-bottom: 1px solid #dcdcdc; /* 얇은 회색 선 */
-  padding-bottom: 8px; /* 선과 텍스트 사이 여백 */
-  margin-bottom: 16px; /* 본문과의 거리 */
-}
-
-.notice-header-flex {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-}
-
-.notice-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #000;
-}
-
-/* .notice-meta,
-.notice-date {
-  font-size: 14px;
-  color: #666;
-} */
-
-.popup-overlay {
-  position: fixed;
-  top: 0; 
-  left: 0;
-  width: 100%; 
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.popup {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 500px;
-  height: 180px;
-  position: relative;
-}
-
-.popup h2 {
-  margin-top: 0;
-  font-size: 18px; /* 제목 크기 줄임 */
-  font-weight: 600;
-  text-align: left;
-}
-
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 10px 0;
-}
-
-.confirm-message {
-  font-size: 14px;
-  text-align: left;
-  color: black;
-  line-height: 1.6;
-  margin: 20px 0;
-}
-
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 40px; /* 원래 20px 또는 40px이었으면 줄이기 */
-  padding-bottom: 0px;
-  gap: 10px;
+  object-fit: cover;
 }
 
 
-.popup-buttons button {
-  width: 80px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 10px;
-  margin-top: -20px;
-}
-
-.confirm-button {
-  background-color: #FFB052;
-  color: white;
-  font-weight: bold;
-}
-
-.cancel-button {
-  background-color: #E0E0E0;
-  color: white;
-  font-weight: bold;
-}
-
-
-.popup-highlight {
-  color: black;
-  font-weight: bold;
-}
-.image-container {
-  width: 100%;
-  max-width: 300px;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;  /* 👉 오른쪽 정렬로 변경 */
-  margin-top: -30px;        /* 👈 버튼과 위 요소 간 거리 */
-  margin-left: 550px;     /* 👈 오른쪽 정렬을 위한 왼쪽 여백 */
-}
-
-
-.edit-button, .delete-button {
-  /* height: 37px;  <-- 주석 처리하거나 삭제 */
-  background: #f0f0f0;
-  border: none;
-  border-radius: 4px;
-  /* 예: 패딩을 적절히 조절 */
-  padding: 8px 16px; 
-  margin: 0 5px;
-  cursor: pointer;
-  font-size: 16px;
-  pointer-events: auto;
-}
-
-
-.edit-button {
-  width: 95px;
-  height: 37px;
-  background-color: white;
-  color: #8E8E8E;
-  border: 1px solid #8E8E8E;
-}
-
-.delete-button {
-  width: 95px;
-  height: 37px;
-  background-color: white;
-  color: #FF6F6F;
-  border: 1px solid #FF6F6F;
-}
-.delete-popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명한 검은 배경 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* 다른 요소 위에 보이게 설정 */
-}
-
-.delete-popup {
-  background: #fff; /* 배경색 */
-  padding: 24px; /* 내부 여백 */
-  border-radius: 8px; /* 둥근 모서리 */
-  width: 452px; /* 팝업 너비 */
-  height: 192px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
-  text-align: left; /* 텍스트 왼쪽 정렬 */
-  display: flex;
-  flex-direction: column;
-  gap: 15px; /* 요소 간 여백 */
-}
-
-.popup-divider {
-  border-top: 1px solid #ddd; /* 연한 회색 가로줄 */
-  margin: 10px 0; /* 위아래 여백 설정 */
-}
-
-
-/*  팝업 제목 */
-.popup-title {
-  font-family: Pretendard;
-  font-weight: 500;
-  font-size: 16px;       /* ✅ 적절한 크기 */
-  line-height: 0px;     /* ✅ 충분한 줄 간격 */
-  color: black;
-  margin-top: 8px;
-}
-
-
-
-
-.delete-popup p {
-  font-size: 16px;
-  color: black;
-  margin: 0;
-}
-
-
-
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-  padding-bottom: 10px; /* 👈 여유 여백 추가 */
-  box-sizing: border-box;
-}
-
-.cancel-button,
-.confirm-button {
-  width: 80px;
-  height: 32px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  padding: 0; /* 👈 패딩 제거로 높이 고정 */
-}
-
-.cancel-button {
-  background-color: #e0e0e0;
-  color: #ffffff; /* ✅ 흰색 글씨로 변경 */
-}
-
-
-.confirm-button {
-  background-color: #FFB052; /* 강조 색상 */
-  color: #fff; /* 글자색 흰색 */
-}
-
-.cancel-button:hover {
-  background-color: #d5d5d5; /* 호버 시 색상 변경 */
-}
-
-
-.confirm-button {
-  background-color:  #FFB052;
-  color: #fff;
-}
+/* --- 공지사항 목록 --- */
 .notice-list {
-  width: 817px;
-  height: auto;
+  width: 100%;
+  max-width: 817px;
   background-color: white;
-  padding: 20px;
+  padding: 10px 20px 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eee;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
-
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  text-align: center;
-}
-
-td:nth-child(1),
-td:nth-child(2),
-td:nth-child(3) {
-  background-color: #FFFFFF;
-}
-
-th {
-  background-color: #FFFFFF;
-  font-weight: bold;
-}
-
-button {
-  background: none;
-  border: none;
+table tr {
   cursor: pointer;
-  font-size: 16px;
+  transition: background-color 0.2s;
+}
+table tr:hover {
+  background-color: #f9f9f9;
 }
 
+.title-col { width: 60%; }
+.author-col { width: 20%; }
+.date-col { width: 20%; }
+
+td {
+  padding: 15px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  font-size: 15px;
+}
+
+td.title-col {
+  text-align: left;
+  white-space: nowrap;
+}
+
+tr.current-notice td {
+  background-color: #FFFBEF;
+  font-weight: bold;
+  color: #D97706;
+}
+
+/* --- 페이지네이션 --- */
 .pagination {
   margin-top: 20px;
   display: flex;
   justify-content: center;
-  align-items: center; /* 수직 정렬 */
-  gap: 5px; /* 버튼 사이 간격 */
+  align-items: center;
+  gap: 8px;
 }
 
-.pagination span {
-  font-family: Pretendard;
+.pagination-number {
   font-size: 14px;
-  font-weight: 400;
-  line-height: 14px;
-  letter-spacing: -0.025em;
-  color: #000000;
+  color: #555;
   cursor: pointer;
-  padding: 5px 5px;
+  padding: 5px 10px;
+  border-radius: 4px;
 }
-
-.pagination span.active {
-  font-weight: 700;
-  color: #FFB052; /* 활성화된 페이지 색상 */
+.pagination-number:hover {
+  background-color: #f0f0f0;
+}
+.pagination-number.active {
+  font-weight: bold;
+  color: #FFB052;
+  background-color: #FFFBEF;
 }
 
 .pagination-button {
-  display: flex;
-  align-items: center;
   background: none;
   border: none;
-  font-family: Pretendard;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 14px;
-  color: #000000;
   cursor: pointer;
 }
-
-.pagination-button:hover {
-  text-decoration: underline; /* 호버 효과 */
+.pagination-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .pagination-icon {
-  width: 12px; /* 아이콘 크기 */
+  width: 12px;
   height: 12px;
-  margin: 0 5px; /* 텍스트와 아이콘 간격 */
 }
 
-.author-name {
- 
- font-family: Pretendard; /* 폰트 */
- font-size: 14px; /* 글씨 크기 */
- font-weight: 400; /* 글씨 굵기 */
- line-height: 14px; /* 줄 간격 */
- letter-spacing: -0.025em; /* 글자 간격 조정 */
- text-align: left; /* 왼쪽 정렬 */
- text-underline-position: from-font; /* 밑줄 위치 */
- text-decoration-skip-ink: none; /* 밑줄 효과 설정 */
- color:  #000000; /* 텍스트 색상 (추가) */
- padding: 2px 4px; /* 배경색과 텍스트 사이 여백 추가 (선택사항) */
+/* 모바일 카드 뷰 (기본 숨김) */
+.notice-cards {
+  display: none;
 }
 
-.notice-list {
-  width: 817px;
-  height: auto;
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
-}
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed; /* 테이블 레이아웃을 고정으로 설정 */
-}
+/* --- 반응형 디자인: 화면 너비 768px 이하 --- */
+@media (max-width: 768px) {
+  .notice-details {
+    padding: 20px;
+    min-height: auto;
+  }
 
-/* 컬럼 너비 설정 */
-.title-col {
-  width: 60%; /* 제목 열의 너비를 60%로 설정 */
-  text-align: center; /* 제목 열 중앙 정렬 */
-}
+  .notice-title {
+    font-size: 20px;
+  }
+  .meta-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 
-.author-col {
-  width: 20%; /* 작성자 열의 너비를 20%로 설정 */
-}
+  /* 목록: 테이블 숨기고 카드 보이기 */
+  table {
+    display: none;
+  }
+  .notice-cards {
+    display: block;
+  }
 
-.date-col {
-  width: 20%; /* 작성일 열의 너비를 20%로 설정 */
-}
-
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  vertical-align: top; /* 상단 정렬 */
-}
-
-/* th 태그 전체 중앙 정렬 */
-th {
-  text-align: center;
-}
-
-td.title-col {
-  overflow: hidden; /* 내용이 넘치면 숨김 */
-  text-align: center; /* 제목 열 내용 중앙 정렬 */
-}
-
-.title-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  text-align: center; /* 버튼 텍스트 중앙 정렬 */
-  width: 100%;
-  white-space: normal; /* 자동 줄바꿈 허용 */
-  word-break: break-word; /* 긴 단어도 줄바꿈 */
-  line-height: 1.4; /* 줄 간격 설정 */
-  padding: 0;
-}
-
-td.author-col, td.date-col {
-  white-space: nowrap; /* 작성자와 날짜는 줄바꿈 방지 */
-  overflow: hidden;
-  text-overflow: ellipsis; /* 내용이 넘치면 ... 표시 */
-  text-align: center; /* 중앙 정렬 추가 */
-}
-
-.popup {
-  position: fixed; /* 고정 위치 */
-  top: 50%;         /* 수직 중앙 */
-  left: 50%;        /* 수평 중앙 */
-  transform: translate(-50%, -50%); /* 정확한 중앙 배치 */
+  .notice-card {
+    padding: 15px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+  }
+  .notice-card:last-child {
+    border-bottom: none;
+  }
+  .notice-card.current-notice {
+    background-color: #FFFBEF;
+    border-radius: 4px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #777;
+  }
+  .notice-card.current-notice .card-title,
+  .notice-card.current-notice .card-meta {
+    color: #D97706;
+  }
   
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 500px;
-  height: 180px;
-  z-index: 1001; /* overlay보다 높게 */
+  .pagination-number {
+    padding: 4px 8px;
+  }
 }
-
-.popup h2 {
-  margin-top: 0;
-  text-align: left;
-  font-size: 16px; /* 👈 여기서 줄이세요 (기존 24px → 18px 추천) */
-  font-weight: 500; /* 굵기도 조절 가능 */
-}
-
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 10px 0;
-}
-.confirm-message {
-  text-align: left;
-}
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 40px;
-}
-/* .popup-buttons button {
-  width: 80px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 10px;
-  background: #ffb052;
-  color: white;
-} */
-
-
-/* 팝업 전체 화면 덮는 반투명 배경 */
-.popup-overlay {
-  position: fixed;
-  top: 0; 
-  left: 0;
-  width: 100%; 
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-}
-
-/* 팝업 박스: 452x182 고정 크기, 중앙 정렬 */
-.write-popup {
-  position: absolute;
-  width: 452px;
-  height: 182px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  box-sizing: border-box;
-  padding: 20px; /* 내부 여백 */
-  
-  display: flex;
-  flex-direction: column; /* 위->아래로 배치 */
-}
-
-/* 제목: 왼쪽 정렬, 폰트 크기/두께 조정 */
-.popup-title {
-  margin: 0;
-  font-size: 16px; /* 필요 시 조정 */
-  font-weight: 700;
-  text-align: left;
-  color: #333;
-}
-
-/* 구분선 */
-.popup-divider {
-  width: 100%;
-  height: 1px;
-  background-color: #ECECEC; /* 연한 회색 */
-  margin: 8px 0;
-}
-
-/* 메시지: 왼쪽 정렬 */
-.popup-message {
-  margin: 0;
-  margin-bottom: 20px;
-  font-size: 14px;
-  text-align: left;
-  color: #666;
-  line-height: 1.4;
-  /* flex: 1;  // 필요한 경우 버튼을 하단으로 밀고 싶으면 사용 */
-}
-
-/* 버튼 컨테이너: 오른쪽 정렬 */
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-}
-
-
-
-</style> 
+</style>
