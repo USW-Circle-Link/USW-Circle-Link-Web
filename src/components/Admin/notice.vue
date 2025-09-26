@@ -198,7 +198,7 @@ export default {
 <style scoped>
 .title {
   color: black;
-  font-size: 25px;
+  font-size: clamp(18px, 4vw, 25px);
   font-weight: bold;
   margin-bottom: 10px;
   position: relative;
@@ -221,12 +221,15 @@ export default {
 }
 
 .notices {
-  width: 820px;
+  width: 100%;
+  max-width: 820px;
+  min-width: 390px;
   height: auto;
   border-radius: 10px;
   background-color: #fff;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
 }
 
 table {
@@ -237,14 +240,17 @@ table {
 
 .title-column {
   width: 60%;
+  font-size: clamp(15px, 3.24vw, 21.6px);
 }
 
 .author-column {
   width: 20%;
+  font-size: clamp(13px, 2.76vw, 18.4px);
 }
 
 .date-column {
   width: 20%;
+  font-size: clamp(13px, 2.76vw, 18.4px);
 }
 
 th {
@@ -253,7 +259,7 @@ th {
   text-align: center;
   background-color: white;
   font-family: Pretendard;
-  font-size: 20px;
+  font-size: clamp(14px, 3vw, 20px);
   font-weight: 700;
   line-height: 23.87px;
   color: #393939;
@@ -271,6 +277,18 @@ td {
   vertical-align: middle;
 }
 
+td.title-column {
+  font-size: clamp(15px, 3.24vw, 21.6px);
+}
+
+td.author-column {
+  font-size: clamp(13px, 2.76vw, 18.4px);
+}
+
+td.date-column {
+  font-size: clamp(13px, 2.76vw, 18.4px);
+}
+
 .title-button {
   width: 100%;
   text-align: center;
@@ -283,7 +301,7 @@ button {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+  font-size: clamp(12px, 2.5vw, 16px);
 }
 
 button:hover {
@@ -329,7 +347,4 @@ button:hover {
   height: 10px;
 }
 
-h2 {
-  margin-top: -15px;
-}
 </style>
