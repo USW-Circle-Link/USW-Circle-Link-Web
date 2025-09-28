@@ -1,16 +1,9 @@
 <template>
   <div class="container">
-    <!-- 제목 -->
     <div class="title-row">
       <h2>엑셀 파일로 추가할 동아리 회원 정보</h2>
-      <button class="download-btn" @click="downloadExcel">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 15.2379V3.21289" stroke="#545454" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"/>
-          <path d="M7.375 10.9941L11.341 14.9601C11.5164 15.1337 11.7532 15.231 12 15.231C12.2468 15.231 12.4836 15.1337 12.659 14.9601L16.625 10.9941" stroke="#545454" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M2.75 13.8496V18.4746C2.75 19.0881 2.99369 19.6764 3.42746 20.1101C3.86123 20.5439 4.44955 20.7876 5.063 20.7876H18.937C19.5504 20.7876 20.1388 20.5439 20.5725 20.1101C21.0063 19.6764 21.25 19.0881 21.25 18.4746V13.8496" stroke="#545454" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        양식 다운로드
-      </button>
+      <div class="buttons">
+      <button class="download-btn" @click="downloadExcel">엑셀 양식 다운로드</button>
       <button class="upload-btn" @click="triggerFileInput">
         <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0_4830_14361)">
@@ -22,40 +15,32 @@
             </clipPath>
           </defs>
         </svg>
-        파일 업로드
+        엑셀 파일 업로드
         <input type="file" ref="fileInput" @change="handleFileUpload" hidden />
       </button>
+      </div>
     </div>
 
-    <!-- 정보 및 버튼 섹션 -->
     <div class="info-section">
         <div class="info-section-col">
           <p>추가 회원: {{ members.length }}명</p>
           <p class="warning-text">
-            양식을 다운로드하여 회원 정보를 입력한 후 , 업로드해 주세요. <br> 업로드 시, 오타가 없는지 꼼꼼하게 확인해주세요.
+            동아리 회원 추가의 경우, 오타가 없는지 꼼꼼하게 확인해주세요.
           </p>
         </div>
         <div>
-          <button v-if="visible && !isOverlappingMemberListsPopupVisible" class="clear-btn" @click="clearList">
+          <button class="clear-btn" @click="clearList">
             <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 3.25H11.25V2.5C11.25 2.16848 11.1183 1.85054 10.8839 1.61612C10.6495 1.3817 10.3315 1.25 10 1.25H7C6.66848 1.25 6.35054 1.3817 6.11612 1.61612C5.8817 1.85054 5.75 2.16848 5.75 2.5V3.25H3C2.9337 3.25 2.87011 3.27634 2.82322 3.32322C2.77634 3.37011 2.75 3.4337 2.75 3.5C2.75 3.5663 2.77634 3.62989 2.82322 3.67678C2.87011 3.72366 2.9337 3.75 3 3.75H3.75V13C3.75 13.1989 3.82902 13.3897 3.96967 13.5303C4.11032 13.671 4.30109 13.75 4.5 13.75H12.5C12.6989 13.75 12.8897 13.671 13.0303 13.5303C13.171 13.3897 13.25 13.1989 13.25 13V3.75H14C14.0663 3.75 14.1299 3.72366 14.1768 3.67678C14.2237 3.62989 14.25 3.5663 14.25 3.5C14.25 3.4337 14.2237 3.37011 14.1768 3.32322C14.1299 3.27634 14.0663 3.25 14 3.25ZM6.25 2.5C6.25 2.30109 6.32902 2.11032 6.46967 1.96967C6.61032 1.82902 6.80109 1.75 7 1.75H10C10.1989 1.75 10.3897 1.82902 10.5303 1.96967C10.671 2.11032 10.75 2.30109 10.75 2.5V3.25H6.25V2.5ZM12.75 13C12.75 13.0663 12.7237 13.1299 12.6768 13.1768C12.6299 13.2237 12.5663 13.25 12.5 13.25H4.5C4.4337 13.25 4.37011 13.2237 4.32322 13.1768C4.27634 13.1299 4.25 13.0663 4.25 13V3.75H12.75V13ZM7.25 6.5V10.5C7.25 10.5663 7.22366 10.6299 7.17678 10.6768C7.12989 10.7237 7.0663 10.75 7 10.75C6.9337 10.75 6.87011 10.7237 6.82322 10.6768C6.77634 10.6299 6.75 10.5663 6.75 10.5V6.5C6.75 6.4337 6.77634 6.37011 6.82322 6.32322C6.87011 6.27634 6.9337 6.25 7 6.25C7.0663 6.25 7.12989 6.27634 7.17678 6.32322C7.22366 6.37011 7.25 6.4337 7.25 6.5ZM10.25 6.5V10.5C10.25 10.5663 10.2237 10.6299 10.1768 10.6768C10.1299 10.7237 10.0663 10.75 10 10.75C9.9337 10.75 9.87011 10.7237 9.82322 10.6768C9.77634 10.6299 9.75 10.5663 9.75 10.5V6.5C9.75 6.4337 9.77634 6.37011 9.82322 6.32322C9.87011 6.27634 9.9337 6.25 10 6.25C10.0663 6.25 10.1299 6.27634 10.1768 6.32322C10.2237 6.37011 10.25 6.4337 10.25 6.5Z" fill="#969696"/>
+              <path d="M14 3.25H11.25V2.5C11.25 2.16848 11.1183 1.85054 10.8839 1.61612C10.6495 1.3817 10.3315 1.25 10 1.25H7C6.66848 1.25 6.35054 1.3817 6.11612 1.61612C5.8817 1.85054 5.75 2.16848 5.75 2.5V3.25H3C2.9337 3.25 2.87011 3.27634 2.82322 3.32322C2.77634 3.37011 2.75 3.4337 2.75 3.5C2.75 3.5663 2.77634 3.62989 2.82322 3.67678C2.87011 3.72366 2.9337 3.75 3 3.75H3.75V13C3.75 13.1989 3.82902 13.3897 3.96967 13.5303C4.11032 13.671 4.30109 13.75 4.5 13.75H12.5C12.6989 13.75 12.8897 13.671 13.0303 13.5303C13.171 13.3897 13.25 13.1989 13.25 13V3.75H14C14.0663 3.75 14.1299 3.72366 14.1768 3.67678C14.2237 3.62989 14.25 3.5663 14.25 3.5C14.25 3.4337 14.2237 3.37011 14.1768 3.32322C14.1299 3.27634 14.0663 3.25 14 3.25ZM6.25 2.5C6.25 2.30109 6.32902 2.11032 6.46967 1.96967C6.61032 1.82902 6.80109 1.75 7 1.75H10C10.1989 1.75 10.3897 1.82902 10.5303 1.96967C10.671 2.11032 10.75 2.30109 10.75 2.5V3.25H6.25V2.5ZM12.75 13C12.75 13.0663 12.7237 13.1299 12.6768 13.1768C12.6299 13.2237 12.5663 13.25 12.5 13.25H4.5C4.4337 13.25 4.37011 13.2237 4.32322 13.1768C4.27634 13.1299 4.25 13.0663 4.25 13V3.75H12.75V13ZM7.25 6.5V10.5C7.25 10.5663 7.22366 10.6299 7.17678 10.6768C7.12989 10.7237 7.0663 10.75 7 10.75C6.9337 10.75 6.87011 10.7237 6.82322 10.6768C6.77634 10.6299 6.75 10.5663 6.75 10.5V6.5C6.75 6.4337 6.77634 6.37011 6.82322 6.32322C6.87011 6.27634 6.9337 6.25 7 6.25C7.0663 6.25 7.12989 6.27634 7.17678 6.32322C7.2237 6.37011 7.25 6.4337 7.25 6.5ZM10.25 6.5V10.5C10.25 10.5663 10.2237 10.6299 10.1768 10.6768C10.1299 10.7237 10.0663 10.75 10 10.75C9.9337 10.75 9.87011 10.7237 9.82322 10.6768C9.77634 10.6299 9.75 10.5663 9.75 10.5V6.5C9.75 6.4337 9.77634 6.37011 9.82322 6.32322C9.87011 6.27634 9.9337 6.25 10 6.25C10.0663 6.25 10.1299 6.27634 10.1768 6.32322C10.2237 6.37011 10.25 6.4337 10.25 6.5Z" fill="#969696"/>
             </svg>
             비우기
           </button>
         </div>
     </div>
 
-    <!--추가할 회원 리스트-->
     <div v-if="visible && !isOverlappingMemberListsPopupVisible" class="member-list">
       <div class="member-list" v-for="(member, index) in members" :key="index">
-        <div class="member-row"
-             :class="{
-                'editing': editingIndex === index,
-                'has-error': editingIndex === index &&
-                  (validationErrors.userName || validationErrors.studentNumber ||
-                   validationErrors.major || validationErrors.userHp)
-              }">
-          <!-- 이름 입력 -->
+        <div class="member-row">
           <div class="input-wrapper">
             <span v-if="editingIndex !== index">{{ member.userName }}</span>
             <input v-else
@@ -63,9 +48,12 @@
                    :class="['edit-input', { error: validationErrors.userName }]"
                    type="text"
                    placeholder="이름">
+            <div v-if="editingIndex === index && validationErrors.userName"
+                 class="validation-error">
+              {{ errorMessages.userName }}
+            </div>
           </div>
 
-          <!-- 학번 입력 -->
           <div class="input-wrapper">
             <span v-if="editingIndex !== index">{{ member.studentNumber }}</span>
             <input v-else
@@ -73,9 +61,12 @@
                    :class="['edit-input', 'narrow-input', { error: validationErrors.studentNumber }]"
                    type="text"
                    placeholder="학번">
+            <div v-if="editingIndex === index && validationErrors.studentNumber"
+                 class="validation-error">
+              {{ errorMessages.studentNumber }}
+            </div>
           </div>
 
-          <!-- 전화번호 입력 -->
           <div class="input-wrapper">
             <span v-if="editingIndex !== index">{{ formatPhoneNumber(member.userHp) }}</span>
             <input v-else
@@ -83,9 +74,12 @@
                    :class="['edit-input', 'narrow-input', { error: validationErrors.userHp }]"
                    type="tel"
                    placeholder="전화번호">
+            <div v-if="editingIndex === index && validationErrors.userHp"
+                 class="validation-error">
+              {{ errorMessages.userHp }}
+            </div>
           </div>
 
-          <!-- 단과대학 선택 -->
           <select v-model="member.department" @change="onCollegeChange(index)">
             <option disabled value="">단과대학 선택</option>
             <option v-for="college in colleges" :key="college.id" :value="college.id">
@@ -93,7 +87,6 @@
             </option>
           </select>
 
-          <!-- 학부(학과) 선택 -->
           <select v-model="member.major">
             <option disabled value="">학부(학과) 선택</option>
             <option v-for="dept in member.departments" :key="dept" :value="dept">
@@ -114,20 +107,7 @@
           </button>
         </div>
         <div>
-          <p class="errorMessage">{{member.errorMessage}}</p>
-        </div>
-        <div v-if="editingIndex === index"
-             class="validation-error"
-             :class="{
-                'editing': editingIndex === index,
-                'has-error': editingIndex === index &&
-                  (validationErrors.userName || validationErrors.studentNumber ||
-                   validationErrors.major || validationErrors.userHp)
-              }">
-          <p v-if="validationErrors.userName">{{ errorMessages.userName }}</p>
-          <p v-if="validationErrors.studentNumber">{{ errorMessages.studentNumber }}</p>
-          <p v-if="validationErrors.userHp">{{ errorMessages.userHp }}</p>
-          <p v-if="validationErrors.major">{{ errorMessages.major }}</p>
+          <p class="errorMessage"> {{ member.errorMessage }}</p>
         </div>
       </div>
       <button class="addClubMember" @click="submitMembers">완료</button>
@@ -135,17 +115,19 @@
 
 
     <div v-if="isOverlappingMemberListsPopupVisible" class="popup-overlay1">
-      <div class="popup">
-        <h2>프로필 중복 회원 목록</h2>
-        <p class="confirm-message">타 동아리에도 소속되어 있는 프로필 중복 회원이 <span class="red-text1">총 {{OverlappingMembers.length}}명</span> 존재해요. <br>이후 '프로필 중복 회원 추가'를 통해 아래 회원을 추가해주세요. <br><span class="red-text1">해당 팝업을 닫는 경우 다시 확인할 수 없으니, <span class="red-text2">반드시 별도로 저장</span>해주세요!</span></p>
-        <div class="list-item-container">
-          <div v-for="(item, index) in OverlappingMembers" :key="index" class="list-item">
-            <div class="name">{{ item.userName }}</div>
-            <div class="id">{{ item.studentNumber }}</div>
-            <div class="Phone">{{ formatPhoneNumber(item.userHp) }}</div>
+      <div class="popup-container">
+        <div class="popup-content">
+          <h2>프로필 중복 회원 목록</h2>
+          <p class="confirm-message">타 동아리에도 소속되어 있는 프로필 중복 회원이 <span class="red-text1">총 {{OverlappingMembers.length}}명</span> 존재해요. <br>이후 '프로필 중복 회원 추가'를 통해 아래 회원을 추가해주세요. <br><span class="red-text1">해당 팝업을 닫는 경우 다시 확인할 수 없으니, <span class="red-text2">반드시 별도로 저장</span>해주세요!</span></p>
+          <div class="list-item-container">
+            <div v-for="(item, index) in OverlappingMembers" :key="index" class="list-item">
+              <div class="name">{{ item.userName }}</div>
+              <div class="id">{{ item.studentNumber }}</div>
+              <div class="Phone">{{ formatPhoneNumber(item.userHp) }}</div>
+            </div>
           </div>
+          <button class="confirm-button" @click="Delete">확인</button>
         </div>
-        <button class="confirm-button" @click="Delete">확인</button>
       </div>
     </div>
 
@@ -345,11 +327,7 @@ export default {
           this.isOverlappingMemberListsPopupVisible = true;
         }
       } catch (error) {
-        const { code } = error.response?.data || {};
         if (!this.handle401Error(error)) {
-          if(code === 'FILE-308'){
-            alert('업로드 가능한 갯수를 초과했습니다.');
-          }
           console.error('동아리 정보를 불러오는데 실패했습니다.', error);
           alert('동아리 정보를 불러오는데 실패했습니다.');
         }
@@ -373,7 +351,7 @@ export default {
         userHp: this.members[index].userHp,
       };
     },
-    validateInput(index) {
+    validateInput() {
       // 이름 검증 - 특수문자 제외
       this.validationErrors.userName = !/^[가-힣a-zA-Z\s]{3,20}$/.test(this.editingMember.userName);
 
@@ -384,14 +362,12 @@ export default {
       const phoneNumber = this.editingMember.userHp.replace(/-/g, '');
       this.validationErrors.userHp = !/^\d{11}$/.test(phoneNumber);
 
-      this.validationErrors.major = this.members[index].major === "";
-
       // 하나라도 에러가 있으면 false 반환
       return !Object.values(this.validationErrors).some(error => error);
     },
 
     confirmEdit(index) {
-      if (this.validateInput(index)) {
+      if (this.validateInput()) {
         this.showEditConfirmPopup = true;
       }
       this.members[index].userName = this.editingMember.userName;
@@ -404,7 +380,9 @@ export default {
       this.editingMember = null;
     },
     saveEdit() {
-      this.showEditConfirmPopup = false;
+      if (this.validateInput()) {
+        this.showEditConfirmPopup = false;
+      }
       this.editingIndex = -1;
     },
     // 리스트 초기화
@@ -412,10 +390,11 @@ export default {
       this.members = [];
     },
     Delete(){
-      if(this.members.length === 0 ){
+      this.isOverlappingMemberListsPopupVisible = false;
+      if(this.members.length === 0){
+        // 중복 회원만 존재할 경우, '프로필 중복 회원 추가' 페이지로 이동 안내 팝업을 띄웁니다.
         this.isOverlappingMembersPopupVisible = true;
       }
-      this.isOverlappingMemberListsPopupVisible = false;
     },
     SelectDepartment(){
       this.isSelectDepartmentPopupVisible = false;
@@ -486,13 +465,6 @@ export default {
         if (!this.handle401Error(error)) {
           console.error('동아리 회원 정보에 문제가 있습니다.', error);
           alert('동아리 회원 정보에 문제가 있습니다. 수정 후 다시 업로드 해주세요.');
-          this.validationErrors = {
-            userName: false,
-            studentNumber: false,
-            major: false,
-            userHp: false
-          }
-          this.editingIndex = -1;
           this.isPopupVisible = false;
         }
         if (error.code === 'ERR_BAD_REQUEST'){
@@ -535,247 +507,176 @@ export default {
 </script>
 
 
+
 <style scoped>
+/* ===== CSS 변수 및 기본 설정 ===== */
 .container {
-  width: 860px;
+  /* [수정] 고정 너비 제거 -> 유연한 너비로 변경 */
+  width: 90%;
+  max-width: 1120px;
   margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+
+  --brand-color: #FFB052;
+  --brand-color-dark: #f49421;
+  --green-color: #3F9560;
+  --green-color-dark: #14532d;
+  --text-color: #333;
+  --error-color: #ff4d4f;
+  --gray-color: #969696;
+  --border-color: #e0e0e0;
 }
 
-.title-row{
+/* ===== 상단 타이틀 및 버튼 영역 ===== */
+.title-row {
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap; /* 화면이 좁아지면 버튼이 아래로 내려감 */
   justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
 }
-
-svg{
-  margin-right: 10px;
-}
-
 h2 {
-  font-size: 20px;
-  margin-bottom: 30px;
-  color: #333;
+  margin: 0;
+  font-size: clamp(20px, 2.2vw, 24px); /* 화면 크기에 따라 폰트 크기 조절 */
   font-weight: 600;
+  color: var(--text-color);
 }
-
-
-
-.info-section {
+.title-row .buttons {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
 }
-
-.info-section-col {
-  flex-direction: column;
-}
-
-p {
-  font-size: 16px;
-  margin: 10px 0;
-  font-weight: 500;
-}
-
-.warning-text {
-  color: #ff4d4f; /* 빨간색 경고 메시지 */
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.upload-btn {
-  display: flex;
+.download-btn, .upload-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #3F9560; /* 녹색 버튼 */
-  color: #FFFFFF;
-  border: none;
-  width: 156px;
-  height: 44px;
-  border-radius: 4px;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 6px;
+  border: 0;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+  flex-grow: 1; /* [추가] 모바일에서 공간을 채우도록 함 */
 }
-
-.download-btn{
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.download-btn {
   background-color: #FAFAFA;
   color: #545454;
-  width: 156px;
-  height: 44px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-left: 230px;
-  font-family: Pretendard;
-  line-height: 100%;
-  border: 1px solid #C9C9C9
+  border: 1px solid #C9C9C9;
 }
+.download-btn:hover { background-color: #f0f0f0; }
+.upload-btn { background-color: var(--green-color); color: #fff; }
+.upload-btn:hover { background-color: var(--green-color-dark); }
+svg { margin-right: 8px; }
 
-.download-btn:hover {
-  background-color: #C9C9C9;
-}
-
-.upload-btn:hover {
-  background-color: #14532d;
-}
-
-.clear-btn {
+/* ===== 정보 및 비우기 버튼 영역 ===== */
+.info-section {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #FFF; /* 회색 버튼 */
-  color: #969696;
-  padding: 10px 15px;
-  margin-top: 20px;
-  border: 1px solid #969696;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.clear-btn:hover {
-  background-color: #ececec;
-}
-
-.member-list {
-  display: flex;
-  flex-direction: column;
-  margin-top: 10px;
-  width: 860px;
-}
-
-.member-row {
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+.info-section-col p { margin: 4px 0; }
+.warning-text { color: var(--error-color); font-size: 14px; }
+.clear-btn {
+  display: inline-flex;
+  align-items: center;
   background-color: #fff;
-  margin-bottom: 5px;
-  padding: 10px;
+  color: var(--gray-color);
+  border: 1px solid var(--gray-color);
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.clear-btn:hover { background-color: #f0f0f0; }
+
+/* ===== 회원 목록 ===== */
+.member-list { margin-top: 24px; }
+.member-list-items {
+  border: 1px solid var(--border-color);
   border-radius: 8px;
+  margin-bottom: 12px;
+  background-color: #fff;
 }
-
-.member-row.editing{
-  padding: 8.5px;
-  background-color: white;
-  border: 1.5px solid #FFB052;
+.member-row {
+  display: grid;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color:#fff;
+  border-radius: 8px;
+  /* --- 데스크톱 레이아웃 (기본) --- */
+  grid-template-columns: 1.1fr 0.9fr 1fr 1fr 1fr auto;
+  grid-template-areas: "name id phone college major actions";
 }
+.member-row.editing { border: 1.5px solid var(--brand-color); margin: -1.5px; }
 
-.member-row.editing.has-error{
-  padding: 8.5px;
-  border: 1.5px solid #ff0000;
-  background-color: rgba(255, 0, 0, 0.1);
-}
+/* [핵심] nth-of-type 선택자를 사용해 각 필드를 grid-area에 할당
+  이 방식은 HTML 구조에 의존적이므로 주의가 필요합니다.
+*/
+.member-row .input-wrapper:nth-of-type(1) { grid-area: name; }
+.member-row .input-wrapper:nth-of-type(2) { grid-area: id; }
+.member-row .input-wrapper:nth-of-type(3) { grid-area: phone; }
+.member-row select:nth-of-type(1) { grid-area: college; }
+.member-row select:nth-of-type(2) { grid-area: major; }
+.member-row .edit-btn, .member-row .save-btn { grid-area: actions; justify-self: end; }
 
-.member-row span {
-  text-align: center;
-}
-
-.input-wrapper {
-  position: relative;
+/* 회원 정보 필드 스타일 */
+.input-wrapper, select { text-align: center; }
+.edit-input, select {
   width: 100%;
-  flex: 1;
-  text-align: center;
-}
-
-.edit-input {
-  flex: 1;
-  padding: 5px;
-  border: 1px solid #ddd;
+  padding: 8px;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 16px;
-  text-align: center;
-  width: 100px;
+  font-size: 14px;
+  box-sizing: border-box;
 }
-
-/* 학번과 전화번호 입력칸을 위한 새로운 클래스 */
-.narrow-input {
-  max-width: 110px; /* 더 좁은 너비 설정 */
-  width: 110px;
-}
-
-select {
-  width: 160px;
-  padding: 5px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  margin-left: 20px;
-}
-
-.edit-btn {
-  background-color: #FFB052;
+select { text-align: left; }
+.edit-btn, .save-btn {
+  background-color: var(--brand-color);
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   color: white;
-  padding: 8px 13px;
+  padding: 8px 14px;
   cursor: pointer;
-  margin-left: 20px;
+  white-space: nowrap;
 }
+.edit-btn:hover, .save-btn:hover { background-color: var(--brand-color-dark); }
 
-.save-btn {
-  background-color: #f49421;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  padding: 8px 13px;
-  cursor: pointer;
-  margin-left: 20px;
-}
-
-.edit-btn:hover {
-  background-color: #f49421;
-}
-
-.save-btn:hover {
-  background-color: #c66f04;
-}
-
-.validation-error.editing{
-  position: absolute;
-}
-
-.validation-error.editing.has-error{
-  position: relative;
-}
-
-.validation-error p{
-  white-space: nowrap; /* 줄바꿈 방지 */
-  color: #FF3535;
-  align-self: flex-start; /* 왼쪽 정렬 */
-  font-family: Pretendard;
-  font-weight: 300;
+/* 에러 메시지 스타일 */
+.server-error-message, .client-error-message {
   font-size: 12px;
-  line-height: 70%;
+  color: var(--error-color);
+  padding: 0 12px 12px;
 }
+.client-error-message p { margin: 4px 0; }
+.edit-input.error { border-color: var(--error-color); }
 
-.errorMessage{
-  position: absolute;
-  color : red;
-  font-size: 12px;
-  margin-left: 10px;
-  margin-top: 0;
-}
-
-.addClubMember{
-  width: 160px;
-  height: 40px;
-  margin-left: 700px;
-  margin-top: 100px;
-  background-color: #FFB052;
+/* 완료 버튼 */
+.addClubMember {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  height: 44px;
+  margin: 32px 0 0 auto; /* 오른쪽 정렬 */
+  background-color: var(--brand-color);
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   color: #FFFFFF;
   font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
 }
+.addClubMember:hover { background-color: var(--brand-color-dark); }
 
-.addClubMember:hover {
-  background-color: #e69a3e; /* Slightly darker orange */
-}
-
-/* Popup Overlay and Popup Window */
+/* ===== 팝업 공통 스타일 ===== */
 .popup-overlay1 {
   position: fixed;
   top: 0;
@@ -790,94 +691,96 @@ select {
   flex-direction: column;
 }
 
-.popup-overlay1 .popup {
-  background-color: white;
-  padding: 20px;
+.popup-container {
+  background-color: #f3f3f3;
   border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 840px;
-  height: 402px;
-  text-align: left;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
   position: relative;
-  margin-left: 300px;
 }
 
-.popup-overlay1 .confirm-message{
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16.71px;
-  text-align: left;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-  margin-left: 10px;
-  color: #000000;
-}
-
-.popup-overlay1 .red-text1{
-  color: #FF3535;
-}
-
-.popup-overlay1 .red-text2{
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.popup-overlay1 .confirm-button{
-  background-color: #FFB052;
-  color: white;
-  border: none;
-  width: 124px;
-  height: 40px;
-  border-radius: 7px;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 14.32px;
+.popup-content h2 {
+  color: black;
+  font-size: 24px;
+  margin: 0 0 10px;
   text-align: center;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
 }
 
-.popup-overlay1 .confirm-button:hover {
-  background-color: #e69a3e; /* Slightly darker orange */
+.popup-content .confirm-message {
+  color: black;
+  font-size: 14px;
+  text-align: center;
+  margin: 0 0 20px;
+  line-height: 1.4;
 }
 
-.popup-overlay1 .popup h2 {
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 12px;
-  letter-spacing: -0.05em;
-  text-align: left;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-  margin-top: 20px;
-  margin-left: 10px;
+.popup-content .red-text1 {
+  color: #FF5C5C;
+  font-weight: bold;
 }
 
-.list-item-container{
-  margin-top: 20px;
-  height: 220px;
-  overflow-y: auto; /* 수직 스크롤 활성화 */
+.popup-content .red-text2 {
+  color: #FF5C5C;
+  font-weight: bold;
+}
+
+.list-item-container {
+  max-height: 200px; /* 스크롤을 위한 최대 높이 설정 */
+  overflow-y: auto; /* 내용이 넘칠 경우 스크롤바 표시 */
+  margin-bottom: 20px;
+  padding-right: 10px;
+}
+
+.list-item-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list-item-container::-webkit-scrollbar-thumb {
+  background-color: #969696;
+  border-radius: 4px;
 }
 
 .list-item {
+  background-color: #FFFFFF;
+  border: 1px solid #ff9e9e;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1.2px solid red;
-  border-radius: 10px;
-  padding: 15px;
-  margin: 10px 0;
-  background-color: #fff;
+  color: #414141;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.name, .id, .Phone {
+.list-item .name, .list-item .id, .list-item .Phone {
   flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: center;
+}
+
+.confirm-button {
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  width: 100px;
+  height: 40px;
+  border-radius: 7px;
+  cursor: pointer;
   font-size: 16px;
+  font-weight: 500;
+  display: block;
+  margin: 0 auto;
+}
+
+.confirm-button:hover {
+  background-color: #e69a3e;
 }
 
 .popup-overlay2 {
@@ -951,7 +854,7 @@ select {
   font-weight: 500;
   line-height: 1.3;
   color: #2F2F2F;
-  margin-top: 30px;
+  margin-top: 7px;
 }
 
 .popup-overlay2 .popup-message-red{
@@ -1003,6 +906,45 @@ select {
 
 .cancel-button:hover {
   background-color: #7a7a7a;
+}
+
+/* (이하 팝업 스타일은 기존과 동일) */
+.validation-error{ color: red;}
+
+/* ===== 반응형: 태블릿 (992px 이하) ===== */
+@media (max-width: 992px) {
+  .member-row {
+    grid-template-columns: 1fr 1fr; /* 2열 구조로 변경 */
+    grid-template-areas:
+      "name    name"
+      "id      phone"
+      "college major"
+      ".       actions"; /* 수정 버튼 오른쪽 하단 배치 */
+  }
+}
+
+/* ===== 반응형: 모바일 (600px 이하) ===== */
+@media (max-width: 600px) {
+  .container { padding: 16px; }
+  .title-row { flex-direction: column; align-items: stretch; }
+  
+  .member-row {
+    grid-template-columns: 1fr; /* 1열 구조로 변경 */
+    grid-template-areas:
+      "name" "id" "phone" "college" "major" "actions";
+  }
+  .member-row .input-wrapper, .member-row select { text-align: left; }
+  .member-row .edit-input, .member-row span { text-align: left; }
+
+  /* 모든 버튼 오른쪽 정렬 */
+  .member-row .edit-btn, .member-row .save-btn { 
+    justify-self: stretch; /* 1열일 때 버튼을 꽉 채움 */
+    width: 100%; 
+  }
+
+  .addClubMember {
+    max-width: none; /* 최대 너비 제한 해제 */
+  }
 }
 
 </style>

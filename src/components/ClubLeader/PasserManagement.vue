@@ -31,6 +31,7 @@
 
     <div v-if="showConfirmPopup" class="popup-overlay">
       <div class="popup">
+        <!--<button class="close-btn" @click="hidePopup">X</button>-->
         <h2>지원 결과 전송</h2>
         <hr>
         <p class="confirm-message">합격/불합격 처리를 확정 하시겠습니까?</p>
@@ -43,25 +44,11 @@
     </div>
 
   </div>
-
-  <!-- 예기치 못한 오류 팝업 -->
-  <div v-if="showUnexpectedErrorPopup" class="popup-overlay">
-    <div class="unexpectedPopup">
-      <h2>동구라미</h2>
-      <hr />
-      <p class="confirm-message">
-        <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
-      <div class="unexpectedPopup-buttons">
-        <button @click="hideUnexpectedErrorPopup">확인</button>
-      </div>
-    </div>
-  </div>
-
   <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
-import axios from 'axios'; 
+import axios from 'axios'; // axios를 가져옵니다.
 import store from '@/store/store'; // Vuex에서 상태 가져오기
 import Popup401 from './401Popup.vue';
 
@@ -76,12 +63,11 @@ export default {
       showConfirmPopup: false,//합/불 확인 팝업 표시
       notification: {
         message: '',//사용자에게 표시 할 알림 메세지
-        type: '' // 알림 메시지 타입 (성공/실패)
+        type: '' // 알림 메시지 타입
       },
       fetchUrl: `${store.state.apiBaseUrl}/club-leader/${store.state.clubUUID}/applicants`, // 지원자 명단을 가져오는 서버 URL
       submitUrl: `${store.state.apiBaseUrl}/club-leader/${store.state.clubUUID}/applicants/notifications`, // 합/불 결과를 보내는 서버 URL
       show401Popup: false,
-      showUnexpectedErrorPopup: false,
     };
   },
   //지원자 명단 가져오기
@@ -91,9 +77,8 @@ export default {
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
-      // 에러 응답 O, 상태코드 401인 경우
       if (error.response && error.response.status === 401) {
-        this.show401Popup = true; //팝업
+        this.show401Popup = true;
         return true;
       }
       return false;
@@ -112,36 +97,36 @@ export default {
 
         // 여기에 401 체크 추가
         if (response.status === 401) {
-          this.show401Popup = true; // 401 에러인 경우 팝업 표시 후 종료
+          this.show401Popup = true;
           return;
         }
-        //요청 성공 시 
+
         if (response.ok) {
           const result = await response.json();
+          console.log(':', result);
 
           const data = result.data;
-          // 응답 데이터가 배열 형태일 경우 처리
           if (data && Array.isArray(data)) {
-            // applicant 데이터를 가공하여 상태 저장
             this.applicants = data.map(applicant => ({
-              aplictUUID: applicant.aplictUUID, // 지원자 UUID 
-              userName: applicant.userName, // 지원자 이름
-              studentNumber: applicant.studentNumber, // 지원자 학번
-              major: applicant.major, // 지원자 학과 
-              userHp: applicant.userHp, // 지원자 연락처 
-              decision: null, // 합/불 상태 (초기값 null) 
+              aplictUUID: applicant.aplictUUID,
+              userName: applicant.userName,
+              studentNumber: applicant.studentNumber,
+              major: applicant.major,
+              userHp: applicant.userHp,
+              decision: null,
             }));
 
             this.showNotification('지원자 목록을 성공적으로 가져왔습니다.', 'success');
           } else {
+            console.error('지원자 데이터 형식 오류', data);
             this.showNotification('지원자 데이터를 처리하는 중 오류가 발생했습니다.', 'error');
           }
         } else {
-          // 요청 실패 시 
+          console.error('지원자 데이터 가져오기 실패', response.statusText);
           alert('지원자 데이터를 가져오는 데 실패했습니다.', 'error');
         }
       } catch (error) {
-        // 네트워크 에러 또는 예외 발생
+        console.error('동아리 정보를 불러오는데 실패했습니다.', error);
         alert('동아리 정보를 불러오는데 실패했습니다.');
       }
     },
@@ -149,21 +134,17 @@ export default {
     showPopup() {
       this.showConfirmPopup = true;
     },
-    //합/불 결과 전송 확인 팝업 숨김
+    ////합/불 결과 전송 확인 팝업 숨김
     hidePopup() {
       this.showConfirmPopup = false;
     },
-    hideUnexpectedErrorPopup() {
-      this.showUnexpectedErrorPopup = false;
-    },
-    //결과 전송 확인 후 팝업을 숨기고 전송 (팝업에서 '예' 선택 시)
+    //결과 전송 확인 후 팝업을 숨기고 전송
     confirmSendResults() {
       this.hidePopup();
       this.sendResults();
     },
     // 합/불 결과를 서버에 전송하기 전 데이터 검증 메서드
     validateResults() {
-      // 모든 지원자의 decision 값 설정됐는지 확인
       const valid = this.applicants.every(applicant => applicant.decision !== null);
       if (!valid) {
         alert('모든 지원자에 대해 합/불 상태를 설정해 주세요.', 'error');
@@ -172,11 +153,10 @@ export default {
     },
     // 합/불 결과를 서버에 전송하는 메서드
     async sendResults() {
-      // decision이 없는 지원자가 있는 경우 전송 X
       if (!this.validateResults()) {
         return;
       }
-      // 서버에 보낼 데이터 포맷 정의
+      console.log('결과 전송 중...');
       const results = this.applicants.map(applicant => ({
         aplictUUID: applicant.aplictUUID,
         aplictStatus: applicant.decision,
@@ -190,9 +170,9 @@ export default {
           },
         });
 
-        // 성공 시 목록 새로고침
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
         await this.fetchApplicants();
+        //window.location.reload();
       } catch (error) {
         if (error.response) {
           // 401 체크 추가
@@ -203,11 +183,13 @@ export default {
 
           const errorData = error.response.data;
           if (errorData.code === "CMEM-202") {
+            console.error('ClubMemberException 발생:', errorData.message);
             alert('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
-          } else if (errorData.code === 'INVALID_ARGUMENT') {
-            this.showUnexpectedErrorPopup = true;
+            //window.location.reload();
           } else {
+            console.error('결과 전송 실패:', errorData.message || '서버 오류 발생');
             alert(errorData.message || '결과 전송에 실패했습니다.', 'error');
+            //window.location.reload();
           }
         }
       }
@@ -216,8 +198,9 @@ export default {
     toggleDecision(applicant, decision) {
       applicant.decision = decision; // null로 돌아가지 않도록 설정
     },
-    // 전체 지원자의 합/불 상태를 한 번에 설정하는 메서드
+    // 전체 지원자의 합/불 상태를 설정하는 메서드
     setAllApplicantsStatus(status) {
+      //모든 지원자의 합/불 상태를 일괄 설정
       this.applicants.forEach(applicant => {
         applicant.decision = status;
       });
@@ -239,219 +222,188 @@ export default {
 
 
 <style scoped>
+
+/* ===== 전체 컨테이너 ===== */
 .MainBox {
-  width: 886px;
-  display: flex;
-  flex-direction: column;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto 30px;
   background: #fff;
-  margin-bottom: 30px;
   border-radius: 8px;
-  padding: 20px;
+  padding: clamp(16px, 3vw, 32px); /* 화면 크기에 따라 패딩 조절 */
+  box-sizing: border-box;
+  --brand-color: #ffb052;
+  --approve-color: #7FB08C;
+  --approve-color-dark: #62956d;
+  --reject-color: #E57373;
+  --reject-color-dark: #cd5353;
+  --text-color: #000;
+  --light-text-color: #555;
+  --bg-color: #f7f7f7;
+  --border-color: #ddd;
 }
+
+/* ===== 헤더 ===== */
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-bottom: 24px;
 }
 .common {
-  color: #000;
-  font-family: Pretendard;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 24px;
-  letter-spacing: -0.6px;
+  color: var(--text-color);
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(20px, 2.2vw, 24px);
 }
+
+/* ===== 액션 영역 (버튼) ===== */
 .status-actions {
-  display: flex;
+  display: flex; /* Flexbox로 변경 */
+  flex-wrap: wrap; /* 화면이 작아지면 줄바꿈 */
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
-}
-.status-boxes {
-  display: flex;
-  align-items: center;
-}
-.status-box {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 55px;
-  height: 43px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-left: 8px;
-  background-color: #f7f7f7;
-}
-.approve-box {
-  background-color: #7FB08C;
-  font-size: 12px;
-  color: white;
-  cursor: pointer;
-}
-.reject-box {
-  background-color: #E57373;
-  color: white;
-  font-size: 12px;
-  margin-inline-end: 10px;
-  cursor: pointer;
-}
-
-.approve-box:hover {
-  background-color: #62956d;
-}
-
-.reject-box:hover {
-  background-color: #cd5353;
+  gap: 16px;
 }
 .send-result-btn {
-  width: 140px;
-  height: 43px;
+  /* [수정] flex-grow를 이용해 유연한 너비 차지 */
+  flex-grow: 1;
+  min-width: 200px;
+  height: 48px;
   border-radius: 8px;
-  background-color: #000;
-  color: white;
+  border: 0;
+  background: #000;
+  color: #fff;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: background-color 0.2s;
 }
+.send-result-btn:hover { background-color: #333; }
+
+.status-boxes {
+  display: inline-flex;
+  gap: 8px;
+}
+.status-box {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 70px;
+  height: 42px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  color: #fff;
+  transition: background-color 0.2s;
+}
+.approve-box { background: var(--approve-color); }
+.approve-box:hover { background: var(--approve-color-dark); }
+.reject-box { background: var(--reject-color); }
+.reject-box:hover { background: var(--reject-color-dark); }
+
+/* ===== 본문/리스트 ===== */
 .contents {
-  display: flex;
-  flex-direction: column;
+  margin-top: 24px;
 }
 .applicant-list {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
+  display: grid;
+  gap: 12px;
+  max-height: 60vh;
   overflow-y: auto;
-  max-height: 500px; /* 필요에 따라 조정 */
-  flex: 1;
+  padding-right: 4px; /* 스크롤바 공간 */
 }
 .applicant-item {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
   align-items: center;
-  background: #f7f7f7;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
+  gap: 12px;
+  background: var(--bg-color);
+  border-radius: 8px;
+  padding: 12px;
+  /* 데스크톱 그리드 레이아웃 */
+  grid-template-columns: 1.2fr 1fr 1.4fr 1.1fr auto;
 }
 .applicant-item p {
   margin: 0;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: center;
-  flex: 1;
+}
+/* 첫 번째 p 태그(이름)는 왼쪽 정렬 */
+.applicant-item p:first-child {
+  text-align: left;
+  font-weight: 500;
 }
 .buttons-group {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-left: 5px;
+  display: inline-flex;
+  gap: 8px;
+  justify-self: end;
 }
 .buttons-group label {
-  display: flex;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
   width: 55px;
-  height: 43px;
+  height: 40px;
   border-radius: 8px;
   cursor: pointer;
-  background-color: #eee;
+  background: #eee;
+  transition: background-color 0.2s;
 }
-.buttons-group label.checked {
-  background-color: #7FB08C;
-  color: white;
-}
-.buttons-group label.checked:nth-child(2) {
-  background-color: #E57373;
-}
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.popup {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 500px;
-  position: relative;
-}
-.popup h2 {
-  margin-top: 0;
-  text-align: left;
-}
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 10px 0;
-}
-.confirm-message {
-  text-align: left;
-}
-.notice-message {
-  text-align: left;
-  font-size: 12px;
-  color: gray;
-}
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-.popup-buttons button {
-  width: 80px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 10px;
-}
-.popup-buttons button:first-child {
-  background: #cecece;
-  color: white;
-}
-.popup-buttons button:last-child {
-  background: #ffb052;
-  color: white;
-}
+.buttons-group label.checked { background: var(--approve-color); }
+.buttons-group label.checked:nth-of-type(2) { background: var(--reject-color); }
 .check-icon {
-  background: url('../../assets/check-solid.svg') no-repeat center center;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>') no-repeat center/16px 16px;
   width: 16px;
   height: 16px;
-  filter: invert(99%) sepia(4%) saturate(985%) hue-rotate(214deg) brightness(113%) contrast(100%);
 }
-.unexpectedPopup {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 500px;
-  height: 180px;
-  position: relative;
+
+/* ===== 팝업 ===== */
+.popup-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  display: grid; place-items: center; z-index: 1000; padding: 16px;
 }
-.unexpectedPopup h2 {
-  margin-top: 0;
-  text-align: left;
+.popup {
+  width: 100%; max-width: 480px; background: #fff;
+  padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
-.unexpectedPopup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
+.popup h2 { margin: 0 0 16px; }
+hr { border: 0; border-top: 1px solid var(--border-color); margin: 16px 0; }
+.confirm-message { font-weight: 500; }
+.notice-message { font-size: 13px; color: var(--light-text-color); }
+.popup-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.popup-buttons button {
+  min-width: 90px; height: 40px; border: 0; border-radius: 8px;
+  cursor: pointer; font-weight: 500; font-size: 14px;
 }
-.unexpectedPopup-buttons button {
-  width: 80px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 10px;
+.popup-buttons button:first-child { background: #B9B9B9; color: #fff; }
+.popup-buttons button:last-child { background: var(--brand-color); color: #fff; }
+
+/* ===== 반응형: 태블릿 (768px 이하) ===== */
+@media (max-width: 768px) {
+  .applicant-item {
+    grid-template-columns: 1fr 1fr; /* 2열 구조로 변경 */
+    row-gap: 12px;
+  }
+  /* Grid 레이아웃 재배치 (nth-of-type 사용) */
+  .applicant-item p:nth-of-type(1) { grid-column: 1 / -1; text-align: left; }
+  .applicant-item p:nth-of-type(2), .applicant-item p:nth-of-type(4) { text-align: left; }
+  .applicant-item p:nth-of-type(3) { text-align: right; }
+  .buttons-group { grid-column: 2 / 3; }
 }
-.error-highlight {
-  color: #ff4d4f;
+
+/* ===== 반응형: 모바일 (500px 이하) ===== */
+@media (max-width: 500px) {
+  .status-actions { flex-direction: column; align-items: stretch; }
+  .applicant-item {
+    grid-template-columns: 1fr; /* 1열 구조로 변경 */
+  }
+  /* Grid 레이아웃 재배치 (1열) */
+  .applicant-item p { grid-column: 1 / -1; text-align: left; }
+  .applicant-item p:nth-of-type(3) { text-align: left; }
+  .buttons-group { grid-column: 1 / -1; justify-self: stretch; }
+  .buttons-group label { flex-grow: 1; }
 }
 </style>

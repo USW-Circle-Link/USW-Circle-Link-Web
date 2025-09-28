@@ -42,7 +42,7 @@
                 id="leaderName"
                 v-model="leaderName"
                 :class="['standard-input', { 'error': !isLeaderNameValid && leaderName }]"
-                placeholder="이름을 입력해주세요. (특수 문자 제외 2~30자)"
+                placeholder="이름을 입력해주세요."
                 @input="validateLeaderName"
             />
             <span v-if="!isLeaderNameValid && leaderName" class="error-message">
@@ -104,7 +104,7 @@
                 id="hashTag"
                 v-model="hashTagInput"
                 :class="['standard-input', { 'error': !isHashTagValid && hashTagInput }]"
-                placeholder="해시태그를 입력해주세요. ( # 제외 한글, 영어 대문자 3자, 소문자 6자)"
+                placeholder="해시태그를 입력해주세요. ( # 제외 한글, 대문자 3자, 소문자 6자)"
                 maxlength="25"
                 @keyup.enter="addHashTag"
             />
@@ -644,129 +644,20 @@ export default {
 </script>
 
 <style scoped>
-.category-select-container {
-  display: flex;
-  gap: 10px;
-  flex: 1;
-}
-
-.category-select-container .standard-input {
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 400;
-  text-align: left;
-  color: #828282;
-  background-color: #f9f9f9;
-  box-sizing: border-box;
-  height: 42px;
-  letter-spacing: -0.3px;
-}
-
-.category-select-container .standard-input:focus {
-  border-color: #777;
-  outline: none;
-}
-
-.category-select-button {
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  cursor: pointer;
-  height: 42px;
-  font-size: 13px;
-  color: #5A5A5A;
-  width: 152px;
-}
-
-.category-select-button:hover {
-  border-color: #FFC700;
-  border-width: 1.5px;
-}
-
-.category-select-button .category-pin {
-  width: 16px;
-  height: 16px;
-  margin-left: 1px;
-  margin-right: 5px;
-  margin-bottom: 2px;
-  background: url('@/assets/category.svg') no-repeat center center;
-  background-size: contain;
-}
-
-
-.room-select-container {
-  display: flex;
-  gap: 10px;
-  flex: 1;
-}
-
-.room-select-container .standard-input {
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 400;
-  text-align: left;
-  color: #828282;
-  background-color: #f9f9f9;
-  box-sizing: border-box;
-  height: 42px;
-  letter-spacing: -0.3px;
-}
-
-.room-select-container .standard-input:focus {
-  border-color: #777;
-  outline: none;
-}
-
-.room-select-button {
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  cursor: pointer;
-  height: 42px;
-  font-size: 13px;
-  color: #5A5A5A;
-  width: 130px;
-}
-
-.room-select-button:hover {
-  border-color: #FFC700;
-  border-width: 1.5px;
-}
-
-.room-select-button .map-pin {
-  width: 16px;
-  height: 16px;
-  margin-left: 1px;
-  margin-right: 5px;
-  margin-bottom: 2px;
-  background: url('@/assets/map-pin.svg') no-repeat center center;
-  background-size: contain;
-}
-
-
+/* ========== 공통 레이아웃 ========== */
 .profile-edit-container {
   text-align: center;
   position: relative;
+  padding: 0 16px; /* 좌우 여백 */
 }
 
 .title {
   font-size: 20px;
   font-weight: 600;
-  width: 886px;  /* RemoveMemberDashboard와 동일한 너비 */
-  margin: 0 auto;  /* 중앙 정렬 */
-  padding: 0 20px;  /* 내부 여백 추가 */
+  max-width: 980px;        /* 유동폭 */
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 8px;
 }
 
 .profile-title {
@@ -775,39 +666,44 @@ export default {
   font-weight: 600;
 }
 
+/* 카드(이미지 + 폼) */
 .profile-edit {
   display: flex;
-  justify-content: flex-start; /* Align items to the start horizontally */
   align-items: flex-start;
+  justify-content: flex-start;
+  gap: 20px;
   background: #fff;
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 846px;
-  border-radius: 8px;
-  margin: 20px auto 0 auto;
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  border-radius: 12px;
+  margin: 20px auto 0;
+  max-width: 980px;        /* 유동폭 */
+  width: 100%;
+  box-sizing: border-box;
 }
 
+/* ========== 좌측: 이미지 영역 ========== */
 .image-container {
   position: relative;
-  flex: 0.8;
+  flex: 0 0 270px; /* 데스크탑 기본 너비 */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .image-container img {
-  width: 270px;
+  width: 100%;
+  max-width: 270px;
   height: auto;
   border-radius: 8px;
-  margin: 0; /* Remove any margins */
-  padding: 0; /* Remove any padding */
+  display: block;
 }
 
 .edit-icon {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  bottom: 10px;
+  right: 10px;
+  transform: none;
   cursor: pointer;
 }
 
@@ -816,105 +712,203 @@ export default {
   height: 30px;
 }
 
+/* 구분선 */
 .vertical-line {
-  width: 0px;
+  width: 0;
   border: 1px solid #CACACA;
-  margin-bottom: 40px;
-  margin-left: 17px;
-  margin-right: 25px;
+  margin: 0 8px;
+  align-self: stretch; /* 이미지 높이에 맞추기 */
 }
 
+/* ========== 우측: 폼 영역 ========== */
 .form-container {
-  flex: 1.5;
+  flex: 1 1 auto;
+  min-width: 0; /* overflow 방지 */
+}
+
+/* 레이블/입력 그리드 통일: 데스크탑은 2열, 모바일은 1열 */
+.form-group {
+  display: grid;
+  grid-template-columns: 110px 1fr; /* 레이블 고정 + 입력 유동 */
+  align-items: center;
+  gap: 10px 12px;
+  margin-bottom: 18px;
+  min-height: 42px;
+}
+
+label {
+  color: #5A5A5A;
+  font-family: Pretendard, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  text-align: left;
 }
 
 .label-container {
   position: relative;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
 .required {
   position: absolute;
-  top: -6px; /* Adjust as needed */
-  left: -6px; /* Adjust as needed */
-  color: red;
+  top: -6px;
+  left: -6px;
+  color: #FF2E2E;
   font-size: 15px;
   line-height: 1;
 }
 
-label {
-  width: 100px;
-  color: #5A5A5A;
-  font-family: Pretendard;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 14px; /* 87.5% */
-  letter-spacing: -0.4px;
-  text-align: left;
-}
-
-.club-name-input {
-  flex: 1;
+.club-name-input,
+.standard-input {
+  width: 100%;
+  height: 42px;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 0.5px solid #ccc;
   border-radius: 8px;
   font-size: 12px;
-  font-weight: 400px;
-  text-align: left;
-  color: #828282;
-  background-color: #f9f9f9;
+  color: #5A5A5A;
+  font-weight: 400;
+  letter-spacing: -0.3px;
   box-sizing: border-box;
 }
 
-.club-name-input:focus {
-  border-color: #777;
+.club-name-input {
+  background-color: #f9f9f9;
+}
+.club-name-input:focus,
+.standard-input:focus {
+  border-color: #FFC700;
   outline: none;
 }
 
-.standard-input {
-  flex: 1;
-  padding: 8px;
-  border: 0.5px solid #ccc; /* Default border color */
-  border-radius: 4px;
-  font-size: 12px;
-  height: 23.99px;
-  line-height: 14px;
+/* 에러 */
+.standard-input.error { border-color: #FF2E2E; }
+.error-message,
+.hashtag-error-message {
+  grid-column: 2 / -1; /* 입력칸 아래로 */
+  color: #FF2E2E;
+  font-size: 10px;
+  text-align: left;
+  padding-left: 4px;
+  margin-top: 4px;
+}
+
+/* 입력칸을 감싸는 컨테이너(에러 메시지를 아래에 놓기 좋음) */
+.input-container { display: flex; flex-direction: column; }
+
+/* ========== 방/카테고리 선택 ========== */
+.room-select-container,
+.category-select-container {
+  display: grid;
+  grid-template-columns: auto 1fr; /* 버튼 + 읽기전용 입력 */
+  gap: 10px;
+}
+
+.room-select-button,
+.category-select-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  cursor: pointer;
+  height: 42px;
+  font-size: 13px;
   color: #5A5A5A;
-  font-family: Pretendard;
-  font-style: normal;
-  font-weight: 400;
-  letter-spacing: -0.3px;
+  white-space: nowrap;
 }
 
-.standard-input:focus {
-  border-color: #FFC700; /* Border color when focused */
-  outline: none; /* Remove default outline */
+.room-select-button:hover,
+.category-select-button:hover {
+  border-color: #FFC700;
+  border-width: 1.5px;
 }
 
+.room-select-button .map-pin,
+.category-select-button .category-pin {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.room-select-button .map-pin {
+  background-image: url('@/assets/map-pin.svg');
+}
+.category-select-button .category-pin {
+  background-image: url('@/assets/category.svg');
+}
+
+/* 읽기전용 입력 */
+.room-select-container .standard-input,
+.category-select-container .standard-input {
+  background-color: #f9f9f9;
+  font-size: 12px;
+}
+
+/* ========== 해시태그/카테고리 태그 뱃지 ========== */
+.hashtags-display,
+.categories-display {
+  grid-column: 2 / -1; /* 레이블 영역을 제외하고 입력열에 붙이기 */
+  margin-top: -6px;
+  margin-bottom: 6px;
+}
+
+.hashtags-wrapper,
+.categories-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.hashtag-item,
+.category-item {
+  display: inline-flex;
+  align-items: center;
+  background: #F2F2F2;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: #353535;
+  gap: 6px;
+}
+
+.remove-tag,
+.remove-category {
+  cursor: pointer;
+  font-size: 16px;
+  color: #828282;
+  line-height: 1;
+}
+.remove-tag:hover,
+.remove-category:hover { color: #5A5A5A; }
+
+/* ========== 버튼 ========== */
 .button-container {
   display: flex;
   justify-content: flex-end;
+  margin-top: 8px;
 }
 
 button {
-  width: 124px;
-  height: 40px;
-  padding: 8px 10px;
+  min-width: 124px;
+  height: 42px;
+  padding: 0 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   background: #FFB052;
-  color: #ffffff;
-  font-size: 16px;
+  color: #fff;
+  font-size: 15px;
   cursor: pointer;
 }
-
-button.update-button:hover {
-  background-color: #e6953e;
-}
-
+button.update-button:hover { background-color: #e6953e; }
 button:disabled,
 button.disabled {
   background: #CCCCCC;
@@ -922,138 +916,54 @@ button.disabled {
   opacity: 0.7;
 }
 
-.form-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 30px;
-  height: 42px; /* 입력폼 높이 통일 */
+/* ========== 브레이크포인트 ========== */
+/* 태블릿 (≤ 1024px): 좌우 여백 줄이고 이미지 영역 살짝 축소 */
+@media (max-width: 1024px) {
+  .profile-edit { padding: 16px; }
+  .image-container { flex-basis: 220px; }
 }
 
-.standard-input {
-  width: 100%;
-  height: 42px; /* 입력칸 높이 통일 */
-  padding: 12px;
-  border: 0.5px solid #ccc;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #5A5A5A;
-  font-family: Pretendard;
-  font-style: normal;
-  font-weight: 400;
-  letter-spacing: -0.3px;
-  box-sizing: border-box;
+/* 모바일 큰 화면 (≤ 900px): 이미지 위, 폼 아래로 세로 스택 */
+@media (max-width: 900px) {
+  .profile-edit {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .image-container {
+    flex-basis: auto;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .vertical-line { display: none; } /* 구분선 숨김 */
+  .form-group {
+    grid-template-columns: 1fr; /* 레이블 위, 입력 아래 */
+  }
+  label { margin-bottom: 4px; }
+  .hashtags-display,
+  .categories-display,
+  .error-message,
+  .hashtag-error-message { grid-column: 1 / -1; }
+  .room-select-container,
+  .category-select-container { grid-template-columns: 1fr; }
+  .button-container { justify-content: center; } /* 수정 버튼 가운데 */
 }
 
-/* 해시태그 표시 영역 스타일 */
-.hashtags-display {
-  margin-left: 110px; /* label 너비 + gap */
-  margin-top: -30px;
-  margin-bottom: 21px;
+/* 모바일 작은 화면 (≤ 600px): 폰트/패딩 더 압축 */
+@media (max-width: 600px) {
+  .profile-edit { padding: 14px; border-radius: 10px; }
+  .club-name-input,
+  .standard-input { font-size: 11px; height: 40px; }
+  .room-select-button,
+  .category-select-button,
+  button { height: 40px; font-size: 14px; }
+  .title { padding: 0 4px; }
 }
 
-.hashtags-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 4px 0;
-}
-
-.hashtag-item {
-  display: flex;
-  align-items: center;
-  background: #F2F2F2;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 10px;
-  color: #353535;
-  gap: 6px;
-  margin-top: 7px;
-}
-
-.remove-tag {
-  cursor: pointer;
-  font-size: 16px;
-  color: #828282;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.remove-tag:hover {
-  color: #5A5A5A;
-}
-
-
-.categories-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.category-item {
-  display: flex;
-  align-items: center;
-  background: #F2F2F2;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #353535;
-  gap: 6px;
-  margin-top: 7px;
-}
-
-.remove-category {
-  cursor: pointer;
-  font-size: 16px;
-  color: #828282;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.remove-category:hover {
-  color: #5A5A5A;
-}
-
-.categories-display {
-  margin-left: 110px; /* label 너비 + gap */
-  margin-bottom: 15px;
-  margin-top: -30px;
-}
-
-.input-container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.standard-input.error {
-  border-color: #FF2E2E;
-}
-
-.error-message {
-  color: #FF2E2E;
-  font-family: Pretendard;
-  font-size: 10px;
-  font-style: normal;
-  margin-top: 5px;
-  text-align: left;
-  padding-left: 4px;
-}
-
-
-.hashtag-error-message {
-  color: #FF2E2E;
-  font-family: Pretendard;
-  font-size: 10px;
-  font-style: normal;
-  text-align: left;
-  padding-left: 4px;
-  margin-top: 2px;
-}
-
-.standard-input.error {
-  border-color: #FF2E2E;
+/* 초소형 (≤ 400px): 버튼/여백 최소화 */
+@media (max-width: 400px) {
+  .profile-edit { padding: 12px; }
+  .image-container { max-width: 100%; }
+  .hashtags-wrapper,
+  .categories-wrapper { gap: 6px; }
 }
 </style>

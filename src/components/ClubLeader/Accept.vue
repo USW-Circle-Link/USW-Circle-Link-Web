@@ -3,7 +3,7 @@
     <div class="sections-container">
       <!-- Left Section: Member Requests -->
       <div class="section member-requests">
-        <h2>비회원 가입 요청 목록</h2>
+        <h2>비회원 가입 요청 목록</h2> 
         <p class="request-count">요청 인원: {{ requestedMembers.length }}명</p>
         <p class="instruction">각각의 목록에서 올바른 회원을 선택해주세요.</p>
 
@@ -26,7 +26,7 @@
 
       <!-- Right Section: Added Members -->
       <div class="section added-members">
-        <h2>엑셀파일로 추가한 동아리 회원 정보</h2>
+        <h2>비회원 정보</h2>
         <p class="member-count">비회원: {{ addedMembers.length }} 명</p>
 
         <div class="added-member-list">
@@ -99,51 +99,80 @@
 
     <!-- Popups -->
     <Popup v-if="showEditPopup" :visible="showEditPopup" title="동아리 회원 수정"
-           message="해당 동아리 회원을 수정하시겠습니까?"
-           @cancel="cancelEditPopup" @confirm="confirmEditPopup"/>
+            message="해당 동아리 회원을 수정하시겠습니까?"
+            @cancel="cancelEditPopup" @confirm="confirmEditPopup"/>
 
     <Popup v-if="showAcceptPopup"
-           :visible="showAcceptPopup"
-           title="동아리 회원 가입 요청"
-           message="해당 동아리 회원이 맞습니까?"
-           sub-message="다시 되돌릴 수 없으니 신중하게 선택해주세요."
-           @cancel="cancelAccept"
-           @confirm="confirmAccept"/>
+            :visible="showAcceptPopup"
+            title="비회원 가입 요청"
+            message="해당 동아리 회원의 가입 요청을 수락하시겠습니까?"
+            subMessage="다시 되돌릴 수 없으니 신중하게 선택해주세요."
+            @cancel="cancelAccept"
+            @confirm="confirmAccept"/>
 
     <Popup v-if="showRejectionPopup" :visible="showRejectionPopup" title="동아리 회원 가입 요청"
-           message="해당 동아리 회원 가입 요청을 거절하시겠습니까?" subMessage="다시 되돌릴 수 없으니 신중하게 선택해주세요."
-           @cancel="cancelRejection" @confirm="confirmRejection"/>
+            message="해당 동아리 회원 가입 요청을 거절하시겠습니까?" subMessage="다시 되돌릴 수 없으니 신중하게 선택해주세요."
+            @cancel="cancelRejection" @confirm="confirmRejection"/>
 
-    <Popup v-if="showConfirmationPopup"
-           :visible="showConfirmationPopup"
-           title="동아리 회원 가입 요청"
-           message="회원 가입 요청이 정상적으로 처리되었습니다."
-           :hideCancelButton="true"
-           @confirm="closeConfirmationPopup"/>
+            <div v-if="showConfirmationPopup" class="popup-overlay">
+            <div class="custom-popup">
+              <p class="popup-title">비회원 가입 요청</p>
+              <div class="popup-divider"></div>
+              <p class="popup-message">
+                회원 가입 요청이 정상적으로 처리되었습니다.<br>
+                해당 회원은 타 동아리에도 소속된 회원으로,<br>
+                모든 회장의 요청 수락을 받아야 회원 가입이 완료됩니다.
+              </p>
+              <div class="popup-buttons">
+                <button @click="closeConfirmationPopup" class="confirm-button">확인</button>
+              </div>
+            </div>
+          </div>
+          <div v-if="showUnexpectedErrorPopup" class="popup-overlay">
+      <div class="unexpectedPopup">
+        <h2>동구라미</h2>
+        <hr />
+        <p class="confirm-message">
+          <span class="error-highlight">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해주세요.</p>
+        <div class="unexpectedPopup-buttons">
+          <button @click="hideUnexpectedErrorPopup">확인</button>
+        </div>
+      </div>
+    </div>
+
+            <Popup 
+      v-if="ErrorPopup"
+      :visible="ErrorPopup"
+      title="동구라미"
+      :message="errorData"
+      :hideCancelButton="true"
+      @confirm="ErrorPopup = false"
+    />
+
 
     <Popup v-if="showErrorPopup"
-           :visible="showErrorPopup"
-           title="동아리 회원 가입 요청"
-           :message="`해당 동아리 회원의 정보가 일치하지 않습니다.`"
-           :subMessage="`${errorData}`"
-           :message2="`을(를) 다시 확인해주세요.`"
-           :hideCancelButton="true"
-           @confirm="closeErrorPopup"/>
+            :visible="showErrorPopup"
+            title="비회원 가입 요청"
+            :message="`해당 동아리 회원의 정보가 일치하지 않습니다.`"
+            :subMessage="`${errorData}`"
+            :message2="`을(를) 다시 확인해주세요.`"
+            :hideCancelButton="true"
+            @confirm="closeErrorPopup"/>
 
     <Popup v-if="show404ErrorPopup"
-           :visible="show404ErrorPopup"
-           title="동아리 회원 가입 요청"
-           message="해당 동아리 회원은 존재하지 않습니다. 다시 한 번 확인해주세요."
-           :hideCancelButton="true"
-           @confirm="close404ErrorPopup"/>
+          :visible="show404ErrorPopup"
+            title="동아리 회원 가입 요청"
+            message="해당 동아리 회원은 존재하지 않습니다. 다시 한 번 확인해주세요."
+            :hideCancelButton="true"
+            @confirm="close404ErrorPopup"/>
 
     <Popup v-if="realCompletePopup"
-           :visible="realCompletePopup"
-           title="동아리 회원 가입 요청"
-           :message="`회원 가입 요청이 정상적으로 처리되었습니다.`"
-           :message2="`${completedMemberName} 동아리 회원에게 회원 가입 완료 소식을 전달해주세요.`"
-           :hideCancelButton="true"
-           @confirm="closerealCompletePopup"/>
+            :visible="realCompletePopup"
+            title="동아리 회원 가입 요청"
+            :message="`회원 가입 요청이 정상적으로 처리되었습니다.`"
+            :message2="`'${completedMemberName}' 동아리 회원에게 회원 가입 완료 소식을 전달해주세요.`"
+            :hideCancelButton="true"
+            @confirm="closerealCompletePopup"/>
 
     <Popup401 v-if="show401Popup" />
   </div>
@@ -181,6 +210,7 @@ export default {
       errorMessages: [], // 에러 메시지 배열
       selectedAddedMembers: [], // 선택된 회원 관리
       errorMessagesByIndex: {},
+      showUnexpectedErrorPopup: false,
 
       errorData: '', // 400 에러시 additionalData 저장
       completedMemberName: '', // 회원가입 완료된 회원 이름 저장
@@ -209,25 +239,20 @@ export default {
     },
 
     async fetchData() {
-      console.log("🔍 Vuex 상태 확인:", store.state);
-    console.log("🔍 Access Token:", store.state.accessToken);
-    console.log("🔍 clubUUID:", store.state.clubUUID);
-    console.log("🔍 clubMemberUUID:", store.state.clubMemberUUID);
-    console.log("🔍 clubMemberAccountStatusUUID:", store.state.clubMemberAccountStatusUUID);
 
     const accessToken = store.state.accessToken;
-    const clubMemberUUID = store.state.clubMemberUUID; // ✅ 주석 해제 후 값 가져오기
-    const clubMemberAccountStatusUUID = store.state.clubMemberAccountStatusUUID;
+    //const clubMemberUUID = store.state.clubMemberUUID; //주석 해제 후 값 가져오기
+   // const clubMemberAccountStatusUUID = store.state.clubMemberAccountStatusUUID;
     const clubUUID = store.state.clubUUID;
     try {
-        // ✅ Vuex 상태값 확인
+        // Vuex 상태값 확인
         if (!accessToken || !clubUUID) {
             console.error('Access token or clubMemberAccountStatusUUID is missing');
             alert('로그인이 필요합니다.');
             return;
         }
 
-        // ✅ 가입 요청 목록 조회
+        // 가입 요청 목록 조회
         const requestResponse = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/sign-up`, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -250,13 +275,13 @@ export default {
             rejected: false
         }));
 
-        // ✅ clubMemberUUID가 존재하는지 확인
+        // clubMemberUUID가 존재하는지 확인
         if (!clubUUID) {
             console.warn('clubMemberUUID가 존재하지 않습니다. 비회원 목록을 불러오지 않습니다.');
             return;
         }
 
-        // ✅ 엑셀로 추가된 비회원 목록 조회
+        // 엑셀로 추가된 비회원 목록 조회
         const membersResponse = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members?sort=non-member`, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -329,7 +354,7 @@ export default {
       }
     },
 
-     confirmEditPopup() {
+    async confirmEditPopup() {
       if (!this.tempEditingMember) {
         console.error('No editing member data available');
         return;
@@ -338,16 +363,16 @@ export default {
       try {
         const memberId = this.addedMembers[this.editingIndex].clubMemberUUID;
 
-        // Clean phone number before sending
+        
         const cleanedPhone = this.tempEditingMember.phone.replace(/\D/g, '');
 
         const success = await this.updateMemberInfo(memberId, {
           ...this.tempEditingMember,
-          phone: cleanedPhone // Send cleaned phone number to server
+          phone: cleanedPhone 
         });
 
         if (success) {
-          // Store the cleaned phone number in local state
+          
           this.addedMembers[this.editingIndex] = {
             ...this.tempEditingMember,
             phone: cleanedPhone
@@ -367,6 +392,11 @@ export default {
       if (this.editingMember) {
         this.editingMember.department = '';
       }
+    },
+
+    // 예기치 못한 오류 팝업 숨기기
+    hideUnexpectedErrorPopup() {
+      this.showUnexpectedErrorPopup = false;
     },
     saveData() {
       localStorage.setItem("requestedMembers", JSON.stringify(this.requestedMembers));
@@ -432,87 +462,108 @@ export default {
     cancelAccept() {
       this.showAcceptPopup = false;
     },
+
     async confirmAccept() {
-  const accessToken = store.state.accessToken;
-  const clubUUID = store.state.clubUUID;
+      const accessToken = store.state.accessToken;
+      const clubUUID = store.state.clubUUID;
 
-  if (!clubUUID) {
-    console.error("❌ clubUUID가 없습니다.");
-    alert("클럽 정보가 올바르지 않습니다. 다시 로그인하거나 새로고침해 주세요.");
-    return;
-  }
-
-  try {
-    // 🔹 선택한 회원의 uuid 값 가져오기 (갱신)
-    const requestedIndex = this.selectedRequestedMembers[0];
-    const addedIndex = this.selectedAddedMembers[0];
-
-    const requestedMember = { ...this.requestedMembers[requestedIndex] };
-    const addedMember = { ...this.addedMembers[addedIndex] };
-
-    console.log("✅ 선택한 회원 정보 업데이트 확인:", requestedMember, addedMember);
-
-    const requestBody = {
-      signUpProfileRequest: {
-        uuid: requestedMember.clubMemberAccountStatusUUID, // 클럽 가입 요청 UUID
-        userName: requestedMember.name,
-        studentNumber: requestedMember.studentId,
-        major: requestedMember.department,
-        userHp: requestedMember.phone.replace(/-/g, '')
-      },
-      clubNonMemberProfileRequest: {
-        uuid: addedMember.clubMemberUUID, // 클럽 비회원 UUID
-        userName: addedMember.name,
-        studentNumber: addedMember.studentId,
-        major: addedMember.department,
-        userHp: addedMember.phone.replace(/-/g, '')
+      if (!clubUUID) {
+        console.error("clubUUID가 없습니다.");
+        alert("클럽 정보가 올바르지 않습니다. 다시 로그인하거나 새로고침해 주세요.");
+        return;
       }
-    };
 
-    console.log("📡 API 요청 바디:", JSON.stringify(requestBody, null, 2));
+      try {
+        //선택한 회원의 uuid 값 가져오기 (갱신)
+        const requestedIndex = this.selectedRequestedMembers[0];
+        const addedIndex = this.selectedAddedMembers[0];
 
-    // 🔹 API 요청
-    const response = await axios.post(
-      `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/sign-up`,
-      requestBody,
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+        const requestedMember = { ...this.requestedMembers[requestedIndex] };
+        const addedMember = { ...this.addedMembers[addedIndex] };
+
+        console.log("선택한 회원 정보 업데이트 확인:", requestedMember, addedMember);
+
+        const requestBody = {
+          signUpProfileRequest: {
+            uuid: requestedMember.clubMemberAccountStatusUUID,
+            userName: requestedMember.name,
+            studentNumber: requestedMember.studentId,
+            major: requestedMember.department,
+            userHp: requestedMember.phone.replace(/-/g, '')
+          },
+          clubNonMemberProfileRequest: {
+            uuid: addedMember.clubMemberUUID,
+            userName: addedMember.name,
+            studentNumber: addedMember.studentId,
+            major: addedMember.department,
+            userHp: addedMember.phone.replace(/-/g, '')
+          }
+        };
+
+        console.log("API 요청 바디:", JSON.stringify(requestBody, null, 2));
+
+        const response = await axios.post(
+            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/sign-up`,
+            requestBody,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+              }
+            }
+        );
+
+        console.log("가입 요청 성공:", response.data);
+
+        if (response.data.message === "기존 동아리 회원 가입 요청 수락 완료") {
+          this.showConfirmationPopup = true;
+        } else if (response.data.message === "기존 동아리 회원 가입 요청 수락 후 계정 생성 완료") {
+          this.completedMemberName = response.data.data;
+          this.realCompletePopup = true;
         }
-      }
-    );
 
-    console.log("✅ 가입 요청 성공:", response.data);
+        // 선택한 회원 제거
+        this.requestedMembers.splice(requestedIndex, 1);
+        this.addedMembers.splice(addedIndex, 1);
+        this.selectedRequestedMembers = [];
+        this.selectedAddedMembers = [];
 
-    if (response.data.message === "기존 동아리 회원 가입 요청 수락 완료") {
-      this.showConfirmationPopup = true;
-    } else if (response.data.message === "기존 동아리 회원 가입 요청 수락 후 계정 생성 완료") {
-      this.completedMemberName = response.data.data;
-      this.realCompletePopup = true;
-    }
-
-    // ✅ 선택한 회원 제거
-    this.requestedMembers.splice(requestedIndex, 1);
-    this.addedMembers.splice(addedIndex, 1);
-    this.selectedRequestedMembers = [];
-    this.selectedAddedMembers = [];
-
-  } catch (error) {
+      } catch (error) {
     if (error.response) {
-      console.error("❌ API 요청 실패:", error.response.data);
+        console.error("API 요청 실패:", error.response.data);
 
-      if (error.response.status === 404) {
-        alert("⚠️ 해당 클럽 멤버를 찾을 수 없습니다. 올바른 데이터를 선택했는지 확인하세요.");
-      } else if (!this.handle401Error(error)) {
-        alert("🚨 오류 발생: 관리자에게 문의하세요.");
-      }
+        const {code}=error.response?.data||{};
+        if (error.response.status === 401) {
+            this.show401Popup = true;
+        } else if (code === "CMEM-201") {
+            this.show404ErrorPopup = true;
+        } else if (code === "PFL-209") {
+            this.errorData = error.response.data.additionalData.join(', ');
+            this.showErrorPopup = true;
+        } else if (code === "INVALID_ARGUMENT") {
+            // "INVALID_ARGUMENT" 에러일 경우
+            this.errorData = "예기치 못한 오류가 발생했습니다.\n문제가 계속될 시, 관리자에게 문의해 주세요.";
+            this.ErrorPopup = true;
+        } else if (code === "PFL-206") {
+            // "INVALID_ARGUMENT" 에러일 경우
+            this.errorData = "비회원만 수정할 수 있습니다.";
+             // Alert 창 띄우기
+              alert(this.errorData);
+            //this.showErrorPopup = true;
+        } else {
+            this.errorData = "알 수 없는 오류가 발생했습니다.";
+            this.showErrorPopup = true;
+        }
+    } else {
+        this.errorData = "네트워크 오류가 발생했습니다.";
+        this.showErrorPopup = true;
     }
-  }
+}
 
-  this.showAcceptPopup = false;
-  this.saveData();
-},
+
+      this.showAcceptPopup = false;
+      this.saveData();
+    },
 
     closeConfirmationPopup() {
       this.resetPopups();
@@ -548,7 +599,7 @@ export default {
       this.errorMessagesByIndex = {}; // Clear any existing error messages
     },
 
-    saveEdit(index) {
+    saveEdit() {
       if (this.validateInput()) {
         this.tempEditingMember = { ...this.editingMember }; // 임시 저장
         this.showEditPopup = true;
@@ -567,10 +618,6 @@ export default {
         this.errorMessagesByIndex[this.editingIndex].push('* 학번(8자리 숫자)을 입력해주세요.');
         isValid = false;
       }
-      if (!this.editingMember.college) {
-        this.errorMessagesByIndex[this.editingIndex].push('* 단과대를 선택해주세요.');
-        isValid = false;
-      }
       if (!this.editingMember.department) {
         this.errorMessagesByIndex[this.editingIndex].push('* 학과를 선택해주세요.');
         isValid = false;
@@ -579,7 +626,7 @@ export default {
       // New phone validation logic
       const cleanedPhone = this.editingMember.phone.replace(/\D/g, '');
       if (!cleanedPhone || cleanedPhone.length !== 11) {
-        this.errorMessagesByIndex[this.editingIndex].push('* 전화번호(11자리 숫자)를 입력해주세요.');
+        this.errorMessagesByIndex[this.editingIndex].push('* 전화번호(-제외 11자리 숫자)를 입력해주세요.');
         isValid = false;
       } else {
         // Store the cleaned phone number if it's valid
@@ -604,6 +651,7 @@ export default {
 </script>
 
 <style scoped>
+
 .added-member-item.edit-mode {
   background: #fff;
   border: 1px solid #FFB052;
@@ -676,11 +724,9 @@ export default {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  max-width: 1400px;
+  max-width: 1000px;
   position: relative;
-  margin-left: -100px;
   height: 100%;
-  padding-right: 20px;
 }
 
 .section {
@@ -742,11 +788,10 @@ export default {
 @media (max-width: 1200px) {
   .member-requests, .added-members {
     width: 100%; /* 작은 화면에서 한 줄로 표시 */
-    margin-bottom: 20px; /* 섹션 간 간격 */
   }
 }
 
-.request-list{}
+
 .added-member-list {
   display: flex;
   flex-direction: column;
@@ -890,6 +935,7 @@ export default {
   width: 175px;
   height: 45px;
   transition: background-color 0.3s ease;
+  margin-bottom: 30px;
 }
 
 .accept-button.active {
@@ -1012,5 +1058,127 @@ export default {
   margin-top: 5px;
   margin-bottom: -15px;
   width: 100%;
+}
+
+
+
+/* 메인 컨테이너: 좌우 섹션을 담는 최상위 컨테이너 */
+.sections-container {
+  display: flex; /* Flexbox 레이아웃 사용 */
+  justify-content: space-between; /* 좌우 섹션 사이 공간 균등 분배 */
+  gap: 15px; /* 섹션 사이 간격 */
+  max-width: 1200px; /* 최대 너비 제한 */
+  position: relative;
+  height: 100%;
+  padding-right: 20px;
+  margin-left: -50px;
+}
+
+/* 화면 너비가 1300px 미만일 때의 반응형 스타일 */
+@media (max-width: 1300px) {
+  /* 컨테이너를 세로 방향으로 변경 */
+  .sections-container {
+    flex-direction: column; /* 섹션들을 세로로 배치 */
+    align-items: center; /* 가운데 정렬 */
+    padding-right: 0; /* 패딩 제거 */
+    gap: 60px;
+  }
+
+  /* 각 섹션의 너비 조정 */
+  .section {
+    flex: 1 1 100%; /* flex-grow: 1, flex-shrink: 1, flex-basis: 100% */
+    width: 100%;
+    max-width: 500px; /* 섹션 최대 너비 제한 */
+  }
+
+  /* 좌우 섹션 공통 스타일 */
+  .member-requests,
+  .added-members {
+    width: 100%;
+    min-width: unset; /* 최소 너비 제한 해제 */
+  }
+
+  /* 회원 컨테이너 스타일 */
+  .request-item-container,
+  .added-member-container {
+    width: 100%; /* 컨테이너 전체 너비 사용 */
+  }
+
+  /* 회원 아이템 스타일 */
+  .request-item,
+  .added-member-item {
+    width: 100%; /* 아이템 전체 너비 사용 */
+  }
+
+  /* 편집 폼 스타일 */
+  .edit-form {
+    width: 100%;
+  }
+
+  /* 입력 필드 컨테이너 스타일 */
+  .edit-inputs {
+    flex-wrap: wrap; /* 입력 필드 줄바꿈 허용 */
+    gap: 8px; /* 필드 간 간격 */
+  }
+
+  /* 입력 필드 공통 스타일 */
+  .edit-input,
+  .college-select,
+  .department-select {
+    flex: 1 1 calc(50% - 4px); /* 2열 배치를 위한 너비 계산 */
+    min-width: unset;
+    width: auto !important;
+  }
+
+  /* 이름, 학번, 전화번호 입력 필드 스타일 */
+  .name-input,
+  .id-input,
+  .phone-input {
+    flex: 1 1 calc(33.333% - 6px); /* 3열 배치를 위한 너비 계산 */
+    min-width: unset;
+    width: auto !important;
+  }
+
+  /* 수락 버튼 섹션 스타일 */
+  .accept-section {
+    min-width: unset;
+    width: 100%;
+    justify-content: center; /* 버튼 중앙 정렬 */
+  }
+
+  /* member-count와 added-member-list 사이 간격 조정 */
+  .member-count {
+    margin-bottom: 30px; /* 반응형에서는 간격을 줄임 (기존 69px에서 변경) */
+  }
+}
+/* 추가적인 작은 화면 대응 미디어 쿼리 */
+@media (max-width: 768px) {
+  .sections-container {
+    padding: 0 15px; /* 모바일에서 패딩 감소 */
+    gap: 40px; /* 간격도 조금 줄임 */
+  }
+  
+  .request-item-container,
+  .added-member-container {
+    width: calc(100% - 10px); /* 여백을 위한 약간의 공간 확보 */
+  }
+}
+
+/* 매우 작은 화면 대응 */
+@media (max-width: 480px) {
+  .sections-container {
+    padding: 0 10px; /* 최소 패딩 */
+  }
+}/* 메인 컨테이너: 좌우 섹션을 담는 최상위 컨테이너 */
+.sections-container {
+  display: flex; /* Flexbox 레이아웃 사용 */
+  justify-content: space-between; /* 좌우 섹션 사이 공간 균등 분배 */
+  gap: 15px; /* 섹션 사이 간격 */
+  max-width: 1200px; /* 최대 너비 제한 */
+  position: relative;
+  height: 100%;
+  padding: 0 20px; /* 좌우 패딩으로 여백 확보 */
+  margin: 0 auto; /* 가운데 정렬 */
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
 }
 </style>
