@@ -4,10 +4,11 @@
       <img
           src="../../assets/dongurami_logo.png"
           alt="Dongurami Logo"
-          class="logo clickable"
-          @click="navigateTo('clublist')"
+          class="logo"
+          @click="navigateTo('dashboard')"
+          style="cursor: pointer;"
       />
-      <h1 class="title clickable" @click="navigateTo('clublist')">동구라미</h1>
+      <h1 class="title" @click="navigateTo('dashboard')" style="cursor: pointer;">동구라미</h1>
       <!--    <NotificationButton/>-->
     </div>
     <!-- 햄버거 메뉴 버튼 (반응형에서만 표시) -->
@@ -16,7 +17,7 @@
         <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
       </svg>
       <svg v-else xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3">
-        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+        <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
       </svg>
     </div>
   </div>
@@ -32,13 +33,14 @@ export default {
   },
   methods: {
     navigateTo(route) {
+      // 라우터를 사용하여 지정된 경로로 이동
       this.$router.push({ name: route });
     },
     toggleSidebar() {
       this.isMenuOpen = !this.isMenuOpen;
       // 부모 컴포넌트(Main.vue)에 사이드바 토글 이벤트 전달
       this.$emit('toggle-sidebar', this.isMenuOpen);
-    }
+    } 
   }
 };
 </script>
@@ -84,12 +86,6 @@ export default {
   font-weight: 405;
   line-height: 14px; /* 100% */
 }
-
-.clickable {
-  cursor: pointer;
-}
-
-/* 햄버거 메뉴 스타일 */
 .hamburger-menu {
   display: none;
   cursor: pointer;
@@ -106,50 +102,7 @@ export default {
 .hamburger-menu:hover svg {
   fill: #FFC01D;
 }
-
 /* 반응형 스타일 */
-@media (max-width: 1400px) {
-  .header-content {
-    margin-left: 180px;
-  }
-}
-
-@media (max-width: 1350px) {
-  .header-content {
-    margin-left: 175px;
-  }
-}
-
-@media (max-width: 1300px) {
-  .header-content {
-    margin-left: 170px;
-  }
-}
-
-@media (max-width: 1250px) {
-  .header-content {
-    margin-left: 125px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .header-content {
-    margin-left: 100px;
-  }
-}
-
-@media (max-width: 112px) {
-  .header-content {
-    margin-left: 68px;
-  }
-}
-
-@media (max-width: 992px) {
-  .header-content {
-    margin-left: 50px;
-  }
-}
-
 @media (max-width: 1300px) {
   .hamburger-menu {
     display: flex;
@@ -164,17 +117,12 @@ export default {
   .hamburger-menu {
     display: flex;
   }
-  
-  .header-content {
-    margin-left: 20px;
-  }
 }
 
 @media (max-width: 576px) {
   .hamburger-menu {
     display: flex;
   }
-  
   .header-content {
     margin-left: 10px;
   }
