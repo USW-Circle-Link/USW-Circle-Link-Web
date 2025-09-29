@@ -120,6 +120,7 @@ export default {
   box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
+  margin-left: 20px;
 }
 
 .sidebar-content {
@@ -322,7 +323,7 @@ nav .icon {
 }
 
 .line1 {
-  width: 70%;
+  width: 60%;
   height: 1px;
   background-color: #999999;
   margin-bottom: 10px;
