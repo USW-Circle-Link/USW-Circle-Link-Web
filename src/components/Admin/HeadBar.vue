@@ -4,11 +4,21 @@
       <img
           src="../../assets/dongurami_logo.png"
           alt="Dongurami Logo"
-          class="logo clickable"
-          @click="navigateTo('clublist')"
+          class="logo"
+          @click="navigateTo('dashboard')"
+          style="cursor: pointer;"
       />
-      <h1 class="title clickable" @click="navigateTo('clublist')">동구라미</h1>
+      <h1 class="title" @click="navigateTo('dashboard')" style="cursor: pointer;">동구라미</h1>
       <!--    <NotificationButton/>-->
+    </div>
+    <!-- 햄버거 메뉴 버튼 (반응형에서만 표시) -->
+    <div class="hamburger-menu" @click="toggleSidebar">
+      <svg v-if="!isMenuOpen" xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3">
+        <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
+      </svg>
+      <svg v-else xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3">
+        <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
+      </svg>
     </div>
   </div>
 </template>
@@ -16,10 +26,21 @@
 <script>
 export default {
   name: 'Headbar',
+  data() {
+    return {
+      isMenuOpen: false
+    };
+  },
   methods: {
     navigateTo(route) {
+      // 라우터를 사용하여 지정된 경로로 이동
       this.$router.push({ name: route });
-    }
+    },
+    toggleSidebar() {
+      this.isMenuOpen = !this.isMenuOpen;
+      // 부모 컴포넌트(Main.vue)에 사이드바 토글 이벤트 전달
+      this.$emit('toggle-sidebar', this.isMenuOpen);
+    } 
   }
 };
 </script>
@@ -31,6 +52,7 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 86px;
   background: #fff;
   box-shadow: 0px 2.5px 0px 0px rgba(0, 0, 0, 0.13);
@@ -64,61 +86,43 @@ export default {
   font-weight: 405;
   line-height: 14px; /* 100% */
 }
-
-.clickable {
+.hamburger-menu {
+  display: none;
   cursor: pointer;
+  padding: 10px;
+  margin-right: 20px;
+  align-items: center;
+  justify-content: center;
 }
 
+.hamburger-menu svg {
+  transition: fill 0.3s ease;
+}
+
+.hamburger-menu:hover svg {
+  fill: #FFC01D;
+}
 /* 반응형 스타일 */
-@media (max-width: 1400px) {
-  .header-content {
-    margin-left: 180px;
-  }
-}
-
-@media (max-width: 1350px) {
-  .header-content {
-    margin-left: 175px;
-  }
-}
-
 @media (max-width: 1300px) {
-  .header-content {
-    margin-left: 170px;
+  .hamburger-menu {
+    display: flex;
   }
-}
-
-@media (max-width: 1250px) {
-  .header-content {
-    margin-left: 125px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .header-content {
-    margin-left: 100px;
-  }
-}
-
-@media (max-width: 112px) {
-  .header-content {
-    margin-left: 68px;
-  }
-}
-
-@media (max-width: 992px) {
-  .header-content {
-    margin-left: 50px;
-  }
-}
-
-@media (max-width: 768px) {
+  
   .header-content {
     margin-left: 20px;
   }
 }
 
+@media (max-width: 768px) {
+  .hamburger-menu {
+    display: flex;
+  }
+}
+
 @media (max-width: 576px) {
+  .hamburger-menu {
+    display: flex;
+  }
   .header-content {
     margin-left: 10px;
   }

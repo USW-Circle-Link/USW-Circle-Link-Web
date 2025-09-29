@@ -199,6 +199,7 @@ export default {
   background-color: #ffffff;
   border-radius: 8px;
   height: 440px;
+  min-width: 390px;
 }
 
 h2 {

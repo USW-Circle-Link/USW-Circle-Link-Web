@@ -18,16 +18,17 @@
               />
               <span class="checkbox-mark"></span>
             </label>
-            <span>{{ member.userName }}</span>
-            <span>{{ member.studentNumber }}</span>
-            <span>{{ member.major }}</span>
-            <span>{{ member.userHp }}</span>
+            <div class="member-info">
+              <span class="member-name">{{ member.userName }}</span>
+              <span class="member-studentId">{{ member.studentNumber }}</span>
+              <span class="member-major">{{ member.major }}</span>
+              <span class="member-phone">{{ member.userHp }}</span>
+            </div>
           </li>
         </ul>
       </div>
     </div>
 
-    <!-- 퇴출 섹션 헤더 -->
     <div class="expulsion-header">
       <span class="selected-count"
         >퇴출 선택 인원
@@ -44,7 +45,6 @@
       </button>
     </div>
 
-    <!-- 퇴출 선택 인원 -->
     <div class="expulsion-section">
       <div class="expulsion-list">
         <ul>
@@ -53,18 +53,18 @@
             :key="member.clubMemberUUID"
             class="member-item"
           >
-            <span>{{ member.userName }}</span>
-            <span>{{ member.studentNumber }}</span>
-            <span>{{ member.major }}</span>
-            <span>{{ member.userHp }}</span>
+            <div class="member-info">
+              <span class="member-name">{{ member.userName }}</span>
+              <span class="member-studentId">{{ member.studentNumber }}</span>
+              <span class="member-major">{{ member.major }}</span>
+              <span class="member-phone">{{ member.userHp }}</span>
+            </div>
           </li>
         </ul>
       </div>
     </div>
 
-    <!-- 동아리 회원 퇴출 확인 팝업 -->
     <div class="custom-popup1" v-if="showExpulsionPopup">
-      <!-- 퇴출하기 팝업을 누를 시 -->
       <div class="popup-content1">
         <div class="popup-header1">
           <p class="popup-title1">동아리 회원 퇴출</p>
@@ -75,9 +75,9 @@
             <span class="red-text1">총 {{ selectedMembers.length }}명</span
             >입니다.
           </p>
-          <p class="popup-message1">해당 동아리 회원들을 퇴출하시겠습니까?</p>
+          <p class="popup-message1">해당 동아리원들을 퇴출하시겠습니까?</p>
           <p class="popup-warning1">
-            퇴출 후 되돌릴 수 없으니 신중하게 선택해주세요.
+            퇴출 후 되돌릴 수 없으니 신중하게 선택해 주세요.
           </p>
         </div>
         <button @click="showExpulsionPopup = false" class="cancel-button">
@@ -97,20 +97,17 @@ import Popup401 from './401Popup.vue';
 
 export default {
   name: 'RemoveMemberDashboard',
-
   components: {
     Popup401,
   },
-
   data() {
     return {
       clubMembers: [],
-      showExpulsionPopup: false, // 팝업 표시 여부를 체크할 Boolean값
+      showExpulsionPopup: false,
       selectedMembers: [],
       show401Popup: false, // 401 팝업 상태 추가
     };
   },
-
   computed: {
     formattedClubMembers() {
       if (!this.clubMembers) return [];
@@ -122,11 +119,9 @@ export default {
       });
     },
   },
-
   mounted() {
     this.fetchData();
   },
-
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
@@ -165,11 +160,9 @@ export default {
         (m) => m.clubMemberUUID === member.clubMemberUUID
       );
       if (index === -1) {
-        // 아직 체크되지 않은 동아리 회원의 경우
-        this.selectedMembers.push(member); // selectedMembers의 배열에 추가
+        this.selectedMembers.push(member);
       } else {
-        // 이미 체크된 동아리 회원의 경우
-        this.selectedMembers.splice(index, 1); // selectedMembers의 배열에서 삭제
+        this.selectedMembers.splice(index, 1);
       }
     },
 
@@ -218,265 +211,329 @@ export default {
 </script>
 
 <style>
+/* ===== 공통 컨테이너: 고정폭 제거, 유동폭 적용 ===== */
+/* 전체 페이지 컨테이너 */
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: 0 16px; /* ← 좌우 동일 여백 */
+  box-sizing: border-box;
+}
+.title,
+.RemoveMemberDashboard,
+.expulsion-header,
+.expulsion-section {
+  max-width: 1200px;
+  width: min(100%, 1200px);
+  margin: 0 auto;
+  box-sizing: border-box;
+}
 .title {
   font-size: 20px;
   font-weight: 600;
-  width: 886px; /* RemoveMemberDashboard와 동일한 너비 */
-  margin: 0 auto; /* 중앙 정렬 */
-  padding: 0 20px; /* 내부 여백 추가 */
+  padding: 0 16px;
 }
 
+/* 카드(회원 목록) */
 .RemoveMemberDashboard {
-  width: 896px;
   background: #fff;
-  border-radius: 8px;
-  align-items: center;
-  align-content: flex-start;
+  border-radius: 12px;
   text-align: center;
   height: 450px;
   overflow-y: auto;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  margin: 20px auto 0 auto;
+  margin: 20px auto 0;
+  padding: 8px 12px;
 }
 
-.member-list ul {
-  width: 858px;
-  padding-left: 15px;
+/* ul 폭 고정 제거 -> 부모에 맞춰 늘어남 */
+.member-list ul,
+.expulsion-list ul {
   list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
 }
 
+/* 리스트 아이템을 그리드로(칼럼은 넓이에 따라 자동 적응) */
 .member-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center; /* 수직 중앙 정렬 */
-  padding: 10px 25px;
-  background-color: #f0f2f5;
+  display: flex; /* flexbox로 변경 */
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #fff; /* 배경색 흰색으로 변경 */
+  border: 1px solid #e0e0e0; /* 테두리 추가 */
   border-radius: 10px;
-  margin-bottom: 10px;
-  height: 32px;
+  margin: 10px 0; /* 상하 간격 추가 */
+  min-height: 42px;
+  box-sizing: border-box;
+  transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 은은한 그림자 추가 */
+}
+
+/* 선택된 항목 스타일 */
+.member-item.selected {
+  border: 1px solid #ffb052;
+  background-color: #fff8f0;
+}
+
+.member-info {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1.2fr 0.9fr 1fr 1fr;
+  align-items: center;
+  gap: 10px;
 }
 
 .member-item span {
-  flex: 1;
-  text-align: center;
+  text-align: left;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.custom-checkbox {
-  position: relative;
-  display: inline-flex; /* flex로 변경하여 정렬 개선 */
-  align-items: center; /* 수직 중앙 정렬 */
-  width: 18px; /* 크기 감소 */
-  height: 18px; /* 크기 감소 */
-  margin-right: 15px;
-  cursor: pointer;
-}
-
-.hidden-checkbox {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.checkbox-mark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 15px;
-  height: 15px;
-  background-color: white;
-  border: 2px solid #767676;
-  border-radius: 4px;
-}
-
-/* 체크되지 않은 상태 호버 효과 */
-.custom-checkbox:hover .checkbox-mark {
-  border-color: #999;
-}
-
-/* 체크된 상태 */
-.hidden-checkbox:checked + .checkbox-mark {
-  background-color: #ffb052;
-  border-color: #ffb052;
-}
-
-/* 체크 마크 */
-.checkbox-mark:after {
-  content: '';
-  position: absolute;
-  display: none;
-  left: 3.4px; /* 위치 조정 */
-  bottom: 3.5px;
-  width: 6px; /* 너비 증가 */
-  height: 10px;
-  border: solid white;
-  border-width: 0 2.5px 2.5px 0; /* 테두리 두께 증가 */
-  transform: rotate(45deg);
-}
-
-/* 체크된 상태일 때 체크 마크 표시 */
-.hidden-checkbox:checked + .checkbox-mark:after {
-  display: block;
-}
-
+/* 선택 인원 헤더 */
 .expulsion-header {
   display: flex;
   justify-content: space-between;
-  align-items: end;
-  margin: 40px auto 0px auto; /* margin 중앙 정렬로 수정 */
-  padding: 0;
-  width: 886px; /* RemoveMemberDashboard와 동일한 너비 */
+  align-items: flex-end;
+  padding: 0 16px;
+  margin: 24px auto 0;
 }
-
 .selected-count {
   font-weight: 500;
-  margin-right: 10px; /* Adjust the margin as needed */
+  font-size: 14px;
 }
-
 .selected-count-bold {
-  font-weight: 300;
-  margin-left: 5px; /* Adjust the margin as needed */
+  font-weight: 600;
+  margin-left: 6px;
 }
 
 .expulsion-section {
-  margin: 13px auto 10px auto; /* margin 중앙 정렬로 수정 */
-  width: 886px; /* RemoveMemberDashboard와 동일한 너비 */
+  margin: 12px auto 10px;
   background: #fff;
-  border-radius: 8px;
-  position: relative;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
-  margin-bottom: 10px;
+  border-radius: 12px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+  padding: 8px 12px;
 }
-
 .expulsion-list {
   height: 200px;
   overflow-y: auto;
 }
 
-.expulsion-list ul {
-  list-style: none;
-  padding-left: 15px;
-  width: 858px;
+/* 퇴출 목록(체크박스 없음) */
+.expulsion-list .member-item {
+  /* 이미 상위 member-item에 flexbox가 적용되어 있어 별도 설정 불필요 */
+  background: #fff; /* 흰색 배경 */
+}
+.expulsion-list .member-info {
+  grid-template-columns: 1.2fr 0.9fr 1fr 1fr;
+}
+
+/* 체크박스 */
+.custom-checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0; /* 크기 줄어들지 않도록 고정 */
+}
+.hidden-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+.checkbox-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border: 2px solid #767676;
+  border-radius: 4px;
+}
+.custom-checkbox:hover .checkbox-mark {
+  border-color: #999;
+}
+.hidden-checkbox:checked + .checkbox-mark {
+  background: #ffb052;
+  border-color: #ffb052;
+}
+.checkbox-mark:after {
+  content: '';
+  position: absolute;
+  display: none;
+  left: 5px;
+  bottom: 3px;
+  width: 6px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.hidden-checkbox:checked + .checkbox-mark:after {
+  display: block;
 }
 
 .expulsion-button {
-  background-color: #ff6b6b;
-  color: white;
+  background: #ff6b6b;
+  color: #fff;
   border: none;
-  padding: 6px 18px;
+  padding: 8px 18px;
   border-radius: 8px;
   cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-size: 14px;
 }
-
 .expulsion-button:hover {
-  background-color: #e55a5a; /* Darker shade of the original color */
+  background: #e55a5a;
 }
-
 .expulsion-button:disabled {
-  background-color: #cccccc;
+  background: #ccc;
   cursor: not-allowed;
 }
 
 .custom-popup1 {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 999;
+  padding: 16px;
+  box-sizing: border-box;
 }
-
 .popup-content1 {
-  background-color: white;
+  background: #fff;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 420px;
-  height: 152px;
+  width: min(520px, 100%);
+  max-width: 520px;
   text-align: left;
   position: relative;
+  box-sizing: border-box;
 }
-
 .popup-header1 {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
-
 .popup-title1 {
   font-size: 18px;
-  font-weight: bold;
-  color: black;
+  font-weight: 700;
   margin: 0;
+  color: #000;
 }
-
 .popup-separator1 {
   border-bottom: 1px solid #d3d3d3;
   margin: 10px 0;
 }
-
 .popup-body1 {
-  margin-bottom: 0px;
-  margin-top: 22px;
+  margin: 7px 0 35px;
 }
-
 .popup-message1 {
   font-size: 15px;
-  color: #333333;
-  margin: 2px 0;
+  color: #333;
+  margin: 4px 0;
 }
-
 .red-text1 {
   color: #ff5c5c;
-  font-weight: 600;
+  font-weight: 700;
 }
-
 .popup-warning1 {
   font-size: 12px;
   color: #ff5c5c;
-  margin: 4px 0;
+  margin: 6px 0 0;
 }
-
-.expel-button {
-  background-color: #ffb052;
-  color: white;
-  border: none;
-  padding: 7px 30px;
-  border-radius: 7px;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-  position: absolute;
-  bottom: 16px;
-  right: 20px;
-  line-height: 16px;
-}
-
+.expel-button,
 .cancel-button {
-  background-color: #cccccc;
-  color: white;
   border: none;
-  padding: 7px 30px;
-  border-radius: 7px;
-  font-size: 16px;
-  font-weight: 400;
+  color: #fff;
   cursor: pointer;
+  padding: 8px 22px;
+  border-radius: 8px;
+  font-size: 15px;
+}
+.expel-button {
+  background: #ffb052;
   position: absolute;
   bottom: 16px;
-  right: 120px;
-  line-height: 16px;
+  right: 16px;
 }
-
+.cancel-button {
+  background: #ccc;
+  position: absolute;
+  bottom: 16px;
+  right: 112px;
+}
 .expel-button:hover {
-  background-color: #e6953e;
+  background: #e6953e;
+}
+.cancel-button:hover {
+  background: #999;
 }
 
-.cancel-button:hover {
-  background-color: #999999;
+/* ===== 반응형 ===== */
+@media (max-width: 992px) {
+  .member-item {
+    padding: 12px;
+  }
+  .member-info {
+    grid-template-columns: 1.2fr 0.9fr 1fr 1fr;
+  }
+  .expulsion-list .member-info {
+    grid-template-columns: 1.4fr 0.8fr 0.9fr 1fr;
+  }
+}
+@media (max-width: 768px) {
+  .expulsion-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .member-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+    gap: 0;
+  }
+  .member-info {
+    grid-template-columns: 1fr; /* 1열로 변경 */
+    gap: 4px; /* 간격 줄이기 */
+    margin-top: 8px; /* 체크박스와 정보 사이 간격 */
+  }
+
+  .member-name {
+    font-weight: bold;
+    font-size: 16px;
+  }
+  .member-studentId {
+    color: #555;
+    font-size: 14px;
+  }
+  .member-major {
+    color: #777;
+    font-size: 14px;
+  }
+  .member-phone {
+    font-weight: 500;
+    font-size: 14px;
+    color: #444;
+  }
+
+  .expulsion-list .member-item {
+    /* 퇴출 목록도 동일한 카드 스타일 적용 */
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+  }
+  .expulsion-list .member-info {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    margin-top: 0; /* 퇴출 목록에는 체크박스가 없으므로 간격 제거 */
+  }
 }
 </style>

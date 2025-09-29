@@ -20,9 +20,9 @@
             </div>
             <div class="bottom">
               <a @click.prevent="navigateTo('addMember')">· 동아리 회원 추가</a>
-              <a @click.prevent="navigateTo('duplicate-member')">· 프로필 중복 회원 추가</a>
+              <a @click.prevent="navigateTo('duplicate-member')">· 중복 회원 추가</a>
               <a @click.prevent="navigateTo('remove-member')">· 회원 퇴출</a>
-              <a @click.prevent="navigateTo('Accept')">· 비회원 가입 요청 관리</a>
+              <a @click.prevent="navigateTo('Accept')">· 비회원 가입 요청 목록</a>
             </div>
           </li>
           <li class="list1">
@@ -33,8 +33,8 @@
             </div>
             <div class="bottom">
               <a @click.prevent="navigateTo('profileedit')">· 동아리 정보 수정</a>
-              <a @click="openNewWindow1">· 동아리 소개/모집 글</a>
-              <a @click="navigateTo('intro')">· 동아리 소개/모집 글 작성</a>
+              <a @click="openNewWindow1">· 동아리 소개/모집글</a>
+              <a @click="navigateTo('intro')">· 동아리 소개/모집글작성</a>
               <a @click="navigateTo('passer-management')">· 지원자 합격/불합격 처리</a>
               <a @click="navigateTo('morepass')">· 지원자 추가 합격 처리</a>
             </div>
@@ -54,9 +54,9 @@
       <div class="line1"></div>
       <div class="footer">
         <div class="links">
-          <a @click.prevent="navigateTo('TermsOfUse')" :class="{ selected: selectedLink === 'TermsOfUse' }" style="font-weight: 500;">이용약관</a>
+          <a @click.prevent="navigateTo('TermsOfUse')" :class="{ selected: selectedLink === 'TermsOfUse' }">이용약관</a>
           <div class="line2"></div>
-          <a @click.prevent="navigateTo('privacy_policy')" :class="{ selected: selectedLink === 'privacy_policy'}" style="font-weight: 500;">개인정보 처리방침</a>
+          <a @click.prevent="navigateTo('privacy_policy')" :class="{ selected: selectedLink === 'privacy_policy', 'bold-text': true }">개인정보 처리방침</a>
         </div>
         <a @click.prevent="logout">로그아웃</a>
       </div>
@@ -67,56 +67,50 @@
 <script>
 import store from "@/store/store";
 import axios from "axios";
+// eslint-disable-next-line no-unused-vars
 
 export default {
   name: 'SidebarMenu',
   data() {
     return {
-      imageSrc: require('@/assets/profile.png'), // 기본 프로필 
-      data: '', // 동아리 정보 
-      department: '', // 학과 정보 
-      selectedLink: '', //선택된 메뉴라면 노란색으로 (footer)
+      imageSrc: require('@/assets/profile.png'),
+      data: '',
+      department: '',
+      selectedLink: '', //선택 중이라면 노란색으로 (footer)
     }
   },
   computed: {
-    // Vuex의 상태 중 사이드바 갱신 플래그 값 가져오기
     shouldUpdateSidebar() {
       return this.$store.state.shouldUpdateSidebar;
     }
   },
   mounted() {
-    this.pageLoadFunction(); // 클럽 정보 가져오기 
+    this.pageLoadFunction();
   },
   watch: {
-    // shouldUpdateSidebar 값이 true로 변경되면 사이드바 리로드
     shouldUpdateSidebar(newValue) {
       if (newValue) {
-        this.pageLoadFunction(); // 클럽 정보 재요청
-        this.$store.commit('SET_SIDEBAR_UPDATE', false); // 플래그 초기화 
+        this.pageLoadFunction();
+        this.$store.commit('SET_SIDEBAR_UPDATE', false);
       }
     }
   },
   methods: {
-    // 페이지 이동 처리 함수
     navigateTo(routeName) {
-      this.selectedLink = routeName; // 선택된 메뉴
+      this.selectedLink = routeName; // Add this line
       this.$router.push({ name: routeName }).catch(err => {
-        // 동일한 경로로 이동할 경우 오류 무시
         if (err.name !== 'NavigationDuplicated') {
           throw err;
         }
       });
     },
-
-    // 새 창으로 ClubProfile 페이지 열기
     openNewWindow1() {
       const path = '/ClubProfile'; // 이동할 경로
       const url = `${path}`; // 상대 경로만 지정
-      const windowName = '_blank'; // 새 창
-      const windowFeatures = 'width=715,height=820,resizable=no,scrollbars=no'; // 창 크기, 속성
-      window.open(url, windowName, windowFeatures); // 새 창 열기
+      const windowName = '_blank';
+      const windowFeatures = 'width=652,height=790,resizable=no,scrollbars=no';
+      window.open(url, windowName, windowFeatures);
     },
-    // 로그아웃 처리 함수 
     async logout() {
       try {
         const accessToken = this.$store.state.accessToken;
@@ -130,21 +124,21 @@ export default {
         });
 
         this.$store.dispatch('logout'); // 로컬 스토어에서 사용자 정보 제거
-        this.$router.push({ name: 'login' }); // 로그인 페이지로 화면 이동
 
+        this.$router.push({ name: 'login' }); // 로그인 페이지로 화면 이동
       } catch (error) {
+        console.error('로그아웃 오류:', error);
         alert('로그아웃 처리 중 오류가 발생했습니다.'); // 오류가 발생해도 일단 로컬에서는 로그아웃 처리
         this.$store.dispatch('logout');
         this.$router.push({ name: 'login' });
       }
     },
-    // 사이드바에 표시될 동아리 정보 가져오는 함수
     async pageLoadFunction() {
+      console.log('Page has been loaded!');
       const accessToken = store.state.accessToken;
       const clubUUID = store.state.clubUUID;
 
       try {
-        // 서버에 정보 요청
         const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/info`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -153,20 +147,18 @@ export default {
         });
 
         this.data = response.data.data;
-        this.department = this.data.department; // 학과 정보 저장
+        this.department = this.data.department;
 
-        // 프로필 이미지 있는 경우
         if (this.data.mainPhotoUrl) {
-          // 이미지 URL을 blob 형태로 요청
           const imageResponse = await axios.get(this.data.mainPhotoUrl, {
             responseType: 'blob'
           });
-          // 이미지 데이터가 유효하면 imageSrc에 blob URL 저장
           if(imageResponse.data !== ''){
             this.imageSrc = URL.createObjectURL(imageResponse.data);
           }
         }
       } catch (error) {
+        console.error('Fetch error:', error);
         this.error = error.message;
       }
     },
@@ -189,11 +181,28 @@ export default {
   box-sizing: border-box;
   border-radius: 16px;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
 }
+
+/* Hide scrollbar for Webkit browsers */
+.sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
 
 .sidebar-content {
   flex: 1;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+/* Hide scrollbar for Webkit browsers */
+.sidebar-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .profile {
@@ -450,7 +459,6 @@ nav .icon {
   color: #686868;
   text-decoration: none;
   cursor: pointer;
-
 }
 
 .footer a.selected {

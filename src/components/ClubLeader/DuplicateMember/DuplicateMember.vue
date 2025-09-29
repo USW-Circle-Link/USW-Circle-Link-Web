@@ -15,18 +15,18 @@
             <input
               type="text"
               v-model="name"
-              placeholder="(특수 문자 제외 2~30자)"
+              placeholder="이름 입력"
               :class="{ 'error-input': nameError }"
               @input="validateForm"
             />
           </div>
-
+          <!-- test git merge -->
           <div class="input-group">
             <label>학번</label>
             <input
               type="text"
               v-model="studentId"
-              placeholder="(숫자 8자)"
+              placeholder="숫자 8자리"
               :class="{ 'error-input': studentIdError }"
               @input="validateForm"
             />
@@ -37,7 +37,7 @@
             <input
               type="text"
               v-model="phoneNumber"
-              placeholder="( - 제외 숫자 11자)"
+              placeholder="- 제외 11자리 숫자"
               :class="{ 'error-input': phoneNumberError }"
               @input="validateForm"
             />
@@ -63,8 +63,8 @@
         </div>
 
         <p v-if="showError" class="error-text">
-          *이름, 학번, 전화번호를 다시 확인해주세요. (이름: 특수 문자 제외
-          2~30자, 학번: 숫자 8자, 전화번호: - 제외 숫자 11자)
+          * 입력 정보를 다시 확인해주세요. (이름:숫자 특수기호 제외, 학번: 8자리
+          숫자, 전화번호: - 제외 11자리 숫자)
         </p>
       </div>
     </div>
@@ -133,29 +133,22 @@ import axios from 'axios';
 import Popup401 from '../401Popup.vue';
 
 import { mapState } from 'vuex';
-import { colleges } from '@/components/departments';
-
 export default {
-  name: 'DuplicateMember', // 컴포넌트 이름 설정
+  name: 'DuplicateMember',
   components: {
     AddPopup,
     SuccessFailPopup,
     Popup401,
   },
-
   computed: {
-    // 반응형
     ...mapState(['OverlappingMembers']),
     hasOverlappingMembers() {
-      //OverlappingMembers 배열의 길이가 1 이상이면 true를 return
-      return this.OverlappingMembers.length > 0;
+      return this.OverlappingMembers && this.OverlappingMembers.length > 0;
     },
     overlappingMembersCount() {
-      //OverlappingMembers 배열이 존재하면 길이를 return하고, 없으면 0을 return
-      return this.OverlappingMembers.length;
+      return this.OverlappingMembers ? this.OverlappingMembers.length : 0;
     },
   },
-
   data() {
     return {
       name: '',
@@ -172,19 +165,16 @@ export default {
       serverMessage: '',
       DuplicateMember: [],
       show401Popup: false,
-      clubName: '',
     };
   },
-
   mounted() {
     // 새로고침 시 localStorage에서 데이터 불러오기
-    const savedMembers = localStorage.getItem('saveDuplicateMember'); //
+    const savedMembers = localStorage.getItem('saveDuplicateMember');
     if (savedMembers) {
       this.OverlappingMembers = JSON.parse(savedMembers);
     }
     console.log('전달받은 회원 데이터:', this.OverlappingMembers);
   },
-
   methods: {
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
@@ -194,21 +184,17 @@ export default {
       }
       return false;
     },
-
     saveDuplicateMember() {
-      // OverlappingMembers를 localStorage에 저장하는 함수
       localStorage.setItem(
         'saveDuplicateMember',
-        JSON.stringify(this.OverlappingMembers) // localStorage에 저장하기 위해 배열을 문자열로 변환
+        JSON.stringify(this.OverlappingMembers)
       );
     },
-
     validateForm() {
-      //'동아리 관리자'가 중복 회원 추가 시 기입하는 회원 정보의 양식
       const nameValid =
-        /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== ''; //한글, 영어, 공백 허용
-      const studentIdValid = /^\d{8}$/.test(this.studentId); // 8자리 허용
-      const phoneNumberValid = /^\d{11}$/.test(this.phoneNumber); // 11자리 허용
+        /^[가-힣a-zA-Z\s]+$/.test(this.name) && this.name.trim() !== '';
+      const studentIdValid = /^\d{8}$/.test(this.studentId);
+      const phoneNumberValid = /^\d{11}$/.test(this.phoneNumber);
 
       this.nameError = this.name && !nameValid;
       this.studentIdError = this.studentId && !studentIdValid;
@@ -218,16 +204,12 @@ export default {
         this.nameError || this.studentIdError || this.phoneNumberError;
       this.isFormValid = nameValid && studentIdValid && phoneNumberValid;
     },
-
     handleAddMember() {
-      // 멤버 추가 팝업
       if (this.isFormValid) {
         this.showPopup = true;
       }
     },
-
     async confirmAdd() {
-      // 프로필 중복 회원 추가
       try {
         await this.sendToServer();
         this.isSuccess = true;
@@ -236,50 +218,29 @@ export default {
         console.error('Error adding member:', error);
         this.isSuccess = false;
         // Extract error message from the server response
-        if (!error.response?.data?.message) {
-          // response의 메세지가 없는 경우
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          this.serverMessage = error.response.data.message;
+        } else {
           this.serverMessage = '서버 오류가 발생했습니다. 다시 시도해주세요.';
         }
       }
       this.showPopup = false;
       this.showResultPopup = true;
     },
-
     cancelAdd() {
       this.showPopup = false;
     },
-
-    async getToServer() {
-      // 서버로부터 clubName을 get
-      const accessToken = store.state.accessToken;
-      const clubUUID = store.state.clubUUID;
-
-      try {
-        const response = await axios.get(
-          `${store.state.apiBaseUrl}/club-leader/${clubUUID}/info`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        this.clubName = response.data.data.clubName;
-      } catch {
-        console.log('Failed to retrieve club name from the server.'); // 서버로부터 clubName을 못 받을 경우
-      }
-    },
-
     async sendToServer() {
-      // 서버로 정보 보내기
       const data = {
         userName: this.name,
         studentNumber: this.studentId,
         userHp: this.phoneNumber,
       };
 
-      // 지역변수로 사용하기 때문에 mapState를 사용 x
       const accessToken = store.state.accessToken;
       const clubUUID = store.state.clubUUID;
 
@@ -295,54 +256,29 @@ export default {
           }
         );
         console.log('서버 응답:', response.data);
-
         return response.data;
       } catch (error) {
-        const errorCode = error.response?.data?.code;
-
-        if (errorCode === 401) {
+        if (error.response && error.response.status === 401) {
           this.show401Popup = true;
         } else if (
-          errorCode === 'CMEM-202' || // 에러가 CMEM-202 or
-          errorCode === 'PFL-201' || // 에러가 PFL-201 or
-          errorCode === 'INVALID_ARGUMENT' // 에러가 INVALID_ARGUMENT 일 때
+          error.response &&
+          (error.response.status === 400 || error.response.status === 404)
         ) {
           this.isSuccess = false;
-
-          if (errorCode === 'CMEM-202') {
-            await this.getToServer(); // Popup에 띄울 동아리 이름 받아오기
-            if (this.clubName) {
-              // 서버로부터 clubName을 성공적으로 받은 경우
-              this.serverMessage = `해당 회원은 이미 '${this.clubName}’에 소속되어 있습니다.`; // CMEM-202 error Message
-            } else {
-              // clubName을 못 받은 경우
-              this.serverMessage = error.response.data.message; // 서버에서 보내주는 메세지를 Popup에 띄움
-            }
-          } else if (errorCode === 'PFL-201') {
-            this.serverMessage =
-              '해당 회원의 정보를 찾을 수 없습니다. 다시 확인해주세요.'; // PFL-201 error Message
-            console.log('message2:', this.serverMessage);
-          } else if (errorCode === 'INVALID_ARGUMENT') {
-            this.serverMessage =
-              '<span style="color:red;">예기치 못한 오류</span>가 발생했습니다.<br>문제가 계속될 시, 관리자에게 문의해 주세요.'; // INVALID_ARGUMENT error Message
-          }
+          this.serverMessage =
+            error.response.data.message || '요청 처리 중 오류가 발생했습니다.';
           this.showResultPopup = true;
         }
-
         throw error;
       }
     },
-
     closeResultPopup() {
-      // 결과 팝업창 닫기
       this.showResultPopup = false;
       if (this.isSuccess) {
         this.resetForm();
       }
     },
-
     resetForm() {
-      // 기입하는 칸을 비우고, 모든 에러 상태를 false로 바꾸는 함수
       this.name = '';
       this.studentId = '';
       this.phoneNumber = '';
@@ -352,7 +288,6 @@ export default {
       this.phoneNumberError = false;
       this.isFormValid = false;
     },
-
     formatPhoneNumber(phone) {
       if (!phone) return '';
       return phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
@@ -361,242 +296,207 @@ export default {
 };
 </script>
 
+
 <style scoped>
+/* ===== 전체 컨테이너 ===== */
 .duplicate-container {
-  width: 830px; /* form-container와 동일한 너비 */
-  margin: 0 auto; /* 중앙 정렬 */
+  max-width: 1200px;
+  width: 90%;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+  --brand-color: #ffb052;
+  --brand-color-dark: #e6953e;
+  --text-color-primary: #333;
+  --text-color-secondary: #666;
+  --error-color: #ff3535;
+  --border-color: #dee2e6;
+  --bg-light: #f0f2f5;
+  --bg-white: #fff;
 }
 
+/* ===== 상단 타이틀 ===== */
 .title {
-  margin-bottom: 20px; /* 아래쪽 바깥 여백 */
+  margin-bottom: 32px;
 }
-
 .duplicate-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 8px;
+  font-size: clamp(20px, 2.5vw, 24px); /* 화면 크기에 따라 폰트 크기 조절 */
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--text-color-primary);
 }
-
 .duplicate-subtitle {
-  color: #ff0000;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 350;
+  color: var(--text-color-secondary);
+  font-size: 15px;
+  margin: 0;
 }
 
+/* ===== 입력 폼 카드 ===== */
 .form-container {
-  display: flex;
-  justify-content: flex-start; /* 가로 방향 정렬 (왼쪽 정렬) */
-  align-items: flex-start; /* 세로 방향 정렬 (위쪽 정렬) */
-  background: #fff;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 830px;
+  background: var(--bg-white);
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
   border-radius: 8px;
-  margin-top: 20px; /* title과의 간격 */
-  margin-left: 0; /* 왼쪽 마진 제거 */
-  margin-right: 0; /* 오른쪽 마진 제거 */
-  position: relative;
 }
-
 .form-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 15px;
-  padding-left: 5px;
+  display: flex; /* Flexbox로 변경하여 유연성 확보 */
+  flex-wrap: wrap; /* 화면이 작아지면 자동으로 줄바꿈 */
+  gap: 16px;
+  align-items: flex-end; /* 하단 정렬 */
 }
-
-.form-content-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-left: 0;
-}
-
 .input-group {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column; /* 라벨과 인풋을 세로로 배치 */
+  gap: 6px;
+  flex-grow: 1; /* 가능한 공간을 차지하도록 함 */
 }
-
 .input-group label {
-  white-space: nowrap;
   font-weight: 500;
+  font-size: 14px;
+  color: var(--text-color-primary);
+  text-align: left;
+}
+.input-group input {
+  width: 100%; /* 부모 요소에 너비를 맞춤 */
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+.error-input {
+  border-color: var(--error-color);
+}
+.error-text {
+  margin-top: 12px;
+  color: var(--error-color);
+  font-size: 13px;
 }
 
-.input-group input {
-  display: flex;
-  width: 150px;
+/* 추가 버튼 */
+.add-button {
   height: 42px;
-  padding-left: 10px;
+  padding: 0 20px;
+  background: var(--brand-color);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+.add-button:hover { background: var(--brand-color-dark); }
+.add-button.disabled { opacity: .5; cursor: not-allowed; }
+.add-icon { margin-right: 6px; }
+
+/* ===== 중복 회원 목록 ===== */
+.duplicate-list-section {
+  margin-top: 40px;
+}
+.duplicate-list-header {
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.duplicate-list-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color-primary);
+  margin: 0;
+  display: flex;
   align-items: center;
   gap: 10px;
-  flex-shrink: 0;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  font-size: 12px;
-  font-style: normal;
 }
-
-.input-group.phone-number input {
-  width: 150px;
-}
-
-.error-input {
-  border-color: #ff0000;
-}
-
-.error-text {
-  color: #ff3535;
-  font-family: Pretendard;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 300;
-  line-height: normal;
-}
-
-.add-button {
-  display: flex;
-  height: 42px;
-  padding: 10px;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  background-color: #ffb052;
-  border: none;
-  border-radius: 4px;
-  color: white;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.add-button:hover {
-  background-color: #e6953e; /* Change the background color on hover */
-  border-color: #f39a30;
-  border-width: 1.5px;
-}
-
-.add-button.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.add-button.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.add-icon {
-  vertical-align: middle;
-  margin-right: 5px;
-  margin-left: -4px;
-  transform: translateY(-1px);
-}
-
-.duplicate-list-section {
-  margin-top: 145px;
-  width: 873px;
-}
-
-.duplicate-list-header {
-  margin-bottom: 10px;
-}
-
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 26px;
-}
-
-.duplicate-list-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #000;
-  font-style: normal;
-  line-height: 12px;
-  display: flex;
-  align-items: center;
-  letter-spacing: -0.8px;
-  gap: 8px;
-}
-
 .member-count {
-  font-size: 14px;
-  color: #666;
-  font-weight: normal;
+  font-size: 16px;
+  color: var(--text-color-secondary);
+  font-weight: 500;
 }
-
 .list-subtitle {
-  color: #ff3535;
+  color: var(--error-color);
   font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  letter-spacing: -0.35px;
-  align-items: center;
+  margin: 0;
 }
-
 .member-list-wrapper {
-  max-height: 290px;
+  max-height: 300px;
   overflow-y: auto;
+  background: var(--bg-light);
   border-radius: 8px;
-  background: #f0f2f5;
+  padding: 8px;
 }
-
 .member-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-
 .member-item {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 10px 0;
+  background: var(--bg-white);
+  border-radius: 6px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  white-space: nowrap;
 }
-
 .member-info {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* 3열 구조 유지 */
+  gap: 16px;
   align-items: center;
-  padding: 0 14px;
-  height: 24px;
 }
-
 .info-cell {
-  flex: 1;
+  color: var(--text-color-primary);
+  font-size: 15px;
   text-align: center;
-  color: #000;
-  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
 .info-cell.name1 {
-  flex: 0 0 260px;
+  text-align: left; /* 이름은 왼쪽 정렬 */
+  font-weight: 500;
 }
 
-.info-cell.student-id {
-  flex: 0 0 260px;
+/* ===== 반응형: 태블릿 (768px 이하) ===== */
+@media (max-width: 768px) {
+  .form-content {
+    flex-direction: column; /* 세로로 쌓기 */
+    align-items: stretch; /* 전체 너비 사용 */
+  }
+  .add-button {
+    width: 100%;
+    justify-content: center;
+  }
+  .member-info {
+    grid-template-columns: 1fr 1fr; /* 2열 구조로 변경 */
+    grid-template-areas:
+      "name1     phone1"
+      "student-id student-id";
+  }
+  .info-cell.name1 { grid-area: name1; }
+  .info-cell.student-id { grid-area: student-id; text-align: left; color: var(--text-color-secondary); }
+  .info-cell.phone1 { grid-area: phone1; text-align: right; }
 }
 
-.info-cell.phone1 {
-  flex: 0 0 260px;
-}
-
-/* 스크롤바 스타일링 */
-.member-list-wrapper::-webkit-scrollbar {
-  width: 8px;
-}
-
-.member-list-wrapper::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.member-list-wrapper::-webkit-scrollbar-thumb {
-  background: #ced4da;
-  border-radius: 4px;
-}
-
-.member-list-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #adb5bd;
+/* ===== 반응형: 모바일 (480px 이하) ===== */
+@media (max-width: 480px) {
+  .duplicate-container { padding: 16px; }
+  .member-info {
+    grid-template-columns: 1fr; /* 1열 구조로 변경 */
+    grid-template-areas:
+      "name1"
+      "student-id"
+      "phone1";
+    gap: 6px;
+  }
+  .info-cell {
+    text-align: left; /* 모든 정보 왼쪽 정렬 */
+  }
+  .info-cell.phone1 { text-align: left; }
 }
 </style>
