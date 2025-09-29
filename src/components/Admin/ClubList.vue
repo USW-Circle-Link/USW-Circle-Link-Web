@@ -232,8 +232,11 @@ body {
   overflow-x: hidden;
 }
 
+
 .container {
-  width: 820px;
+  width: 100%;
+  max-width: 820px;
+  min-width: 390px;
   margin: 0 auto;
   background-color: #ffffff;
   padding: 20px;
@@ -245,9 +248,27 @@ body {
   margin-bottom: 30px;
 }
 
+/* 450px-390px 범위에서 53% 너비 및 왼쪽 정렬 */
+@media (max-width: 450px) and (min-width: 390px) {
+  .container {
+    width: 53%;
+    max-width: 820px;
+    min-width: 390px;
+    margin: 0 auto 30px 0; /* 왼쪽 정렬 */
+  }
+  
+  .header {
+    width: 53%;
+    max-width: 820px;
+    min-width: 370px;
+    margin: 20px auto 20px 0; /* 왼쪽 정렬 */
+  }
+}
+
+
 .title {
   color: black;
-  font-size: 25px;
+  font-size: clamp(18px, 4vw, 25px);
   font-weight: bold;
   position: relative; /* 상대 위치 설정 */
   display: inline-block;
@@ -260,7 +281,9 @@ body {
 
 /* Header Section */
 .header {
-  width: 820px;
+  width: 100%;
+  max-width: 820px;
+  min-width: 370px;
   background-color: #ffffff;
   border-radius: 8px;
   margin: 20px auto;
@@ -311,7 +334,7 @@ body {
   background-color: white;
   border-radius: 5px;
   margin-top: 10px; /* 리스트를 아래로 20px 내림 */
-  width: 800px;
+  width: 100%;
 }
 
 .list-item-department {
@@ -319,7 +342,7 @@ body {
   display: flex;
   align-items: center; /* 세로 중앙 정렬 */
   justify-content: center; /* 가로 가운데 정렬 */
-  font-size: 15px; /* 리스트 아이템의 글자 크기 키움 */
+  font-size: clamp(12px, 2.5vw, 15px); /* 리스트 아이템의 글자 크기 키움 */
   font-weight: 500;
   cursor: pointer;
 }
@@ -329,7 +352,7 @@ body {
   display: flex;
   align-items: center; /* 세로 중앙 정렬 */
   justify-content: center; /* 가로 가운데 정렬 */
-  font-size: 15px; /* 리스트 아이템의 글자 크기 키움 */
+  font-size: clamp(12px, 2.5vw, 15px); /* 리스트 아이템의 글자 크기 키움 */
   font-weight: 500;
   cursor: pointer;
 }
@@ -338,7 +361,7 @@ body {
   text-align: left; /* 텍스트를 왼쪽 정렬 */
   margin-right: 200px; /* 오른쪽 여백 */
   margin-top: -20px; /* 위로 여백 조정 */
-  font-size: 16px; /* 기존 폰트 크기 유지 */
+  font-size: clamp(14px, 3vw, 16px); /* 기존 폰트 크기 유지 */
   font-weight: bold;
   line-height: 10.2; /* 줄 높이를 줄여서 위로 이동 */
 }
@@ -348,7 +371,7 @@ body {
   display: flex;
   align-items: center; /* 세로 중앙 정렬 */
   justify-content: center; /* 가로 가운데 정렬 */
-  font-size: 15px; /* 리스트 아이템의 글자 크기 키움 */
+  font-size: clamp(12px, 2.5vw, 15px); /* 리스트 아이템의 글자 크기 키움 */
   font-weight: 500;
   cursor: pointer;
 }
@@ -358,7 +381,7 @@ body {
   display: flex;
   align-items: center; /* 세로 중앙 정렬 */
   justify-content: center; /* 가로 가운데 정렬 */
-  font-size: 15px; /* 리스트 아이템의 글자 크기 키움 */
+  font-size: clamp(12px, 2.5vw, 15px); /* 리스트 아이템의 글자 크기 키움 */
   font-weight: 500;
   cursor: pointer;
 }
@@ -367,7 +390,9 @@ body {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-  width: 820px;
+  width: 100%;
+  max-width: 820px;
+  min-width: 390px;
 }
 
 .list-item-row {
@@ -556,6 +581,7 @@ body {
   background: #767676;
   border-radius: 50%;
 }
+
 
 
 </style>
