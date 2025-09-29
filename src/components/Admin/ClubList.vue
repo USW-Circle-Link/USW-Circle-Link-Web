@@ -22,7 +22,7 @@
           <div class="list-item-numberOfClubMembers">{{ club.numberOfClubMembers }}</div>
         </div>
         <div class="list-item-delete">
-          <button class="delete-btn" @click="openPopup(club.clubUUID, index, club.clubName)">삭제</button>
+          <button class="delete-btn" @click.stop="openPopup(club.clubUUID, index, club.clubName)">삭제</button>
         </div>
       </div>
     </div>
@@ -43,8 +43,6 @@
       </button>
     </div>
   </div>
-
-
 
   <!-- 동아리 삭제 팝업 -->
   <div v-if="isPopupVisible" class="popup-overlay">
@@ -77,27 +75,26 @@ export default {
 
   data() {
     return {
-      currentPage: 1, // 페이지네이션 현재 페이지
-      clubsPerPage: 10, // 페이지당 표시할 동아리 수
-      clubs: [], // 현재 페이지에 표시할 클럽 리스트
-      totalPages: 1, // 전체 페이지 수
-      isPopupVisible: false, // 삭제 팝업 가시성
-      isClubInfoPopupVisible: false, // 상세 팝업 가시성
-      adminPw: "", // 삭제를 위한 비밀번호
+      currentPage: 1,
+      clubsPerPage: 10,
+      clubs: [],
+      totalPages: 1,
+      isPopupVisible: false,
+      isClubInfoPopupVisible: false,
+      adminPw: "",
       adminPwError: "",
-      clubToDelete: null, // 삭제할 클럽 ID
-      deleteIndex: null, // 삭제할 클럽의 인덱스
-      PopupClubName: null, // 삭제할 클럽 이름
-      show401Popup: false  // 401 팝업
+      clubToDelete: null,
+      deleteIndex: null,
+      PopupClubName: null,
+      show401Popup: false
     };
   },
 
   created() {
-    this.fetchClubs(); // 페이지 로드 시 동아리 리스트 가져오기
+    this.fetchClubs();
   },
 
   methods: {
-    // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
         this.show401Popup = true;
@@ -105,7 +102,6 @@ export default {
       }
       return false;
     },
-    // 클럽 리스트 가져오기
     async fetchClubs() {
       try {
         const response = await axios.get(`${store.state.apiBaseUrl}/admin/clubs`, {
@@ -113,15 +109,14 @@ export default {
             Authorization: `Bearer ${store.state.accessToken}`,
           },
           params: {
-            page: this.currentPage - 1, // 백엔드는 0부터 시작
-            size: this.clubsPerPage, // 페이지당 클럽 개수
+            page: this.currentPage - 1,
+            size: this.clubsPerPage,
           },
         });
 
-        // 응답 처리
         const { content, totalPages } = response.data.data;
-        this.clubs = content || []; // 현재 페이지 클럽 리스트
-        this.totalPages = totalPages || 1; // 전체 페이지 수
+        this.clubs = content || [];
+        this.totalPages = totalPages || 1;
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('Error updating member:', error);
@@ -129,15 +124,13 @@ export default {
       }
     },
 
-    // 페이지 설정
     async setPage(page) {
       if (page > 0 && page <= this.totalPages) {
-        this.currentPage = page; // 현재 페이지 업데이트
-        await this.fetchClubs(); // 새로운 데이터 가져오기
+        this.currentPage = page;
+        await this.fetchClubs();
       }
     },
 
-    // 이전 페이지
     async prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--;
@@ -145,7 +138,6 @@ export default {
       }
     },
 
-    // 다음 페이지
     async nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
@@ -153,7 +145,6 @@ export default {
       }
     },
 
-    // 삭제 팝업 열기
     openPopup(clubUUID, index, clubName) {
       this.PopupClubName = clubName;
       this.clubToDelete = clubUUID;
@@ -161,13 +152,12 @@ export default {
       this.isPopupVisible = true;
     },
 
-    // 삭제 팝업 닫기
     cancelDelete() {
       this.isPopupVisible = false;
-      this.adminPw = ""; // 비밀번호 초기화
+      this.adminPw = "";
+      this.adminPwError = "";
     },
 
-    // 클럽 삭제 확인
     async confirmDelete() {
       if (!this.adminPw) {
         alert("관리자 비밀번호를 입력하세요.");
@@ -180,13 +170,12 @@ export default {
           },
           data: { adminPw: this.adminPw },
         });
-        this.clubs.splice(this.deleteIndex, 1); // 삭제된 클럽 리스트에서 제거
+        this.clubs.splice(this.deleteIndex, 1);
         this.isPopupVisible = false;
         alert("동아리가 성공적으로 삭제되었습니다.");
       } catch (error) {
         const { code } = error.response?.data || {};
         if (!this.handle401Error(error)) {
-          //console.error('Error updating member:', error);
           if(code === 'ADM-202'){
             this.adminPwError = "* 비밀번호를 다시 확인해주세요."
           } else if(code === 'CLUB-201'){
@@ -200,16 +189,10 @@ export default {
       }
     },
 
-    // 상세 정보 팝업 열기
     openPopupClubInfo(club) {
-      // 토큰을 localStorage에 저장
       localStorage.setItem('accessToken', store.state.accessToken);
-
-      // 새 창의 크기와 위치 설정
       const width = 715;
       const height = 820;
-
-      // clubId만 URL 파라미터로 전달
       window.open(
           `/club-popup?clubId=${club.clubUUID}`,
           "ClubInfo",
@@ -220,261 +203,186 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
+/* 전체 박스 사이징을 border-box로 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 기본 바디 */
 body {
   font-family: Arial, sans-serif;
   background-color: #f5f5f5;
   margin: 0;
   padding: 20px;
-  min-width: 390px;
+  min-width: 370px; /* 최소 viewport 고려 */
   overflow-x: hidden;
 }
 
-
+/* 컨테이너: clamp으로 반응형 폭 제어 (최소 370px, 최대 820px) */
 .container {
-  width: 100%;
-  max-width: 820px;
-  min-width: 390px;
-  margin: 0 auto;
+  width: clamp(370px, 92vw, 820px);
+  margin: 0 auto 30px;
   background-color: #ffffff;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 620px;
-  /* 페이지네이션을 하단에 고정 */
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  margin-bottom: 30px;
 }
 
-/* 450px-390px 범위에서 53% 너비 및 왼쪽 정렬 */
-@media (max-width: 450px) and (min-width: 390px) {
-  .container {
-    width: 53%;
-    max-width: 820px;
-    min-width: 390px;
-    margin: 0 auto 30px 0; /* 왼쪽 정렬 */
-  }
-  
-  .header {
-    width: 53%;
-    max-width: 820px;
-    min-width: 370px;
-    margin: 20px auto 20px 0; /* 왼쪽 정렬 */
-  }
-}
-
-
+/* 타이틀: 고정 830 제거, 반응형으로 중앙 배치 */
 .title {
   color: black;
   font-size: clamp(18px, 4vw, 25px);
   font-weight: bold;
-  position: relative; /* 상대 위치 설정 */
-  display: inline-block;
-  z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
-  width: 830px;
-  margin: 0 auto;
+  display: block;
+  text-align: center;
+  margin: 0 0 16px;
+  width: clamp(370px, 92vw, 830px);
+  margin-left: auto;
+  margin-right: auto;
   box-sizing: border-box;
 }
 
-
-/* Header Section */
+/* Header Section: clamp로 폭 제어, 중앙 배치 */
 .header {
-  width: 100%;
-  max-width: 820px;
-  min-width: 370px;
+  width: clamp(370px, 92vw, 820px);
+  margin: 20px auto;
   background-color: #ffffff;
   border-radius: 8px;
-  margin: 20px auto;
-  padding: 0 20px 0 20px;
+  padding: 0 12px;
+  box-sizing: border-box;
 }
 
+/* header-row: flex로 칸 분배 */
 .header-row {
   display: flex;
   text-align: center;
   background-color: white;
   font-weight: bold;
   border-radius: 8px;
+  align-items: center;
 }
 
-.header-item-department{
-  flex: 1;
-  padding: 10px 0; /* 헤더의 상하 여백을 조정 */
-  line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
-}
+/* 헤더 항목: flex 기준으로 비율 조정 (필요시 조정) */
+.header-item-department{ flex: 1; padding: 10px 6px; line-height: 1.4; }
+.header-item-clubname{ flex: 2; padding: 10px 6px; line-height: 1.4; }
+.header-item-clubleader{ flex: 1.2; padding: 10px 6px; line-height: 1.4; }
+.header-item-numberOfClubMembers{ flex: 0.8; padding: 10px 6px; line-height: 1.4; }
+.header-item-delete{ flex: 0.6; padding: 10px 6px; line-height: 1.4; }
 
-.header-item-clubname{
-  flex: 1;
-  padding: 10px 0; /* 헤더의 상하 여백을 조정 */
-  line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
-}
-
-.header-item-clubleader{
-  flex: 1;
-  padding: 10px 0; /* 헤더의 상하 여백을 조정 */
-  line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
-}
-
-.header-item-numberOfClubMembers{
-  flex: 1;
-  padding: 10px 0; /* 헤더의 상하 여백을 조정 */
-  line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
-}
-
-.header-item-delete{
-  flex: 0.4;
-  padding: 10px 0; /* 헤더의 상하 여백을 조정 */
-  line-height: 1.5; /* 줄 높이를 조정하여 텍스트의 세로 위치 조정 */
-}
-
-/* List Items Section */
+/* List */
 .list {
   margin-bottom: 10px;
   background-color: white;
   border-radius: 5px;
-  margin-top: 10px; /* 리스트를 아래로 20px 내림 */
+  margin-top: 10px;
   width: 100%;
 }
 
-.list-item-department {
-  flex: 1;
-  display: flex;
-  align-items: center; /* 세로 중앙 정렬 */
-  justify-content: center; /* 가로 가운데 정렬 */
-  font-size: clamp(12px, 2.5vw, 15px); /* 리스트 아이템의 글자 크기 키움 */
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.list-item-clubname {
-  flex: 1;
-  display: flex;
-  align-items: center; /* 세로 중앙 정렬 */
-  justify-content: center; /* 가로 가운데 정렬 */
-  font-size: clamp(12px, 2.5vw, 15px); /* 리스트 아이템의 글자 크기 키움 */
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.contact-info-popup .popup-header p {
-  text-align: left; /* 텍스트를 왼쪽 정렬 */
-  margin-right: 200px; /* 오른쪽 여백 */
-  margin-top: -20px; /* 위로 여백 조정 */
-  font-size: clamp(14px, 3vw, 16px); /* 기존 폰트 크기 유지 */
-  font-weight: bold;
-  line-height: 10.2; /* 줄 높이를 줄여서 위로 이동 */
-}
-
-.list-item-clubleader {
-  flex: 1;
-  display: flex;
-  align-items: center; /* 세로 중앙 정렬 */
-  justify-content: center; /* 가로 가운데 정렬 */
-  font-size: clamp(12px, 2.5vw, 15px); /* 리스트 아이템의 글자 크기 키움 */
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.list-item-numberOfClubMembers {
-  flex: 1;
-  display: flex;
-  align-items: center; /* 세로 중앙 정렬 */
-  justify-content: center; /* 가로 가운데 정렬 */
-  font-size: clamp(12px, 2.5vw, 15px); /* 리스트 아이템의 글자 크기 키움 */
-  font-weight: 500;
-  cursor: pointer;
-}
-
+/* 각 항목 컨테이너: 전체 폭, min-width 제거로 모바일에서 잘림 방지 */
 .list-item-container {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
   width: 100%;
-  max-width: 820px;
-  min-width: 390px;
+  max-width: 100%;
+  min-width: 0; /* overflow 방지 */
+  gap: 8px;
 }
 
+/* row는 flex로 내부 칸들을 분배 */
 .list-item-row {
   display: flex;
-  padding: 10px 0 10px 0;
+  align-items: center;
+  padding: 10px;
   background-color: #F0F2F5;
-  width: 745.44px; /* 줄여진 너비 */
   border-radius: 5px;
-  height: 26px;
+  flex: 1 1 auto; /* 남은 공간 차지 */
+  min-width: 0; /* 텍스트 오버플로우 방지 */
+  cursor: pointer;
+  gap: 8px;
+  height: auto;
 }
 
+/* 호버 스타일 */
 .list-item-row:hover {
-  background-color: #e3e3e3; /* Change to gray on hover */
+  background-color: #e3e3e3;
 }
 
+/* 리스트 내부 칸: header와 같은 비율로 맞춤 */
+.list-item-department { flex: 1; display:flex; justify-content:center; align-items:center; font-size: clamp(12px, 2.5vw, 15px); font-weight:500; }
+.list-item-clubname { flex: 2; display:flex; justify-content:center; align-items:center; font-size: clamp(12px, 2.5vw, 15px); font-weight:500; word-break:break-word; }
+.list-item-clubleader { flex: 1.2; display:flex; justify-content:center; align-items:center; font-size: clamp(12px, 2.5vw, 15px); font-weight:500; }
+.list-item-numberOfClubMembers { flex: 0.8; display:flex; justify-content:center; align-items:center; font-size: clamp(12px, 2.5vw, 15px); font-weight:500; }
+
+/* 삭제 버튼 칸: 고정 너비가 너무 크면 축소되도록 수정 */
 .list-item-delete {
-  width: 74.55px;
+  width: 74px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  min-width: 64px;
 }
 
+/* 삭제 버튼: 크기를 반응형으로 */
 .delete-btn {
   background-color: #e57373;
   color: #ffffff;
-  width: 70.55px;
-  height: 44px;
-  margin: 0 4px 0 4px;
+  width: 100%;
+  max-width: 84px;
+  height: 36px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  visibility: visible;
-  transition: visibility 0s, opacity 0.2s ease-in-out;
+  transition: background-color 0.15s ease;
 }
 
-.delete-btn:hover {
-  background-color: #e34141; /* Change to a darker red on hover */
-}
+/* 버튼 hover */
+.delete-btn:hover { background-color: #e34141; }
 
+/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px; /* 위 리스트와의 간격 */
+  margin-top: 20px;
+  gap: 6px;
 }
 
-.pagination button{
+/* pagination 버튼 */
+.pagination button {
   background: none;
   border: none;
   cursor: pointer;
-  margin: 0 8px; /* 좌우 간격 */
-  font-size: 14px; /* 텍스트 크기 */
-  color: #aaa; /* 기본 색상 */
+  margin: 0 4px;
+  font-size: 14px;
+  color: #aaa;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px; /* 버튼 크기 */
-  height: 24px; /* 버튼 크기 */
+  width: 34px;
+  height: 34px;
+  padding: 4px;
+  border-radius: 6px;
 }
-.pagination span {
-  border: none;
-  background: none;
-  cursor: pointer;
-  margin: 0 8px; /* 각 버튼 간 간격 */
-  font-size: 14px;
-  font-weight: 400;
-  color: #555; /* 기본 색상 */
+.pagination button img { width: 18px; height: 18px; }
 
-}
-
-
-
-.pagination button:disabled {
-  opacity: 0.5; /* 비활성화된 버튼의 투명도 */
-  cursor: not-allowed; /* 클릭 불가 */
-}
-
+/* active page */
 .pagination .active {
   font-weight: bold;
-  color: #ffc700; /* 활성화된 페이지의 색상 */
+  color: #ffc700;
 }
 
-/* Popup Overlay and Popup Window */
+/* disabled */
+.pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 팝업 스타일: input 등 반응형으로 */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -486,102 +394,81 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .popup {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
+  width: 100%;
+  max-width: 520px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 452px;
-  height: 184px;
   text-align: left;
   position: relative;
 }
 
-.popup h3 {
-  font-size: 18px;
-  font-weight: bold;
-  color: black;
-  margin: 0;
-}
-
-.line2{
-  border-bottom: 1px solid #d3d3d3;
-  margin: 10px 0;
-}
-
-.popup-message {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 12px;
-  color: #2F2F2F;
-  margin-top: 20px;
-}
+.popup h3 { font-size: 18px; font-weight: bold; margin: 0; }
+.line2 { border-bottom: 1px solid #d3d3d3; margin: 10px 0; }
+.popup-message { font-size: 16px; font-weight: 500; color: #2F2F2F; margin-top: 16px; }
 
 .popup input {
-  width: 430px;
+  width: 100%;
+  max-width: 100%;
   padding: 10px;
-  font-size: 14px; /* 입력 칸의 글씨 크기를 더 크게 */
+  font-size: 14px;
   border: 1px solid #C6C6C6;
   border-radius: 8px;
+  margin-top: 12px;
+  box-sizing: border-box;
 }
 
-.popup-warning {
-  font-size: 12px;
-  font-weight: 400;
-  color: #FF4B4B;
-  margin-left: 10px;
-}
+.popup-warning { font-size: 12px; color: #FF4B4B; margin-top: 8px; }
 
+/* 팝업 버튼 위치 조정 (반응형) */
 .expel-button {
   background-color: #FFB052;
   color: white;
   border: none;
-  padding: 7px 30px;
+  padding: 8px 22px;
   border-radius: 7px;
   font-size: 16px;
-  font-weight: 400;
   cursor: pointer;
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: 16px;
+  right: 16px;
 }
-
-.expel-button:hover {
-  background-color: #e6953e;
-}
-
 .cancel-button {
   background-color: #cccccc;
   color: white;
   border: none;
-  padding: 7px 30px;
+  padding: 8px 22px;
   border-radius: 7px;
   font-size: 16px;
-  font-weight: 400;
   cursor: pointer;
   position: absolute;
-  bottom: 20px;
-  right: 120px;
+  bottom: 16px;
+  right: 116px;
 }
 
-.cancel-button:hover {
-  background-color: #999999;
+/* 반응형 미디어 쿼리: 아주 작은 화면에서 레이아웃 보정 */
+@media (max-width: 420px) {
+  .container {
+    width: 96%;
+    padding: 12px;
+  }
+  .title { font-size: clamp(16px, 6vw, 22px); width: 100%; }
+  .header { padding: 0 8px; }
+  .header-row { font-size: 14px; }
+  .list-item-row { padding: 8px; gap: 6px; }
+  .delete-btn { height: 34px; }
+  .expel-button, .cancel-button { bottom: 12px; right: 12px; padding: 6px 14px; font-size: 14px; }
 }
 
-.socials a {
-  margin: 0 10px;
+/* 필요시 긴 텍스트 줄바꿈 보장 */
+.list-item-clubname, .list-item-clubleader {
+  word-break: break-word;
+  white-space: normal;
 }
-
-.dots-button span {
-  width: 5px;
-  height: 5px;
-  background: #767676;
-  border-radius: 50%;
-}
-
-
-
 </style>
