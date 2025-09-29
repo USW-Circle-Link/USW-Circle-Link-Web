@@ -42,27 +42,30 @@ export default {
     window.removeEventListener('resize', this.handleResize);
   },
   methods: {
-    // 화면 크기가 변경될 때 호출되는 메서드
-    handleResize() {
-      const oldWidth = this.windowWidth;
-      this.windowWidth = window.innerWidth;
-      // 화면 너비가 1150px 이하면 사이드바를 자동으로 숨김
-      if (this.windowWidth <= 1150) {
-        this.showSidebar = false;
-      } else if (oldWidth < BREAKPOINT && this.windowWidth >= BREAKPOINT) {
-        // 모바일 -> 데스크톱으로 전환 시: 사이드바를 표시
-        this.showSidebar = true;
-      }
-    },
-    // 햄버거 메뉴 클릭 시 호출되는 메서드 (자식 컴포넌트로부터 전달받음)
-    handleSidebarToggle() {
-      this.showSidebar = !this.showSidebar;
-    },
-    // 모바일 오버레이 클릭 시 사이드바를 닫는 메서드
-    closeSidebar() {
+  checkWindowSize() {
+    const oldWidth = this.windowWidth;
+    this.windowWidth = window.innerWidth;
+
+    if (this.windowWidth <= 1150) {
       this.showSidebar = false;
+    } else if (oldWidth < BREAKPOINT && this.windowWidth >= BREAKPOINT) {
+      this.showSidebar = true;
     }
+  },
+
+  handleResize() {
+    this.checkWindowSize();
+  },
+
+  handleSidebarToggle() {
+    this.showSidebar = !this.showSidebar;
+  },
+
+  closeSidebar() {
+    this.showSidebar = false;
   }
+}
+
 };
 </script>
 
