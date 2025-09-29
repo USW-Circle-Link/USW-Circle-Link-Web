@@ -194,12 +194,13 @@ export default {
   transform: skew(-12deg); /* 기울기 효과 추가 */
 }
 .form-container {
-  width: 860px;
+  flex: 1;
   padding: 20px;
   background-color: #ffffff;
   border-radius: 8px;
   height: 440px;
   min-width: 390px;
+  margin-left: 0;
 }
 
 h2 {
@@ -213,9 +214,35 @@ h2 {
 }
 
 label {
+  width: 18%;
   display: block;
   margin-bottom: 5px;
   color: #555;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  label {
+    width: 20%;
+  }
+}
+
+@media (max-width: 600px) {
+  label {
+    width: 25%;
+  }
+}
+
+@media (max-width: 480px) {
+  label {
+    width: 30%;
+  }
+}
+
+@media (max-width: 390px) {
+  label {
+    width: 18%;
+  }
 }
 
 input, select {

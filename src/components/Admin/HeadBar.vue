@@ -11,7 +11,7 @@
       <h1 class="title" @click="navigateTo('dashboard')" style="cursor: pointer;">동구라미</h1>
       <!--    <NotificationButton/>-->
     </div>
-    <!-- 햄버거 메뉴 버튼 (반응형에서만 표시) -->
+    <!-- 햄버거 메뉴 버튼 (1150px 이하에서만 표시) -->
     <div class="hamburger-menu" @click="toggleSidebar">
       <svg v-if="!isMenuOpen" xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3">
         <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
@@ -50,6 +50,7 @@ export default {
 
 .header {
   width: 100%;
+  min-width: 390px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -61,7 +62,8 @@ export default {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 500;
+  z-index: 1001;
+  overflow-x: hidden;
 }
 
 .header-content {
@@ -103,7 +105,49 @@ export default {
   fill: #FFC01D;
 }
 /* 반응형 스타일 */
+@media (max-width: 1400px) {
+  .header-content {
+    margin-left: 180px;
+  }
+}
+
+@media (max-width: 1350px) {
+  .header-content {
+    margin-left: 175px;
+  }
+}
+
 @media (max-width: 1300px) {
+  .header-content {
+    margin-left: 170px;
+  }
+}
+
+@media (max-width: 1250px) {
+  .header-content {
+    margin-left: 125px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .header-content {
+    margin-left: 100px;
+  }
+}
+
+@media (max-width: 112px) {
+  .header-content {
+    margin-left: 68px;
+  }
+}
+
+@media (max-width: 992px) {
+  .header-content {
+    margin-left: 50px;
+  }
+}
+
+@media (max-width: 1150px) {
   .hamburger-menu {
     display: flex;
   }

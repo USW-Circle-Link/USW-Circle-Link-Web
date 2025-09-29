@@ -463,6 +463,7 @@ export default {
   min-width: 390px;
   margin: 0 auto;
   padding: 10px;
+  overflow-x: hidden;
 }
 
 * {
@@ -487,9 +488,9 @@ export default {
 }
 
 .title-input {
-  width: 100%;
+  width: 95%;
   padding: 10px;
-  font-size: 16px;
+  font-size: clamp(14px, 2.5vw, 16px);
   border: 1px solid #ddd;
   border-radius: 5px;
 }
@@ -512,10 +513,10 @@ export default {
 }
 
 .content-input {
-  width: 100%;
+  width: 95%;
   height: 382px;
   padding: 10px;
-  font-size: 16px;
+  font-size: clamp(14px, 2.5vw, 16px);
   border: 1px solid #ddd;
   border-radius: 5px;
   resize: none;

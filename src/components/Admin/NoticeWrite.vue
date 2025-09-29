@@ -241,11 +241,11 @@ export default {
 
     // 공지사항 제출
     async submitNotice() {
-      const maxTitleLength = 200;
-      const maxContentLength = 3000;
+     // const maxTitleLength = 200;
+      //const maxContentLength = 3000;
 
       // 🔹 제목과 내용 입력 여부 확인 후 오류 메시지 설정
-   if (this.notice.noticeTitle.trim() === "") {
+    if (this.notice.noticeTitle.trim() === "") {
         this.titleError = "* 제목을 입력해주세요.";
       } else {
         this.titleError = "";
@@ -398,6 +398,7 @@ export default {
   min-width: 390px;
   margin: 0 auto;
   padding: 10px;
+  overflow-x: hidden;
 }
 
 /* 초과 시 테두리 빨갛게 */
@@ -448,9 +449,9 @@ export default {
 /* 제목 입력창 */
 .title-input {
   margin-top: 10px;
-  width: 100%;
+  width: 95%;
   padding: 10px;
-  font-size: 16px;
+  font-size: clamp(14px, 2.5vw, 16px);
   border: 1px solid #ddd;
   border-radius: 5px;
 }
@@ -467,10 +468,10 @@ export default {
 }
 
 .content-input {
-  width: 100%;
+  width: 95%;
   height: 382px;
   padding: 10px;
-  font-size: 16px;
+  font-size: clamp(14px, 2.5vw, 16px);
   border: 1px solid #ddd;
   border-radius: 5px;
   resize: none;
@@ -488,9 +489,32 @@ export default {
   right: -10px;
   font-size: 12px;
   color: black;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 2px 5px;
-  border-radius: 3px;
+  pointer-events: none;
+  transition: right 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .character-count {
+    right: 0px;
+  }
+}
+
+@media (max-width: 600px) {
+  .character-count {
+    right: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .character-count {
+    right: 7px;
+  }
+}
+
+@media (max-width: 390px) {
+  .character-count {
+    right: 12px;
+  }
 }
 
 .title-character-count {
@@ -500,6 +524,31 @@ export default {
   font-size: 12px;
   color: black;
   pointer-events: none;
+  transition: right 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .title-character-count {
+    right: 0px;
+  }
+}
+
+@media (max-width: 600px) {
+  .title-character-count {
+    right: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-character-count {
+    right: 5px;
+  }
+}
+
+@media (max-width: 390px) {
+  .title-character-count {
+    right: 10px;
+  }
 }
 
 

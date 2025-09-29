@@ -231,12 +231,12 @@ export default {
 }
 
 .room-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  overflow-x: auto; 
+  white-space: nowrap;
 }
 
 .room-button {
+  display: inline-block;
   padding: 10px 8px;
   border: 1px solid #E0E0E0;
   border-radius: 4px;
@@ -250,6 +250,7 @@ export default {
   line-height: 12px; /* 85.714% */
   transition: all 0.2s ease;
   width: 68px;
+  margin-right: 8px;
 }
 
 .room-button.active {

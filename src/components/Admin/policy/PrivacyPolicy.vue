@@ -319,6 +319,8 @@ export default {
 
 .container {
   display: flex;
+  min-width: 390px;
+  overflow-x: hidden;
 }
 
 .contents {
@@ -327,19 +329,22 @@ export default {
 }
 
 .title {
-  font-size: 20px;
+  font-size: clamp(16px, 3vw, 20px);
   font-weight: 600;
   margin-bottom: 20px;
   color: #333;
 }
 
 .notices {
-  width: 820px;
+  width: 100%;
+  max-width: 820px;
+  min-width: 390px;
   height: auto;
   border-radius: 10px;
   background-color: #fff;
   padding: 10px 30px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
 }
 
 /* 새로 추가된 스타일 */
@@ -348,7 +353,7 @@ export default {
 }
 
 .terms-section h3 {
-  font-size: 16px;
+  font-size: clamp(14px, 2.5vw, 16px);
   font-weight: bold;
   margin-bottom: 10px;
 }
@@ -368,7 +373,7 @@ export default {
 
 .centered-title {
   text-align: center;
-  font-size: 20px;
+  font-size: clamp(16px, 3vw, 20px);
   color: #393939;
   font-weight: 700;
   margin: 20px 0;

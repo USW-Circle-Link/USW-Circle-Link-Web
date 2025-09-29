@@ -30,6 +30,7 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
+  min-width: 390px;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
@@ -57,7 +58,11 @@ export default {
   margin-bottom: 16px;
   font-weight: bold;
 }
-
+/*
+hr {
+  //border-bottom: 1px solid #d3d3d3;
+}
+*/
 .confirm-message{
   font-size: 16px;
   text-align: left;

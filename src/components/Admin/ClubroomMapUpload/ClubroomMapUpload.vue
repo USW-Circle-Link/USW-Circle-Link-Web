@@ -3,33 +3,19 @@
   <div class="title">동아리 위치 정보 수정</div>
 
   <div class="floor-images-container">
-    <div class="floor-section">
-      <!-- 지하 1층 -->
-       <div class="floor-container">
-      <div
-        class="image-container">
-        <div class="image-wrapper">
-          <div class="image-box" :class="{ hovered: floorData.B1.showingIcon }"
-          @mouseover="showIcons('B1', true)"
-          @mouseleave="showIcons('B1', false)">
-            <img
-              v-if="floorData.B1.imageSrc"
-              :src="floorData.B1.imageSrc"
-              alt="Floor Image"
-              class="floor-image"
-            />
+    <!-- 지하 1층 -->
+    <div class="floor-container">
+      <div class="image-wrapper">
+        <div class="image-container"
+            @mouseover="showIcons('B1', true)"
+            @mouseleave="showIcons('B1', false)">
+          <div class="image-box" :class="{ hovered: floorData.B1.showingIcon }">
+            <img v-if="floorData.B1.imageSrc"
+                :src="floorData.B1.imageSrc"
+                alt="Floor Image"
+                class="floor-image" />
             <div v-if="floorData.B1.showingIcon" class="icons-container">
-              <img
-                src="../../../assets/zoom.svg"
-                class="icon zoom-icon"
-                @click="enlargeImage(floorData.B1.imageSrc)"
-              />
-              <img
-                src="../../../assets/remove.svg"
-                class="icon remove-icon"
-                @click="markImageForDeletion('B1')"
-              />
-              </div>
+              …
             </div>
           </div>
           <h3>지하 1층</h3>
@@ -39,23 +25,22 @@
               이미지 수정
             </button>
           </div>
-          <input
-            type="file"
-            ref="fileInputB1"
-            @change="onImageUpload('B1', $event)"
-            style="display: none;"
-          />
+          <input type="file" ref="fileInputB1"
+                @change="onImageUpload('B1', $event)"
+                style="display:none;" />
         </div>
-      </div> 
+      </div>
+    </div>
+
       <!-- 1층 -->
       <div class="floor-container">
-
-        <div
-          class="image-container">
-          <div class="image-wrapper">
-            <div class="image-box" :class="{ hovered: floorData.F1.showingIcon }"
+        <div class="image-wrapper">
+          <div
+            class="image-container"
             @mouseover="showIcons('F1', true)"
-            @mouseleave="showIcons('F1', false)">
+            @mouseleave="showIcons('F1', false)"
+          >
+            <div class="image-box" :class="{ hovered: floorData.F1.showingIcon }">
               <img
                 v-if="floorData.F1.imageSrc"
                 :src="floorData.F1.imageSrc"
@@ -94,12 +79,13 @@
 
       <!-- 2층 -->
       <div class="floor-container">
-        <div
-          class="image-container">
-          <div class="image-wrapper">
-            <div class="image-box" :class="{ hovered: floorData.F2.showingIcon }"
-              @mouseover="showIcons('F2', true)"
-              @mouseleave="showIcons('F2', false)">
+        <div class="image-wrapper">
+          <div
+            class="image-container"
+            @mouseover="showIcons('F2', true)"
+            @mouseleave="showIcons('F2', false)"
+          >
+            <div class="image-box" :class="{ hovered: floorData.F2.showingIcon }">
               <img
                 v-if="floorData.F2.imageSrc"
                 :src="floorData.F2.imageSrc"
@@ -136,7 +122,8 @@
         </div>
       </div>
     </div>
-    <button @click="saveImages" class="save-button">저장하기</button>
+  
+  <button @click="saveImages" class="save-button">저장하기</button>
 
     <!-- 확대된 이미지 모달 -->
     <div v-if="enlargedImage" class="image-modal">
@@ -391,16 +378,29 @@ export default {
 
 .floor-images-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  min-width: 390px;
+  overflow-x: hidden;
+  gap: 20px;
 }
 
 .floor-section {
   gap: 10px;
   margin: 10px 0;
-  align-self: start;
   text-align: left;
   display: flex;
+  flex-wrap: wrap; /* 줄바꿈 허용 */
+  justify-content: flex-start;
+  flex: 1 1 auto; /* 유연한 크기 조정 */
+  min-width: 200px; /* 최소 너비 줄임 */
+  max-width: 100%; /* 최대 너비 제한 */
+}
+
+.floor-section h3 {
+  flex: 0 0 100%; /* 한 줄 전체 차지 */
 }
 
 .horizontal-layout {
@@ -412,10 +412,12 @@ export default {
 .floor-container {
   flex: 1;
   background-color: white;
-  border-radius: 16px;
-  width : 281.33px;
-  height: 280.33px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  width: 280px;   /* 통일 */
+  height: 280px;  /* 통일 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .image-container {
@@ -426,7 +428,9 @@ export default {
 
 .image-box {
   width: 100%;
-  height: 100%;
+  max-width: 280px; /* 최대 너비 제한 */
+  min-width: 200px; /* 최소 너비 보장 */
+  height: 100%; /* 고정 높이 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -530,9 +534,8 @@ export default {
   line-height: 16px;
   letter-spacing: -0.025em;
   text-align: center;
-  margin-top: 200px;
-  margin-left: 800px; 
-  margin-bottom: 30px;
+  margin: 30px auto;
+  display: block;
   cursor: pointer;
 }
 
@@ -582,7 +585,7 @@ export default {
 }
 h2{
   align-self: start;
-  margin-top: -15px;
+  margin-top: 20px;
   margin-bottom: -5px;
 }
 h3 {
@@ -606,5 +609,34 @@ h3 {
   padding: 7px;
   background: url('../../../assets/hugeicons_image-upload.svg') no-repeat center center;
   filter: invert(54%) sepia(1%) saturate(0%) hue-rotate(179deg) brightness(97%) contrast(89%);
+}
+
+/* 반응형 미디어 쿼리 */
+@media (max-width: 768px) {
+  .floor-images-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .floor-section {
+    width: 100%;
+    max-width: 400px;
+    justify-content: center;
+  }
+  
+  .image-box {
+    max-width: 100%;
+    min-width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floor-section {
+    min-width: 150px;
+  }
+  
+  .image-box {
+    min-width: 200px;
+  }
 }
 </style>

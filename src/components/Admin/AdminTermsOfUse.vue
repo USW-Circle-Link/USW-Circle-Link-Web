@@ -111,6 +111,7 @@ export default {
 .container {
   display: flex;
   min-width: 390px;
+  overflow-x: hidden;
 }
 
 /* 콘텐츠 영역 설정 */
@@ -122,7 +123,7 @@ export default {
 /* 타이틀 스타일 */
 .title {
   color: black;
-  font-size: 25px;
+  font-size: clamp(18px, 4vw, 25px);
   font-weight: bold;
   margin-bottom: 10px;
   position: relative; /* 상대 위치 설정 */
@@ -145,12 +146,15 @@ export default {
 
 /* 공지사항 박스 설정 */
 .notices {
-  width: 820px;
+  width: 100%;
+  max-width: 820px;
+  min-width: 390px;
   height: auto;
   border-radius: 10px;
   background-color: #fff;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
 }
 
 /* 테이블 스타일 */

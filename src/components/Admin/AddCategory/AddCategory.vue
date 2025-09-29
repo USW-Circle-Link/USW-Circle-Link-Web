@@ -200,7 +200,9 @@ export default {
 }
 
 .container {
-  width: 890px;
+  max-width: 890px;  /* 최대 890px까지만 */
+  min-width: 390px;
+  width: 100%;       /* 화면 크기에 맞게 */
   margin: 0 auto;
   padding: 10px;
 }
@@ -216,7 +218,8 @@ h2 {
   flex-wrap: wrap;
   gap: 10px; /* 항목 간 간격 */
   margin-bottom: 150px;
-
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .category-item {
@@ -229,6 +232,10 @@ h2 {
   font-size: 14px;
   color: #868686;
   padding: 5px 10px 5px 10px;
+  flex-shrink: 0;
+  min-width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .remove-btn {
@@ -253,13 +260,38 @@ h2 {
 }
 
 .input-field {
-  width: 860px;
+  width: 95%;
   margin-top: 10px;
   flex: 1;
   padding: 20px 15px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 14px;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .input-field {
+    width: 90%;
+  }
+}
+
+@media (max-width: 600px) {
+  .input-field {
+    width: 85%;
+  }
+}
+
+@media (max-width: 480px) {
+  .input-field {
+    width: 82%;
+  }
+}
+
+@media (max-width: 390px) {
+  .input-field {
+    width: 80%;
+  }
 }
 
 .input-field:focus {
@@ -284,9 +316,8 @@ h2 {
   line-height: 16px;
   letter-spacing: -0.025em;
   text-align: center;
-  margin-top: 30px;
-  margin-left: 774px;
-  margin-bottom: 30px;
+  margin: 30px auto;   /* 위아래 30px, 좌우 자동 */
+  display: block;      /* block 요소로 만들어야 margin auto가 적용됨 */
   cursor: pointer;
 }
 

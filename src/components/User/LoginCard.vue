@@ -39,6 +39,7 @@
 
 .content-container{
   width: 220px;
+  min-width: 390px;
   height: 120px;
   flex-shrink: 0;
   border-radius: 4px;

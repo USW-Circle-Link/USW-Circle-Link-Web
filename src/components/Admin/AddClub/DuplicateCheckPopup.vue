@@ -43,6 +43,7 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
+  min-width: 390px;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;

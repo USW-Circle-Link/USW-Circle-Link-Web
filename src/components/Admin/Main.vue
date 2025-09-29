@@ -1,7 +1,6 @@
 <template>
-  <div id="main" :class="{ 'sidebar-hidden': !showSidebar }">
-    <HeadBar @toggle-sidebar="handleSidebarToggle" />
-    
+  <div id="main">
+    <HeadBar ref="headbar" @toggle-sidebar="handleSidebarToggle" />
     <div class="main-content">
       <transition name="slide">
         <SidebarMenu v-if="showSidebar" class="sidebar" />
@@ -11,8 +10,8 @@
         <router-view />
       </div>
     </div>
-    
-    <div v-if="showSidebar && windowWidth < 1300" class="sidebar-overlay" @click="closeSidebar"></div>
+    <!-- 모바일 사이드바 오버레이 -->
+    <div v-if="showSidebar && windowWidth <= 1150" class="sidebar-overlay" @click="closeSidebar"></div>
   </div>
 </template>
 
@@ -36,7 +35,8 @@ export default {
     };
   },
   mounted() {
-    window.addEventListener('resize', this.handleResize);
+    this.checkWindowSize();
+    window.addEventListener('resize', this.checkWindowSize);
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.handleResize);
@@ -46,10 +46,8 @@ export default {
     handleResize() {
       const oldWidth = this.windowWidth;
       this.windowWidth = window.innerWidth;
-
-      // 데스크톱 <-> 모바일 뷰 경계를 넘나들 때만 사이드바 상태를 자동으로 변경
-      if (oldWidth >= BREAKPOINT && this.windowWidth < BREAKPOINT) {
-        // 데스크톱 -> 모바일로 전환 시: 사이드바를 숨김
+      // 화면 너비가 1150px 이하면 사이드바를 자동으로 숨김
+      if (this.windowWidth <= 1150) {
         this.showSidebar = false;
       } else if (oldWidth < BREAKPOINT && this.windowWidth >= BREAKPOINT) {
         // 모바일 -> 데스크톱으로 전환 시: 사이드바를 표시
@@ -73,77 +71,58 @@ export default {
 html, body {
   margin: 0;
   padding: 0;
-  background-color: #F0F2F5;
-  font-family: 'Pretendard', sans-serif;
-  min-width: 360px;
-}
-
-#main {
-  position: relative;
+  background: #F0F2F5;
+  min-width: 390px;
   overflow-x: hidden;
 }
 
-.main-content {
-  /* HeadBar의 높이(86px)만큼 상단 여백을 주어 콘텐츠가 가려지지 않게 함 */
-  padding-top: 86px; 
+.main-content{
+  padding-top: 140px;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
 }
 
-/* --- 데스크톱 레이아웃 (1300px 이상) --- */
-/* 데스크톱에서는 사이드바가 보일 때 콘텐츠를 밀어내는 방식(Push)으로 동작 */
-.sidebar {
+.sidebar{
   position: fixed;
   top: 86px;
-  left: 10%;
-  width: 250px; /* 레이아웃 계산을 위해 고정 너비 사용 */
-  height: calc(100% - 86px);
-  z-index: 100;
-  background-color: #F0F2F5;
-  transition: transform 0.3s ease;
+  left: 0;
+  display: flex;
+  overflow: auto;
+  width: 240px;
+  min-width: 240px;
+  height: calc(100vh - 86px);
+  z-index: 1000;
 }
 
-.content {
-  /* 사이드바 너비와 여백만큼 왼쪽 마진을 주어 콘텐츠를 밀어냄 */
-  margin-left: calc(10% + 250px);
-  padding: 24px;
-  width: calc(100% - (10% + 250px) - 24px * 2); /* 전체 너비에서 여백과 사이드바 너비를 뺀 값 */
-  transition: margin-left 0.3s ease, width 0.3s ease;
+.sidebar-content::-webkit-scrollbar {
+  display: none;
 }
 
-/* 데스크톱에서 사이드바가 숨겨질 때 (sidebar-hidden 클래스가 있을 때) */
-#main.sidebar-hidden .sidebar {
-  /* 사이드바를 화면 왼쪽 밖으로 이동시킴 */
-  transform: translateX(-120%);
+.sidebar-content {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
-#main.sidebar-hidden .content {
-  /* 콘텐츠 영역을 넓힘 */
-  margin-left: 10%;
-  width: calc(100% - 10% - 24px * 2);
+.content{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  margin-left: 240px;
+  transition: margin-left 0.3s;
 }
 
+.full-width {
+  margin-left: 0;
+}
 
-/* --- 모바일/태블릿 레이아웃 (1300px 미만) --- */
-@media (max-width: 1300px) {
-  /* 모바일에서는 사이드바가 콘텐츠 위를 덮는 방식(Overlay)으로 동작 */
-  .sidebar {
-    left: 0; /* 화면 좌측 끝에 고정 */
-    width: 280px;
-    background-color: #fff;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-    z-index: 1000;
-  }
-
-  /* 모바일에서는 콘텐츠가 항상 전체 너비를 차지 (밀려나지 않음) */
-  .content {
-    margin-left: 0;
-    width: 100%;
-    padding: 24px 5%; /* 좌우 여백 */
-  }
-
-  /* 모바일에서 사이드바가 숨겨졌을 때도 콘텐츠 너비는 동일 */
-  #main.sidebar-hidden .content {
-    margin-left: 0;
-    width: 100%;
+/* 390px 이하에서 content full-width를 380px로 설정 */
+@media (max-width: 390px) {
+  .content.full-width {
+    width: 380px;
+    max-width: 380px;
+    margin: 0 auto;
   }
 }
 
@@ -164,5 +143,36 @@ html, body {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 999;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 1400px) {
+  .sidebar {
+    width: 240px;
+  }
+  
+  .content {
+    margin-left: 240px;
+  }
+}
+
+@media (max-width: 1150px) {
+  .sidebar {
+    width: 240px;
+    background-color: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .content {
+    margin-left: 0;
+  }
+  
+  .full-width {
+    margin-left: 0;
+  }
+}
+
+* {
+  font-family: Pretendard;
 }
 </style>
