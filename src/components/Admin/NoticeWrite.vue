@@ -241,11 +241,11 @@ export default {
 
     // 공지사항 제출
     async submitNotice() {
-      const maxTitleLength = 200;
-      const maxContentLength = 3000;
+     // const maxTitleLength = 200;
+      //const maxContentLength = 3000;
 
       // 🔹 제목과 내용 입력 여부 확인 후 오류 메시지 설정
-   if (this.notice.noticeTitle.trim() === "") {
+    if (this.notice.noticeTitle.trim() === "") {
         this.titleError = "* 제목을 입력해주세요.";
       } else {
         this.titleError = "";
