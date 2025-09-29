@@ -127,15 +127,15 @@
 
     <!-- 확대된 이미지 모달 -->
     <div v-if="enlargedImage" class="image-modal">
-        <img
-          src="../../../assets/remove.svg"
-          class="remove-icon-modal"
-          @click="closeModal"
-          alt="Close Modal"
-        />
-        <img :src="enlargedImage" alt="Enlarged Image" class="enlarged-image" />
-      </div>
+      <img
+        src="../../../assets/remove.svg"
+        class="remove-icon-modal"
+        @click="closeModal"
+        alt="Close Modal"
+      />
+      <img :src="enlargedImage" alt="Enlarged Image" class="enlarged-image" />
     </div>
+    
 
   <ClubroomMapUploadPopup
       v-if="showPopup"
