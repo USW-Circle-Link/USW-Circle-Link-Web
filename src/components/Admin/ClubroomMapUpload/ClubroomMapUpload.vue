@@ -4,31 +4,18 @@
 
   <div class="floor-images-container">
     <!-- 지하 1층 -->
-    <div class="floor-section">
+    <div class="floor-container">
       <div class="image-wrapper">
-        <div
-          class="image-container"
-          @mouseover="showIcons('B1', true)"
-          @mouseleave="showIcons('B1', false)"
-        >
+        <div class="image-container"
+            @mouseover="showIcons('B1', true)"
+            @mouseleave="showIcons('B1', false)">
           <div class="image-box" :class="{ hovered: floorData.B1.showingIcon }">
-            <img
-              v-if="floorData.B1.imageSrc"
-              :src="floorData.B1.imageSrc"
-              alt="Floor Image"
-              class="floor-image"
-            />
+            <img v-if="floorData.B1.imageSrc"
+                :src="floorData.B1.imageSrc"
+                alt="Floor Image"
+                class="floor-image" />
             <div v-if="floorData.B1.showingIcon" class="icons-container">
-              <img
-                src="../../../assets/zoom.svg"
-                class="icon zoom-icon"
-                @click="enlargeImage(floorData.B1.imageSrc)"
-              />
-              <img
-                src="../../../assets/remove.svg"
-                class="icon remove-icon"
-                @click="markImageForDeletion('B1')"
-              />
+              …
             </div>
           </div>
           <h3>지하 1층</h3>
@@ -38,14 +25,13 @@
               이미지 수정
             </button>
           </div>
-          <input
-            type="file"
-            ref="fileInputB1"
-            @change="onImageUpload('B1', $event)"
-            style="display: none;"
-          />
+          <input type="file" ref="fileInputB1"
+                @change="onImageUpload('B1', $event)"
+                style="display:none;" />
         </div>
       </div>
+    </div>
+
       <!-- 1층 -->
       <div class="floor-container">
         <div class="image-wrapper">
@@ -136,7 +122,6 @@
         </div>
       </div>
     </div>
-  </div>
   
   <button @click="saveImages" class="save-button">저장하기</button>
 
@@ -426,8 +411,11 @@ export default {
   margin: 0 10px;
   background-color: white;
   border-radius: 8px;
-  width : 281.33px;
-  height: 280.33px;
+  width: 280px;   /* 통일 */
+  height: 280px;  /* 통일 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .image-container {
@@ -439,7 +427,7 @@ export default {
   width: 100%;
   max-width: 280px; /* 최대 너비 제한 */
   min-width: 200px; /* 최소 너비 보장 */
-  height: 182px; /* 고정 높이 */
+  height: 100%; /* 고정 높이 */
   display: flex;
   justify-content: center;
   align-items: center;
