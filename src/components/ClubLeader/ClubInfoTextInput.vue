@@ -36,7 +36,7 @@
         <textarea
             placeholder="동아리에 대해 자유롭게 설명해주세요."
             v-model="textareaContent"
-            rows="4"
+            rows="10"
             cols="50"
             class="preserve-whitespace"
             @input="updateTextSize"
@@ -60,7 +60,7 @@
             v-model="textareaRecruitContent"
             :readonly="!isChecked"
             :class="{ 'RecruitToggleOff': !isChecked }"
-            rows="4"
+            rows="10"
             cols="50"
             class="preserve-whitespace"
             @input="updateRecruitTextSize"
@@ -452,7 +452,7 @@ h2{ font-size: clamp(18px, 2.2vw, 24px); }
   display: grid;
   grid-template-rows: auto auto 1fr auto auto auto auto auto; /* 섹션 순서 유지 */
   gap: 10px;
-  width: clamp(340px, 92vw, 1120px);
+  /* width: clamp(340px, 92vw, 1120px); */
   margin: 0 auto;
   padding: 0 clamp(12px, 2vw, 20px);
 }
@@ -546,7 +546,7 @@ h2{ font-size: clamp(18px, 2.2vw, 24px); }
 .GoogleFormLinkInput textarea{
   width: 100%;
   min-height: 20px;
-  padding: 10px 16px;
+  /* padding: 10px 16px; */
   border: none;
   font-size: 14px; line-height: 1.5; color:#333;
   resize: none; white-space: pre-wrap;
