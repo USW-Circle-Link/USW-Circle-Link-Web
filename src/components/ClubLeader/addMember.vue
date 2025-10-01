@@ -1,284 +1,246 @@
 <template>
-  <div class="total">
-    <FirstAgree v-if="!isTermsAgreed" @agreement-confirmed="handleAgreementConfirmed" />
-
-    <div class="ClubInfo">
-      <img :src="imageSrc" alt="Logo" class="clublogo" v-if="imageSrc" oncontextmenu="return false;" />
-      <div class="Info">
-        <div class="info">
-          <p class="clubname">{{ data.clubName }}</p>
-          <div class="line1"></div>
-          <p class="clubleader">동아리 회장</p>
-          <p class="name">{{ formattedLeaderName }}</p>
-        </div>
-        <div class="phoneNum">
-          <div class="icon phone"></div>
-          <p class="detail">{{ formattedPhoneNumber }}</p>
-        </div>
-        <div class="instaName">
-          <div class="icon insta"></div>
-          <a v-if="instagramLink.length" :href="instagramLink" target="_blank">인스타그램</a>
-          <span v-else>정보 없음</span>
-        </div>
-        <div class="clubroom">
-          <div class="icon map"></div>
-          <p class="room">동아리방</p>
-          <div class="line2"></div>
-          <p class="detail">학생회관 {{ data.clubRoomNumber }}호</p>
-        </div>
-        <div class="clubroom">
-          <div class="icon category"></div>
-          <p class="room">카테고리</p>
-          <div class="line2"></div>
-          <p class="detail">{{ formattedCategory }}</p>
-        </div>
-
-        <div class="hashtags">
-          <span v-for="(tag, index) in hashtagArray" :key="index" class="hashtag">#{{ tag }}</span>
-        </div>
-      </div>
-    </div>
-    <div class="Dashboardhead">
-      <div>
-        <p class="p1">동아리 회원 정보</p>
-        <p class="p2">현재 회원 : {{ totalMemberCount }} 명</p>
-      </div>
-      <button @click="sheetDownload" class="spreadsheets">
-        <svg v-if="!isLoading" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 15.2379V3.21289" stroke="#545454" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" />
-          <path
-            d="M7.375 10.9941L11.341 14.9601C11.5164 15.1337 11.7532 15.231 12 15.231C12.2468 15.231 12.4836 15.1337 12.659 14.9601L16.625 10.9941"
-            stroke="#545454" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          <path
-            d="M2.75 13.8496V18.4746C2.75 19.0881 2.99369 19.6764 3.42746 20.1101C3.86123 20.5439 4.44955 20.7876 5.063 20.7876H18.937C19.5504 20.7876 20.1388 20.5439 20.5725 20.1101C21.0063 19.6764 21.25 19.0881 21.25 18.4746V13.8496"
-            stroke="#545454" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+  <div class="container">
+    <div class="title-row">
+      <h2>엑셀 파일로 추가할 동아리 회원 정보</h2>
+      <div class="buttons">
+      <button class="download-btn" @click="downloadExcel">엑셀 양식 다운로드</button>
+      <button class="upload-btn" @click="triggerFileInput">
+        <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_4830_14361)">
+            <path d="M14.1733 9.04535H11.6287V7.77304H14.1733V9.04535ZM14.1733 9.77235H11.6287V11.0447H14.1733V9.77235ZM14.1733 3.77441H11.6287V5.0467H14.1733V3.77441ZM14.1733 5.77373H11.6287V7.04601H14.1733V5.77373ZM14.1733 11.7717H11.6287V13.044H14.1733V11.7717ZM15.9309 14.2799C15.8582 14.658 15.4038 14.667 15.1003 14.6798H9.44769V16.3156H8.31897L0 14.8615V2.14045L8.36806 0.68457H9.44769V2.13316H14.9058C15.213 2.14588 15.5511 2.12407 15.8182 2.30763C16.0054 2.57663 15.9873 2.91835 16 3.22732L15.9927 12.6895C15.9837 13.2184 16.0418 13.7583 15.9309 14.2799ZM6.66497 11.4282C6.16334 10.4104 5.65263 9.39976 5.15278 8.38191C5.64716 7.39135 6.13428 6.39716 6.61956 5.40295C6.20697 5.42295 5.79437 5.44838 5.38363 5.47748C5.07644 6.22448 4.71838 6.95151 4.47847 7.72398C4.25491 6.99513 3.95866 6.29354 3.68784 5.58288C3.28797 5.60469 2.88809 5.62832 2.48825 5.65195C2.90991 6.58257 3.35888 7.50038 3.76781 8.43645C3.28616 9.34523 2.83541 10.2668 2.36828 11.181C2.76631 11.1973 3.16438 11.2137 3.56241 11.2191C3.84597 10.4958 4.19856 9.79963 4.44575 9.0617C4.6675 9.85416 5.04372 10.5866 5.35272 11.3445C5.79075 11.3755 6.22694 11.4027 6.66497 11.4282ZM15.1331 2.99638H9.44769V3.77441H10.9017V5.0467H9.44769V5.77373H10.9017V7.04601H9.44769V7.77304H10.9017V9.04535H9.44769V9.77235H10.9017V11.0447H9.44769V11.7717H10.9017V13.044H9.44769V13.8845H15.1331V2.99638Z" fill="white"/>
+          </g>
+          <defs>
+            <clipPath id="clip0_4830_14361">
+              <rect width="16" height="16" fill="white" transform="translate(0 0.5)"/>
+            </clipPath>
+          </defs>
         </svg>
-        <span v-if="isLoading" class="loading-icon"></span>
-        <p>{{ isLoading ? "다운로드 중" : "회원 명단 다운로드" }}</p>
+        엑셀 파일 업로드
+        <input type="file" ref="fileInput" @change="handleFileUpload" hidden />
       </button>
-    </div>
-    <div class="tab-menu">
-      <button :class="['tab-button', { active: currentTab === 'alphabetical' }]" @click="changeTab('alphabetical')">
-        가나다순
-      </button>
-      <button :class="['tab-button', { active: currentTab === 'nonMember' }]" @click="changeTab('nonMember')">
-        비회원
-      </button>
-      <button :class="['tab-button', { active: currentTab === 'member' }]" @click="changeTab('member')">
-        회원
-      </button>
-    </div>
-    <div id="Dashboard" class="Dashboard">
-      <div class="member-list">
-        <ul>
-          <li v-for="(member, index) in displayedMembers" :key="member.clubMemberId" class="member-item-li">
-            <div v-if="editingIndex !== index" class="member-item-display">
-              <span class="member-info-text">{{ member.userName }}</span>
-              <span class="member-info-text">{{ member.studentNumber }}</span>
-              <span class="member-info-text">{{ member.major }}</span>
-              <span class="member-info-text">{{ member.userHp }}</span>
-              <button v-if="(currentTab === 'nonMember' || (currentTab === 'alphabetical' && !member.isRegularMember))"
-                @click="startEdit(index)" class="edit-btn">
-                수정
-              </button>
-            </div>
-
-            <div v-else class="member-item-edit" :class="{ 'has-error': hasError }">
-              <div class="edit-form-box">
-                <div class="input-row-group">
-                  <div class="input-row">
-                    <input v-model="editingMember.userName" type="text" placeholder="이름" class="edit-input"
-                      :class="{ 'error': validationErrors.userName }" />
-                    <input v-model="editingMember.studentNumber" type="text" placeholder="학번" class="edit-input"
-                      :class="{ 'error': validationErrors.studentNumber }" />
-                  </div>
-                  <div class="input-row">
-                    <select v-model="selectedCollege" @change="onCollegeChange" class="edit-input"
-                      :class="{ 'error': !selectedCollege }">
-                      <option value="">단과대학 선택</option>
-                      <option v-for="college in colleges" :key="college.id" :value="college.id">
-                        {{ college.name }}
-                      </option>
-                    </select>
-                    <select v-model="editingMember.major" class="edit-input" :class="{ 'error': validationErrors.major }">
-                      <option value="">학과 선택</option>
-                      <option v-for="dept in departments" :key="dept" :value="dept">
-                        {{ dept }}
-                      </option>
-                    </select>
-                  </div>
-                  <div class="input-row">
-                    <input v-model="editingMember.userHp" type="tel" placeholder="전화번호" class="edit-input"
-                      :class="{ 'error': validationErrors.userHp }" />
-                  </div>
-                </div>
-              </div>
-              <button @click="confirmEdit" class="save-btn">저장</button>
-            </div>
-
-            <div v-if="editingIndex === index && hasError" class="error-messages-container">
-              <ul class="error-list">
-                <li v-for="(message, key) in validationErrorList" :key="key" class="error-item">
-                  {{ message }}
-                </li>
-              </ul>
-            </div>
-          </li>
-        </ul>
       </div>
     </div>
 
-    <Popup401 v-if="show401Popup" />
-
-    <div class="custom-popup" v-if="showEditConfirmPopup">
-      <div class="popup-content">
-        <div class="popup-header">
-          <p class="popup-title">동아리 회원 수정</p>
+    <div class="info-section">
+        <div class="info-section-col">
+          <p>추가 회원: {{ members.length }}명</p>
+          <p class="warning-text">
+            동아리 회원 추가의 경우, 오타가 없는지 꼼꼼하게 확인해주세요.
+          </p>
         </div>
-        
-        <div class="popup-body">
-          <p class="popup-message">해당 동아리 회원 정보를 수정하시겠습니까?</p>
+        <div>
+          <button class="clear-btn" @click="clearList">
+            <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 3.25H11.25V2.5C11.25 2.16848 11.1183 1.85054 10.8839 1.61612C10.6495 1.3817 10.3315 1.25 10 1.25H7C6.66848 1.25 6.35054 1.3817 6.11612 1.61612C5.8817 1.85054 5.75 2.16848 5.75 2.5V3.25H3C2.9337 3.25 2.87011 3.27634 2.82322 3.32322C2.77634 3.37011 2.75 3.4337 2.75 3.5C2.75 3.5663 2.77634 3.62989 2.82322 3.67678C2.87011 3.72366 2.9337 3.75 3 3.75H3.75V13C3.75 13.1989 3.82902 13.3897 3.96967 13.5303C4.11032 13.671 4.30109 13.75 4.5 13.75H12.5C12.6989 13.75 12.8897 13.671 13.0303 13.5303C13.171 13.3897 13.25 13.1989 13.25 13V3.75H14C14.0663 3.75 14.1299 3.72366 14.1768 3.67678C14.2237 3.62989 14.25 3.5663 14.25 3.5C14.25 3.4337 14.2237 3.37011 14.1768 3.32322C14.1299 3.27634 14.0663 3.25 14 3.25ZM6.25 2.5C6.25 2.30109 6.32902 2.11032 6.46967 1.96967C6.61032 1.82902 6.80109 1.75 7 1.75H10C10.1989 1.75 10.3897 1.82902 10.5303 1.96967C10.671 2.11032 10.75 2.30109 10.75 2.5V3.25H6.25V2.5ZM12.75 13C12.75 13.0663 12.7237 13.1299 12.6768 13.1768C12.6299 13.2237 12.5663 13.25 12.5 13.25H4.5C4.4337 13.25 4.37011 13.2237 4.32322 13.1768C4.27634 13.1299 4.25 13.0663 4.25 13V3.75H12.75V13ZM7.25 6.5V10.5C7.25 10.5663 7.22366 10.6299 7.17678 10.6768C7.12989 10.7237 7.0663 10.75 7 10.75C6.9337 10.75 6.87011 10.7237 6.82322 10.6768C6.77634 10.6299 6.75 10.5663 6.75 10.5V6.5C6.75 6.4337 6.77634 6.37011 6.82322 6.32322C6.87011 6.27634 6.9337 6.25 7 6.25C7.0663 6.25 7.12989 6.27634 7.17678 6.32322C7.2237 6.37011 7.25 6.4337 7.25 6.5ZM10.25 6.5V10.5C10.25 10.5663 10.2237 10.6299 10.1768 10.6768C10.1299 10.7237 10.0663 10.75 10 10.75C9.9337 10.75 9.87011 10.7237 9.82322 10.6768C9.77634 10.6299 9.75 10.5663 9.75 10.5V6.5C9.75 6.4337 9.77634 6.37011 9.82322 6.32322C9.87011 6.27634 9.9337 6.25 10 6.25C10.0663 6.25 10.1299 6.27634 10.1768 6.32322C10.2237 6.37011 10.25 6.4337 10.25 6.5Z" fill="#969696"/>
+            </svg>
+            비우기
+          </button>
         </div>
+    </div>
 
-        <div class="popup-actions">
-          <button @click="cancelEdit" class="cancel-button">취소</button>
-          <button @click="saveEdit" class="confirm-button">확인</button>
+    <div v-if="visible && !isOverlappingMemberListsPopupVisible" class="member-list">
+      <div class="member-list" v-for="(member, index) in members" :key="index">
+        <div class="member-row">
+          <div class="input-wrapper">
+            <span v-if="editingIndex !== index">{{ member.userName }}</span>
+            <input v-else
+                   v-model="editingMember.userName"
+                   :class="['edit-input', { error: validationErrors.userName }]"
+                   type="text"
+                   placeholder="이름">
+            <div v-if="editingIndex === index && validationErrors.userName"
+                 class="validation-error">
+              {{ errorMessages.userName }}
+            </div>
+          </div>
+
+          <div class="input-wrapper">
+            <span v-if="editingIndex !== index">{{ member.studentNumber }}</span>
+            <input v-else
+                   v-model="editingMember.studentNumber"
+                   :class="['edit-input', 'narrow-input', { error: validationErrors.studentNumber }]"
+                   type="text"
+                   placeholder="학번">
+            <div v-if="editingIndex === index && validationErrors.studentNumber"
+                 class="validation-error">
+              {{ errorMessages.studentNumber }}
+            </div>
+          </div>
+
+          <div class="input-wrapper">
+            <span v-if="editingIndex !== index">{{ formatPhoneNumber(member.userHp) }}</span>
+            <input v-else
+                   v-model="editingMember.userHp"
+                   :class="['edit-input', 'narrow-input', { error: validationErrors.userHp }]"
+                   type="tel"
+                   placeholder="전화번호">
+            <div v-if="editingIndex === index && validationErrors.userHp"
+                 class="validation-error">
+              {{ errorMessages.userHp }}
+            </div>
+          </div>
+
+          <select v-model="member.department" @change="onCollegeChange(index)">
+            <option disabled value="">단과대학 선택</option>
+            <option v-for="college in colleges" :key="college.id" :value="college.id">
+              {{ college.name }}
+            </option>
+          </select>
+
+          <select v-model="member.major">
+            <option disabled value="">학부(학과) 선택</option>
+            <option v-for="dept in member.departments" :key="dept" :value="dept">
+              {{ dept }}
+            </option>
+          </select>
+          <button
+              v-if="editingIndex !== index"
+              class="edit-btn"
+              @click="startEdit(index)"
+          >
+            수정
+          </button>
+          <button v-if="editingIndex === index"
+                  @click="confirmEdit(index)"
+                  class="save-btn">
+            수정
+          </button>
+        </div>
+        <div>
+          <p class="errorMessage"> {{ member.errorMessage }}</p>
+        </div>
+      </div>
+      <button class="addClubMember" @click="submitMembers">완료</button>
+    </div>
+
+
+    <div v-if="isOverlappingMemberListsPopupVisible" class="popup-overlay1">
+      <div class="popup-container">
+        <div class="popup-content">
+          <h2>프로필 중복 회원 목록</h2>
+          <p class="confirm-message">타 동아리에도 소속되어 있는 프로필 중복 회원이 <span class="red-text1">총 {{OverlappingMembers.length}}명</span> 존재해요. <br>이후 '프로필 중복 회원 추가'를 통해 아래 회원을 추가해주세요. <br><span class="red-text1">해당 팝업을 닫는 경우 다시 확인할 수 없으니, <span class="red-text2">반드시 별도로 저장</span>해주세요!</span></p>
+          <div class="list-item-container">
+            <div v-for="(item, index) in OverlappingMembers" :key="index" class="list-item">
+              <div class="name">{{ item.userName }}</div>
+              <div class="id">{{ item.studentNumber }}</div>
+              <div class="Phone">{{ formatPhoneNumber(item.userHp) }}</div>
+            </div>
+          </div>
+          <button class="confirm-button" @click="Delete">확인</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="isSelectDepartmentPopupVisible" class="popup-overlay2">
+      <div class="popup">
+        <h3>동아리 회원 추가</h3>
+        <div class="line3"></div>
+        <p class="popup-message">학과를 모두 선택해주세요.</p>
+        <button class="confirm-button" @click="SelectDepartment">확인</button>
+      </div>
+    </div>
+
+    <div v-if="isErrorPopupVisible" class="popup-overlay2">
+      <div class="popup">
+        <h3>동아리 회원 추가</h3>
+        <div class="line3"></div>
+        <p class="popup-message">회원 정보에 문제가 있습니다. 파일 검토 후 다시 시도해 주세요. <br>이름: 한글, 영어 최소 2자<br>학번: 숫자 8자<br>전화번호: 숫자 11자</p>
+        <button class="confirm-button" @click="Error">확인</button>
+      </div>
+    </div>
+
+    <div v-if="isOverlappingMembersPopupVisible" class="popup-overlay2">
+      <div class="popup">
+        <h3>동아리 회원 추가</h3>
+        <div class="line3"></div>
+        <p class="popup-message">프로필 중복 회원이 <span class="red-text2">{{this.OverlappingMembers.length}}명</span> 존재해요. <br>'프로필 중복 회원 추가' 페이지로 이동할게요.</p>
+        <button class="confirm-button" @click="DuplicateMemberPage">확인</button>
+      </div>
+    </div>
+
+    <div v-if="isPopupVisible" class="popup-overlay2">
+      <div class="popup">
+        <h3>동아리 회원 추가</h3>
+        <div class="line3"></div>
+        <p class="popup-message">
+          <span class="popup-message-red">총 {{this.members.length}}명</span>
+          입니다. <br>
+          해당 동아리 회원들을 추가하시겠습니까?
+        </p>
+        <div class="button-group">
+          <button class="cancel-button" @click="closePopup">취소</button>
+          <button class="confirm-button" @click="OverlappingMemberLists">확인</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showEditConfirmPopup" class="popup-overlay2">
+      <div class="popup">
+        <h3>동아리 회원 수정</h3>
+        <div class="line3"></div>
+        <p class="popup-message">해당 동아리 회원 정보를 수정하시겠습니까?</p>
+        <div class="button-group">
+          <button class="cancel-button" @click="cancelEdit">취소</button>
+          <button class="confirm-button" @click="saveEdit">확인</button>
         </div>
       </div>
     </div>
   </div>
+  <Popup401 v-if="show401Popup" />
 </template>
 
 <script>
-import axios from 'axios';
-import store from '../../store/store';
-import { colleges, departmentsByCollege } from '../departments.js';
-import FirstAgree from '../ClubLeader/policy/FirstAgree.vue';
+//import * as XLSX from "xlsx";
+import axios from "axios";
+import store from "@/store/store";
 import Popup401 from './401Popup.vue';
+import {colleges, departmentsByCollege} from "@/components/departments"; // 401 팝업 컴포넌트 추가
 
 export default {
-  name: 'Dashboard',
-  components: {
-    FirstAgree,
+  components:{
     Popup401,
-  },
-  props: {
-    isAgreedTerms: {
-      type: Boolean,
-      required: true,
-    },
   },
   data() {
     return {
-      showTermsPopup: false,
+      members: [], // 업로드된 회원 정보를 저장
+      OverlappingMembers: [],
+      editingIndex: -1,
       validationErrors: {
         userName: false,
         studentNumber: false,
         major: false,
-        userHp: false,
+        userHp: false
       },
       errorMessages: {
-        userName: '* 이름(특수 문자 제외 2~30자)을 입력해주세요.',
-        studentNumber: '* 학번(숫자 8자)을 입력해주세요.',
-        major: '* 학과를 선택해주세요.',
-        userHp: '* 전화번호(-제외 11자리 숫자)를 입력해주세요.',
+        userName: '* 이름은 특수 문자 제외 2~30자 이내로 입력해주세요.',
+        studentNumber: '* 학번은 숫자 8자로 입력해주세요.',
+        major: '*단과대/학부(학과)를 선택해주세요.',
+        userHp: '*전화번호는 - 제외 11자로 입력해주세요.'
       },
-      data: {},
-      imageSrc: '',
-      ExelFileName: '',
-      sheetData: [],
-      sheet: null,
-      message: '',
-      clubMembers: [],
-      memberCount: 0,
-      isLoading: false,
-      showExpulsionPopup: false,
-      memberToExpel: null,
-      currentTab: 'alphabetical',
-      editingIndex: -1,
-      editingMember: null,
+      errorList: [],
+
+      isPopupVisible: false,
+      isOverlappingMemberListsPopupVisible : false,
+      isSelectDepartmentPopupVisible : false,
+      isOverlappingMembersPopupVisible: false,
+      isErrorPopupVisible: false,
       showEditConfirmPopup: false,
-      selectedCollege: '',
-      colleges,
-      departmentsByCollege,
-      departments: [],
-      totalMemberCount: 0,
-      regularMembers: [],
-      nonRegularMembers: [],
-      isTermsAgreed: this.$store.state.isAgreedTerms,
+
       show401Popup: false,
-    };
-  },
-  computed: {
-    formattedLeaderName() {
-      return this.data.leaderName?.trim() || '정보 없음';
-    },
-    formattedPhoneNumber() {
-      if (!this.data.leaderHp) return '정보 없음';
-      return this.data.leaderHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-    },
-    instagramLink() {
-      const instaUrl = this.data.clubInsta || '';
-      if (instaUrl === '') return '';
-      return instaUrl.startsWith('http') ? instaUrl : `https://${instaUrl}`;
-    },
-    displayedMembers() {
-      let sortedMembers = [];
-      switch (this.currentTab) {
-        case 'alphabetical':
-          sortedMembers = [...this.regularMembers, ...this.nonRegularMembers].sort((a, b) =>
-            a.userName.localeCompare(b.userName, 'ko')
-          );
-          break;
-        case 'nonMember':
-          return [...this.nonRegularMembers].sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
-        case 'member':
-          return [...this.regularMembers].sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
-        default:
-          return [];
-      }
-      return sortedMembers;
-    },
-    hashtagArray() {
-      if (!this.data.clubHashtag) return [];
-      if (Array.isArray(this.data.clubHashtag)) return this.data.clubHashtag;
-      try {
-        return JSON.parse(this.data.clubHashtag);
-      } catch (e) {
-        return [this.data.clubHashtag];
-      }
-    },
-    formattedCategory() {
-      if (!this.data.clubCategoryName) return '없음';
-      try {
-        const categories = Array.isArray(this.data.clubCategoryName)
-          ? this.data.clubCategoryName
-          : JSON.parse(this.data.clubCategoryName);
-        if (categories.length === 0) return '없음';
-        return categories.join(', ');
-      } catch (e) {
-        return this.data.clubCategoryName || '없음';
-      }
-    },
-    hasError() {
-      return Object.values(this.validationErrors).some((error) => error);
-    },
-    validationErrorList() {
-      const errors = [];
-      if (this.validationErrors.userName) errors.push(this.errorMessages.userName);
-      if (this.validationErrors.studentNumber) errors.push(this.errorMessages.studentNumber);
-      if (this.validationErrors.major) errors.push(this.errorMessages.major);
-      if (this.validationErrors.userHp) errors.push(this.errorMessages.userHp);
-      return errors;
-    },
-  },
-  async mounted() {
-    this.showTermsPopup = !this.isAgreedTerms;
-    this.currentTab = 'alphabetical';
-    await this.fetchData();
-    await this.pageLoadFunction();
+
+      colleges, // 가져온 단과대학 정보 사용
+      departmentsByCollege, // 가져온 학과 정보 사용
+      departments: [],
+      editingMember: null,
+
+      visible: false,
+    }
   },
   methods: {
+    closePopup() {
+      this.isPopupVisible = false;
+    },
+    // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
         this.show401Popup = true;
@@ -286,946 +248,703 @@ export default {
       }
       return false;
     },
-    handleAgreementConfirmed() {
-      this.isTermsAgreed = true;
+    formatPhoneNumber(phoneNumber) {
+      // 전화번호를 '010-1234-5678' 형식으로 변환
+      if (!phoneNumber) return "";
+      return phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
     },
-    async saveEdit() {
-      if (!this.validateInput()) {
-        return;
-      }
+    downloadExcel() {
+      // public 폴더의 template.xlsx 파일 경로
+      const fileUrl = '/template.xlsx';
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = '동아리 회원추가 양식.xlsx'; // 다운로드될 파일명 설정
+      link.click();
+    },
+    // 파일 입력 필드를 트리거
+    triggerFileInput() {
+      this.$refs.fileInput.click();
+    },
+    transformErrorObject(errorObj) {
+      const result = {};
 
-      const accessToken = this.$store.state.accessToken;
-      const clubUUID = this.$store.state.clubUUID;
-      const memberUUID = this.displayedMembers[this.editingIndex].clubMemberUUID;
+      Object.entries(errorObj).forEach(([key, message]) => {
+        // 인덱스 추출 (clubMembersAddFromExcelRequestList[1] 부분에서 숫자만 추출)
+        const match = key.match(/\[(\d+)\]/);
+        if (match) {
+          const index = match[1]; // 인덱스 값 (문자열 형태)
 
-      const updateData = {
-        userName: this.editingMember.userName.trim(),
-        studentNumber: this.editingMember.studentNumber.trim(),
-        userHp: this.editingMember.userHp.replace(/[^0-9]/g, ''),
-        major: this.editingMember.major.trim(),
-      };
+          // 이미 해당 인덱스가 존재하면 메시지 추가
+          if (result[index]) {
+            result[index] += `, ${message}`;
+          } else {
+            result[index] = message;
+          }
+        }
+      });
+
+      return result;
+    },
+    // 파일 업로드 처리
+    async handleFileUpload(event) {
+      const clubUUID = store.state.clubUUID;
+      const accessToken = store.state.accessToken;
+
+      console.log("엑셀 파일 업로드")
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData(); // FormData 객체 생성
+      formData.append("clubMembersFile", file); // 파일 추가
 
       try {
-        await axios.patch(
-          `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/${memberUUID}/non-member`,
-          updateData,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+        const response = await axios.post(
+            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/import`,
+            formData,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data'
+              }
+            });
 
-        this.showEditConfirmPopup = false;
-        this.editingIndex = -1;
-        this.editingMember = null;
-        await this.fetchData();
+        this.members = response.data.data.addClubMembers;
+        this.members = this.members.map(member => {
+          return {
+            ...member,
+            department: '', // 원하는 값으로 변경 가능,
+            major: '',
+            departments: [],
+            errorMessage: ''
+          };
+        });
+        console.log(this.members);
+        this.visible = true;
+        this.OverlappingMembers = response.data.data.duplicateClubMembers;
+
+        if(this.OverlappingMembers.length > 0){
+          console.log(response);
+          this.isOverlappingMemberListsPopupVisible = true;
+        }
       } catch (error) {
-        const { code } = error.response?.data || {};
-
-        if (code === 'CMEM-201') {
-          alert('클럽멤버가 존재하지 않습니다.');
-        } else if (code === 'PFL-206') {
-          alert('비회원만 수정할 수 있습니다.');
-        } else {
-          alert(
-            '예기치 못한 오류가 발생했습니다.\n' +
-            '문제가 계속될 시, 관리자에게 문의해 주세요.'
-          );
-        }
-
         if (!this.handle401Error(error)) {
-          console.error('Error updating member:', error);
+          console.error('동아리 정보를 불러오는데 실패했습니다.', error);
+          alert('동아리 정보를 불러오는데 실패했습니다.');
         }
       }
+
+      //reader.readAsArrayBuffer(file);
     },
-    onCollegeChange() {
-      this.departments = this.departmentsByCollege[this.selectedCollege] || [];
-      this.editingMember.major = '';
-    },
-    confirmEdit() {
-      if (!this.validateInput()) {
-        return;
+    startEdit(index) {
+      this.editingIndex = index;
+
+      this.validationErrors = {
+        userName: false,
+        studentNumber: false,
+        major: false,
+        userHp: false
       }
-      this.showEditConfirmPopup = true;
+
+      this.editingMember = {
+        userName: this.members[index].userName,
+        studentNumber: this.members[index].studentNumber,
+        userHp: this.members[index].userHp,
+      };
+    },
+    validateInput() {
+      // 이름 검증 - 특수문자 제외
+      this.validationErrors.userName = !/^[가-힣a-zA-Z\s]{2,20}$/.test(this.editingMember.userName);
+
+      // 학번 검증 - 8자리 숫자
+      this.validationErrors.studentNumber = !/^\d{8}$/.test(this.editingMember.studentNumber);
+
+      // 전화번호 검증 - 숫자만 11자리
+      const phoneNumber = this.editingMember.userHp.replace(/-/g, '');
+      this.validationErrors.userHp = !/^\d{11}$/.test(phoneNumber);
+
+      // 하나라도 에러가 있으면 false 반환
+      return !Object.values(this.validationErrors).some(error => error);
+    },
+
+    confirmEdit(index) {
+      if (this.validateInput()) {
+        this.showEditConfirmPopup = true;
+      }
+      this.members[index].userName = this.editingMember.userName;
+      this.members[index].studentNumber = this.editingMember.studentNumber;
+      this.members[index].userHp = this.editingMember.userHp;
     },
     cancelEdit() {
       this.showEditConfirmPopup = false;
       this.editingIndex = -1;
       this.editingMember = null;
     },
-    startEdit(index) {
-      this.editingIndex = index;
-      const currentMember = this.displayedMembers[index];
-
-      this.editingMember = { ...currentMember
-      };
-
-      for (const [collegeId, depts] of Object.entries(this.departmentsByCollege)) {
-        if (depts.includes(currentMember.major)) {
-          this.selectedCollege = collegeId;
-          this.departments = depts;
-          break;
-        }
+    saveEdit() {
+      if (this.validateInput()) {
+        this.showEditConfirmPopup = false;
       }
-
-      this.validationErrors = {
-        userName: false,
-        studentNumber: false,
-        major: false,
-        userHp: false,
-      };
-    },
-    getCurrentTime() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      return `[${year}-${month}-${day}]`;
-    },
-    async pageLoadFunction() {
-      const accessToken = store.state.accessToken;
-      const clubUUID = store.state.clubUUID;
-
-      try {
-        const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/info`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        this.data = response.data.data;
-        this.ExelFileName = `${response.data.data.clubName} 동아리 명단 ${this.getCurrentTime()}`;
-
-        if (this.data.mainPhotoUrl) {
-          const imageResponse = await axios.get(this.data.mainPhotoUrl, {
-            responseType: 'blob',
-          });
-          this.imageSrc = URL.createObjectURL(imageResponse.data);
-        } else {
-          this.imageSrc = require('@/assets/profile.png');
-        }
-      } catch (error) {
-        if (!this.handle401Error(error)) {
-          console.error('Fetch error:', error);
-        }
-      }
-    },
-    async fetchData() {
-      const accessToken = store.state.accessToken;
-      const clubUUID = store.state.clubUUID;
-
-      try {
-        const [regularResponse, nonRegularResponse] = await Promise.all([
-          axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members?sort=regular-member`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-          }),
-          axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members?sort=non-member`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-          }),
-        ]);
-
-        this.regularMembers = regularResponse.data.data.map((member) => ({
-          ...member,
-          isRegularMember: true,
-          userHp: member.userHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'),
-        }));
-
-        this.nonRegularMembers = nonRegularResponse.data.data.map((member) => ({
-          ...member,
-          isRegularMember: false,
-          userHp: member.userHp.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'),
-        }));
-
-        this.totalMemberCount = this.regularMembers.length + this.nonRegularMembers.length;
-      } catch (error) {
-        if (!this.handle401Error(error)) {
-          console.error('Error fetching data:', error);
-        }
-
-        const { code } = error.response?.data || {};
-        if (code === 'PFL-208') {
-          alert('유효하지 않은 회원 종류입니다.');
-        }
-      }
-    },
-    async changeTab(tab) {
-      this.currentTab = tab;
       this.editingIndex = -1;
-      this.editingMember = null;
     },
-    async sheetDownload() {
-      this.isLoading = true;
-      try {
-        const accessToken = store.state.accessToken;
-        const clubUUID = store.state.clubUUID;
-        const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members/export`, {
-          responseType: 'blob',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        const blob = new Blob([response.data], {
-          type: 'application/vnd.ms-excel'
-        });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `${this.ExelFileName}.xlsx`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (error) {
-        if (!this.handle401Error(error)) {
-          console.error('Fetch error:', error);
-        }
-      } finally {
-        this.isLoading = false;
+    // 리스트 초기화
+    clearList() {
+      this.members = [];
+    },
+    Delete(){
+      this.isOverlappingMemberListsPopupVisible = false;
+      if(this.members.length === 0){
+        // 중복 회원만 존재할 경우, '프로필 중복 회원 추가' 페이지로 이동 안내 팝업을 띄웁니다.
+        this.isOverlappingMembersPopupVisible = true;
       }
     },
-    validateInput() {
-      this.validationErrors.userName = !this.editingMember.userName || !/^[가-힣a-zA-Z\s]+$/.test(this.editingMember.userName.trim());
-      this.validationErrors.studentNumber = !this.editingMember.studentNumber || !/^\d{8}$/.test(this.editingMember.studentNumber.trim());
-      this.validationErrors.major = !this.editingMember.major;
-      const phoneNumber = this.editingMember.userHp.replace(/[^0-9]/g, '');
-      this.validationErrors.userHp = !phoneNumber || phoneNumber.length !== 11;
-      return !Object.values(this.validationErrors).some((error) => error);
+    SelectDepartment(){
+      this.isSelectDepartmentPopupVisible = false;
+    },
+    Error(){
+      this.isErrorPopupVisible = false;
+    },
+    submitMembers(){
+      if(!this.members.some(member => member.major === "")) {
+        this.isPopupVisible = true;
+        console.log(this.members);
+      } else {
+        this.isSelectDepartmentPopupVisible = true;
+      }
+    },
+    onCollegeChange(index) {
+      const selectedCollege = this.members[index].department;
+
+      // 선택한 단과대학의 학부(학과) 목록 설정
+      this.members[index].departments = this.departmentsByCollege[selectedCollege] || [];
+
+      // 현재 선택된 major가 유효한지 확인 후 초기화
+      if (!this.members[index].departments.includes(this.members[index].major)) {
+        this.members[index].major = "";
+      }
+    },
+    async OverlappingMemberLists(){
+      const clubUUID = store.state.clubUUID;
+      const accessToken = store.state.accessToken;
+
+      // 필요한 데이터만 추출해서 새 DTO 형식에 맞게 구성
+      const membersData = this.members.map(member => ({
+        userName: member.userName,
+        major: member.major,
+        studentNumber: member.studentNumber,
+        userHp: member.userHp
+      }));
+
+      // 새로운 DTO 구조로 데이터 래핑
+      const requestData = {
+        clubMembersAddFromExcelRequestList: membersData
+      };
+
+      try {
+        const response = await axios.post(
+            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/members`,
+            requestData,
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+              }
+            });
+
+        console.log(response);
+        this.isPopupVisible = false;
+
+        if(this.OverlappingMembers.length > 0){
+          this.isOverlappingMembersPopupVisible = true;
+        } else {
+          // 성공 메시지 수동으로 수정함
+          alert(`${this.members.length}명의 회원이 성공적으로 추가되었습니다.`);
+          // 회원 정보 초기화
+          this.members = [];
+        }
+
+      } catch (error) {
+        if (!this.handle401Error(error)) {
+          console.error('동아리 회원 정보에 문제가 있습니다.', error);
+          alert('동아리 회원 정보에 문제가 있습니다. 수정 후 다시 업로드 해주세요.');
+          this.isPopupVisible = false;
+        }
+        if (error.code === 'ERR_BAD_REQUEST'){
+          console.log(error.response.data.additionalData);
+
+          const errorObj = error.response.data.additionalData;
+
+          console.log(this.transformErrorObject(errorObj));
+
+          // 오류 메시지를 members 객체에 추가
+          this.members.forEach((member, index) => {
+            let errorMessage = this.transformErrorObject(errorObj)[index];  // errors 객체의 인덱스에 맞는 값을 찾기 위해 +1
+            if (errorMessage) {
+              member.errorMessage = errorMessage;
+            }
+          });
+          console.log(this.members);
+        }
+      }
+    },
+    navigateTo(routeName) {
+      this.selectedLink = routeName; // Add this line
+
+      store.commit("setOverlappingMembers", this.OverlappingMembers);
+
+      this.$router.push({
+        name: routeName
+      }).catch(err => {
+        if (err.name !== 'NavigationDuplicated') {
+          throw err;
+        }
+      });
+    },
+    DuplicateMemberPage(){
+      this.isOverlappingMembersPopupVisible = false;
+      this.navigateTo('duplicate-member');
     },
   },
 };
 </script>
 
-<style>
-/* ========== Global & Container ========== */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
 
-:root {
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --radius: 8px;
-  --card: #fff;
-  --muted: #f2f4f6;
-  --muted-2: #F0F2F5;
-  --text: #000;
-  --text-2: #666;
-  --text-3: #767676;
-  --brand: #7FB08C;
-  --brand-2: #6a9b7a;
-  --accent: #FFB052;
-  --accent-2: #f49421;
-}
 
-.total {
-  max-width: 100%;
-  width: 100%;
+<style scoped>
+/* ===== CSS 변수 및 기본 설정 ===== */
+.container {
+  /* [수정] 고정 너비 제거 -> 유연한 너비로 변경 */
+  width: 90%;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: clamp(10px, 2vw, 20px);
+  padding: 24px;
+  box-sizing: border-box;
+
+  --brand-color: #FFB052;
+  --brand-color-dark: #f49421;
+  --green-color: #3F9560;
+  --green-color-dark: #14532d;
+  --text-color: #333;
+  --error-color: #ff4d4f;
+  --gray-color: #969696;
+  --border-color: #e0e0e0;
+}
+
+/* ===== 상단 타이틀 및 버튼 영역 ===== */
+.title-row {
   display: flex;
-  flex-direction: column;
-  gap: clamp(12px, 2vw, 20px);
-  min-height: 100vh;
-}
-
-/* ========== ClubInfo ========== */
-.ClubInfo {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  gap: clamp(12px, 3vw, 30px);
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: clamp(12px, 2vw, 20px);
-  flex-shrink: 0;
-}
-
-.clublogo {
-  width: clamp(120px, 25vw, 300px);
-  height: clamp(90px, 19vw, 225px);
-  object-fit: cover;
-  border-radius: var(--radius);
-  flex-shrink: 0;
-}
-
-.Info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
-  min-width: 0;
-  gap: clamp(4px, 0.8vw, 8px);
-}
-
-.info {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: clamp(4px, 1vw, 8px);
-  margin-bottom: clamp(4px, 0.8vw, 8px);
-}
-
-.clubname {
-  color: var(--text);
-  font-weight: 600;
-  letter-spacing: -0.6px;
-  margin-right: clamp(8px, 1.5vw, 12px);
-  font-size: clamp(16px, 2.5vw, 24px);
-  line-height: 1.2;
-}
-
-.clubleader,
-.detail,
-.room,
-.name {
-  font-size: clamp(12px, 1.8vw, 16px);
-  line-height: 1.2;
-  margin: 0 clamp(4px, 0.8vw, 8px);
-}
-
-.clubleader {
-  color: var(--text-3);
-}
-
-.detail {
-  color: var(--text-2);
-}
-
-.room {
-  color: var(--text-2);
-}
-
-.name {
-  color: #353549;
-  font-weight: 600;
-}
-
-.phone,
-.insta,
-.map,
-.category {
-  width: clamp(14px, 2vw, 16px);
-  height: clamp(14px, 2vw, 16px);
-  margin-right: clamp(4px, 0.8vw, 7px);
-  background-size: contain;
-  flex-shrink: 0;
-}
-
-.phone {
-  background: url('../../assets/phone.svg') no-repeat center center;
-}
-
-.insta {
-  background: url('../../assets/insta.svg') no-repeat center center;
-}
-
-.map {
-  background: url('../../assets/map.svg') no-repeat center center;
-}
-
-.category {
-  background: url('../../assets/category-dash.svg') no-repeat center center;
-}
-
-.line1 {
-  width: 1px;
-  height: clamp(10px, 1.5vw, 12px);
-  background: #DBDBDB;
-  margin-bottom: 4px;
-  flex-shrink: 0;
-}
-
-.line2 {
-  width: 1.5px;
-  height: clamp(12px, 1.8vw, 14px);
-  background: #666;
-  margin: 9px 5px 0;
-  flex-shrink: 0;
-}
-
-.phoneNum,
-.clubroom,
-.instaName {
-  display: flex;
-  align-items: center;
-  gap: clamp(4px, 0.8vw, 7px);
-  min-height: clamp(24px, 3vw, 30px);
-  flex-wrap: wrap;
-}
-
-.instaName a {
-  font-size: clamp(12px, 1.8vw, 16px);
-  line-height: 1.2;
-  margin: 0;
-  text-decoration: underline;
-}
-
-.hashtags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(4px, 1vw, 8px);
-  margin-top: clamp(4px, 1vw, 8px);
-}
-
-.hashtag {
-  display: inline-block;
-  padding: clamp(3px, 0.5vw, 5px) clamp(8px, 1.5vw, 12px);
-  border-radius: var(--radius);
-  background: #EAEAEA;
-  color: #353535;
-  font-size: clamp(10px, 1.5vw, 12px);
-  line-height: 1.4;
-  letter-spacing: -0.25px;
-  white-space: nowrap;
-}
-
-/* ========== Dashboard Header ========== */
-.Dashboardhead {
-  width: 100%;
-  border-radius: var(--radius);
-  background: var(--card);
-  display: flex;
+  flex-wrap: wrap; /* 화면이 좁아지면 버튼이 아래로 내려감 */
   justify-content: space-between;
   align-items: center;
-  gap: clamp(12px, 2vw, 16px);
-  padding: clamp(12px, 2vw, 20px);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+h2 {
+  margin: 0;
+  font-size: clamp(20px, 2.2vw, 24px); /* 화면 크기에 따라 폰트 크기 조절 */
+  font-weight: 600;
+  color: var(--text-color);
+}
+.title-row .buttons {
+  display: flex;
   flex-wrap: wrap;
-  flex-shrink: 0;
+  gap: 12px;
 }
-
-.Dashboardhead>div {
-  flex: 1;
-  min-width: 150px;
-}
-
-.Dashboardhead .p1 {
-  font-size: clamp(14px, 2vw, 18px);
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.05em;
-  text-align: left;
-  margin: 0 0 4px 0;
-}
-
-.Dashboardhead .p2 {
-  font-size: clamp(11px, 1.5vw, 12px);
-  font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: -0.05em;
-  margin: 0;
-}
-
-.spreadsheets {
-  min-width: clamp(140px, 20vw, 180px);
-  height: clamp(40px, 5vw, 48px);
+.download-btn, .upload-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(6px, 1vw, 9px);
-  border-radius: var(--radius);
-  background: var(--brand);
-  border: none;
-  padding: 0 clamp(12px, 2vw, 16px);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.spreadsheets:hover {
-  background: var(--brand-2);
-}
-
-.spreadsheets p {
-  font-size: clamp(12px, 1.8vw, 16px);
-  font-weight: 600;
-  letter-spacing: -0.05em;
-  color: #fff;
-  margin: 0;
-}
-
-.spreadsheets svg {
-  width: clamp(14px, 2vw, 16px);
-  height: clamp(14px, 2vw, 16px);
-  fill: none;
-  stroke: #545454;
-}
-
-.loading-icon {
-  width: clamp(14px, 2vw, 16px);
-  height: clamp(14px, 2vw, 16px);
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid var(--brand);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ========== Tab ========== */
-.tab-menu {
-  display: inline-flex;
-  padding: 0 var(--space-2);
-  background: var(--card);
-  border-bottom: 1px solid #eee;
-  border-radius: 8px 8px 0 0;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.tab-button {
-  padding: clamp(8px, 1.5vw, 12px) clamp(12px, 2vw, 18px);
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: clamp(12px, 1.8vw, 14px);
-  color: #666;
-  position: relative;
-  white-space: nowrap;
-}
-
-.tab-button.active {
-  color: #000;
-  font-weight: 600;
-}
-
-.tab-button.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: #000;
-}
-
-.tab-button:hover {
-  color: #232323;
-}
-
-/* ========== Dashboard (List) ========== */
-.Dashboard {
-  width: 100%;
-  background: var(--card);
-  border-radius: 0 8px 8px 8px;
-  text-align: center;
-  padding: clamp(12px, 2vw, 16px) clamp(8px, 1.5vw, 12px) clamp(16px, 2.5vw, 20px);
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-}
-
-.member-list {
-  width: 100%;
-}
-
-.member-list ul {
-  width: 100%;
-  padding-left: 0;
-  list-style: none;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(8px, 1.5vw, 13px);
-}
-
-.member-item-li {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.member-item-display {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr) auto;
-  align-items: center;
-  gap: 15px;
-  padding: 10px 15px;
-  background: var(--muted);
-  border-radius: 10px;
-}
-
-.member-info-text {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 6px;
+  border: 0;
   font-size: 14px;
-  text-align: center;
-  word-break: break-all;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+  flex-grow: 1; /* [추가] 모바일에서 공간을 채우도록 함 */
 }
+.download-btn {
+  background-color: #FAFAFA;
+  color: #545454;
+  border: 1px solid #C9C9C9;
+}
+.download-btn:hover { background-color: #f0f0f0; }
+.upload-btn { background-color: var(--green-color); color: #fff; }
+.upload-btn:hover { background-color: var(--green-color-dark); }
+svg { margin-right: 8px; }
 
-.member-item-edit {
+/* ===== 정보 및 비우기 버튼 영역 ===== */
+.info-section {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+.info-section-col p { margin: 4px 0; }
+.warning-text { color: var(--error-color); font-size: 14px; }
+.clear-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
-  background-color: var(--muted);
-  border-radius: 10px;
+  background-color: #fff;
+  color: var(--gray-color);
+  border: 1px solid var(--gray-color);
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
 }
+.clear-btn:hover { background-color: #f0f0f0; }
 
-.edit-form-box {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: var(--card);
-  border: 1px solid var(--accent);
+/* ===== 회원 목록 ===== */
+.member-list { margin-top: 24px; }
+.member-list-items {
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 10px;
+  margin-bottom: 12px;
+  background-color: #fff;
 }
-
-.input-row-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.input-row {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-}
-
-.edit-input {
-  flex: 1;
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-.edit-select {
-  flex: 1;
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-.save-btn {
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  width: 100px;
-  height: 100px;
-  padding: 0;
-  margin: 0;
-  font-size: 16px;
-  display: flex;
-  justify-content: center;
+.member-row {
+  display: grid;
   align-items: center;
-  align-self: center;
+  gap: 12px;
+  padding: 12px;
+  background-color:#fff;
+  border-radius: 8px;
+  /* --- 데스크톱 레이아웃 (기본) --- */
+  grid-template-columns: 1.1fr 0.9fr 1fr 1fr 1fr auto;
+  grid-template-areas: "name id phone college major actions";
 }
+.member-row.editing { border: 1.5px solid var(--brand-color); margin: -1.5px; }
 
-.save-btn:hover {
-  background: var(--accent-2);
-}
+/* [핵심] nth-of-type 선택자를 사용해 각 필드를 grid-area에 할당
+  이 방식은 HTML 구조에 의존적이므로 주의가 필요합니다.
+*/
+.member-row .input-wrapper:nth-of-type(1) { grid-area: name; }
+.member-row .input-wrapper:nth-of-type(2) { grid-area: id; }
+.member-row .input-wrapper:nth-of-type(3) { grid-area: phone; }
+.member-row select:nth-of-type(1) { grid-area: college; }
+.member-row select:nth-of-type(2) { grid-area: major; }
+.member-row .edit-btn, .member-row .save-btn { grid-area: actions; justify-self: end; }
 
-.error-messages-container {
+/* 회원 정보 필드 스타일 */
+.input-wrapper, select { text-align: center; }
+.edit-input, select {
   width: 100%;
-  margin-top: 10px;
-  padding-left: 15px;
-}
-
-.error-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  text-align: left;
-}
-
-.error-item {
-  font-size: 13px;
-  color: red;
-  line-height: 1.5;
-}
-
-.error-item::before {
-  content: '* ';
-  color: red;
-}
-
-.edit-btn {
-  background: var(--accent);
-  border: none;
-  border-radius: 5px;
-  color: #fff;
-  padding: 8px 12px;
-  cursor: pointer;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   font-size: 14px;
+  box-sizing: border-box;
+}
+select { text-align: left; }
+.edit-btn, .save-btn {
+  background-color: var(--brand-color);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  padding: 8px 14px;
+  cursor: pointer;
   white-space: nowrap;
 }
+.edit-btn:hover, .save-btn:hover { background-color: var(--brand-color-dark); }
 
-.edit-btn:hover {
-  background: var(--accent-2);
+/* 에러 메시지 스타일 */
+.server-error-message, .client-error-message {
+  font-size: 12px;
+  color: var(--error-color);
+  padding: 0 12px 12px;
 }
+.client-error-message p { margin: 4px 0; }
+.edit-input.error { border-color: var(--error-color); }
 
-.transparent-box {
-  width: 50px;
-  height: 30px;
-  opacity: 0;
+/* 완료 버튼 */
+.addClubMember {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  height: 44px;
+  margin: 32px 0 0 auto; /* 오른쪽 정렬 */
+  background-color: var(--brand-color);
+  border: none;
+  border-radius: 6px;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
 }
+.addClubMember:hover { background-color: var(--brand-color-dark); }
 
-/* ========== Responsive Breakpoints ========== */
-
-/* 데스크탑 뷰 */
-@media (min-width: 769px) {
-  .member-item-li {
-    width: 100%;
-  }
-
-  .member-item-display {
-    grid-template-columns: 1.2fr 0.9fr 1.6fr 1fr auto;
-    align-items: center;
-    gap: 15px;
-    padding: 10px 15px;
-    background: var(--muted);
-    border-radius: 10px;
-  }
-  
-  .member-info-text {
-    text-align: center;
-  }
-
-  .member-item-edit {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px;
-    background: var(--muted);
-    border: none;
-    border-radius: 10px;
-  }
-  
-  .edit-form-box {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid var(--accent);
-  }
-
-  .input-row-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .input-row {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 10px;
-  }
-  
-  .edit-input, .edit-select {
-    width: 100%;
-  }
-  
-  .save-btn {
-    align-self: center;
-    width: 100px;
-    height: 100px;
-    padding: 0;
-    margin: 0;
-    font-size: 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .error-messages-container {
-    grid-column: 1 / -1;
-    margin-top: 5px;
-  }
-  
-  .edit-btn {
-    align-self: center;
-    justify-self: end;
-  }
-}
-
-/* 모바일 뷰 (768px 이하) */
-@media (max-width: 768px) {
-  .total {
-    padding: clamp(8px, 1.5vw, 12px);
-    gap: clamp(8px, 1.5vw, 12px);
-  }
-
-  .Dashboardhead {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .Dashboardhead > div {
-    min-width: 100%;
-  }
-
-  .spreadsheets {
-    width: 100%;
-    min-width: unset;
-  }
-
-  .member-item-li {
-    width: 100%;
-    padding: 10px;
-    background-color: var(--muted);
-    border-radius: 10px;
-  }
-
-  .member-item-display {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    padding: 0;
-    background: none;
-    border: none;
-  }
-
-  .member-info-text {
-    text-align: left;
-  }
-  
-  .edit-btn {
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  .member-item-edit {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 15px;
-    padding: 0;
-  }
-
-  .edit-form-box {
-    border-width: 1px;
-    padding: 15px;
-  }
-  
-  .input-row {
-    flex-direction: column;
-  }
-  
-  .edit-input, .edit-select {
-    width: 100%;
-  }
-
-  .save-btn {
-    width: 100%;
-    height: 38px;
-    max-width: none;
-    margin-top: 10px;
-  }
-  
-  .error-messages-container {
-    margin-top: 10px;
-    text-align: left;
-  }
-}
-
-/* ========== 팝업 스타일 추가 ========== */
-.custom-popup {
-  position: fixed; /* 화면 전체를 덮도록 고정 */
+/* ===== 팝업 공통 스타일 ===== */
+.popup-overlay1 {
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* 다른 요소들 위에 표시 */
+  z-index: 1000;
+  flex-direction: column;
 }
 
-.popup-content {
-  background: #fff;
-  padding: 24px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 400px; /* 팝업 최대 너비 설정 */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+.popup-container {
+  background-color: #f3f3f3;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 450px;
   display: flex;
   flex-direction: column;
-  gap: 16px; /* 내부 요소 간 간격 */
+  padding: 24px;
+  position: relative;
 }
 
-.popup-header {
-  text-align: left;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #EAEAEA; /* 구분선 */
-}
-
-.popup-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.popup-body {
+.popup-content h2 {
+  color: black;
+  font-size: 24px;
+  margin: 0 0 10px;
   text-align: center;
-  padding: 16px 0;
 }
 
-.popup-message {
-  font-size: 16px;
-  color: #555;
-  margin: 0;
+.popup-content .confirm-message {
+  color: black;
+  font-size: 14px;
+  text-align: center;
+  margin: 0 0 20px;
+  line-height: 1.4;
 }
 
-.popup-actions {
+.popup-content .red-text1 {
+  color: #FF5C5C;
+  font-weight: bold;
+}
+
+.popup-content .red-text2 {
+  color: #FF5C5C;
+  font-weight: bold;
+}
+
+.list-item-container {
+  max-height: 200px; /* 스크롤을 위한 최대 높이 설정 */
+  overflow-y: auto; /* 내용이 넘칠 경우 스크롤바 표시 */
+  margin-bottom: 20px;
+  padding-right: 10px;
+}
+
+.list-item-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list-item-container::-webkit-scrollbar-thumb {
+  background-color: #969696;
+  border-radius: 4px;
+}
+
+.list-item {
+  background-color: #FFFFFF;
+  border: 1px solid #ff9e9e;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
   display: flex;
-  gap: 12px; /* 버튼 사이 간격 */
-}
-
-.popup-actions button {
-  flex: 1; /* 버튼이 공간을 균등하게 차지 */
-  padding: 12px 0;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  justify-content: space-between;
+  align-items: center;
+  color: #414141;
+  font-size: 14px;
   font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
 }
 
-.cancel-button {
-  background-color: #E9E9E9;
-  color: #545454;
-}
-
-.cancel-button:hover {
-  background-color: #DDDDDD;
+.list-item .name, .list-item .id, .list-item .Phone {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
 .confirm-button {
-  background-color: var(--accent); /* 기존 스타일의 accent 색상 사용 */
-  color: #fff;
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  width: 100px;
+  height: 40px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  display: block;
+  margin: 0 auto;
 }
 
 .confirm-button:hover {
-  background-color: var(--accent-2); /* 기존 스타일의 accent-2 색상 사용 */
+  background-color: #e69a3e;
 }
+
+.popup-overlay2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  flex-direction: column;
+}
+
+.popup-overlay2 .popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 452px;
+  height: 184px;
+  text-align: left;
+  position: relative;
+}
+
+.popup-overlay2 .confirm-message{
+  text-align: center;
+  margin-top: 80px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 12px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+
+}
+
+.popup-overlay2 .confirm-button{
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  padding: 7px 30px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.popup-overlay2 .confirm-button:hover {
+  background-color: #e69a3e; /* Slightly darker orange */
+}
+
+.popup-overlay2 .popup h3 {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  margin: 0;
+}
+
+.line3 {
+  border-bottom: 1px solid #d3d3d3;
+  margin: 10px 0;
+}
+
+.popup-overlay2 .popup-message {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #2F2F2F;
+  margin-top: 7px;
+}
+
+.popup-overlay2 .popup-message-red{
+  line-height: 12px;
+  color: #FF5C5C;
+}
+
+.popup-overlay2 .button-group {
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.popup-overlay2 .confirm-button{
+  background-color: #FFB052;
+  color: white;
+  border: none;
+  width: 90px;
+  height: 35px;
+  border-radius: 7px;
+  cursor: pointer;
+  bottom: 20px;
+  right: 20px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 12px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  text-align: center;
+}
+
+.cancel-button {
+  background-color: #B9B9B9;
+  color: #FFFFFF;
+  border: none;
+  width: 90px;
+  height: 35px;
+  border-radius: 7px;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 125px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 12px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  text-align: center;
+}
+
+.cancel-button:hover {
+  background-color: #7a7a7a;
+}
+
+/* (이하 팝업 스타일은 기존과 동일) */
+.validation-error{ color: red;}
+
+/* ===== 반응형: 태블릿 (992px 이하) ===== */
+@media (max-width: 992px) {
+  .member-row {
+    grid-template-columns: 1fr 1fr; /* 2열 구조로 변경 */
+    grid-template-areas:
+      "name    name"
+      "id      phone"
+      "college major"
+      ".       actions"; /* 수정 버튼 오른쪽 하단 배치 */
+  }
+}
+
+/* ===== 반응형: 모바일 (600px 이하) ===== */
+@media (max-width: 600px) {
+  .container { padding: 16px; }
+  .title-row { flex-direction: column; align-items: stretch; }
+  
+  .member-row {
+    grid-template-columns: 1fr; /* 1열 구조로 변경 */
+    grid-template-areas:
+      "name" "id" "phone" "college" "major" "actions";
+  }
+  .member-row .input-wrapper, .member-row select { text-align: left; }
+  .member-row .edit-input, .member-row span { text-align: left; }
+
+  /* 모든 버튼 오른쪽 정렬 */
+  .member-row .edit-btn, .member-row .save-btn { 
+    justify-self: stretch; /* 1열일 때 버튼을 꽉 채움 */
+    width: 100%; 
+  }
+
+  .addClubMember {
+    max-width: none; /* 최대 너비 제한 해제 */
+  }
+}
+
 </style>
