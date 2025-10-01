@@ -353,7 +353,7 @@ export default {
     },
     validateInput() {
       // 이름 검증 - 특수문자 제외
-      this.validationErrors.userName = !/^[가-힣a-zA-Z\s]{3,20}$/.test(this.editingMember.userName);
+      this.validationErrors.userName = !/^[가-힣a-zA-Z\s]{2,20}$/.test(this.editingMember.userName);
 
       // 학번 검증 - 8자리 숫자
       this.validationErrors.studentNumber = !/^\d{8}$/.test(this.editingMember.studentNumber);
