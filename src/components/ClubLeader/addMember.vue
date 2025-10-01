@@ -506,8 +506,6 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 /* ===== CSS 변수 및 기본 설정 ===== */
 .container {
@@ -599,28 +597,21 @@ svg { margin-right: 8px; }
 
 /* ===== 회원 목록 ===== */
 .member-list { margin-top: 24px; }
-.member-list-items {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  margin-bottom: 12px;
-  background-color: #fff;
-}
+
 .member-row {
   display: grid;
-  align-items: center;
+  /* [수정] align-items를 center에서 start로 변경 */
+  align-items: start;
   gap: 12px;
   padding: 12px;
   background-color:#fff;
   border-radius: 8px;
-  /* --- 데스크톱 레이아웃 (기본) --- */
   grid-template-columns: 1.1fr 0.9fr 1fr 1fr 1fr auto;
   grid-template-areas: "name id phone college major actions";
 }
+
 .member-row.editing { border: 1.5px solid var(--brand-color); margin: -1.5px; }
 
-/* [핵심] nth-of-type 선택자를 사용해 각 필드를 grid-area에 할당
-  이 방식은 HTML 구조에 의존적이므로 주의가 필요합니다.
-*/
 .member-row .input-wrapper:nth-of-type(1) { grid-area: name; }
 .member-row .input-wrapper:nth-of-type(2) { grid-area: id; }
 .member-row .input-wrapper:nth-of-type(3) { grid-area: phone; }
@@ -629,7 +620,11 @@ svg { margin-right: 8px; }
 .member-row .edit-btn, .member-row .save-btn { grid-area: actions; justify-self: end; }
 
 /* 회원 정보 필드 스타일 */
-.input-wrapper, select { text-align: center; }
+.input-wrapper {
+  position: relative; /* [추가] 에러 메시지 위치 기준점 */
+  padding-bottom: 18px; /* [추가] 에러 메시지가 들어갈 공간 확보 */
+}
+select { text-align: center; }
 .edit-input, select {
   width: 100%;
   padding: 8px;
@@ -651,13 +646,23 @@ select { text-align: left; }
 .edit-btn:hover, .save-btn:hover { background-color: var(--brand-color-dark); }
 
 /* 에러 메시지 스타일 */
-.server-error-message, .client-error-message {
+.errorMessage { /* 서버에서 오는 에러 메시지 */
   font-size: 12px;
   color: var(--error-color);
   padding: 0 12px 12px;
 }
-.client-error-message p { margin: 4px 0; }
 .edit-input.error { border-color: var(--error-color); }
+
+/* [추가] 수정 시 클라이언트측 유효성 검사 에러 메시지 */
+.validation-error {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: 12px;
+  color: var(--error-color);
+  width: 100%;
+  text-align: left;
+}
 
 /* 완료 버튼 */
 .addClubMember {
@@ -765,7 +770,7 @@ select { text-align: left; }
   text-align: center;
 }
 
-.confirm-button {
+.popup-overlay1 .confirm-button { /* 다른 팝업과 충돌 방지를 위해 부모 선택자 추가 */
   background-color: #FFB052;
   color: white;
   border: none;
@@ -779,10 +784,12 @@ select { text-align: left; }
   margin: 0 auto;
 }
 
-.confirm-button:hover {
+.popup-overlay1 .confirm-button:hover {
   background-color: #e69a3e;
 }
 
+
+/* ===== [수정] 두 번째 팝업 유형 스타일 ===== */
 .popup-overlay2 {
   position: fixed;
   top: 0;
@@ -794,132 +801,88 @@ select { text-align: left; }
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  flex-direction: column;
 }
 
 .popup-overlay2 .popup {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 452px;
-  height: 184px;
-  text-align: left;
-  position: relative;
-}
-
-.popup-overlay2 .confirm-message{
-  text-align: center;
-  margin-top: 80px;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 12px;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-
-}
-
-.popup-overlay2 .confirm-button{
-  background-color: #FFB052;
-  color: white;
-  border: none;
-  padding: 7px 30px;
-  border-radius: 7px;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-}
-
-.popup-overlay2 .confirm-button:hover {
-  background-color: #e69a3e; /* Slightly darker orange */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 420px; /* 이미지와 비슷한 너비로 조정 */
+  box-sizing: border-box;
+  text-align: left; /* [핵심] 텍스트 왼쪽 정렬 */
 }
 
 .popup-overlay2 .popup h3 {
   font-size: 18px;
-  font-weight: bold;
-  color: black;
+  font-weight: 600; /* 조금 더 굵게 */
+  color: #333;
   margin: 0;
 }
 
-.line3 {
-  border-bottom: 1px solid #d3d3d3;
-  margin: 10px 0;
+/* [핵심] 제목 아래 구분선 스타일 */
+.popup-overlay2 .popup .line3 {
+  border-bottom: 1px solid #EEEEEE;
+  margin: 12px 0;
 }
 
 .popup-overlay2 .popup-message {
   font-size: 16px;
-  font-weight: 500;
-  line-height: 1.3;
-  color: #2F2F2F;
-  margin-top: 7px;
-}
-
-.popup-overlay2 .popup-message-red{
-  line-height: 12px;
-  color: #FF5C5C;
+  color: #555;
+  margin: 0 0 32px 0; /* 버튼과의 간격을 위해 아래쪽 여백 추가 */
+  line-height: 1.5;
+  min-height: 40px; /* 메시지 영역 최소 높이 확보 */
 }
 
 .popup-overlay2 .button-group {
-  gap: 10px;
+  display: flex;
+  gap: 8px;
+  /* [핵심] 버튼들을 오른쪽으로 정렬 */
   justify-content: flex-end;
 }
 
-.popup-overlay2 .confirm-button{
-  background-color: #FFB052;
+/* [핵심] 버튼 크기 및 스타일 재조정 */
+.popup-overlay2 .button-group button {
+  /* flex-grow 제거 -> 내용에 맞는 크기로 변경 */
+  padding: 8px 20px; /* 버튼 내부 여백으로 크기 조절 */
+  height: auto;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+/* 취소 버튼 스타일 */
+.popup-overlay2 .cancel-button {
+  background-color: #E0E0E0;
+  color: #555;
+}
+.popup-overlay2 .cancel-button:hover {
+  background-color: #d1d1d1;
+}
+
+/* 확인 버튼 스타일 */
+.popup-overlay2 .confirm-button {
+  background-color: #FFB052; /* var(--brand-color)와 동일 */
   color: white;
-  border: none;
-  width: 90px;
-  height: 35px;
-  border-radius: 7px;
-  cursor: pointer;
-  bottom: 20px;
-  right: 20px;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 12px;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-  text-align: center;
+}
+.popup-overlay2 .confirm-button:hover {
+  background-color: #e69a3e; /* var(--brand-color-dark)와 동일 */
 }
 
-.cancel-button {
-  background-color: #B9B9B9;
-  color: #FFFFFF;
-  border: none;
-  width: 90px;
-  height: 35px;
-  border-radius: 7px;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 125px;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 12px;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-  text-align: center;
-}
-
-.cancel-button:hover {
-  background-color: #7a7a7a;
-}
-
-/* (이하 팝업 스타일은 기존과 동일) */
-.validation-error{ color: red;}
 
 /* ===== 반응형: 태블릿 (992px 이하) ===== */
 @media (max-width: 992px) {
   .member-row {
     grid-template-columns: 1fr 1fr; /* 2열 구조로 변경 */
     grid-template-areas:
-      "name    name"
-      "id      phone"
+      "name    name"
+      "id      phone"
       "college major"
-      ".       actions"; /* 수정 버튼 오른쪽 하단 배치 */
+      ".       actions"; /* 수정 버튼 오른쪽 하단 배치 */
   }
 }
 
@@ -927,7 +890,7 @@ select { text-align: left; }
 @media (max-width: 600px) {
   .container { padding: 16px; }
   .title-row { flex-direction: column; align-items: stretch; }
-  
+
   .member-row {
     grid-template-columns: 1fr; /* 1열 구조로 변경 */
     grid-template-areas:
@@ -937,14 +900,13 @@ select { text-align: left; }
   .member-row .edit-input, .member-row span { text-align: left; }
 
   /* 모든 버튼 오른쪽 정렬 */
-  .member-row .edit-btn, .member-row .save-btn { 
+  .member-row .edit-btn, .member-row .save-btn {
     justify-self: stretch; /* 1열일 때 버튼을 꽉 채움 */
-    width: 100%; 
+    width: 100%;
   }
 
   .addClubMember {
     max-width: none; /* 최대 너비 제한 해제 */
   }
 }
-
 </style>
