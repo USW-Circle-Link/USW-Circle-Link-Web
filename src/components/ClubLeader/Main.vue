@@ -105,8 +105,9 @@ html, body {
   /* 사이드바 너비와 여백만큼 왼쪽 마진을 주어 콘텐츠를 밀어냄 */
   margin-left: calc(10% + 250px);
   padding: 24px;
-  width: calc(100% - (10% + 250px) - 24px * 2); /* 전체 너비에서 여백과 사이드바 너비를 뺀 값 */
+  width: calc(100% - (10% + 250px)); /* width 계산이 간단해집니다. */
   transition: margin-left 0.3s ease, width 0.3s ease;
+  box-sizing: border-box; /* padding과 border 값을 포함해서 관리 쉬움 */
 }
 
 /* 데스크톱에서 사이드바가 숨겨질 때 (sidebar-hidden 클래스가 있을 때) */
@@ -116,9 +117,15 @@ html, body {
 }
 
 #main.sidebar-hidden .content {
-  /* 콘텐츠 영역을 넓힘 */
-  margin-left: 10%;
-  width: calc(100% - 10% - 24px * 2);
+  /* margin을 auto로 설정하여 중앙 정렬합니다. */
+  margin: 0 auto;
+  
+  /* 콘텐츠가 너무 넓어지는 것을 방지하기 위해 최대 너비를 설정합니다. */
+  max-width: 1400px;
+  
+  /* 너비를 100%로 설정해, 화면이 max-width보다 작아질 때 */
+  /* 자동으로 줄어들도록 만듭니다. */
+  width: 100%;
 }
 
 
