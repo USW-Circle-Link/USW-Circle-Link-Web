@@ -454,7 +454,7 @@ h2{ font-size: clamp(18px, 2.2vw, 24px); }
   gap: 10px;
   /* width: clamp(340px, 92vw, 1120px); */
   margin: 0 auto;
-  padding: 0 clamp(12px, 2vw, 20px);
+  /* padding: 0 clamp(12px, 2vw, 20px); */
 }
 .whole-container h2{
   font-weight: 600; line-height: 1.3; letter-spacing: -0.025em; margin: 0;
