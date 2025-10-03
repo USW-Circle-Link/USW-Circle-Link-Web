@@ -253,21 +253,37 @@ export default {
 <style scoped>
 .club-profile {
   width: 100%;
+  min-width: 380px;
   min-height: 100vh;
   background: #F0F2F5;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 32px;
+  padding: 16px;
   box-sizing: border-box;
 }
 
+@media (min-width: 768px) {
+  .club-profile {
+    padding: 32px;
+  }
+}
+
 .content-container {
-  width: 665px; /* 모든 섹션의 너비를 665px로 통일 */
+  width: 100%;
+  max-width: 665px;
+  min-width: 380px;
   display: flex;
   flex-direction: column;
-  gap: 24px; /* 모든 섹션 사이의 간격을 일관되게 설정 */
+  gap: 16px; /* 모든 섹션 사이의 간격을 일관되게 설정 */
   align-items: center;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .content-container {
+    gap: 24px;
+  }
 }
 
 .slider-wrapper {
@@ -281,39 +297,79 @@ export default {
 }
 
 .ClubInfo {
-  width: 626px;
+  width: 100%;
   background-color: #fff;
   border-radius: 8px;
-  padding: 20px;
+  padding: 16px;
   display: flex;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .ClubInfo {
+    padding: 20px;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
 }
 
 .ClubInfo .logo {
-  margin-left: 20px; /* Adjust the value as needed */
+  margin-left: 0;
+  margin-right: 16px;
+}
+
+@media (min-width: 768px) {
+  .ClubInfo .logo {
+    margin-left: 20px;
+    margin-right: 35px;
+  }
 }
 
 .club-details .clubname {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
   margin: 0;
   color: #333;
+  word-break: break-word;
+}
+
+@media (min-width: 768px) {
+  .club-details .clubname {
+    font-size: 24px;
+  }
 }
 
 .logo {
-  width: 110px;
-  height: 120px;
+  width: 80px;
+  height: 90px;
   object-fit: cover;
   border-radius: 8px;
-  margin-right: 35px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .logo {
+    width: 110px;
+    height: 120px;
+  }
 }
 
 .Info {
   flex-grow: 1;
-  margin-top: -5px;
+  margin-top: 0;
+  min-width: 0; /* Allow text to wrap properly */
+}
+
+@media (min-width: 768px) {
+  .Info {
+    margin-top: -5px;
+  }
 }
 
 .hashtags {
@@ -333,8 +389,15 @@ export default {
 
 .more-options {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 16px;
+  right: 16px;
+}
+
+@media (min-width: 768px) {
+  .more-options {
+    top: 20px;
+    right: 20px;
+  }
 }
 
 .dots-button {
@@ -361,8 +424,15 @@ export default {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 10px;
-  width: 280px;
+  width: 250px;
   z-index: 100;
+  max-width: calc(100vw - 32px);
+}
+
+@media (min-width: 768px) {
+  .contact-info-popup {
+    width: 280px;
+  }
 }
 
 .popup-header {
@@ -472,7 +542,7 @@ export default {
 
 /* 탭 버튼 */
 .tabs button {
-  width: 174px;
+  width: 50%;
   height: 45px;
   padding: 10px 0;
   text-align: center;
@@ -482,8 +552,15 @@ export default {
   border-bottom: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 18px;
+  font-size: 10px;
   font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .tabs button {
+    width: 174px;
+    font-size: 10px;
+  }
 }
 
 /* 왼쪽 탭 버튼 스타일 */
@@ -523,6 +600,7 @@ export default {
   color: #FFFFFF;
   border: 1px solid #C3C3C3;
   border-bottom: none; /* 하단 테두리를 제거하여 탭 내용과 연결 */
+  font-size: 10px;
 }
 
 /* 비활성화된 탭 */
@@ -535,22 +613,36 @@ export default {
 /* 탭 내용 */
 .tab-content {
   width: 100%;
-  padding: 24px;
+  padding: 16px;
   background-color: #fff;
   border: 1px solid #C3C3C3;
   border-radius: 0 8px 8px 8px;
   box-sizing: border-box;
-  min-height: 200px;
-  max-height: 500px;
+  min-height: 150px;
+  max-height: 400px;
   overflow-y: auto;
 }
 
+@media (min-width: 768px) {
+  .tab-content {
+    padding: 24px;
+    min-height: 200px;
+    max-height: 500px;
+  }
+}
+
 .description {
-  font-size: 14px;
+  font-size: 13px;
   color: #333;
   line-height: 1.5;
-  word-break: break-all; /* 숫자도 줄바꿈 처리 */
+  word-break: break-word; /* 숫자도 줄바꿈 처리 */
   white-space: normal;   /* 공백 유지 */
+}
+
+@media (min-width: 768px) {
+  .description {
+    font-size: 14px;
+  }
 }
 
 .location {
@@ -558,7 +650,7 @@ export default {
 }
 
 .header-section {
-  width: 665px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -567,17 +659,24 @@ export default {
 
 .close-button {
   position: absolute;
-  top: -30px;
+  top: -24px;
   right: 0;
   background: none;
   border: none;
-  padding: 8px;
+  padding: 6px;
   cursor: pointer;
   transition: opacity 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
+}
+
+@media (min-width: 768px) {
+  .close-button {
+    top: -30px;
+    padding: 8px;
+  }
 }
 
 .close-button:hover {
@@ -610,7 +709,16 @@ export default {
 .club-details .clubleader,
 .club-details .clubroom,
 .club-details .hashtags {
-  margin-bottom: -10px; /* Adjust the value as needed to reduce spacing */
+  margin-bottom: -8px; /* Adjust the value as needed to reduce spacing */
+}
+
+@media (min-width: 768px) {
+  .club-details .clubname,
+  .club-details .clubleader,
+  .club-details .clubroom,
+  .club-details .hashtags {
+    margin-bottom: -10px;
+  }
 }
 
 .contact-info-popup a {
