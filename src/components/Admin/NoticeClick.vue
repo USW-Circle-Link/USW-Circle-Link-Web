@@ -39,20 +39,31 @@
     </div>
 
     <div class="notice-list">
+      <!-- 일반: 테이블 -->
       <table>
         <tbody>
-        <tr v-for="n in notices" :key="n.noticeUUID" @click="goToNotice(n.noticeUUID)" :class="{ 'current-notice': notice && n.noticeUUID === notice.noticeUUID }">
-          <td class="title-col">
-              {{ n.noticeTitle }}
-          </td>
-          <td class="author-col">{{ n.adminName }}</td>
-          <td class="date-col">{{ formattedDate(n.noticeCreatedAt) }}</td>
-        </tr>
+          <tr
+            v-for="n in notices"
+            :key="n.noticeUUID"
+            @click="goToNotice(n.noticeUUID)"
+            :class="{ 'current-notice': notice && n.noticeUUID === notice.noticeUUID }"
+          >
+            <td class="title-col">{{ n.noticeTitle }}</td>
+            <td class="author-col">{{ n.adminName }}</td>
+            <td class="date-col">{{ formattedDate(n.noticeCreatedAt) }}</td>
+          </tr>
         </tbody>
       </table>
-      
+
+      <!-- 반응형: 카드 -->
       <div class="notice-cards">
-        <div v-for="n in notices" :key="n.noticeUUID" class="notice-card" @click="goToNotice(n.noticeUUID)" :class="{ 'current-notice': notice && n.noticeUUID === notice.noticeUUID }">
+        <div
+          v-for="n in notices"
+          :key="n.noticeUUID"
+          class="notice-card"
+          @click="goToNotice(n.noticeUUID)"
+          :class="{ 'current-notice': notice && n.noticeUUID === notice.noticeUUID }"
+        >
           <div class="card-title">{{ n.noticeTitle }}</div>
           <div class="card-meta">
             <span class="card-author">{{ n.adminName }}</span>
@@ -61,21 +72,31 @@
         </div>
       </div>
 
-
+      
       <div class="pagination">
-        <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="pagination-button">
+        <button
+          @click="changePage(currentPage - 1)"
+          :disabled="currentPage === 1"
+          class="pagination-button"
+        >
           <img src="@/assets/left.png" alt="Previous" class="pagination-icon" />
         </button>
+
         <span
-            v-for="page in totalPages"
-            :key="page"
-            @click="changePage(page)"
-            :class="{ active: page === currentPage }"
-            class="pagination-number"
+          v-for="page in totalPages"
+          :key="page"
+          @click="changePage(page)"
+          :class="{ active: page === currentPage }"
+          class="pagination-number"
         >
           {{ page }}
         </span>
-        <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="pagination-button">
+
+        <button
+          @click="changePage(currentPage + 1)"
+          :disabled="currentPage === totalPages"
+          class="pagination-button"
+        >
           <img src="@/assets/rigth.png" alt="Next" class="pagination-icon" />
         </button>
       </div>
@@ -398,21 +419,18 @@ export default {
 }
 
 
-/* --- 공지사항 목록 --- */
+/* 공지사항 목록 박스 */
 .notice-list {
   width: 100%;
   max-width: 817px;
-  height: auto;
   background-color: white;
   padding: 10px 20px 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin: 20px auto 0 auto;
-  display: flex;
-  justify-content: center;
-  overflow-x: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eee;
 }
 
+/* 테이블 (데스크톱) */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -425,11 +443,6 @@ table tr {
 table tr:hover {
   background-color: #f9f9f9;
 }
-
-.title-col { width: 60%; }
-.author-col { width: 20%; }
-.date-col { width: 20%; }
-
 td {
   padding: 15px 10px;
   border-bottom: 1px solid #f0f0f0;
@@ -440,19 +453,29 @@ td {
   text-align: center;
   font-size: 15px;
 }
-
 td.title-col {
+  width: 60%;
   text-align: left;
-  white-space: nowrap;
 }
-
+td.author-col {
+  width: 20%;
+}
+td.date-col {
+  width: 20%;
+}
 tr.current-notice td {
   background-color: #FFFBEF;
   font-weight: bold;
   color: #D97706;
 }
 
-/* --- 페이지네이션 --- */
+/* 카드 뷰 (모바일 기본 숨김) */
+.notice-cards {
+  display: none;
+  width: 100%;
+}
+
+/* 페이지네이션 */
 .pagination {
   margin-top: 20px;
   display: flex;
@@ -460,7 +483,6 @@ tr.current-notice td {
   align-items: center;
   gap: 8px;
 }
-
 .pagination-number {
   font-size: 14px;
   color: #555;
@@ -468,15 +490,11 @@ tr.current-notice td {
   padding: 5px 10px;
   border-radius: 4px;
 }
-.pagination-number:hover {
-  background-color: #f0f0f0;
-}
 .pagination-number.active {
   font-weight: bold;
   color: #FFB052;
   background-color: #FFFBEF;
 }
-
 .pagination-button {
   background: none;
   border: none;
@@ -486,11 +504,58 @@ tr.current-notice td {
   opacity: 0.4;
   cursor: not-allowed;
 }
-
 .pagination-icon {
   width: 12px;
   height: 12px;
-  margin: 0 5px; /* 텍스트와 아이콘 간격 */
+  margin: 0 5px;
+}
+
+/* --- 반응형: 768px 이하에서는 카드만 보이도록 --- */
+@media (max-width: 768px) {
+  /* 테이블 숨기기 */
+  table {
+    display: none;
+  }
+
+  /* 카드 뷰 보이기 */
+  .notice-cards {
+    display: block;
+    width: 100%;
+  }
+
+  .notice-card {
+    padding: 15px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+  }
+  .notice-card:last-child {
+    border-bottom: none;
+  }
+  .notice-card.current-notice {
+    background-color: #FFFBEF;
+    border-radius: 4px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #777;
+  }
+  .notice-card.current-notice .card-title,
+  .notice-card.current-notice .card-meta {
+    color: #D97706;
+  }
+
+  /* 페이지네이션 버튼 크기 축소 */
+  .pagination-number {
+    padding: 4px 8px;
+  }
 }
 
 .author-name {
