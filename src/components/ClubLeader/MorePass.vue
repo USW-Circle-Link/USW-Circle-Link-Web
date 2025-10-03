@@ -178,6 +178,8 @@ export default {
         this.showNotification('결과가 성공적으로 전송되었습니다.', 'success');
         await this.fetchApplicants();
       } catch (error) {
+        const errorData = error.respose?.data || {};
+
         if (error.response?.data?.code === "CMEM-202") {
           alert('이미 동아리원으로 등록된 지원자가 있습니다. 관리자에게 문의하세요.', 'error');
         } else if (!this.handle401Error(error)) {
