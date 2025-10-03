@@ -205,7 +205,6 @@ label {
 .terms-container1 {
   height: 25px;
   border: 1px solid #B0B0B0;
-  padding: 5px;
   border-radius: 4px;
 }
 

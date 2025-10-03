@@ -253,103 +253,155 @@ export default {
   },
 };
 </script>
-
 <style scoped>
+/* ===== 전체 레이아웃 ===== */
 .club-profile {
   width: 100%;
   min-height: 100vh;
-  background: #F0F2F5;
+  background: var(--background-light);
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 32px;
+  align-items: flex-start; /* [수정] 위쪽 정렬로 변경 */
+  padding: clamp(16px, 5vw, 32px); /* [반응형] 패딩 */
   box-sizing: border-box;
+  padding-top: 100px;
+  --brand-color: #FFB052;
+  --text-primary: #333;
+  --text-secondary: #555;
+  --text-tertiary: #767676;
+  --border-color: #C3C3C3;
+  --background-light: #F0F2F5;
+  --background-white: #fff;
+  --tab-inactive-bg: #EEEEEE;
+  --tab-inactive-text: #C3C3C3;
 }
 
 .content-container {
-  width: 665px; /* 모든 섹션의 너비를 665px로 통일 */
+  width: 100%; /* [반응형] 너비를 100%로 */
+  max-width: 665px; /* [반응형] 최대 너비 설정 */
   display: flex;
   flex-direction: column;
-  gap: 24px; /* 모든 섹션 사이의 간격을 일관되게 설정 */
+  gap: 24px;
   align-items: center;
+}
+
+/* ===== 상단 이미지 슬라이더 ===== */
+.header-section {
+  width: 100%;
+  position: relative;
 }
 
 .slider-wrapper {
   width: 100%;
-  overflow: hidden;
-}
-
-.rounded-slider {
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.ClubInfo {
-  width: 626px;
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 20px;
+.close-button {
+  position: absolute;
+  top: -10px; /* 위치 조정 */
+  right: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.close-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== 동아리 정보 섹션 ===== */
+.ClubInfo {
+  width: 100%;
+  background-color: var(--background-white);
+  border-radius: 8px;
+  padding: clamp(16px, 3vw, 24px); /* [반응형] 패딩 */
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 30px); /* [반응형] 간격 */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
-}
-
-.ClubInfo .logo {
-  margin-left: 20px; /* Adjust the value as needed */
-}
-
-.club-details .clubname {
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  color: #333;
+  box-sizing: border-box;
 }
 
 .logo {
-  width: 110px;
-  height: 120px;
+  width: clamp(90px, 15vw, 110px); /* [반응형] 로고 크기 */
+  height: clamp(100px, 17vw, 120px);
   object-fit: cover;
   border-radius: 8px;
-  margin-right: 35px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .Info {
   flex-grow: 1;
-  margin-top: -5px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.club-details .clubname {
+  font-size: clamp(1.25rem, 4vw, 1.5rem); /* [반응형] 폰트 */
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.club-details .clubleader {
+  margin: 0 0 8px 0;
+  font-size: clamp(0.875rem, 2.5vw, 1rem); /* [반응형] 폰트 */
+}
+
+.leader-label {
+  color: var(--text-tertiary);
+}
+
+.leader-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.clubroom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.clubroom p {
+  font-size: clamp(0.8125rem, 2.2vw, 0.875rem); /* [반응형] 폰트 */
+  color: var(--text-tertiary);
+  margin: 0;
 }
 
 .hashtags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 12px;
 }
 
 .hashtag {
   padding: 6px 12px;
-  font-size: 14px;
-  color: #555555;
-  background-color: #FFFFFF;
-  border: 1px solid #C3C3C3;
+  font-size: clamp(0.75rem, 2vw, 0.875rem); /* [반응형] 폰트 */
+  color: var(--text-secondary);
+  background-color: var(--background-white);
+  border: 1px solid #ddd;
   border-radius: 12px;
 }
 
+/* 더보기(...) 버튼 및 팝업 */
 .more-options {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: clamp(16px, 3vw, 20px);
+  right: clamp(16px, 3vw, 20px);
 }
-
-.dots-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .dots-button span {
   width: 5px;
   height: 5px;
@@ -367,284 +419,135 @@ export default {
   padding: 10px;
   width: 280px;
   z-index: 100;
+
 }
 
-.popup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.popup-header p {
-  font-size: 16px;
-  font-weight: bold;
-  margin: 0;
-}
-
-.contact-info-popup hr {
-  margin: 10px 0;
-  border: none;
-  border-top: 1px solid #ddd;
-}
-
-.contact-info-popup .location,
-.contact-info-popup .phoneNum,
-.contact-info-popup .instaName {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #9a9a9a;
-}
-
-.contact-info-popup .icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-  background-size: contain;
-}
-
-.icon.location {
-  background: url('@/assets/location.svg') no-repeat center center;
-}
-
-.icon.phone {
-  background: url('@/assets/phone.svg') no-repeat center center;
-}
-
-.icon.insta {
-  background: url('@/assets/insta.svg') no-repeat center center;
-}
-
-.icon.vector{
-  background: url('@/assets/link.svg') no-repeat center center;
-}
-
-.contact-info-popup .close-btn {
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-
-/* 🔹 모집 상태 스타일 추가 */
-.recruitment-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-right: 20px;
-}
-
-.status-icon {
-  width: 16px;
-  height: 16px;
-}
-
+/* ===== 탭 메뉴 및 컨텐츠 ===== */
 .tabs-container {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
 }
 
 .tabs-wrapper {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  position: relative;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--border-color);
 }
-.tabs-header {
-  width: 100%;
-  position: relative;
-}
-
-
-/* 탭 */
 
 .tabs {
   display: flex;
-  gap: 0;
+  flex-grow: 1; /* [개선] 남는 공간 차지 */
 }
 
-/* 탭 버튼 */
 .tabs button {
-  width: 174px;
-  height: 45px;
-  padding: 10px 0;
+  flex: 1; /* [개선] 탭 버튼이 공간을 균등하게 차지 */
+  padding: 14px 10px;
   text-align: center;
-  background-color: #EEEEEE;
-  color: #C3C3C3;
-  border: 1px solid #C3C3C3;
+  background-color: var(--tab-inactive-bg);
+  color: var(--tab-inactive-text);
+  border: 1px solid var(--border-color);
   border-bottom: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 18px;
+  font-size: clamp(0.875rem, 2.5vw, 1rem); /* [반응형] 폰트 */
   font-weight: 500;
+  white-space: nowrap; /* 줄바꿈 방지 */
 }
+.tabs button:first-child { border-top-left-radius: 8px; }
+.tabs button:last-child { border-top-right-radius: 8px; }
+.tabs button.single-tab { border-top-right-radius: 8px; }
 
-/* 왼쪽 탭 버튼 스타일 */
-.tabs button:first-child {
-  border-top-left-radius: 8px;
-}
-
-/* 두 번째 탭 버튼 스타일 */
-.tabs button:nth-child(2) {
-  border-top-right-radius: 8px;
-  border-left: none;
-}
-
-.status-icon {
-  width: 10px;
-  height: 10px;
-}
-
-.status-icon.open {
-  background-color: #4CAF50; /* 초록색 (모집 중) */
-}
-
-.status-icon.closed {
-  background-color: #D9534F; /* 빨간색 (모집 마감) */
-}
-
-.status-text {
-  font-size: 14px;
-  font-weight: 600;
-  color: #767676;
-}
-
-
-/* 활성화된 탭 */
 .tabs button.active {
-  background-color: #FFB052;
-  color: #FFFFFF;
-  border: 1px solid #C3C3C3;
-  border-bottom: none; /* 하단 테두리를 제거하여 탭 내용과 연결 */
+  background-color: var(--brand-color);
+  color: var(--background-white);
+  border-color: var(--brand-color);
 }
 
-/* 비활성화된 탭 */
-.tabs button.inactive {
-  background-color: #EEEEEE;
-  color: #C3C3C3;
-  border: 1px solid #C3C3C3;
+.recruitment-status {
+  display: flex;
+  align-items: block;
+  gap: 6px;
+  padding: 0 16px;
+  background: var(--tab-inactive-bg);
+  height: 100%;
+  border-top: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-top-right-radius: 8px;
 }
 
-/* 탭 내용 */
 .tab-content {
   width: 100%;
-  padding: 5px 10px;
-  background-color: #fff;
-  border: 1px solid #C3C3C3;
-  border-radius: 0 8px 8px 8px;
+  padding: 24px;
+  background-color: var(--background-white);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
   box-sizing: border-box;
   min-height: 200px;
-  max-height: 500px;
-  overflow-y: auto;
 }
 
-.description {
-  font-size: 14px;
-  padding: 10px;
-  color: #333;
-  line-height: 1.5;
-  word-break: break-all; /* 숫자도 줄바꿈 처리 */
-  white-space: normal;   /* 공백 유지 */
-}
-
-.location {
-  color: #9A9A9A; /* 텍스트 색상을 배경에 맞게 흰색으로 변경 */
-}
-
-.header-section {
-  width: 665px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  position: relative;
-}
-
-.close-button {
-  position: absolute;
-  top: -30px;
-  right: 0;
-  background: none;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-
-.close-button:hover {
-  opacity: 0.8;
-}
-
-.clubroom span {
-  color: #767676;  /* 🔹 글씨 색상 변경 */
-}
-
-
-.popup-close-btn {
-  background: none;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.2s ease;
-}
-
-.category {
+/* ===== 아이콘 스타일 ===== */
+.icon {
   width: 16px;
-  margin-right: 7px;
-  background: url('../../assets/category-dash.svg') no-repeat center center;
+  height: 16px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
+.icon.category { background-image: url('@/assets/category-dash.svg'); }
+.icon.location { background-image: url('@/assets/location.svg'); }
+.icon.phone { background-image: url('@/assets/phone.svg'); }
+.icon.insta { background-image: url('@/assets/insta.svg'); }
+.icon.vector { background-image: url('@/assets/link.svg'); }
 
-.club-details .clubname,
-.club-details .clubleader,
-.club-details .clubroom,
-.club-details .hashtags {
-  margin-bottom: -10px; /* Adjust the value as needed to reduce spacing */
-}
 
-.contact-info-popup a {
-  color: #4A90E2;
-  text-decoration: none;
-  font-size: 14px;
-}
+/* ===== [반응형] 모바일 화면 최적화 ===== */
+@media (max-width: 768px) {
+  .close-button {
+    margin-top: -30px;
+    margin-right: 0px;
+  }
+  .club-profile {
+    padding: 0; /* 모바일에서는 패딩 제거 */
+    padding-top: 200px;
+    align-items: flex-start;
+  }
+  .content-container {
+    gap: 0; /* 섹션 사이 간격 제거 */
+  }
 
-.contact-info-popup a:hover {
-  text-decoration: underline;
-}
+  /* 동아리 정보 섹션 세로 정렬 */
+  .ClubInfo {
+    flex-direction: column;
+    align-items: flex-start; /* 왼쪽 정렬 */
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .logo {
+    align-self: center; /* 로고만 중앙 정렬 */
+  }
 
-.tabs button.single-tab {
-  border-top-right-radius: 8px;
-}
+  /* 슬라이더/탭 컨텐츠 radius 조정 */
+  .slider-wrapper, .tab-content {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
 
-.leader-label {
-  color: #767676;
-  font-family: Pretendard;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -0.4px;
-}
-
-.leader-name {
-  font-weight: 500; /* semi-bold */
-}
-
-.phone-number {
-  color: #9A9A9A; /* 텍스트 색상을 배경에 맞게 흰색으로 변경 */
-}
-
-.clubroom p {
-  color: #767676;
+  /* 탭 헤더 조정 */
+  .tabs-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tabs {
+    width: 100%;
+  }
+  .recruitment-status {
+    border-radius: 0;
+    padding: 8px 16px;
+    justify-content: right;
+    border-top: none;
+    border-left: none;
+  }
 }
 </style>

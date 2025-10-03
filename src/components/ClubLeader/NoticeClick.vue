@@ -253,7 +253,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 15% 0% 20px; /* 좌우 패딩을 %로 설정 */
+    padding: 20px auto; /* 좌우 패딩을 %로 설정 */
     margin: 20px auto 40px; /* 마진을 auto로 설정해 중앙 정렬 */
     max-width: 817px; /* 컨텐츠 최대 너비 설정 */
     width: 100%;

@@ -444,10 +444,10 @@ export default {
   white-space: nowrap;
 }
 .member-info {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* 3열 구조 유지 */
-  gap: 16px;
-  align-items: center;
+   display: flex;                 /* Grid 대신 Flexbox 사용 */
+  justify-content: space-between; /* 아이템들을 좌우로 균등하게 배치 */
+  align-items: center;           /* 세로 중앙 정렬 */
+  width: 100%;                   /* 너비를 꽉 채우도록 설정 */
 }
 .info-cell {
   color: var(--text-color-primary);

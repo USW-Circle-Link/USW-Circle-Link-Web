@@ -140,8 +140,10 @@
         <div class="popup-body">
           <p class="popup-message">해당 동아리 회원 정보를 수정하시겠습니까?</p>
         </div>
-        <button @click="cancelEdit" class="cancel-button">취소</button>
+        <div class="popup-buttons">
         <button @click="saveEdit" class="expel-button">확인</button>
+        <button @click="cancelEdit" class="cancel-button">취소</button>
+        </div>
       </div>
     </div>
   </div>
@@ -981,9 +983,99 @@ export default {
   height: 30px;
   opacity: 0;
 }
+.custom-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 반투명 검은색 배경 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
-/* ========== Responsive Breakpoints ========== */
+/* 팝업 흰색 박스 */
+.popup-content {
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 420px; /* 팝업의 최대 너비 */
+  box-sizing: border-box;
+  text-align: left; /* 내부 텍스트 왼쪽 정렬 */
+}
 
+/* 팝업 제목 */
+.popup-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+/* 제목과 내용 사이의 구분선 */
+.popup-separator {
+  border-bottom: 1px solid #EEEEEE;
+  margin: 12px 0;
+}
+
+/* 팝업 메시지 */
+.popup-message {
+  font-size: 16px;
+  color: #555;
+  margin: 0 0 32px 0; /* 버튼과의 간격을 위해 아래쪽 여백 추가 */
+  line-height: 1.5;
+  min-height: 40px;
+}
+/* 버튼들을 담는 컨테이너 */
+.popup-buttons {
+  display: flex;
+  gap: 10px; /* 버튼 사이의 간격 */
+  justify-content: flex-end; /* 버튼들을 오른쪽 끝으로 정렬 */
+  margin-top: 24px; /* 메시지와의 간격 */
+}
+
+/* 버튼 공통 스타일 */
+.popup-buttons button {
+  /* === 높이를 동일하게 만드는 핵심 속성 === */
+  height: 42px;             /* [핵심] 높이를 직접 지정하여 통일 */
+  box-sizing: border-box;   /* 테두리와 여백을 높이 계산에 포함시켜 오차 방지 */
+  border: none;             /* 브라우저 기본 테두리 제거 */
+  
+  /* === 텍스트 중앙 정렬을 위한 스타일 === */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* === 기존 디자인 스타일 === */
+  padding: 0 25px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+/* 취소 버튼 */
+.cancel-button {
+  background-color: #D9D9D9; /* 이미지와 비슷한 회색 */
+  color: white;             /* [수정] 텍스트 색상을 흰색으로 */
+}
+.cancel-button:hover {
+  background-color: #c8c8c8;
+}
+
+/* 확인 버튼 (expel-button 또는 confirm-button 등) */
+.expel-button, .confirm-button {
+  background-color: #FFB052; /* 브랜드 색상 */
+  color: white;
+}
+.expel-button:hover, .confirm-button:hover {
+  background-color: #e69a3e;
+}
 /* 데스크탑 뷰 */
 @media (min-width: 769px) {
   .member-item-li {

@@ -34,7 +34,6 @@ export default {
   }
 };
 </script>
-
 <style scoped>
 .session-popup-overlay {
   position: fixed;
@@ -55,7 +54,8 @@ export default {
   border-radius: 8px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   width: 360px;
-  height: 165px;
+  /* [수정] 고정 높이 제거 -> 내용에 따라 높이가 자동으로 조절됩니다. */
+  /* height: 165px; */
 }
 
 .session-popup-title {
@@ -75,13 +75,15 @@ export default {
 }
 
 .session-popup-body {
-  margin-bottom: 12px;
+  /* [수정] 버튼과의 간격을 확보하기 위해 margin-bottom 값을 늘렸습니다. */
+  margin-bottom: 24px;
   margin-top: 22px;
 }
 
 .session-popup-message {
   font-size: 16px;
   color: #333333;
+  margin: 4px 0; /* 메시지 줄 사이의 간격을 살짝 추가 */
 }
 
 .confirm-button {
