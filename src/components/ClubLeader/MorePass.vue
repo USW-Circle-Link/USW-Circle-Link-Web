@@ -409,26 +409,43 @@ hr{ border: 0; border-top: 1px solid #d9d9d9; margin: 10px 0; }
 }
 
 /* ≤768px: 리스트 행을 3줄 레이아웃으로 재배치 */
-@media (max-width: 768px){
-  /* 액션: 전송버튼은 좌측, 상태버튼은 우측 그대로 */
-  .status-actions{ grid-template-columns: 1fr auto; }
+/* ≤768px: [수정] 리스트를 균형잡힌 2x2 형태로 재배치 */
+@media (max-width: 768px) {
+  .applicant-item {
+    /* 2열 그리드 정의 */
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto; /* 3개의 행 높이는 내용에 맞게 자동 조절 */
+    
+    /* [핵심] 그리드 영역 이름으로 레이아웃을 시각적으로 정의 */
+    grid-template-areas:
+      "name   student-id"
+      "major  phone"
+      "actions actions"; /* 버튼은 맨 아래 한 줄을 모두 차지 */
 
-  /* 아이템: 2열 그리드 + 행 재배치 */
-  .applicant-item{
-    grid-template-columns: 1fr 1fr;  /* 기본 2열 */
-    grid-auto-rows: auto;
-    row-gap: var(--space-2, 8px);
+    row-gap: 10px;
+    column-gap: 16px; /* 열 사이 간격 */
+    padding: 12px;
   }
-  /* 1) 이름: 한 줄 전체 */
-  .applicant-item p:nth-of-type(1){ grid-column: 1 / -1; text-align: left; padding-left: 4px; }
-  /* 2) 학번(좌) 3) 학과(우) */
-  .applicant-item p:nth-of-type(2){ grid-column: 1 / 2; }
-  .applicant-item p:nth-of-type(3){ grid-column: 2 / 3; }
-  /* 4) 전화(좌) 5) 버튼(우) */
-  .applicant-item p:nth-of-type(4){ grid-column: 1 / 2; }
-  .buttons-group{ grid-column: 2 / 3; justify-self: end; }
-}
 
+  /* 각 요소에 grid-area 이름 할당 */
+  .applicant-item p:nth-of-type(1) { grid-area: name; }
+  .applicant-item p:nth-of-type(2) { grid-area: student-id; }
+  .applicant-item p:nth-of-type(3) { grid-area: major; }
+  .applicant-item p:nth-of-type(4) { grid-area: phone; }
+  .buttons-group { grid-area: actions; }
+
+  /* 모든 텍스트 왼쪽 정렬 및 스타일 초기화 */
+  .applicant-item p {
+    text-align: left;
+    padding-left: 4px;
+    grid-column: auto; /* 기존 grid-column 설정 초기화 */
+  }
+
+  /* 버튼 그룹 오른쪽 정렬 */
+  .buttons-group {
+    justify-self: end;
+  }
+}
 /* ≤600px: 폰 크기 최적화(패딩/폰트/버튼 폭) */
 @media (max-width: 600px){
   .MainBox{ padding: var(--space-4, 16px); }
