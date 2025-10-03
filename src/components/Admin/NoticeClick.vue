@@ -29,6 +29,13 @@
             @error="handleImageError(index)" />
         </div>
       </div>
+      
+      <!-- 👇 이미지 아래 오른쪽 끝 -->
+      <div class="edit-button-wrapper">
+        <button class="edit-button" @click="editNotice(notice.noticeUUID)">
+            수정 
+        </button>
+      </div>
     </div>
 
     <div class="notice-list">
@@ -78,7 +85,7 @@
 </template>
 
 <script>
-// 스크립트 부분은 변경사항이 없으므로 기존 코드를 그대로 사용하시면 됩니다.
+
 import store from '@/store/store';
 import axios from 'axios';
 import Popup401 from "@/components/Admin/401Popup.vue";
@@ -233,6 +240,12 @@ export default {
     formattedDate(dateString) {
       return new Date(dateString).toLocaleDateString('ko-KR');
     },
+    editNotice(noticeUUID) {
+      this.$router.push({
+        name: 'NoticeEdit',
+        params: { noticeUUID }
+      });
+    },
   },
   watch: {
     $route(to) {
@@ -354,11 +367,27 @@ export default {
   max-width: 300px;
 }
 
-.actions {
+.edit-button-wrapper {
   display: flex;
-  justify-content: center;  /* 가운데 정렬로 변경 */
-  margin-top: -30px;        /* 버튼과 위 요소 간 거리 */
-  margin-left: 0;           /* 왼쪽 여백 제거 */
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  margin-top: 20px;          /* 위쪽 여백 */
+}
+
+.edit-button {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: #555;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.edit-button:hover {
+  background-color: #f5f5f5;
 }
 
 .notice-image {
@@ -479,7 +508,7 @@ tr.current-notice td {
 }
 
 .notice-list {
-  width: 817px;
+  width: 100%x;
   height: auto;
   background-color: white;
   padding: 20px;

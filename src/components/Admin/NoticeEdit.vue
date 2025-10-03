@@ -504,7 +504,7 @@ export default {
 .character-count {
   position: absolute;
   bottom: 10px; /* 아래 여백 */
-  right: 10px; /* 오른쪽 여백 */
+  right: 65px; /* 오른쪽 여백 */
   font-size: 12px;
   color: #888; /* 글자 색상 */
   background: rgba(255, 255, 255, 0.8); /* 배경색 추가 */
@@ -527,7 +527,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;  /* 전체 너비 */
+  width: 95%;  /* 전체 너비 */
   background-color: white;
   padding: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
