@@ -573,7 +573,7 @@ textarea {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
+  width: 95%;
   height: 153.96px;
   background-color: white;
   padding: 10px;
