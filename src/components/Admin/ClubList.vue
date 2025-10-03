@@ -52,8 +52,12 @@
       <p class="popup-message">'{{ PopupClubName }}'을(를) 삭제하시겠습니까?</p>
       <input v-model="adminPw" type="password" placeholder="관리자 비밀번호를 입력해 주세요." />
       <p class="popup-warning">{{ adminPwError }}</p>
-      <button class="expel-button" @click="confirmDelete">확인</button>
-      <button class="cancel-button" @click="cancelDelete">취소</button>
+      
+      <!-- 버튼 묶기 -->
+      <div class="popup-buttons">
+        <button class="cancel-button" @click="cancelDelete">취소</button>
+        <button class="expel-button" @click="confirmDelete">확인</button>
+      </div>
     </div>
   </div>
 
@@ -221,10 +225,10 @@ body {
   overflow-x: hidden;
 }
 
-/* 컨테이너: clamp으로 반응형 폭 제어 (최소 370px, 최대 820px) */
+/* 컨테이너 */
 .container {
-  width: clamp(370px, 92vw, 820px);
-  margin: 0 auto 30px;
+  width: 100%;
+  margin: 0 auto;
   background-color: #ffffff;
   padding: 20px;
   border-radius: 10px;
@@ -233,9 +237,10 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-sizing: border-box;
 }
 
-/* 타이틀: 고정 830 제거, 반응형으로 중앙 배치 */
+/* 타이틀 */
 .title {
   color: black;
   font-size: clamp(18px, 4vw, 25px);
@@ -243,16 +248,14 @@ body {
   display: block;
   text-align: center;
   margin: 0 0 16px;
-  width: clamp(370px, 92vw, 830px);
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
   box-sizing: border-box;
 }
 
-/* Header Section: clamp로 폭 제어, 중앙 배치 */
+/* Header Section */
 .header {
-  width: clamp(370px, 92vw, 820px);
-  margin: 20px auto;
+  width: 100%;
+  margin: 20px 0;
   background-color: #ffffff;
   border-radius: 8px;
   padding: 0 12px;
@@ -272,7 +275,7 @@ body {
 /* 헤더 항목: flex 기준으로 비율 조정 (필요시 조정) */
 .header-item-department{ flex: 1; padding: 10px 6px; line-height: 1.4; }
 .header-item-clubname{ flex: 2; padding: 10px 6px; line-height: 1.4; }
-.header-item-clubleader{ flex: 1.2; padding: 10px 6px; line-height: 1.4; }
+.header-item-clubleader{ flex: 1.2; padding: 10px 23px; line-height: 1.4; }
 .header-item-numberOfClubMembers{ flex: 0.8; padding: 10px 6px; line-height: 1.4; }
 .header-item-delete{ flex: 0.6; padding: 10px 6px; line-height: 1.4; }
 
@@ -406,12 +409,14 @@ body {
   max-width: 520px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   text-align: left;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* 요소 간격 */
 }
 
 .popup h3 { font-size: 18px; font-weight: bold; margin: 0; }
-.line2 { border-bottom: 1px solid #d3d3d3; margin: 10px 0; }
-.popup-message { font-size: 16px; font-weight: 500; color: #2F2F2F; margin-top: 16px; }
+.line2 { border-bottom: 1px solid #d3d3d3; margin: 0; }
+.popup-message { font-size: 16px; font-weight: 500; color: #2F2F2F; margin: 0; }
 
 .popup input {
   width: 100%;
@@ -420,36 +425,37 @@ body {
   font-size: 14px;
   border: 1px solid #C6C6C6;
   border-radius: 8px;
-  margin-top: 12px;
+  margin: 0;
   box-sizing: border-box;
 }
 
-.popup-warning { font-size: 12px; color: #FF4B4B; margin-top: 8px; }
+.popup-warning { font-size: 12px; color: #FF4B4B; margin: 0; }
 
-/* 팝업 버튼 위치 조정 (반응형) */
+/* 버튼 영역 */
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  gap: 10px; /* 버튼 간격 */
+}
+
+/* 버튼 스타일 */
+.expel-button,
+.cancel-button {
+  padding: 8px 20px;
+  font-size: 15px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
 .expel-button {
   background-color: #FFB052;
   color: white;
-  border: none;
-  padding: 8px 22px;
-  border-radius: 7px;
-  font-size: 16px;
-  cursor: pointer;
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
 }
+
 .cancel-button {
   background-color: #cccccc;
   color: white;
-  border: none;
-  padding: 8px 22px;
-  border-radius: 7px;
-  font-size: 16px;
-  cursor: pointer;
-  position: absolute;
-  bottom: 16px;
-  right: 116px;
 }
 
 /* 반응형 미디어 쿼리: 아주 작은 화면에서 레이아웃 보정 */
@@ -463,7 +469,17 @@ body {
   .header-row { font-size: 14px; }
   .list-item-row { padding: 8px; gap: 6px; }
   .delete-btn { height: 34px; }
-  .expel-button, .cancel-button { bottom: 12px; right: 12px; padding: 6px 14px; font-size: 14px; }
+  
+  /* 작은 화면에서도 가로 정렬 유지 */
+  .popup-buttons {
+    flex-wrap: nowrap;   /* 줄바꿈 방지 */
+    justify-content: flex-end;
+  }
+  .expel-button,
+  .cancel-button {
+    font-size: 14px;
+    padding: 6px 14px;
+  }
 }
 
 /* 필요시 긴 텍스트 줄바꿈 보장 */
