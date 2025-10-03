@@ -383,7 +383,6 @@ export default {
   justify-content: flex-start;
   align-items: flex-start;
   min-width: 390px;
-  overflow-x: hidden;
   gap: 20px;
 }
 
@@ -411,25 +410,28 @@ export default {
 
 .floor-container {
   flex: 1;
-  background-color: white;
+  /*background-color: white;*/
   border-radius: 8px;
   width: 280px;   /* 통일 */
   height: 280px;  /* 통일 */
   display: flex;
   justify-content: center;
   align-items: center;
+
 }
 
 .image-container {
   position: relative;
   display: inline-block;
   border-radius: 16px;
+  background-color: white;
+  justify-content: center;
 }
 
 .image-box {
   width: 100%;
   max-width: 280px; /* 최대 너비 제한 */
-  min-width: 200px; /* 최소 너비 보장 */
+  min-width: 250px; /* 최소 너비 보장 */
   height: 100%; /* 고정 높이 */
   display: flex;
   justify-content: center;
@@ -563,6 +565,7 @@ export default {
   position: relative;
   justify-content: center;
   align-items: center;
+  display: flex;
 }
 .enlarged-image {
   /*
