@@ -76,6 +76,9 @@ export default {
 }
 
 .button-group {
+  height: 42px;             /* [핵심] 높이를 직접 지정하여 통일 */
+  box-sizing: border-box;   /* 테두리와 여백을 높이 계산에 포함시켜 오차 방지 */
+  border: none;  
   display: flex;
   gap: 10px;
   justify-content: flex-end;

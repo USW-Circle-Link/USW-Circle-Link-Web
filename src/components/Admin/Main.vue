@@ -35,8 +35,8 @@ export default {
     };
   },
   mounted() {
-    this.checkWindowSize();
-    window.addEventListener('resize', this.checkWindowSize);
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize);
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.handleResize);

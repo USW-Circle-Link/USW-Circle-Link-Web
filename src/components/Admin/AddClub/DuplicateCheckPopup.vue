@@ -43,7 +43,7 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  min-width: 390px;
+  min-width: 380px;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
@@ -51,6 +51,8 @@ export default {
   align-items: center;
   z-index: 1000;
   flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .popup {
@@ -58,15 +60,18 @@ export default {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 452px;
-  height: 184px;
+  width: 100%;
+  max-width: 452px;
+  min-width: 300px;
+  min-height: 184px;
   text-align: left;
   position: relative;
+  box-sizing: border-box;
 }
 
 .confirm-message{
   text-align: center;
-  margin-top: 80px;
+  margin-top: 60px;
   font-size: 20px;
   font-weight: 500;
   line-height: 12px;

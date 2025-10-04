@@ -172,7 +172,17 @@ export default {
   overflow-y: auto;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none;  /* IE and Edge */
-  background-color: #fff; /* [수정] 사이드바 전체 배경을 흰색으로 설정 */
+  background-color: transparent; /* [수정] 사이드바 전체 배경을 흰색으로 설정 */
+}
+@media (max-width: 768px) {
+  .sidebar {
+    background-color: #fff; /* 흰색 배경 */
+  }
+}
+@media (max-width: 768px) {
+  .footer-container {
+    background-color: #fff; /* 흰색 배경 */
+  }
 }
 .sidebar::-webkit-scrollbar {
   display: none; /* Webkit browsers */
@@ -341,7 +351,7 @@ nav .icon {
   margin-top: auto;
   position: sticky;
   bottom: 0;
-  background: #fff; /* [수정] 푸터 배경을 흰색으로 변경 */
+  background-color: transparent; /* [수정] 푸터 배경을 흰색으로 변경 */
   padding-bottom: 10px;
 }
 .line1 {

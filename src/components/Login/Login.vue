@@ -359,7 +359,7 @@ export default {
 .login-box {
   padding: 40px;
   width: 100%;
-  max-width: 576px;
+  max-width: 380px;
   height: 350px; /* 높이 고정 */
   border-radius: 16px;
   background: #FFF;

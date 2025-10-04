@@ -353,7 +353,7 @@ export default {
     },
     validateInput() {
       // 이름 검증 - 특수문자 제외
-      this.validationErrors.userName = !/^[가-힣a-zA-Z\s]{3,20}$/.test(this.editingMember.userName);
+      this.validationErrors.userName = !/^[가-힣a-zA-Z\s]{2,20}$/.test(this.editingMember.userName);
 
       // 학번 검증 - 8자리 숫자
       this.validationErrors.studentNumber = !/^\d{8}$/.test(this.editingMember.studentNumber);
@@ -916,10 +916,10 @@ select { text-align: left; }
   .member-row {
     grid-template-columns: 1fr 1fr; /* 2열 구조로 변경 */
     grid-template-areas:
-      "name    name"
-      "id      phone"
+      "name    name"
+      "id      phone"
       "college major"
-      ".       actions"; /* 수정 버튼 오른쪽 하단 배치 */
+      ".       actions"; /* 수정 버튼 오른쪽 하단 배치 */
   }
 }
 

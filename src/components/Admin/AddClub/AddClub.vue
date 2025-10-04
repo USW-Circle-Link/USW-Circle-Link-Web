@@ -114,8 +114,12 @@
         <p class="popup-message">'{{clubName}}'을(를) 추가하시겠습니까?</p>
         <input v-model="adminPw" type="password" placeholder="관리자 비밀번호" />
         <p class="popup-warning">{{adminPwError}}</p>
-        <button class="expel-button" @click="submitForm">확인</button>
-        <button class="cancel-button" @click="cancelDelete">취소</button>
+        
+        <!-- 버튼 묶기 -->
+        <div class="popup-buttons">
+          <button class="cancel-button" @click="cancelDelete">취소</button>
+          <button class="expel-button" @click="submitForm">확인</button>
+        </div>
       </div>
     </div>
 
@@ -607,16 +611,24 @@ export default {
   font-weight: bold;
   margin-bottom: 20px;
   position: relative; /* 상대 위치 설정 */
-  display: inline-block;
+  display: block;
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
+  text-align: center;
+  width: 100%;
 }
 
 .form-container {
-  width: 95%;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
   padding: 20px;
   background-color: #ffffff;
   border-radius: 8px;
   height: 650px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 h2 {
@@ -627,6 +639,7 @@ h2 {
 
 .form-group {
   width: 100%;
+  max-width: 600px;
   height: 70px;
   display: flex;
   align-items: center;
@@ -635,6 +648,7 @@ h2 {
 
 .form-group-col {
   width: 100%;
+  max-width: 600px;
   height: 90px;
   flex-direction: column;
   display: flex;
@@ -648,24 +662,28 @@ h2 {
 }
 
 .form-group-row {
+  position: relative;
   width: 100%;
+  max-width: 600px;
   flex-direction: row;
   display: flex;
   align-items: center;
-  position: relative; /* 부모 요소를 기준으로 자식 요소 위치 지정 */
 }
 
-.DuplicateCheckbtn{
-  width: clamp(60px, 12vw, 80px);
-  height: 35px;
+/* 버튼 input 안쪽 세로 가운데 정렬 */
+.DuplicateCheckbtn {
   position: absolute;
-  right: clamp(10px, 8vw, 50px);
-  top: 6px;
-  border-radius: 5px;
+  top: 40%;                  /* 부모 높이의 40% */
+  right: 10px;               /* 오른쪽에서 10px */
+  transform: translateY(-50%); /* 세로 정중앙 이동 */
+  height: 30px;
+  padding: 0 15px;
   border: none;
+  border-radius: 5px;
   background-color: #FFB052;
   color: white;
-  font-size: clamp(10px, 2vw, 14px);
+  font-size: 13px;
+  cursor: pointer;
 }
 
 .DuplicateCheckbtn:hover{
@@ -727,15 +745,19 @@ h2 {
   border-color: #C5C5C5;
 }
 
+
+
 .from-input {
-  width: clamp(65%, 14vw, 70%);
-  align-items: center;
+  width: 100%;
+  height: 45px;
+  padding-right: 90px;   /* 버튼 공간 확보 */
+  padding-left: 20px;
+  box-sizing: border-box;
   margin-bottom: 10px;
   border: 1.5px solid #e7e7e7;
   border-radius: 5px;
-  padding: 15px 20px 15px 20px;
   background-color: #fff;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .from-input::placeholder{
@@ -744,7 +766,7 @@ h2 {
 }
 
 label {
-  width: 20%;
+  width: 45%;
   display: block;
   margin-bottom: 5px;
   color: #555;
@@ -772,8 +794,7 @@ label {
 
 .popupbtn {
   display: flex;
-  margin-top: 30px;
-  margin-right: 40px;
+  margin: 30px auto 0;
   width: 140px;
   height: 40px;
   padding: 8px 10px;
@@ -784,7 +805,6 @@ label {
   font-size: 15px;
   justify-content: center;
   align-items: center;
-  margin-left: auto;
   border: none;
   transition: background-color 0.2s ease;
 }
@@ -800,7 +820,7 @@ label {
   background-color: #f49421; /* 더 진한 노란색으로 변경 */
 }
 
-/* Popup Overlay and Popup Window */
+/* 팝업 오버레이 */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -812,18 +832,23 @@ label {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  flex-direction: column;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
+/* 팝업 박스 */
 .popup {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 452px;
-  height: 184px;
-  text-align: left;
-  position: relative;
+  width: 100%;
+  max-width: 452px;
+  height: 184px;           /* ✅ 세로 고정 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* 위→중간→아래 균형 */
+  box-sizing: border-box;
 }
 
 .popup h3 {
@@ -835,7 +860,7 @@ label {
 
 .line33{
   border-bottom: 1px solid #d3d3d3;
-  margin: 10px 0;
+  margin: 0;
 }
 
 .popup-message {
@@ -843,38 +868,49 @@ label {
   font-weight: 500;
   line-height: 12px;
   color: #2F2F2F;
-  margin-top: 20px;
+  margin: 15px;
 }
 
+/* 입력창 */
 .popup input {
-  width: 430px;
+  width: 100%;
   padding: 10px;
-  font-size: 14px; /* 입력 칸의 글씨 크기를 더 크게 */
+  font-size: 14px;
   border: 1px solid #C6C6C6;
   border-radius: 8px;
-  margin-bottom: 10px;
-  margin-top: 1px;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 .popup-warning {
   font-size: 12px;
   font-weight: 300;
   color: #FF4B4B;
-  margin: 0 0 0 10px;
+  margin: 0;
+}
+
+/* 버튼 묶음 */
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: auto;  /* ✅ 항상 팝업 맨 아래 */
+}
+
+/* 버튼 */
+.expel-button,
+.cancel-button {
+  padding: 8px 20px;
+  font-size: 15px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  min-width: 80px;
 }
 
 .expel-button {
   background-color: #FFB052;
   color: white;
-  border: none;
-  padding: 7px 30px;
-  border-radius: 7px;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
 }
 
 .expel-button:hover {
@@ -884,15 +920,6 @@ label {
 .cancel-button {
   background-color: #cccccc;
   color: white;
-  border: none;
-  padding: 7px 30px;
-  border-radius: 7px;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-  position: absolute;
-  bottom: 20px;
-  right: 120px;
 }
 
 .cancel-button:hover {
@@ -909,8 +936,10 @@ label {
   padding: 8px 15px 8px 15px;
   background-color: #fff;
   justify-content: space-between;
-  width: 25%;
+  width: 100%;
+  max-width: 300px;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .dropdown-selected {
@@ -1141,6 +1170,21 @@ label {
   background-color: #ccc;
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+/* 작은 화면 대응 */
+@media (max-width: 420px) {
+  .popup {
+    max-width: 100%;
+    height: 180px;     /* 모바일에서도 고정 높이 */
+    padding: 16px;
+  }
+
+  .expel-button,
+  .cancel-button {
+    font-size: 14px;
+    padding: 6px 14px;
+  }
 }
 
 </style>

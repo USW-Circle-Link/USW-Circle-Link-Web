@@ -282,7 +282,7 @@ export default {
     },
     validateLeaderName() {
       // 특수문자 및 공백을 체크하는 정규식
-      const specialCharPattern = /[!@#₩$%^&*()_+\-=\[\]{};':"\\|,.<>/?\s]+/;
+      const specialCharPattern = /[!@#₩$%^&*()_+\-=[\]{};':"\\|,.<>/?\s]+/;
 
       // 이모티콘과 특수문자를 모두 체크하는 정규식, 일단 유니코드 기준으로 체크함
       const emojiPattern = /[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27FF]|[\u2900-\u2BFF]|[\u3000-\u303F]|[\u1F300-\u1F64F]|[\u1F680-\u1F6FF]/;

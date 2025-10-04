@@ -373,18 +373,20 @@ export default {
   font-weight: 600;
   margin-bottom: 30px;
   position: relative; /* 상대 위치 설정 */
-  display: inline-block;
+  display: block;
+  text-align: center;
+  width: 100%;
 }
 
 .floor-images-container {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: flex-start;
-  min-width: 390px;
-  overflow-x: hidden;
+  flex-wrap: wrap;
+  width: 100%;
+  margin: 0 auto;
   gap: 20px;
+  box-sizing: border-box;
 }
 
 .floor-section {
@@ -411,25 +413,28 @@ export default {
 
 .floor-container {
   flex: 1;
-  background-color: white;
+  /*background-color: white;*/
   border-radius: 8px;
   width: 280px;   /* 통일 */
   height: 280px;  /* 통일 */
   display: flex;
   justify-content: center;
   align-items: center;
+
 }
 
 .image-container {
   position: relative;
   display: inline-block;
   border-radius: 16px;
+  background-color: white;
+  justify-content: center;
 }
 
 .image-box {
   width: 100%;
   max-width: 280px; /* 최대 너비 제한 */
-  min-width: 200px; /* 최소 너비 보장 */
+  min-width: 250px; /* 최소 너비 보장 */
   height: 100%; /* 고정 높이 */
   display: flex;
   justify-content: center;
@@ -563,6 +568,7 @@ export default {
   position: relative;
   justify-content: center;
   align-items: center;
+  display: flex;
 }
 .enlarged-image {
   /*

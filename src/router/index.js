@@ -163,7 +163,7 @@ const routes = [
 
             {
                 path: 'noticeedit/:noticeUUID',
-                name: 'noticeedit',
+                name: 'NoticeEdit',
                 component: () => import('../components/Admin/NoticeEdit.vue'),
                 props: true,
             },
