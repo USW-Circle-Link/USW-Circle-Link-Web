@@ -197,14 +197,19 @@ export default {
   position: relative; /* 상대 위치 설정 */
   display: block;
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
+  text-align: center;
+  width: 100%;
 }
 
 .container {
-  max-width: 890px;  /* 최대 890px까지만 */
-  min-width: 390px;
-  width: 100%;       /* 화면 크기에 맞게 */
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 h2 {
@@ -219,6 +224,7 @@ h2 {
   gap: 10px; /* 항목 간 간격 */
   margin-bottom: 150px;
   width: 100%;
+  justify-content: center;
   box-sizing: border-box;
 }
 
@@ -256,7 +262,8 @@ h2 {
   display: flex;
   gap: 10px; /* 버튼과 입력 필드 간 간격 */
   flex-direction: column;
-  align-items: flex-start; /* 왼쪽 정렬 */
+  align-items: center; /* 중앙 정렬 */
+  width: 100%;
 }
 
 .input-field {

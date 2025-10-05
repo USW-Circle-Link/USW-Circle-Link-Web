@@ -460,10 +460,11 @@ export default {
 
 .notice-write-container {
   width: 100%;
-  min-width: 390px;
+  min-width: 0;
+  max-width: 100%;
   margin: 0 auto;
   padding: 10px;
-  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 * {
@@ -488,11 +489,14 @@ export default {
 }
 
 .title-input {
-  width: 95%;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   padding: 10px;
   font-size: clamp(14px, 2.5vw, 16px);
   border: 1px solid #ddd;
   border-radius: 5px;
+  box-sizing: border-box;
 }
 
 .textarea-wrapper {
@@ -504,7 +508,7 @@ export default {
 .character-count {
   position: absolute;
   bottom: 10px; /* 아래 여백 */
-  right: 65px; /* 오른쪽 여백 */
+  right: 20px; /* 오른쪽 여백 */
   font-size: 12px;
   color: #888; /* 글자 색상 */
   background: rgba(255, 255, 255, 0.8); /* 배경색 추가 */
@@ -513,32 +517,48 @@ export default {
 }
 
 .content-input {
-  width: 95%;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   height: 382px;
   padding: 10px;
   font-size: clamp(14px, 2.5vw, 16px);
   border: 1px solid #ddd;
   border-radius: 5px;
   resize: none;
+  box-sizing: border-box;
 }
 
 
 .image-upload-container {
   display: flex;
+  flex-direction: row;   /* 가로 배치 */
+  flex-wrap: nowrap;     /* 줄바꿈 절대 안 함 */
   align-items: center;
   gap: 10px;
-  width: 95%;  /* 전체 너비 */
+
+  width: 100%;
+  max-width: 100%;
+  min-height: 120px;     /* 최소 높이만 */
   background-color: white;
   padding: 10px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
   border-radius: 5px;
-  overflow-x: auto; /* 이미지가 가로로 넘칠 때 스크롤 가능하도록 설정 */
-  flex-wrap: nowrap; /* 한 줄로 배치 */
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+
+  overflow-x: auto;      /* 👉 가로 스크롤 허용 */
+  overflow-y: hidden;    /* 세로 스크롤 차단 */
+  -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
 }
 
 .image-items {
   display: flex;
   gap: 10px;
+}
+
+.image-preview,
+.image-upload {
+  flex: 0 0 auto;        /* 👉 줄바꿈 방지, 크기 고정 */
 }
 
 .image-preview {
@@ -548,9 +568,7 @@ export default {
   overflow: hidden;
   width: 142px; /* 이미지 업로드 후에도 너비를 142px로 고정 */
   height: 95.88px; /* 이미지 업로드 후에도 높이를 95.88px로 고정 */
-  flex: 0 0 auto;
-  background-color: #ECECEC
-;
+  background-color: #ECECEC;
 }
 
 .uploaded-image {
@@ -629,11 +647,12 @@ export default {
 }
 
 .submit-button {
+  width: 100%;
+  max-width: 100%;
+  margin: 20px 0;
   display: block;
-  width: 102.5px;
   height: 45px;
   padding: 10px;
-  margin: 20px 0 20px auto;
   background-color: #FFB052;
   border: none;
   border-radius: 5px;
@@ -642,6 +661,7 @@ export default {
   color: white;
   cursor: pointer;
   text-align: center;
+  box-sizing: border-box;
 }
 
 /* .submit-button:hover {

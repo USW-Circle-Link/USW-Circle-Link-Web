@@ -395,10 +395,11 @@ export default {
 /* 전체 컨테이너 */
 .notice-write-container {
   width: 100%;
-  min-width: 390px;
+  min-width: 0;
+  max-width: 100%;
   margin: 0 auto;
   padding: 10px;
-  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* 초과 시 테두리 빨갛게 */
@@ -449,11 +450,15 @@ export default {
 /* 제목 입력창 */
 .title-input {
   margin-top: 10px;
-  width: 95%;
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   padding: 10px;
   font-size: clamp(14px, 2.5vw, 16px);
   border: 1px solid #ddd;
   border-radius: 5px;
+  box-sizing: border-box;
 }
 
 /* 내용 입력창 영역 */
@@ -468,7 +473,8 @@ export default {
 }
 
 .content-input {
-  width: 95%;
+  width: 100%;
+  max-width: 100%;
   height: 382px;
   padding: 10px;
   font-size: clamp(14px, 2.5vw, 16px);
@@ -476,6 +482,7 @@ export default {
   border-radius: 5px;
   resize: none;
   position: relative;
+  box-sizing: border-box;
 }
 
 .title-container {
@@ -571,16 +578,30 @@ textarea {
 /* 이미지 업로드 영역 */
 .image-upload-container {
   display: flex;
+  flex-direction: row;   /* 가로 배치 */
+  flex-wrap: nowrap;     /* 줄바꿈 절대 안 함 */
   align-items: center;
   gap: 10px;
-  width: 95%;
-  height: 153.96px;
+
+  width: 100%;
+  max-width: 100%;
+  min-height: 120px;     /* 최소 높이만 */
   background-color: white;
   padding: 10px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
   border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
   margin-top: 25px;
+
+  overflow-x: auto;      /* 👉 가로 스크롤 허용 */
+  overflow-y: hidden;    /* 세로 스크롤 차단 */
+  -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
 }
+.image-preview,
+.image-upload {
+  flex: 0 0 auto;        /* 👉 줄바꿈 방지, 크기 고정 */
+}
+
 .image-preview {
   position: relative;
   border: 1px solid #ddd;
@@ -588,7 +609,6 @@ textarea {
   overflow: hidden;
   width: 142px;
   height: 95.88px;
-  flex: 0 0 auto;
   background-color: #ECECEC;
   margin-left: 7px;
 }
@@ -668,11 +688,12 @@ textarea {
 
 /* 완료 버튼 */
 .submit-button {
+  width: 100%;
+  max-width: 100%;
+  margin: 20px 0;
   display: block;
-  width: 102.5px;
   height: 45px;
   padding: 10px;
-  margin: 20px 0 20px auto;
   background-color: #FFB052;
   border: none;
   border-radius: 5px;
@@ -681,6 +702,7 @@ textarea {
   color: white;
   cursor: pointer;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .popup {

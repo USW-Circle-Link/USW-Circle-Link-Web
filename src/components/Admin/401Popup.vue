@@ -41,12 +41,15 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
+  min-width: 380px;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .session-popup-container {
@@ -54,8 +57,11 @@ export default {
   padding: 24px;
   border-radius: 8px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  width: 360px;
-  height: 152px;
+  width: 100%;
+  max-width: 360px;
+  min-width: 300px;
+  min-height: 152px;
+  box-sizing: border-box;
 }
 
 .session-popup-title {

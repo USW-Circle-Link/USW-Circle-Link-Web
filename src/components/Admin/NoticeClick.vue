@@ -256,7 +256,7 @@ export default {
       }
     },
     goToNotice(noticeUUID) {
-      this.$router.push({ name: 'NoticeClick', params: { noticeUUID } });
+      this.$router.push({ name: 'AdminNoticeClick', params: { noticeUUID } });
     },
     formattedDate(dateString) {
       return new Date(dateString).toLocaleDateString('ko-KR');

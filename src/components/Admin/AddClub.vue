@@ -177,8 +177,10 @@ export default {
   font-weight: bold;
   margin-bottom: 10px;
   position: relative; /* 상대 위치 설정 */
-  display: inline-block;
+  display: block;
   z-index: 1; /* 텍스트가 배경색 위에 오도록 설정 */
+  text-align: center;
+  width: 100%;
 }
 
 .title::after {
@@ -194,13 +196,16 @@ export default {
   transform: skew(-12deg); /* 기울기 효과 추가 */
 }
 .form-container {
-  flex: 1;
+  width: 100%;
+  margin: 0 auto;
   padding: 20px;
   background-color: #ffffff;
   border-radius: 8px;
   height: 440px;
-  min-width: 390px;
-  margin-left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 h2 {
@@ -211,42 +216,22 @@ h2 {
 
 .form-group {
   margin-bottom: 15px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 label {
-  width: 18%;
+  width: 45%;
   display: block;
   margin-bottom: 5px;
   color: #555;
-  transition: width 0.3s ease;
-}
-
-@media (max-width: 768px) {
-  label {
-    width: 20%;
-  }
-}
-
-@media (max-width: 600px) {
-  label {
-    width: 25%;
-  }
-}
-
-@media (max-width: 480px) {
-  label {
-    width: 30%;
-  }
-}
-
-@media (max-width: 390px) {
-  label {
-    width: 18%;
-  }
 }
 
 input, select {
   width: 100%;
+  max-width: 400px;
   padding: 8px;
   box-sizing: border-box;
   border: 1px solid #ccc;
@@ -254,8 +239,7 @@ input, select {
 }
 
 .popupbtn {
-  margin-left: 91%;
-  margin-top: 60px;
+  margin: 60px auto 0;
   width: 60px;
   padding: 10px 20px;
   border: none;
@@ -263,6 +247,7 @@ input, select {
   cursor: pointer;
   background-color: #FFC700;
   color: #ffffff;
+  display: block;
 }
 
 .popupbtn:hover {

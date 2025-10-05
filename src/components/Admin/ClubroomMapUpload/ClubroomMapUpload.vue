@@ -373,17 +373,20 @@ export default {
   font-weight: 600;
   margin-bottom: 30px;
   position: relative; /* 상대 위치 설정 */
-  display: inline-block;
+  display: block;
+  text-align: center;
+  width: 100%;
 }
 
 .floor-images-container {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: flex-start;
-  min-width: 390px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin: 0 auto;
   gap: 20px;
+  box-sizing: border-box;
 }
 
 .floor-section {

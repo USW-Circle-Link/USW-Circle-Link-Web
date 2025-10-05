@@ -212,7 +212,7 @@ export default {
 
 .container {
   display: flex;
-  min-width: 390px;
+  /*min-width: 390px;*/
   overflow-x: hidden;
 }
 
@@ -223,7 +223,7 @@ export default {
 .notices {
   width: 100%;
   max-width: 820px;
-  min-width: 390px;
+  /*min-width: 390px;*/
   height: auto;
   border-radius: 10px;
   background-color: #fff;
@@ -234,8 +234,8 @@ export default {
 
 table {
   width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto; /* fixed 대신 auto */
+  word-break: break-word;
 }
 
 .title-column {
