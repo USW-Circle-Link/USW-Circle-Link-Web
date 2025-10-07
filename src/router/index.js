@@ -1,5 +1,5 @@
 import store from '@/store/store';
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import AdminNoticeClick from '../components/Admin/NoticeClick.vue';
 import ProfileEdit from '../components/ClubLeader/ClubInfoRewrite/ProfileEdit.vue';
 import ClubPopupWindow from '../components/Admin/ClubInfoPopup.vue';
@@ -198,7 +198,7 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes,
 });
 
