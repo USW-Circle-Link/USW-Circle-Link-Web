@@ -385,7 +385,7 @@ export default {
 
 .image-container {
   width: 100%;
-  max-width: 300px;
+  max-width: 500px; /* 이미지 최대 너비 */
 }
 
 .edit-button-wrapper {
@@ -490,6 +490,9 @@ tr.current-notice td {
   padding: 5px 10px;
   border-radius: 4px;
 }
+.pagination-number:hover {
+  background-color: #f0f0f0;
+}
 .pagination-number.active {
   font-weight: bold;
   color: #FFB052;
@@ -510,17 +513,28 @@ tr.current-notice td {
   margin: 0 5px;
 }
 
-/* --- 반응형: 768px 이하에서는 카드만 보이도록 --- */
+/* --- 반응형: 768px 이하 --- */
 @media (max-width: 768px) {
-  /* 테이블 숨기기 */
+  .notice-details {
+    padding: 20px;
+    min-height: auto;
+  }
+
+  .notice-title {
+    font-size: 20px;
+  }
+  .meta-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  /* 목록: 테이블 숨기고 카드 보이기 */
   table {
     display: none;
   }
-
-  /* 카드 뷰 보이기 */
   .notice-cards {
     display: block;
-    width: 100%;
   }
 
   .notice-card {
@@ -551,207 +565,9 @@ tr.current-notice td {
   .notice-card.current-notice .card-meta {
     color: #D97706;
   }
-
-  /* 페이지네이션 버튼 크기 축소 */
+  
   .pagination-number {
     padding: 4px 8px;
   }
 }
-
-.author-name {
- 
- font-family: Pretendard; /* 폰트 */
- font-size: 14px; /* 글씨 크기 */
- font-weight: 400; /* 글씨 굵기 */
- line-height: 14px; /* 줄 간격 */
- letter-spacing: -0.025em; /* 글자 간격 조정 */
- text-align: left; /* 왼쪽 정렬 */
- text-underline-position: from-font; /* 밑줄 위치 */
- text-decoration-skip-ink: none; /* 밑줄 효과 설정 */
- color:  #000000; /* 텍스트 색상 (추가) */
- padding: 2px 4px; /* 배경색과 텍스트 사이 여백 추가 (선택사항) */
-}
-
-.notice-list {
-  width: 100%x;
-  height: auto;
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  overflow-x: hidden;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed; /* 테이블 레이아웃을 고정으로 설정 */
-}
-
-/* 컬럼 너비 설정 */
-.title-col {
-  width: 60%; /* 제목 열의 너비를 60%로 설정 */
-  text-align: center; /* 제목 열 중앙 정렬 */
-}
-
-.author-col {
-  width: 20%; /* 작성자 열의 너비를 20%로 설정 */
-}
-
-.date-col {
-  width: 20%; /* 작성일 열의 너비를 20%로 설정 */
-}
-
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  vertical-align: top; /* 상단 정렬 */
-}
-
-/* th 태그 전체 중앙 정렬 */
-th {
-  text-align: center;
-}
-
-td.title-col {
-  overflow: hidden; /* 내용이 넘치면 숨김 */
-  text-align: center; /* 제목 열 내용 중앙 정렬 */
-}
-
-.title-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  text-align: center; /* 버튼 텍스트 중앙 정렬 */
-  width: 100%;
-  white-space: normal; /* 자동 줄바꿈 허용 */
-  word-break: break-word; /* 긴 단어도 줄바꿈 */
-  line-height: 1.4; /* 줄 간격 설정 */
-  padding: 0;
-}
-
-td.author-col, td.date-col {
-  white-space: nowrap; /* 작성자와 날짜는 줄바꿈 방지 */
-  overflow: hidden;
-  text-overflow: ellipsis; /* 내용이 넘치면 ... 표시 */
-  text-align: center; /* 중앙 정렬 추가 */
-}
-
-.popup {
-  position: fixed; /* 고정 위치 */
-  top: 50%;         /* 수직 중앙 */
-  left: 50%;        /* 수평 중앙 */
-  transform: translate(-50%, -50%); /* 정확한 중앙 배치 */
-  
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 500px;
-  height: 180px;
-  z-index: 1001; /* overlay보다 높게 */
-}
-
-.popup h2 {
-  margin-top: 0;
-  text-align: left;
-  font-size: 16px; /* 👈 여기서 줄이세요 (기존 24px → 18px 추천) */
-  font-weight: 500; /* 굵기도 조절 가능 */
-}
-
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 10px 0;
-}
-.confirm-message {
-  text-align: left;
-}
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 40px;
-}
-/* .popup-buttons button {
-  width: 80px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 10px;
-  background: #ffb052;
-  color: white;
-} */
-
-
-/* 팝업 전체 화면 덮는 반투명 배경 */
-.popup-overlay {
-  position: fixed;
-  top: 0; 
-  left: 0;
-  width: 100%; 
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-}
-
-/* 팝업 박스: 452x182 고정 크기, 중앙 정렬 */
-.write-popup {
-  position: absolute;
-  width: 452px;
-  height: 182px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  box-sizing: border-box;
-  padding: 20px; /* 내부 여백 */
-  
-  display: flex;
-  flex-direction: column; /* 위->아래로 배치 */
-}
-
-/* 제목: 왼쪽 정렬, 폰트 크기/두께 조정 */
-.popup-title {
-  margin: 0;
-  font-size: 16px; /* 필요 시 조정 */
-  font-weight: 700;
-  text-align: left;
-  color: #333;
-}
-
-/* 구분선 */
-.popup-divider {
-  width: 100%;
-  height: 1px;
-  background-color: #ECECEC; /* 연한 회색 */
-  margin: 8px 0;
-}
-
-/* 메시지: 왼쪽 정렬 */
-.popup-message {
-  margin: 0;
-  margin-bottom: 20px;
-  font-size: 14px;
-  text-align: left;
-  color: #666;
-  line-height: 1.4;
-  /* flex: 1;  // 필요한 경우 버튼을 하단으로 밀고 싶으면 사용 */
-}
-
-/* 버튼 컨테이너: 오른쪽 정렬 */
-.popup-buttons {
-  display: flex;
-  justify-content: flex-end;
-}
-
-
-
 </style> 
