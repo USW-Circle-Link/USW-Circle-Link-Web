@@ -105,11 +105,13 @@ export default {
       });
     },
     openNewWindow1() {
-      const path = '/ClubProfile'; // 이동할 경로
-      const url = `${path}`; // 상대 경로만 지정
+      // 1. Vue Router를 이용해 'ClubProfile' 라우트의 전체 URL을 생성합니다.
+      const routeData = this.$router.resolve({ name: 'ClubProfile' });
+
+       // 2. 생성된 URL(routeData.href)을 사용해 새 창을 엽니다.
       const windowName = '_blank';
       const windowFeatures = 'width=652,height=790,resizable=no,scrollbars=no';
-      window.open(url, windowName, windowFeatures);
+      window.open(routeData.href, windowName, windowFeatures);
     },
     async logout() {
       try {
