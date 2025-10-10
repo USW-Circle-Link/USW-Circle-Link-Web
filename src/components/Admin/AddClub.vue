@@ -240,7 +240,7 @@ input, select {
 
 .popupbtn {
   margin: 60px auto 0;
-  width: 60px;
+  width: 50%;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
@@ -286,6 +286,16 @@ input {
   border-radius: 4px;
 }
 
+/* placeholder 텍스트 반응형 폰트 크기 및 줄바꿈 (20% 축소) */
+input::placeholder,
+select::placeholder {
+  font-size: clamp(8px, 2vw, 11px); /* 10px→8px, 2.5vw→2vw, 14px→11px (20% 축소) */
+  white-space: pre-wrap;                 /* pre-wrap으로 변경하여 여러 줄 표시 */
+  word-break: keep-all;                  /* 한국어 단어 단위 유지 */
+  overflow-wrap: anywhere;               /* 긴 토큰도 강제 줄바꿈 */
+  line-height: 1.2;                     /* 줄 간격 조정 */
+}
+
 .buttons {
   display: flex;
   justify-content: space-between;
@@ -308,6 +318,19 @@ input {
 .error {
   color: red;
   font-size: 12px;
+  display: block;
+  max-width: 100%;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+  text-align: left;
+  margin-top: 4px;
+  box-sizing: border-box;
+  
+  /* 높이 보장을 위한 추가 속성 */
+  min-height: 16px;        /* 최소 높이 보장 */
+  padding-bottom: 4px;     /* 하단 여백 추가 */
 }
 </style>
 ```

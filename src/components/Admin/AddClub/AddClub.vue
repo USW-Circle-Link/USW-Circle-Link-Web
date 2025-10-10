@@ -6,7 +6,7 @@
     <div class="form-group-col">
       <div class="form-group-row">
         <label for="id">아이디</label>
-        <input class="from-input" type="text" id="id" v-model="id" placeholder="아이디 (5~20자 이내 영어, 숫자)" @input="validateId" />
+        <input class="from-input" type="text" id="id" v-model="id" :placeholder="idPlaceholder" @input="validateId" />
         <button
             class="DuplicateCheckbtn"
             @click="idDuplicateCheck"
@@ -21,7 +21,7 @@
     <div class="form-group-col">
       <div class="form-group-row">
         <label for="password">비밀번호</label>
-        <input class="from-input" type="password" id="password" v-model="password" placeholder="비밀번호 (영어, 숫자, 특수문자 포함 8~20자)" @input="validatePassword" />
+        <input class="from-input" type="password" id="password" v-model="password" :placeholder="passwordPlaceholder" @input="validatePassword" />
       </div>
       <span v-if="passwordError" class="warning">{{ passwordError }}</span>
     </div>
@@ -34,7 +34,7 @@
             type="password"
             id="confirmPassword"
             v-model="confirmPassword"
-            placeholder="비밀번호 (영어, 숫자, 특수문자 포함 8~20자)"
+            :placeholder="confirmPasswordPlaceholder"
             @input="validateConfirmPassword"
             @focus="handleConfirmPasswordFocus"
         />
@@ -45,7 +45,7 @@
     <div class="form-group-col">
       <div class="form-group-row">
         <label for="clubName">동아리 이름</label>
-        <input class="from-input" type="text" id="clubName" v-model="clubName" placeholder="동아리 이름 (10자 이내)" @input="validateClubName" />
+        <input class="from-input" type="text" id="clubName" v-model="clubName" :placeholder="clubNamePlaceholder" @input="validateClubName" />
         <button
             class="DuplicateCheckbtn"
             @click="clubNameDuplicateCheck"
@@ -252,10 +252,32 @@ export default {
       isActiveId : true,
       isActiveClubName : true,
       isConfirmPasswordTouched: false, // 비밀번호 확인 필드 터치 여부
-      show401Popup: false  // 401 팝업
+      show401Popup: false,  // 401 팝업
+      windowWidth: window.innerWidth  // 화면 너비 추적
     };
   },
   computed: {
+    // 반응형 placeholder 텍스트
+    idPlaceholder() {
+      return this.windowWidth >= 600 
+        ? "아이디 (5~20자 이내 영어, 숫자)" 
+        : "(5~20자 이내)";
+    },
+    passwordPlaceholder() {
+      return this.windowWidth >= 600 
+        ? "비밀번호 (영어, 숫자, 특수문자 포함 8~20자)" 
+        : "(특수문자 포함 8~20자)";
+    },
+    confirmPasswordPlaceholder() {
+      return this.windowWidth >= 600 
+        ? "비밀번호 (영어, 숫자, 특수문자 포함 8~20자)" 
+        : "(특수문자 포함 8~20자)";
+    },
+    clubNamePlaceholder() {
+      return this.windowWidth >= 600 
+        ? "동아리 이름 (10자 이내)" 
+        : "(10자 이내)";
+    },
     isIdValid() {
       const idPattern = /^[a-zA-Z0-9]{5,20}$/;
       return this.id && idPattern.test(this.id);
@@ -310,7 +332,19 @@ export default {
       return allFieldsFilled && allValidationsPass && duplicateChecksPass;
     }
   },
+  mounted() {
+    // 화면 크기 변경 이벤트 리스너 추가
+    window.addEventListener('resize', this.handleResize);
+  },
+  beforeUnmount() {
+    // 이벤트 리스너 제거
+    window.removeEventListener('resize', this.handleResize);
+  },
   methods: {
+    // 화면 크기 변경 핸들러
+    handleResize() {
+      this.windowWidth = window.innerWidth;
+    },
     // 401 에러 처리를 위한 공통 함수
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
@@ -629,6 +663,7 @@ export default {
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
+  overflow-wrap: anywhere;       /* 자식 요소들이 넘치지 않게 */
 }
 
 h2 {
@@ -657,8 +692,9 @@ h2 {
 
 .form-group-col span{
   width: 100%;
-  margin-left: 40%;
+  margin-left: 0;  /* 40%에서 0으로 변경 */
   padding: 0;
+  box-sizing: border-box;
 }
 
 .form-group-row {
@@ -692,7 +728,7 @@ h2 {
 
 .club-room-btn{
   display: flex;
-  width: 20%;
+  width: 50%;
   right: 40px;
   border: 0.5px solid #C5C5C5;
   padding: 15px 15px 15px 20px;
@@ -762,8 +798,9 @@ h2 {
 
 .from-input::placeholder{
   color: #9D9D9D;
-  font-size: 14px;
+  font-size: 8px;  /* 14px → 8px (40% 축소) */
 }
+
 
 label {
   width: 45%;
@@ -783,13 +820,20 @@ label {
   font-weight: 400;
   color: #FF4B4B;
   margin-top: 0;
-  font-size: 13px;
-  line-height: 16px;
+  font-size: clamp(10px, 2.5vw, 13px);  /* 반응형 폰트 크기 */
+  line-height: 1.4;
   letter-spacing: -0.025em;
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
-
+  
+  /* 줄바꿈 속성 추가 */
+  display: block;
+  max-width: 100%;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
 }
 
 .popupbtn {
@@ -1184,6 +1228,71 @@ label {
   .cancel-button {
     font-size: 14px;
     padding: 6px 14px;
+  }
+}
+
+/* 긴 한국어/영문 혼합 문구도 안전하게 줄바꿈 */
+.popup p {
+  display: block;                /* 줄바꿈 허용을 위해 블록화 */
+  max-width: min(100%, 400px);   /* 입력창과 동일 폭에 맞춤 */
+  white-space: normal;           /* 줄바꿈 허용 */
+  word-break: keep-all;          /* 한국어 단어 단위 유지 */
+  overflow-wrap: anywhere;       /* 영문/특수문자 긴 토큰도 강제 줄바꿈 */
+  line-height: 1.4;
+  text-align: left;              /* 가독성 */
+}
+
+/* 에러 문구 폭·정렬 고정 (form-container 폭에 맞춤) */
+.form-group .error {
+  max-width: 100%;               /* form-container 폭에 맞춤 */
+  width: 100%;
+  white-space: normal;           /* 줄바꿈 허용 */
+  word-break: keep-all;          /* 한국어 단어 단위 유지 */
+  overflow-wrap: anywhere;       /* 영문/특수문자 긴 토큰도 강제 줄바꿈 */
+  text-align: left;
+  margin-top: 4px;
+  color: red;
+  font-size: clamp(10px, 2.5vw, 12px);
+  box-sizing: border-box;        /* 패딩/마진 포함하여 계산 */
+}
+
+label {
+  max-width: 400px;   /* 라벨도 입력창 폭에 맞추면 레이아웃 안정 */
+  width: 100%;
+  text-align: left;
+}
+
+/* placeholder 텍스트 반응형 폰트 크기 (40% 축소) */
+input::placeholder,
+select::placeholder {
+  font-size: clamp(6px, 1.5vw, 8px); /* 10px→6px, 2.5vw→1.5vw, 14px→8px (40% 축소) */
+}
+
+/* 에러 메시지 반응형 폰트 크기 */
+.form-group .error {
+  font-size: clamp(10px, 2.5vw, 12px); /* 10px~12px 사이에서 화면 너비에 따라 조정 */
+}
+
+/* 반응형 미디어 쿼리로 추가 조정 (40% 축소) */
+@media (max-width: 480px) {
+  input::placeholder,
+  select::placeholder {
+    font-size: 6px;  /* 10px → 6px (40% 축소) */
+  }
+  
+  .form-group .error {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  input::placeholder,
+  select::placeholder {
+    font-size: 5px;  /* 9px → 5px (약 44% 축소) */
+  }
+  
+  .form-group .error {
+    font-size: 9px;
   }
 }
 
