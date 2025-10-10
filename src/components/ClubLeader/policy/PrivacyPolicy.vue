@@ -311,18 +311,21 @@ export default {
   }
 }
 </script>
-
 <style scoped>
+/* --- 기본 스타일 (중복 제거 및 정리) --- */
 * {
   box-sizing: border-box;
 }
 
 .container {
   display: flex;
+  justify-content: center;
 }
 
 .contents {
   flex: 1;
+  max-width: 820px;
+  width: 100%;
   padding-bottom: 40px;
 }
 
@@ -334,7 +337,7 @@ export default {
 }
 
 .notices {
-  width: 820px;
+  width: 100%;
   height: auto;
   border-radius: 10px;
   background-color: #fff;
@@ -342,28 +345,14 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 새로 추가된 스타일 */
-.terms-section {
-  margin: 20px 0;
-}
-
-.terms-section h3 {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.terms-section p {
-  margin: 10px 0;
-  line-height: 1.6;
-}
-
-.indent {
-  padding-left: 20px;
-}
-
-.double-indent {
-  padding-left: 40px;
+/* 수정된 부분 ①: table-layout: fixed; 추가 
+  테이블이 부모(.notices)의 너비를 엄격하게 따르도록 만듭니다.
+  내용이 길어져도 테이블 자체가 늘어나지 않습니다.
+*/
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; 
 }
 
 .centered-title {
@@ -379,52 +368,53 @@ export default {
   margin: 10px auto;
   border: none;
   border-top: 1px solid #C6C6C6;
-  margin-top: 0px;
 }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-
-
 
 .section {
   margin-bottom: 2.5rem;
-  scroll-margin-top: 2rem;
+  scroll-margin-top: 100px;
 }
 
-h2 {
-  font-size: 1.5rem;
+.section h2 {
+  font-size: 1.4rem;
   font-weight: 600;
   margin-bottom: 1rem;
 }
 
-h3 {
-  font-size: 1.2rem;
+.section h3 {
+  font-size: 1.1rem;
   font-weight: 600;
-  margin: 1rem 0;
+  margin: 1.5rem 0 1rem 0;
+}
+
+/* 수정된 부분 ②: word-break: break-all; 추가
+  어떤 경우에도 텍스트가 부모 요소를 벗어나지 않도록
+  단어 중간이라도 강제로 줄바꿈을 실행합니다.
+*/
+p, li, a, th, td {
+  line-height: 1.7;
+  overflow-wrap: break-word;
+  word-break: break-all;
+}
+
+.content {
+  margin: 10px 0;
 }
 
 .indent {
-  text-indent: 1rem;
   margin-bottom: 1rem;
-  font-weight: 400;
 }
 
 .bold {
   font-weight: 700;
 }
 
-
 .toc {
-  padding-left: 2rem;
+  padding-left: 20px;
 }
 
 .toc li {
   margin-bottom: 0.5rem;
-  font-weight: 400;
 }
 
 .toc a {
@@ -438,47 +428,28 @@ h3 {
   text-decoration: underline;
 }
 
-.bullet-list {
-  list-style-type: none;
-  padding-left: 1.5rem;
+.bullet-list, .numbered-list {
+  padding-left: 20px;
 }
 
-.bullet-list li {
+.bullet-list li, .numbered-list li {
   margin-bottom: 0.5rem;
-  font-weight: 400;
 }
 
-.bullet-list li::before {
-  content: "-";
-  position: absolute;
-  left: -1rem;
-}
-
-.info-list {
-  list-style-type: none;
-  padding-left: 1rem;
-}
-
-.info-list li {
-  margin-bottom: 0.5rem;
-  font-weight: 400;
-}
-
-.sub-section {
-  margin: 1.5rem 0;
-  padding-left: 1rem;
+.list-title {
+  font-weight: bold;
+  margin: 10px 0 5px 0;
 }
 
 .indented-section {
-  margin-left: 3rem;
+  margin-left: 20px;
   margin-bottom: 1.5rem;
 }
 
 .bordered-box {
   border: 1px solid #ddd;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   margin-bottom: 1rem;
-  background-color: #fff;
   border-radius: 4px;
 }
 
@@ -490,113 +461,33 @@ h3 {
 
 .info-list li {
   margin-bottom: 0.8rem;
-  line-height: 1.6;
 }
 
 .info-label {
-  font-weight: 500;
-  margin-left: 20px;
+  font-weight: 600;
   margin-right: 0.5rem;
 }
 
-h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  color: #333;
-}
-
 .warning-text {
-  color: #333;
+  color: #d9534f;
   font-weight: 500;
-}
-
-/* 기존 .section 스타일 수정 */
-.section {
-  margin-bottom: 3rem;
-  padding: 0 1rem;
-}
-
-/* 기존 .indent 스타일 수정 */
-.indent {
-  text-indent: 1rem;
-  margin-bottom: 1.2rem;
-  line-height: 1.6;
-}
-
-/* 제목 스타일 수정 */
-h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: #333;
-}
-
-/* 추가 반응형 스타일 */
-@media (max-width: 768px) {
-  .indented-section {
-    margin-left: 1.5rem;
-  }
-
-  .bordered-box {
-    padding: 1rem;
-  }
-}
-
-
-.privacy-section {
-  padding: 20px;
-  line-height: 1.6;
-}
-
-.section-title {
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.subsection {
-  margin-bottom: 30px;
-  padding-left: 20px;
-}
-
-.subsection-title {
-  font-size: 1rem;
-  font-weight: bold;
-  margin: 15px 0;
-}
-
-.content {
-  margin: 10px 0;
-  text-align: justify;
-  padding-left: 20px;
-}
-
-.bold {
-  font-weight: bold;
-}
-
-.numbered-list {
-  list-style-type: decimal;
-  padding-left: 20px;
-}
-
-.list-title {
-  font-weight: bold;
-  margin: 10px 0 5px 0;
 }
 
 .info-table {
   width: 100%;
   border-collapse: collapse;
   margin: 15px 0;
+  font-size: 14px;
+  display: block;
+  overflow-x: auto;
 }
 
 .info-table th,
 .info-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 8px 10px;
   text-align: center;
+  white-space: nowrap;
 }
 
 .info-table th {
@@ -604,30 +495,34 @@ h2 {
   font-weight: bold;
 }
 
-.info-table th:nth-child(1),
-.info-table td:nth-child(1) {
-  width: 20%; /* Reduce width of '법적 근거' column */
-}
+/* --- 반응형 디자인 --- */
+@media (max-width: 840px) {
+  .contents {
+    padding: 0 15px 40px 15px;
+  }
 
-.info-table th:nth-child(2),
-.info-table td:nth-child(2) {
-  width: 20%; /* Increase width of '수집하는 행태정보 항목' column */
-}
+  .notices {
+    padding: 10px 15px;
+  }
 
-.info-table th:nth-child(3),
-.info-table td:nth-child(3) {
-  width: 24%; /* Increase width of '수집하는 행태정보 항목' column */
-}
+  .title, .centered-title, .section h2 {
+    font-size: 1.2rem;
+  }
 
-/* Adjust the font size */
-.info-table th,
-.info-table td {
-  font-size: 0.83rem; /* Make the font size smaller */
-}
+  .section h3 {
+    font-size: 1rem;
+  }
 
+  p, li, a, th, td {
+    font-size: 14px;
+  }
 
-.contact-info {
-  margin-top: 15px;
-  padding-left: 20px;
+  .indented-section {
+    margin-left: 0;
+  }
+
+  .bordered-box {
+    padding: 1rem;
+  }
 }
 </style>
