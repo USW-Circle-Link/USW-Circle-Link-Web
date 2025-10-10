@@ -266,20 +266,18 @@ export default {
 * { box-sizing: border-box; }
 
 /* 1) 레이아웃: 고정 min-width 제거 */
-.container { display: flex; width: 100%; overflow-x: hidden; }
-.contents  { flex: 1; padding-bottom: 40px; }
+.container { display: flex; width: 100%; }            /* 가로 숨김 제거 */
+.contents  { flex: 1; min-width: 0; padding: 0 12px 40px; } /* 축소 허용 + 좌우 여백 */
 .title     { font-size: clamp(16px,3vw,20px); font-weight: 600; margin-bottom: 20px; color:#333; }
 
 /* 2) 카드 */
 .notices {
-  width: 100%;
-  max-width: 820px;
+  inline-size: min(100%, 820px);   /* width:100% + max-width 대체(안전) */
   margin: 0 auto;
   background: #fff;
   border-radius: 10px;
-  padding: 10px 30px;
+  padding: 10px 16px;              /* 모바일에서 여유 */
   box-shadow: 0 2px 4px rgba(0,0,0,.1);
-  /* 3) 모든 자식이 줄어들 수 있게 */
   overflow-wrap: anywhere;
 }
 .notices * { min-width: 0; max-width: 100%; }
@@ -321,20 +319,25 @@ export default {
 .numbered-list { list-style-type: decimal; padding-left: 1.5rem; }
 
 /* 9) 표: 래퍼에만 가로 스크롤 허용 */
-.table-responsive { display:block; width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; margin: 1rem 0; }
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 1rem 0;
+}
 .info-table { border-collapse: collapse; table-layout: fixed; min-width: 520px; width: 100%; }
 .info-table th, .info-table td { border:1px solid #ddd; padding:8px; text-align:center; font-size:.83rem; word-break: break-word; }
 .info-table th { background:#f5f5f5; font-weight:700; }
 
 /* 10) 좁은 화면 보정 */
 @media (max-width: 630px) {
-  .notices { padding: 12px 16px; }
+  .notices { padding: 12px; }
   .section { padding: 0 .75rem; }
   .indented-section { margin-left: .75rem; }
 }
 @media (max-width: 390px) {
-  .container { overflow-x: hidden; }
-  .notices { padding: 10px 12px; }
+  .notices { padding: 10px; }
   .indented-section { margin-left: .5rem; }
 }
 </style>
