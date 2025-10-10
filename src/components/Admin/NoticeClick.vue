@@ -31,9 +31,12 @@
       </div>
       
       <!-- 👇 이미지 아래 오른쪽 끝 -->
-      <div class="edit-button-wrapper">
+      <div class="button-wrapper">
         <button class="edit-button" @click="editNotice(notice.noticeUUID)">
             수정 
+        </button>
+        <button class="delete-button" @click="deleteNotice(notice.noticeUUID)">
+            삭제 
         </button>
       </div>
     </div>
@@ -267,6 +270,25 @@ export default {
         params: { noticeUUID }
       });
     },
+    async deleteNotice(noticeUUID) {
+      if (confirm('정말로 이 공지사항을 삭제하시겠습니까?')) {
+        try {
+          const accessToken = store.state.accessToken;
+          await axios.delete(`${store.state.apiBaseUrl}/notices/${noticeUUID}`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          
+          alert('공지사항이 삭제되었습니다.');
+          this.$router.push({ name: 'Notice' }); // 공지사항 목록으로 이동
+        } catch (error) {
+          if (this.handle401Error(error)) {
+            return;
+          }
+          console.error('공지사항 삭제 실패:', error);
+          alert('공지사항 삭제에 실패했습니다.');
+        }
+      }
+    },
   },
   watch: {
     $route(to) {
@@ -388,13 +410,15 @@ export default {
   max-width: 500px; /* 이미지 최대 너비 */
 }
 
-.edit-button-wrapper {
+.button-wrapper {
   display: flex;
   justify-content: flex-end; /* 오른쪽 정렬 */
+  gap: 10px;                 /* 버튼 간격 */
   margin-top: 20px;          /* 위쪽 여백 */
 }
 
-.edit-button {
+.edit-button,
+.delete-button {
   background: none;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -407,8 +431,15 @@ export default {
   transition: background-color 0.2s;
 }
 
-.edit-button:hover {
+.edit-button:hover,
+.delete-button:hover {
   background-color: #f5f5f5;
+}
+
+.delete-button:hover {
+  background-color: #ffebee; /* 삭제 버튼은 연한 빨간색 */
+  border-color: #f44336;
+  color: #d32f2f;
 }
 
 .notice-image {
