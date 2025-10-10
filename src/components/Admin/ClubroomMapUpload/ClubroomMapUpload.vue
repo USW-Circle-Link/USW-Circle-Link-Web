@@ -14,9 +14,18 @@
                 :src="floorData.B1.imageSrc"
                 alt="Floor Image"
                 class="floor-image" />
-            <div v-if="floorData.B1.showingIcon" class="icons-container">
-              …
-            </div>
+              <div v-if="floorData.B1.showingIcon" class="icons-container">
+                <img
+                  src="../../../assets/zoom.svg"
+                  class="icon zoom-icon"
+                  @click="enlargeImage(floorData.B1.imageSrc)"
+                />
+                <img
+                  src="../../../assets/remove.svg"
+                  class="icon remove-icon"
+                  @click="markImageForDeletion('B1')"
+                />
+              </div>
           </div>
           <h3>지하 1층</h3>
           <div class="upload-placeholder">
@@ -126,14 +135,16 @@
   <button @click="saveImages" class="save-button">저장하기</button>
 
     <!-- 확대된 이미지 모달 -->
-    <div v-if="enlargedImage" class="image-modal">
-      <img
-        src="../../../assets/remove.svg"
-        class="remove-icon-modal"
-        @click="closeModal"
-        alt="Close Modal"
-      />
-      <img :src="enlargedImage" alt="Enlarged Image" class="enlarged-image" />
+    <div v-if="enlargedImage" class="image-modal" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <img
+          src="../../../assets/remove.svg"
+          class="remove-icon-modal"
+          @click="closeModal"
+          alt="Close Modal"
+        />
+        <img :src="enlargedImage" alt="Enlarged Image" class="enlarged-image" />
+      </div>
     </div>
     
 
@@ -559,7 +570,7 @@ export default {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  /*cursor: pointer;*/
+  cursor: pointer;
 }
 
 .image-wrapper {
@@ -570,24 +581,27 @@ export default {
   align-items: center;
   display: flex;
 }
+.modal-content {
+  position: relative;
+  cursor: default;
+}
+
 .enlarged-image {
-  /*
-  max-width: 55%;
-  max-height: 55%;*/
-  max-width: 700px;
-  max-height: 400px;
+  max-width: 70vw;
+  max-height: 70vh;
   display: block;
   object-fit: contain;
-  
+  border-radius: 8px;
 }
 
 .remove-icon-modal {
   position: absolute;
   width: 30px; 
   height: 30px;
-  top: 210px;
-  right: 660px;
+  top: 10px;
+  right: 10px;
   cursor: pointer;
+  z-index: 1001;
 }
 h2{
   align-self: start;
