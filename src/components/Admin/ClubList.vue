@@ -197,8 +197,9 @@ export default {
       localStorage.setItem('accessToken', store.state.accessToken);
       const width = 715;
       const height = 820;
+      const baseUrl = window.location.origin + window.location.pathname;
       window.open(
-          `/club-popup?clubId=${club.clubUUID}`,
+          `${baseUrl}#/club-popup?clubId=${club.clubUUID}`,
           "ClubInfo",
           `width=${width},height=${height},scrollbars=yes,resizable=yes`
       );
