@@ -4,4 +4,8 @@ module.exports = defineConfig({
   lintOnSave: false,
   publicPath: '/',
   outputDir: 'docs',
+   chainWebpack: config => {
+    config.plugins.delete('prefetch');
+    config.plugins.delete('preload');
+  }
 })
