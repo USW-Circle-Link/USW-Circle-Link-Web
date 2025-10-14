@@ -199,7 +199,7 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory(/admin.donggurami.net/),
+    history: createWebHistory(),
     routes,
 });
 
