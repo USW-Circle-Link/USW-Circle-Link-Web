@@ -267,12 +267,7 @@ export default {
       show401Popup: false,
     };
   },
-  async created() {
-    await this.fetchClubInfo();
-    if (this.defaultPhotoUrl) {
-      this.file = await this.urlToFile(this.defaultPhotoUrl, 'image.jpg', 'image/jpeg');
-    }
-  },
+  async created() { await this.fetchClubInfo(); },
   methods: {
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
@@ -495,11 +490,11 @@ export default {
     // 파일 업로드
     async uploadFile() {
       try {
-      await fetch(this.presignedUrl, {
-     method: 'PUT',
-     body: this.file,
-     headers: { 'Content-Type': this.file.type }
-   }); 
+        await axios.put(this.presignedUrl, this.file, {
+          headers: {
+            'Content-Type': this.file.type,
+          },
+        });
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('파일 업로드 실패:', error);
