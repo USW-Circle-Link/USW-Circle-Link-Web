@@ -489,19 +489,20 @@ export default {
     },
     // 파일 업로드
     async uploadFile() {
-      try {
-        await axios.put(this.presignedUrl, this.file, {
-          headers: {
-            'Content-Type': this.file.type,
-          },
-        });
-      } catch (error) {
-        if (!this.handle401Error(error)) {
-          console.error('파일 업로드 실패:', error);
-          alert('파일 업로드 실패!');
-        }
-      }
-    },
+  try {
+    const res = await fetch(this.presignedUrl, {
+      method: 'PUT',
+      body: this.file,        // 쿠키/Authorization 안 붙음
+      // headers 생략: presign에 content-type 조건이 없으면 이게 가장 안전
+    });
+    if (!res.ok) throw new Error('S3 PUT failed');
+  } catch (error) {
+    if (!this.handle401Error(error)) {
+      console.error('파일 업로드 실패:', error);
+      alert('파일 업로드 실패!');
+    }
+  }
+},
 
     triggerFileInput() {
       this.$refs.fileInput.click(); // 파일 선택 트리거 동작
