@@ -4,11 +4,30 @@ import axios from 'axios';
 
 const instance = axios.create({
     baseURL: `${store.state.apiBaseUrl}`, // 실제 백엔드 URL로 교체
-    headers: {
-        'Content-Type': 'application/json'
-    }
+    // headers: {
+    //     'Content-Type': 'application/json'
+    // }
 });
+instance.interceptors.request.use(config => {
+  const url = config.url || '';
+  const isS3Presigned =
+    /amazonaws\.com/.test(url) &&
+    (config.method || 'get').toLowerCase() === 'put' &&
+    /X-Amz-Algorithm=AWS4-HMAC-SHA256/.test(url);
 
+  if (isS3Presigned) {
+    // 프리사인 요청엔 토큰/쿠키/불필요 헤더 금지
+    const ct = config.headers?.['Content-Type'];
+    config.headers = ct ? { 'Content-Type': ct } : {};
+    config.withCredentials = false;
+    return config;
+  }
+
+  // 평소 API 요청엔 토큰 부착
+  const token = store.state.accessToken;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 instance.interceptors.request.use(config => {
     const token = store.state.accessToken;
     if (token) {
