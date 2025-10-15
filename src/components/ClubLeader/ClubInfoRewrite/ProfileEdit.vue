@@ -209,6 +209,7 @@
 <script>
 import store from '@/store/store';
 import axios from 'axios';
+import api from '@/axios';
 import ClubRoomModal from './ClubRoomModal.vue';
 import CategoryModal from './CategoryModal.vue';
 import UpdateSuccessPopup from './UpdateSuccessPopup.vue';
@@ -266,12 +267,7 @@ export default {
       show401Popup: false,
     };
   },
-  async created() {
-    await this.fetchClubInfo();
-    if (this.defaultPhotoUrl) {
-      this.file = await this.urlToFile(this.defaultPhotoUrl, 'image.jpg', 'image/jpeg');
-    }
-  },
+  async created() { await this.fetchClubInfo(); },
   methods: {
     handle401Error(error) {
       if (error.response && error.response.status === 401) {
@@ -363,12 +359,7 @@ export default {
       const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/info`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await api.get(`/club-leader/${clubUUID}/info`);
 
         if (response.data && response.data.data) {
           this.clubInfo = response.data.data;
@@ -469,16 +460,7 @@ export default {
           }
         }
 
-        const response = await axios.put(
-            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/info`,
-            formData,
-            {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'multipart/form-data',
-              }
-            }
-        );
+        const response = await api.put(`/club-leader/${clubUUID}/info`, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
 
         this.showSuccessPopup = true;
         this.$emit('update');
