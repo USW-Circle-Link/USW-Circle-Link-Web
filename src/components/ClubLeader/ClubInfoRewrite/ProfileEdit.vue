@@ -209,6 +209,7 @@
 <script>
 import store from '@/store/store';
 import axios from 'axios';
+import api from '@/axios';
 import ClubRoomModal from './ClubRoomModal.vue';
 import CategoryModal from './CategoryModal.vue';
 import UpdateSuccessPopup from './UpdateSuccessPopup.vue';
@@ -363,12 +364,7 @@ export default {
       const clubUUID = store.state.clubUUID;
 
       try {
-        const response = await axios.get(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/info`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await api.get(`/club-leader/${clubUUID}/info`);
 
         if (response.data && response.data.data) {
           this.clubInfo = response.data.data;
@@ -469,16 +465,7 @@ export default {
           }
         }
 
-        const response = await axios.put(
-            `${store.state.apiBaseUrl}/club-leader/${clubUUID}/info`,
-            formData,
-            {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'multipart/form-data',
-              }
-            }
-        );
+        const response = await api.put(`/club-leader/${clubUUID}/info`, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
 
         this.showSuccessPopup = true;
         this.$emit('update');
@@ -508,11 +495,11 @@ export default {
     // 파일 업로드
     async uploadFile() {
       try {
-        await axios.put(this.presignedUrl, this.file, {
-          headers: {
-            'Content-Type': this.file.type,
-          },
-        });
+      await fetch(this.presignedUrl, {
+     method: 'PUT',
+     body: this.file,
+     headers: { 'Content-Type': this.file.type }
+   }); 
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('파일 업로드 실패:', error);
