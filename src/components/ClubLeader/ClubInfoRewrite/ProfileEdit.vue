@@ -490,11 +490,11 @@ export default {
     // 파일 업로드
     async uploadFile() {
       try {
-        await axios.put(this.presignedUrl, this.file, {
-          headers: {
-            'Content-Type': this.file.type,
-          },
-        });
+        await fetch(this.presignedUrl, {
+        method: 'PUT',
+        body: this.file,
+        headers: { 'Content-Type': this.file.type }
+   });
       } catch (error) {
         if (!this.handle401Error(error)) {
           console.error('파일 업로드 실패:', error);
