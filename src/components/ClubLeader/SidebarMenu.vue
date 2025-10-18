@@ -105,14 +105,10 @@ export default {
       });
     },
     openNewWindow1() {
-      // 1. Vue Router를 이용해 'ClubProfile' 라우트의 전체 URL을 생성합니다.
-      const routeData = this.$router.resolve({ name: 'ClubProfile' });
-
-       // 2. 생성된 URL(routeData.href)을 사용해 새 창을 엽니다.
-      const windowName = '_blank';
-      const windowFeatures = 'width=652,height=790,resizable=no,scrollbars=no';
-      window.open(routeData.href, windowName, windowFeatures);
-    },
+  const { href } = this.$router.resolve({ name: 'ClubProfile' });
+  const url = new URL(href, window.location.origin); // 절대경로화
+  window.open(url.toString(), '_blank', 'width=652,height=790,resizable=no,scrollbars=no');
+},
     async logout() {
       try {
         const accessToken = this.$store.state.accessToken;
