@@ -263,6 +263,7 @@ export default {
     },
     // 파일 입력 필드를 트리거
     triggerFileInput() {
+      this.$refs.fileInput.value = null;
       this.$refs.fileInput.click();
     },
     transformErrorObject(errorObj) {
@@ -947,4 +948,9 @@ select { text-align: left; }
   }
 }
 
+ .errorMessage {
+  color: red;
+  font-size: 14px;
+  margin: 4px 0 0 0;
+ }
 </style>
