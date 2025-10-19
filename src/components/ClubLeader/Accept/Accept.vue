@@ -34,7 +34,7 @@
             <!-- Normal view mode -->
             <div v-if="editingIndex !== index" class="member-item-wrapper">
               <div class="member-row">
-                <div class="added-member-item" :class="{ selected: selectedAddedMembers.includes(index) }" @click="toggleAddedMember(index)">
+                <div class="added-member-item" :class="{ selected: selectedAddedMembers.includes(index), matched: getMatchCount(member) === 3 }" @click="toggleAddedMember(index)">
                   <div class="member-info">
                     <span class="name1">{{ member.name }}</span>
                     <span class="student-id">{{ member.studentId }}</span>
@@ -1016,6 +1016,18 @@ export default {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* 3개 모두 일치하는 회원 강조 스타일 */
+.added-member-item.matched {
+  border: 2px solid #4CAF50;
+  background-color: #E8F5E9;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+/* 3개 모두 일치하고 선택된 경우 */
+.added-member-item.matched.selected {
+  background-color: #C8E6C9;
+  border: 2px solid #4CAF50;
+}
 
 .edit-input{
   flex: 1; /* 필드들이 동일한 너비로 확장 */
