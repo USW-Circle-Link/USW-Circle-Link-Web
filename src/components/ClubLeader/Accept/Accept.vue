@@ -279,6 +279,9 @@ export default {
             college: this.findCollegeByDepartment(member.major),
         }));
 
+        // 매칭되는 회원을 최상단으로 정렬
+        this.sortAddedMembersByMatch();
+
     } catch (error) {
         if (!this.handle401Error(error)) {
             console.error('동아리 정보를 불러오는데 실패했습니다.', error);
@@ -610,6 +613,40 @@ export default {
       this.editingMember = null;
       this.tempEditingMember = null;
       this.errorMessages = [];
+    },
+
+    // 매칭되는 회원을 최상단으로 정렬 (일치 개수 기준)
+    sortAddedMembersByMatch() {
+      this.addedMembers.sort((a, b) => {
+        const aMatchCount = this.getMatchCount(a);
+        const bMatchCount = this.getMatchCount(b);
+        
+        // 일치 개수가 많을수록 위로
+        return bMatchCount - aMatchCount;
+      });
+    },
+
+    // 일치하는 항목 개수를 반환
+    getMatchCount(member) {
+      let maxCount = 0;
+      
+      this.requestedMembers.forEach(requested => {
+        let count = 0;
+        
+        // 전화번호 정규화
+        const memberPhone = member.phone.replace(/-/g, '');
+        const requestedPhone = requested.phone.replace(/-/g, '');
+        
+        // 각 항목이 일치하면 카운트 증가
+        if (member.name === requested.name) count++;
+        if (member.studentId === requested.studentId) count++;
+        if (memberPhone === requestedPhone) count++;
+        
+        // 가장 높은 일치 개수 저장
+        if (count > maxCount) maxCount = count;
+      });
+      
+      return maxCount;
     },
   },
 };
