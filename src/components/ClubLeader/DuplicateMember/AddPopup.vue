@@ -118,11 +118,15 @@ export default {
   border-radius: 8px;
   cursor: pointer;
   width: 87px;
-  height: 32px;
+  height: 36px; /* 높이 통일 */
+  line-height: 36px; /* 텍스트 수직 중앙 정렬 */
   font-size: 14px;
-  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  font-weight: 500;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; /* 수평 중앙 정렬 */
 }
-
 .cancel-button {
   background-color: #b9b9b9;
   color: #ffffff;
