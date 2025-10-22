@@ -699,8 +699,10 @@ select { text-align: left; }
   width: 450px;
   display: flex;
   flex-direction: column;
-  padding: 24px;
+  padding: 24px 10px; 
   position: relative;
+  justify-content: center; /* 가로 중앙 정렬 */
+  align-items: center;     /* 세로 중앙 정렬 */
 }
 
 .popup-content h2 {
