@@ -721,17 +721,9 @@ export default {
 
 }
 
-.sections-container {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  max-width: 1000px;
-  position: relative;
-  height: 100%;
-}
 
 .section {
-  flex: 0 0 calc(50% - 30px); /* 각 섹션이 동일한 너비를 가지도록 설정 */
+  flex: 1 1 0; /* 섹션은 유연하게 넓어지도록 */
   position: relative;
 }
 
@@ -760,14 +752,14 @@ export default {
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
-  width: 500px;
+  width: 100%;
 }
 
 .added-member-container {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 500px;
+  width: 100%;
 }
 
 /* 회원 정보 아이템 공통 스타일 */
@@ -778,13 +770,10 @@ export default {
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 12px;
-  width: 450px;
+  width: 100%;
 }
 
 
-.added-members .edit-section + .added-member-list {
-  margin-top: 20px; /* 수정 섹션과 회원 목록 간 간격 */
-}
 
 @media (max-width: 1200px) {
   .member-requests, .added-members {
@@ -792,14 +781,12 @@ export default {
   }
 }
 
-.request-list{}
 .added-member-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
   width:auto;
   max-width: 100%; /* 내용이 초과하지 않도록 설정 */
-
 }
 
 .request-item {
@@ -810,19 +797,8 @@ export default {
   background: #FFFFFF;
   border-radius: 8px;
   border: 1px solid #ddd;
-  width: 450px;
-}
-
-
-.request-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100%;
   flex: 1;
-  padding: 12px;
-  background: #FFFFFF;
-  border-radius: 8px;
-  width: 370px;
 }
 
 
@@ -844,7 +820,8 @@ export default {
   border: 1px solid #FFB052;
   border-radius: 8px;
   padding: 7px;
-  width: 510px;
+  width: auto;
+  min-width: 0;
 }
 
 .edit-inputs {
@@ -896,6 +873,7 @@ export default {
   display: flex;
   gap: 10px;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .action-button {
@@ -1062,7 +1040,7 @@ export default {
 
 .member-row {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 10px;
   width: 100%;
 }
@@ -1078,13 +1056,13 @@ export default {
 /* 메인 컨테이너: 좌우 섹션을 담는 최상위 컨테이너 */
 .sections-container {
   display: flex; /* Flexbox 레이아웃 사용 */
-  justify-content: space-between; /* 좌우 섹션 사이 공간 균등 분배 */
-  gap: 15px; /* 섹션 사이 간격 */
+  gap: 40px; /* 좌우 섹션 간격 통일 관리 */
   max-width: 1200px; /* 최대 너비 제한 */
   position: relative;
   height: 100%;
-  padding-right: 20px;
-  margin-left: -50px;
+  padding: 0 20px; /* 좌우 패딩으로 여백 확보 */
+  margin: 0 auto; /* 가운데 정렬 */
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
 }
 
 /* 화면 너비가 1300px 미만일 때의 반응형 스타일 */
@@ -1093,8 +1071,8 @@ export default {
   .sections-container {
     flex-direction: column; /* 섹션들을 세로로 배치 */
     align-items: center; /* 가운데 정렬 */
-    padding-right: 0; /* 패딩 제거 */
-    gap: 60px;
+    padding: 0 20px; /* 패딩 유지 */
+    gap: 24px; /* 좌우 간격 줄이기 */
   }
 
   /* 각 섹션의 너비 조정 */
@@ -1182,16 +1160,4 @@ export default {
   .sections-container {
     padding: 0 10px; /* 최소 패딩 */
   }
-}/* 메인 컨테이너: 좌우 섹션을 담는 최상위 컨테이너 */
-.sections-container {
-  display: flex; /* Flexbox 레이아웃 사용 */
-  justify-content: space-between; /* 좌우 섹션 사이 공간 균등 분배 */
-  gap: 15px; /* 섹션 사이 간격 */
-  max-width: 1200px; /* 최대 너비 제한 */
-  position: relative;
-  height: 100%;
-  padding: 0 20px; /* 좌우 패딩으로 여백 확보 */
-  margin: 0 auto; /* 가운데 정렬 */
-  box-sizing: border-box; /* 패딩 포함 크기 계산 */
-}
-</style>
+}</style>
