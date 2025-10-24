@@ -210,27 +210,46 @@ export default {
       }
     },
     async confirmAdd() {
-      try {
-        await this.sendToServer();
-        this.isSuccess = true;
-        this.serverMessage = '해당 회원의 추가가 정상적으로 처리되었습니다.';
-      } catch (error) {
-        console.error('Error adding member:', error);
-        this.isSuccess = false;
-        // Extract error message from the server response
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          this.serverMessage = error.response.data.message;
-        } else {
-          this.serverMessage = '서버 오류가 발생했습니다. 다시 시도해주세요.';
-        }
-      }
-      this.showPopup = false;
-      this.showResultPopup = true;
-    },
+  try {
+    await this.sendToServer();
+    this.isSuccess = true;
+    this.serverMessage = '해당 회원의 추가가 정상적으로 처리되었습니다.';
+
+    // ✅ 방금 추가된 회원 제거 로직 추가
+    const key = (m) => `${m.userName}|${m.studentNumber}|${m.userHp}`;
+    const addedKey = key({
+      userName: this.name,
+      studentNumber: this.studentId,
+      userHp: this.phoneNumber,
+    });
+
+    // OverlappingMembers에서 제거
+    const updated = (this.OverlappingMembers || []).filter(
+      (m) => key(m) !== addedKey
+    );
+
+    // Vuex store 갱신
+    this.$store.commit('setOverlappingMembers', updated);
+
+    // localStorage 동기화
+    localStorage.setItem('saveDuplicateMember', JSON.stringify(updated));
+
+  } catch (error) {
+    console.error('Error adding member:', error);
+    this.isSuccess = false;
+    if (
+      error.response &&
+      error.response.data &&
+      error.response.data.message
+    ) {
+      this.serverMessage = error.response.data.message;
+    } else {
+      this.serverMessage = '서버 오류가 발생했습니다. 다시 시도해주세요.';
+    }
+  }
+  this.showPopup = false;
+  this.showResultPopup = true;
+},
     cancelAdd() {
       this.showPopup = false;
     },
