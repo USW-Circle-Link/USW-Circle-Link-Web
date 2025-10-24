@@ -949,6 +949,9 @@ select { text-align: left; }
     max-width: none; /* 최대 너비 제한 해제 */
   }
 }
+.errorMessage {
+  color: red;
+}
 
  .errorMessage {
   color: red;

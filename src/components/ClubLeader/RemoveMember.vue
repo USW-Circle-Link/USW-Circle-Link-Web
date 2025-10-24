@@ -36,6 +36,13 @@
           >총 {{ selectedMembers.length }}명</span
         ></span
       >
+      <div class="buttons">
+      <button
+       @click="showAllExpelPopup = true"
+        :disabled="!clubMembers?.length"
+        class="expulsion-button">
+        회원 전체 퇴출
+      </button>
       <button
         @click="showExpulsionPopup = true"
         class="expulsion-button"
@@ -44,7 +51,7 @@
         퇴출하기
       </button>
     </div>
-
+    </div>
     <div class="expulsion-section">
       <div class="expulsion-list">
         <ul>
@@ -63,7 +70,7 @@
         </ul>
       </div>
     </div>
-
+    
     <div class="custom-popup1" v-if="showExpulsionPopup">
       <div class="popup-content1">
         <div class="popup-header1">
@@ -87,6 +94,27 @@
       </div>
     </div>
   </div>
+  <!-- 전체 삭제 확인 모달 -->
+<div class="custom-popup1" v-if="showAllExpelPopup">
+  <div class="popup-content1">
+    <div class="popup-header1">
+      <p class="popup-title1">회원 전체 삭제</p>
+    </div>
+    <div class="popup-separator1"></div>
+    <div class="popup-body1">
+      <p class="popup-message1">
+        총 <span class="red-text1">{{ clubMembers.length }}</span>명을 모두 삭제합니다.
+      </p>
+      <p class="popup-warning1">되돌릴 수 없습니다. 진행하시겠습니까?</p>
+    </div>
+    <button @click="showAllExpelPopup = false" class="cancel-button" :disabled="isDeleting">
+      취소
+    </button>
+    <button @click="confirmExpelAll" class="expel-button" :disabled="isDeleting">
+      확인
+    </button>
+  </div>
+</div>
   <Popup401 v-if="show401Popup" />
 </template>
 
@@ -106,6 +134,8 @@ export default {
       showExpulsionPopup: false,
       selectedMembers: [],
       show401Popup: false, // 401 팝업 상태 추가
+      showAllExpelPopup: false,
+      isDeleting: false,
     };
   },
   computed: {
@@ -165,7 +195,7 @@ export default {
         this.selectedMembers.splice(index, 1);
       }
     },
-
+    //동아리원 삭제
     async expelMember() {
       const accessToken = store.state.accessToken;
       const clubUUID = store.state.clubUUID;
@@ -206,6 +236,37 @@ export default {
         }
       }
     },
+    async expelAllMembers() {
+  const accessToken = store.state.accessToken;
+  const clubUUID = store.state.clubUUID;
+  const expelData = this.clubMembers.map(m => ({ clubMemberUUID: m.clubMemberUUID }));
+
+  try {
+    await axios.delete(`${store.state.apiBaseUrl}/club-leader/${clubUUID}/members`, {
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      data: expelData,
+    });
+    this.clubMembers = [];
+    this.selectedMembers = [];
+    this.showExpulsionPopup = false;
+  } catch (error) {
+    if (!this.handle401Error(error)) {
+      console.error('전체 삭제 실패', error);
+      alert('전체 삭제 실패');
+    }
+  }
+},
+
+   async confirmExpelAll() {
+    if (!this.clubMembers?.length) return;
+    this.isDeleting = true;
+    try {
+      await this.expelAllMembers();     // 기존 2번 방식 함수 재사용
+      this.showAllExpelPopup = false;
+    } finally {
+      this.isDeleting = false;
+    }
+  },
   },
 };
 </script>
@@ -387,6 +448,7 @@ export default {
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  margin: 0 5px;
 }
 .expulsion-button:hover {
   background: #e55a5a;
