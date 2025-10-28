@@ -71,6 +71,15 @@ export default {
     };
   },
   //지원자 명단 가져오기
+
+  computed: {
+    selectedApplicants() {
+      return this.applicants.filter(a => a.decision !== null);
+    },
+    selectedCount() {
+      return this.selectedApplicants.length;
+    }
+  },
   mounted() {
     this.fetchApplicants();
   },
@@ -132,7 +141,8 @@ export default {
     },
     //합/불 결과 전송 확인 팝업 표시
     showPopup() {
-      this.showConfirmPopup = true;
+    if (!this.validateResults()) return;
+    this.showConfirmPopup = true;
     },
     ////합/불 결과 전송 확인 팝업 숨김
     hidePopup() {
@@ -145,21 +155,20 @@ export default {
     },
     // 합/불 결과를 서버에 전송하기 전 데이터 검증 메서드
     validateResults() {
-      const valid = this.applicants.every(applicant => applicant.decision !== null);
-      if (!valid) {
-        alert('모든 지원자에 대해 합/불 상태를 설정해 주세요.', 'error');
-      }
-      return valid;
+    const ok = this.applicants.some(a => a.decision !== null);
+    if (!ok) alert('합/불을 선택한 지원자가 없습니다.', 'error');
+    return ok;
     },
     // 합/불 결과를 서버에 전송하는 메서드
     async sendResults() {
       if (!this.validateResults()) {
         return;
       }
+      
       console.log('결과 전송 중...');
-      const results = this.applicants.map(applicant => ({
-        aplictUUID: applicant.aplictUUID,
-        aplictStatus: applicant.decision,
+      const results = this.selectedApplicants.map(a => ({
+      aplictUUID: a.aplictUUID,
+      aplictStatus: a.decision,
       }));
 
       try {
