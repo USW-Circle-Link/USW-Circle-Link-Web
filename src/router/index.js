@@ -193,6 +193,7 @@ const routes = [
                 component: () => import('@/components/Admin/AddCategory/AddCategory.vue'),
                 props: true,
             },
+            
         ]
     },
 
