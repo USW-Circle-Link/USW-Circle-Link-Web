@@ -185,8 +185,15 @@
         </div>
       </div>
     </div>
+    
   </div>
+  <FreezeGate
+      :active="true"
+      message="현재 엑셀 업로드에 문제가 생겨서 동아리원을 추가할 때,
+      지원자 합격/불합격 처리 페이지에서 가입을 받아주시면 됩니다."
+    />
   <Popup401 v-if="show401Popup" />
+
 </template>
 
 <script>
@@ -195,10 +202,13 @@ import axios from "axios";
 import store from "@/store/store";
 import Popup401 from './401Popup.vue';
 import {colleges, departmentsByCollege} from "@/components/departments"; // 401 팝업 컴포넌트 추가
+import FreezeGate from './FreezeGate.vue';
+
 
 export default {
   components:{
     Popup401,
+    FreezeGate,
   },
   data() {
     return {
