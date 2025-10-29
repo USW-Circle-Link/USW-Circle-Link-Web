@@ -1,7 +1,7 @@
 <template>
   <div v-if="active" class="freeze-overlay" @click.stop @wheel.stop @touchmove.prevent @contextmenu.prevent>
     <div class="freeze-dialog" role="dialog" aria-modal="true" @keydown.stop>
-      <h2 class="title">점검 중이에요</h2>
+      <h2 class="title">엑셀 업로드 기능이 삭제되었습니다.</h2>
       <p class="desc">{{ message }}</p>
       <button class="confirm" @click="goBack">확인</button>
     </div>
